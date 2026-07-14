@@ -94,6 +94,8 @@ B_current = simulate(shift history, B_shift_start)
 - 신뢰도는 `HIGH`가 될 수 없다.
 - 데모 초기화 외의 Live 계산에서는 사용하지 않는다.
 
+직접 제공한 값은 `ScenarioFixture.initialSafetyStates`에 두며 엔진은 `CURRENT_BUDGET_FROM_DEMO_FIXTURE` 가정과 `shiftHistory` 결측을 출력한다. 이 값은 가중치나 시나리오별 예외 규칙이 아니라 명시적인 mock 초기상태다.
+
 ### 4.2 미래 Budget 계산
 
 남은 경로를 이동구간과 배송작업 이벤트의 시간순 목록으로 변환한다.
@@ -244,6 +246,17 @@ stopEventExposure =
   + 0.20 × normalizedParkingDifficulty
 ```
 
+v1 사건 특징은 다음처럼 정규화한다.
+
+```text
+normalizedStopWeight = clamp(stopWeightKg / 20, 0, 1)
+normalizedFloorWithoutElevator =
+  elevator == UNAVAILABLE
+    ? clamp(max(floor - 1, 0) / 9, 0, 1)
+    : 0
+normalizedParkingDifficulty = parkingDifficultyFactor
+```
+
 남은 작업량 특징은 계획 전반의 부담을, 사건 노출은 해당 배송지의 실제 작업을 나타낸다. 두 값의 의미를 문서와 UI에서 구분한다.
 
 ### 5.5 RouteExposure
@@ -266,6 +279,12 @@ routeRate =
   + 2.0 × incidentFactor
   + 1.5 × unfamiliarFactor
   + 1.0 × nightFactor
+```
+
+배송 서비스 중에는 이동구간 경사·도로폭을 다시 적용하지 않고 접근·주차 노출만 다음처럼 적용한다.
+
+```text
+serviceAccessRate = 0.5 + 2.0 × normalizedParkingDifficulty
 ```
 
 경사 방향은 MVP에서 오르막의 작업부하를 중심으로 사용한다. 내리막·미끄럼 위험은 별도의 노면 상호작용으로 다루며 절댓값을 무조건 동일한 위험으로 해석하지 않는다.
@@ -620,11 +639,15 @@ type SafetyModelConfigMetadata = {
 
 ### 14.4 시나리오 회귀 테스트
 
-- 시나리오 A: 우천·경사·장시간 작업과 첫 예상 초과
-- 시나리오 B: 폭염·중량·계단과 휴식 회복
-- 시나리오 C: 야간·낯선 권역과 안전경로 효과
+`dse-v1.0.0`과 `safety-config-v1.0.0`에서 다음 기준값을 회귀 테스트로 잠근다. 모두 Demo 시작 Budget을 직접 주입하므로 `shiftHistory` 결측 감점이 적용된 시뮬레이션 값이다.
 
-정확한 예상값은 `docs/data-contracts.md`의 fixtures가 확정된 뒤 이 문서와 `docs/evals.md`에 기록한다.
+| fixture | 현재 Budget | 최소 예측 Budget | 최초 초과 | 배송지 | confidence |
+|---|---:|---:|---:|---|---:|
+| `scenario-rain-hill-longshift-v1` | 54.7 | 29.914456 | 52분 | `stop-017` | 60 · MEDIUM |
+| `scenario-heat-heavy-stairs-v1` | 41.95 | 29.9278 | 30분 | `stop-010` | 65 · MEDIUM |
+| `scenario-night-novice-area-v1` | 36.68 | 29.930294 | 24분 | `stop-008` | 65 · MEDIUM |
+
+정확값, fixture의 허용 범위와 Zod 출력 계약은 `tests/safety-engine.test.ts`가 함께 검증한다. 개입 후 값은 개입 엔진이 구현되기 전까지 이 표에 기록하지 않는다.
 
 ### 14.5 민감도 분석
 
@@ -704,15 +727,12 @@ type SafetyModelConfigMetadata = {
 
 ## 19. 미결사항
 
-- v1 정규화 범위와 가중치의 최종 승인
-- 5분 계산 간격에서 사건 노출을 배분하는 정확한 방식
 - 시간창 압박 특징의 정의와 중복계산 방지
 - 휴식장소 품질을 확인하는 데이터 출처
 - 내리막·미끄럼·후진 위험을 분리할지 여부
 - 기상 예측의 공간·시간 보간 방식
 - 실제 데이터가 있을 때 기준값 100을 유지할지 여부
-- 시나리오 A의 `현재 34`, `52분`, `17번째 배송지` 재현 fixture
 - 시나리오별 기대 기여도와 개입 후 결과
 - 현장 전문가 검토와 사용자에게 가장 이해하기 쉬운 밴드 명칭
 
-이 문서가 `Approved`가 되기 전까지 수치와 가중치는 구현의 확정 기준이 아니다.
+위 미결사항은 후속 버전의 보정·확장 항목이며, v1 구현은 이 문서의 Approved 공식과 회귀값을 기준으로 한다.

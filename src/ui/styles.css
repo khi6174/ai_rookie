@@ -1,0 +1,99 @@
+:root {
+  color: #172b3a;
+  background: #f6f7f4;
+  font-family:
+    Pretendard,
+    "Noto Sans KR",
+    system-ui,
+    sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+}
+
+.shell {
+  width: min(760px, calc(100% - 40px));
+  margin: 0 auto;
+  padding: 96px 0;
+}
+
+.eyebrow {
+  margin: 0 0 12px;
+  color: #087f7a;
+  font-size: 0.875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+h1 {
+  max-width: 680px;
+  margin: 0;
+  color: #17324d;
+  font-size: clamp(2.25rem, 7vw, 4.5rem);
+  line-height: 1.08;
+  letter-spacing: -0.05em;
+}
+
+.mission {
+  max-width: 650px;
+  margin: 24px 0 40px;
+  color: #526674;
+  font-size: 1.125rem;
+  line-height: 1.75;
+}
+
+.status-card {
+  padding: 28px;
+  border: 1px solid #cbd8d7;
+  border-radius: 18px;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgb(23 50 77 / 8%);
+}
+
+.status-card h2 {
+  margin: 0 0 20px;
+  font-size: 1.125rem;
+}
+
+.status-card dl {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 0;
+}
+
+.status-card dl div {
+  padding: 16px;
+  border-radius: 12px;
+  background: #eef6f4;
+}
+
+.status-card dt {
+  color: #657783;
+  font-size: 0.8rem;
+}
+
+.status-card dd {
+  margin: 8px 0 0;
+  color: #17324d;
+  font-weight: 700;
+}
+
+@media (max-width: 640px) {
+  .shell {
+    padding: 56px 0;
+  }
+
+  .status-card dl {
+    grid-template-columns: 1fr;
+  }
+}

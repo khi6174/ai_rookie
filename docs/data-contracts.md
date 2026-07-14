@@ -937,6 +937,14 @@ type ScenarioFixture = {
   routeSegments: RouteSegment[];
   stops: DeliveryStop[];
 
+  initialSafetyStates?: Array<{
+    courierId: CourierId;
+    currentBudget: number;
+    derivedFromHistory: false;
+    rationale: string;
+    provenance: Provenance;
+  }>;
+
   expectedAssertions: {
     currentBudgetRange?: { min: number; max: number };
     breachStatus: BreachPrediction["status"];
@@ -958,6 +966,8 @@ type ScenarioFixture = {
 - 계획의 배송지 순서와 구간 연결이 일관된다.
 - 날씨 타임라인은 예측 구간을 덮는다.
 - 모든 provenance는 Mock 또는 public-derived이며 실제 개인정보를 포함하지 않는다.
+- `initialSafetyStates`는 Demo fixture의 `MOCK` provenance에서만 사용할 수 있다.
+- 직접 제공한 현재 Budget은 `derivedFromHistory: false`와 근거를 포함하고 신뢰도 `HIGH`를 만들 수 없다.
 - expectedAssertions는 엔진 출력을 입력으로 재사용하지 않는다.
 - 정확한 기대값을 맞추기 위한 시나리오별 숨은 가중치를 금지한다.
 
@@ -1211,4 +1221,4 @@ type ScenarioFixture = {
 - 완전한 세 대표 fixture와 정확 기대값
 - 오프라인 기사 응답의 충돌 해결 규칙
 
-이 문서가 `Approved`가 되기 전까지 필드명과 enum은 구현의 확정 계약이 아니다.
+위 미결 필드명과 enum은 별도 Approved 결정이 기록되기 전까지 구현의 확정 계약이 아니다.
