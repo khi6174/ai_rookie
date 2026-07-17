@@ -20,6 +20,9 @@ export const interventionConfig = {
     rest: 10,
     transferHandoff: 30,
     additionalCourier: 15,
+    reorder: 15,
+    saferRoute: 15,
+    safeDelay: 20,
     bundle: 10,
   },
 } as const;

@@ -17,6 +17,10 @@ type TransferInput = {
   plannedHandoffAt?: string;
 };
 
+type TransferReorderInput = TransferInput & {
+  orderedStopIds: string[];
+};
+
 function stableStringify(value: unknown): string {
   if (Array.isArray(value)) {
     return `[${value.map(stableStringify).join(",")}]`;
@@ -163,6 +167,263 @@ export function createRestTransferCandidate(
     actions,
     [input.sourceCourierId, input.recipientCourierId],
     stopIds,
+  );
+}
+
+export function createRestReorderCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  restMinutes: RestMinutes,
+  courierId: string,
+  orderedStopIds: string[],
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const normalizedOrder = [...orderedStopIds];
+  const actions: InterventionAction[] = [
+    {
+      type: "REST",
+      restMinutes,
+      restLocationId: `${fixture.fixtureId}-rest-area`,
+      plannedStartAt: fixture.evaluatedAt,
+    },
+    { type: "REORDER_STOPS", courierId, orderedStopIds: normalizedOrder },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    normalizedOrder,
+  );
+}
+
+export function createRestSaferRouteCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  restMinutes: RestMinutes,
+  courierId: string,
+  replacementRouteId: string,
+  replacedSegmentIds: string[],
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const alternative = fixture.interventionInputs?.saferRouteAlternatives.find(
+    (item) =>
+      item.courierId === courierId &&
+      item.replacementRouteId === replacementRouteId,
+  );
+  const affectedStopIds = alternative?.replacementSegments.map(
+    (segment) => segment.toStopId,
+  ) ?? [];
+  const actions: InterventionAction[] = [
+    {
+      type: "REST",
+      restMinutes,
+      restLocationId: `${fixture.fixtureId}-rest-area`,
+      plannedStartAt: fixture.evaluatedAt,
+    },
+    {
+      type: "SAFER_ROUTE",
+      courierId,
+      replacementRouteId,
+      replacedSegmentIds: [...new Set(replacedSegmentIds)].sort(),
+    },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    affectedStopIds,
+  );
+}
+
+export function createTransferReorderCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  input: TransferReorderInput,
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const stopIds = normalizeStops(fixture, input.stopIds);
+  const orderedStopIds = [...input.orderedStopIds];
+  const actions: InterventionAction[] = [
+    {
+      type: "TRANSFER_STOPS",
+      sourceCourierId: input.sourceCourierId,
+      recipientCourierId: input.recipientCourierId,
+      stopIds,
+      handoffLocationId:
+        input.handoffLocationId ?? `${fixture.fixtureId}-handoff-area`,
+      plannedHandoffAt: input.plannedHandoffAt ?? fixture.evaluatedAt,
+    },
+    {
+      type: "REORDER_STOPS",
+      courierId: input.sourceCourierId,
+      orderedStopIds,
+    },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    input.sourceCourierId,
+    actions,
+    [input.sourceCourierId, input.recipientCourierId],
+    [...stopIds, ...orderedStopIds],
+  );
+}
+
+export function createRestSafeDelayCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  restMinutes: RestMinutes,
+  courierId: string,
+  stopIds: string[],
+  delayedUntil: string,
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const normalizedStops = normalizeStops(fixture, stopIds);
+  const actions: InterventionAction[] = [
+    {
+      type: "REST",
+      restMinutes,
+      restLocationId: `${fixture.fixtureId}-rest-area`,
+      plannedStartAt: fixture.evaluatedAt,
+    },
+    {
+      type: "SAFE_DELAY",
+      courierId,
+      stopIds: normalizedStops,
+      delayedUntil,
+    },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    normalizedStops,
+  );
+}
+
+export function createSaferRouteSafeDelayCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  courierId: string,
+  replacementRouteId: string,
+  replacedSegmentIds: string[],
+  stopIds: string[],
+  delayedUntil: string,
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const normalizedStops = normalizeStops(fixture, stopIds);
+  const alternative = fixture.interventionInputs?.saferRouteAlternatives.find(
+    (item) =>
+      item.courierId === courierId &&
+      item.replacementRouteId === replacementRouteId,
+  );
+  const affectedRouteStops = alternative?.replacementSegments.map(
+    (segment) => segment.toStopId,
+  ) ?? [];
+  const actions: InterventionAction[] = [
+    {
+      type: "SAFER_ROUTE",
+      courierId,
+      replacementRouteId,
+      replacedSegmentIds: [...new Set(replacedSegmentIds)].sort(),
+    },
+    {
+      type: "SAFE_DELAY",
+      courierId,
+      stopIds: normalizedStops,
+      delayedUntil,
+    },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    [...affectedRouteStops, ...normalizedStops],
+  );
+}
+
+export function createReorderCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  courierId: string,
+  orderedStopIds: string[],
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const normalizedOrder = orderedStopIds.map((stopId) => stopId);
+  const actions: InterventionAction[] = [
+    { type: "REORDER_STOPS", courierId, orderedStopIds: normalizedOrder },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    normalizedOrder,
+  );
+}
+
+export function createSaferRouteCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  courierId: string,
+  replacementRouteId: string,
+  replacedSegmentIds: string[],
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const alternative = fixture.interventionInputs?.saferRouteAlternatives.find(
+    (item) =>
+      item.courierId === courierId &&
+      item.replacementRouteId === replacementRouteId,
+  );
+  const affectedStopIds = alternative?.replacementSegments.map(
+    (segment) => segment.toStopId,
+  ) ?? [];
+  const actions: InterventionAction[] = [
+    {
+      type: "SAFER_ROUTE",
+      courierId,
+      replacementRouteId,
+      replacedSegmentIds: [...new Set(replacedSegmentIds)].sort(),
+    },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    affectedStopIds,
+  );
+}
+
+export function createSafeDelayCandidate(
+  rawFixture: ScenarioFixture,
+  decisionId: string,
+  courierId: string,
+  stopIds: string[],
+  delayedUntil: string,
+) {
+  const fixture = ScenarioFixtureSchema.parse(rawFixture);
+  const normalizedStops = normalizeStops(fixture, stopIds);
+  const actions: InterventionAction[] = [
+    { type: "SAFE_DELAY", courierId, stopIds: normalizedStops, delayedUntil },
+  ];
+  return buildCandidate(
+    fixture,
+    decisionId,
+    courierId,
+    actions,
+    [courierId],
+    normalizedStops,
   );
 }
 

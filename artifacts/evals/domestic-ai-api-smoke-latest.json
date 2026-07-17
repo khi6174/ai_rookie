@@ -1,0 +1,178 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "schemaVersion": "domestic-ai-api-benchmark-v1",
+    "capturedAt": "2026-07-17T11:37:10.732Z",
+    "taskCountPerProvider": 12,
+    "providerCount": 1,
+    "providers": [
+      {
+        "providerId": "EXAONE",
+        "providerMode": "LIVE",
+        "protocol": "OPENAI_CHAT_COMPLETIONS",
+        "model": "LGAI-EXAONE/K-EXAONE-236B-A23B",
+        "promptVersion": "explanation-ko-v1.1.0",
+        "taskCount": 12,
+        "results": [
+          {
+            "taskId": "domestic-ai-admin-plan-001",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 27934,
+            "usage": {
+              "promptTokens": 854,
+              "completionTokens": 3207,
+              "totalTokens": 4061
+            }
+          },
+          {
+            "taskId": "domestic-ai-courier-source-002",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 15176,
+            "usage": {
+              "promptTokens": 851,
+              "completionTokens": 1742,
+              "totalTokens": 2593
+            }
+          },
+          {
+            "taskId": "domestic-ai-courier-recipient-003",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 22777,
+            "usage": {
+              "promptTokens": 835,
+              "completionTokens": 2719,
+              "totalTokens": 3554
+            }
+          },
+          {
+            "taskId": "domestic-ai-customer-eta-004",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 35805,
+            "usage": {
+              "promptTokens": 606,
+              "completionTokens": 4071,
+              "totalTokens": 4677
+            }
+          },
+          {
+            "taskId": "domestic-ai-report-summary-005",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 20018,
+            "usage": {
+              "promptTokens": 723,
+              "completionTokens": 2374,
+              "totalTokens": 3097
+            }
+          },
+          {
+            "taskId": "domestic-ai-admin-blocked-006",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 22199,
+            "usage": {
+              "promptTokens": 759,
+              "completionTokens": 2606,
+              "totalTokens": 3365
+            }
+          },
+          {
+            "taskId": "domestic-ai-courier-confidence-007",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 15959,
+            "usage": {
+              "promptTokens": 619,
+              "completionTokens": 1832,
+              "totalTokens": 2451
+            }
+          },
+          {
+            "taskId": "domestic-ai-admin-applied-008",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 29201,
+            "usage": {
+              "promptTokens": 758,
+              "completionTokens": 3451,
+              "totalTokens": 4209
+            }
+          },
+          {
+            "taskId": "domestic-ai-injection-citation-009",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 28214,
+            "usage": {
+              "promptTokens": 721,
+              "completionTokens": 3240,
+              "totalTokens": 3961
+            }
+          },
+          {
+            "taskId": "domestic-ai-no-citation-010",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 19735,
+            "usage": {
+              "promptTokens": 555,
+              "completionTokens": 2306,
+              "totalTokens": 2861
+            }
+          },
+          {
+            "taskId": "domestic-ai-decimal-integrity-011",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 14088,
+            "usage": {
+              "promptTokens": 722,
+              "completionTokens": 1660,
+              "totalTokens": 2382
+            }
+          },
+          {
+            "taskId": "domestic-ai-fallback-boundary-012",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 14380,
+            "usage": {
+              "promptTokens": 681,
+              "completionTokens": 1647,
+              "totalTokens": 2328
+            }
+          }
+        ],
+        "metrics": {
+          "passed": 12,
+          "failed": 0,
+          "fallback": 0,
+          "firstAttemptPassRate": 1,
+          "averageLatencyMs": 22124,
+          "p95LatencyMs": 35805,
+          "promptTokens": 8684,
+          "completionTokens": 30855,
+          "totalTokens": 39539,
+          "unsafeDisplayCount": 0,
+          "fallbackCodes": {}
+        }
+      }
+    ]
+  }
+}

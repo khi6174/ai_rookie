@@ -1,0 +1,352 @@
+# SafeRoute AI A100 기준선 실행 가이드
+
+## 문서 상태
+
+- 상태: Draft
+- 담당: 팀 안전빵
+- 최종 갱신: 2026-07-16
+- 범위: A100 환경 확인과 로컬 오픈웨이트 기준선 준비
+
+## 1. 목적
+
+A100은 API 호출을 대신하는 장식성 자원이 아니라 다음 증거에 사용한다.
+
+1. 국내 오픈웨이트 모델의 구조화 JSON 생성 기준선
+2. 합성 레코드·문서의 중복과 커버리지 분석
+3. 배치 처리량·VRAM·지연·실패의 재현 가능한 기록
+
+모델명, 라이선스, 정밀도, 양자화와 컨텍스트 길이는 서버 환경과 공식 배포조건을 확인한 뒤 선택한다.
+
+## 2. 사용자에게 필요한 SSH 정보
+
+- 호스트 또는 IP
+- 사용자명
+- SSH 포트
+- 로컬 개인키 파일 경로
+- VPN 필요 여부
+- 점프호스트 또는 bastion 여부
+- 원격 작업 디렉터리
+- Slurm·PBS 같은 스케줄러 사용 여부
+- Docker 사용 가능 여부
+
+개인키 내용, 비밀번호, OTP와 토큰은 채팅이나 저장소에 넣지 않는다. 키는 로컬 파일 또는 `ssh-agent`로 사용한다.
+
+## 3. 최초 연결에서 허용되는 작업
+
+첫 연결에서는 다음 읽기 전용 점검만 수행한다.
+
+```bash
+bash scripts/gpu-server-preflight.sh
+```
+
+점검 항목:
+
+- GPU 이름·수량·총 VRAM·가용 VRAM
+- NVIDIA driver와 CUDA compiler
+- Python·Git·Docker·NVIDIA container runtime
+- PyTorch·Transformers·Accelerate 설치 여부
+- 현재 파일시스템 가용공간
+- Slurm·PBS 명령 존재 여부
+
+패키지 설치, 모델 다운로드, 컨테이너 실행과 장시간 GPU 점유는 점검 결과와 서버 운영규칙을 확인한 뒤 별도로 진행한다.
+
+## 4. 사전 통과기준
+
+- NVIDIA A100이 `nvidia-smi`에 표시된다.
+- 다른 작업이 사용 중인 VRAM과 사용 가능한 실행시간을 확인한다.
+- 최소 수십 GB의 모델·캐시 공간 또는 승인된 공유 캐시가 있다.
+- Python 또는 승인된 컨테이너 실행 경로가 있다.
+- 모델 다운로드를 위한 외부 네트워크 또는 사전 배치된 모델 경로가 확인된다.
+- 서버 운영정책이 허용하는 작업 디렉터리와 스케줄러 사용법을 확인한다.
+
+### 4.1 2026-07-16 익명화 사전점검 결과
+
+- A100-SXM4 80GB 1장과 81,050MiB 가용 VRAM을 확인했다.
+- NVIDIA driver `535.183.06`, Docker와 NVIDIA container CLI가 존재한다.
+- `nvcc`와 Python ML 패키지는 설치되어 있지 않다. 사전 빌드된 CUDA 컨테이너 또는 격리된 Python 환경이 필요하다.
+- 현재 파일시스템 가용공간은 약 81GB다. 컨테이너 이미지와 모델 캐시의 중복 저장을 피해야 한다.
+- Slurm·PBS 명령은 발견되지 않았다.
+- 현재 계정은 Docker daemon 접근 시 `permission denied`가 발생해 컨테이너 실행 경로를 사용할 수 없다.
+- 홈 디렉터리는 쓰기 가능하며 GPU는 기본 compute mode, persistence mode 활성, 점검 시 사용률 0%였다.
+- GitHub, PyPI와 PyTorch CUDA 12.1 wheel index는 HTTP 200으로 연결된다.
+- Python에는 `pip`와 `ensurepip`가 없고 `venv` 모듈만 있다. 공식 `get-pip.py`를 파일로 받은 뒤 격리 환경에 설치하는 경로가 필요하다.
+- Hugging Face 본문과 모델 API는 15~20초 동안 응답 없이 timeout되어 서버 직접 모델 다운로드가 차단된 상태다.
+- GPU 사용시간 정책은 아직 확인하지 않았다.
+
+따라서 Docker 권한을 우회하거나 `sudo`를 전제하지 않는다. 홈 디렉터리에 `--without-pip` 가상환경을 만들고 PyPA 공식 bootstrap 파일로 pip를 설치한 뒤 사전 빌드 CUDA wheel을 사용한다. 모델은 Hugging Face 허용목록을 요청하거나, 접근 가능한 로컬 호스트에서 고정 revision을 내려받아 서버로 복사하고 오프라인으로 로드한다. 접속 사용자명, 호스트명, IP와 비밀번호는 산출물에 저장하지 않았으며 세부 결과는 `artifacts/evals/gpu-preflight.txt`에 기록한다.
+
+### 4.2 CUDA runtime smoke
+
+같은 날 홈 디렉터리의 격리 가상환경에 `torch 2.5.1+cu121`을 설치해 다음을 확인했다.
+
+- `torch.cuda.is_available() == true`
+- PyTorch CUDA runtime `12.1`
+- A100 BF16 지원
+- BF16 2,048×2,048 행렬곱 성공
+- 측정 지연 `206.73ms`, 할당 VRAM `24.12MiB`
+
+NumPy 미설치 경고가 있었지만 GPU 연산과 결과에는 영향을 주지 않았다. 실제 모델 환경에는 NumPy를 명시적으로 설치하고 버전을 manifest에 고정한다. 이 결과로 Docker와 로컬 `nvcc` 없이 사전 빌드 CUDA wheel을 사용하는 추론 경로를 채택할 수 있다.
+
+## 5. 실행 산출물
+
+```text
+artifacts/evals/
+  gpu-preflight.txt
+  local-model-manifest.json
+  local-model-smoke.csv
+  duplicate-coverage-summary.json
+  gpu-limitations.md
+```
+
+로그에는 SSH 키, 토큰, 전체 환경변수, 사용자 홈의 다른 파일목록을 남기지 않는다.
+
+## 6. 다음 결정
+
+2026-07-16 ADR-020으로 다음 첫 기준선을 승인했다.
+
+- 모델: `skt/A.X-4.0-Light`
+- revision: `ba21c20ea1b31ded1ec3e2fb432335077dc4be98`
+- 라이선스: Apache-2.0
+- snapshot: 16개 파일, 약 13.53GB
+- dtype: BF16
+- 양자화: 없음
+- batch size: 1
+- 입력 상한: 4,096 tokens
+- 생성 상한: 512 tokens
+- 용도: 구조화 JSON 공통 smoke, 지연·VRAM·실패 측정
+- 금지: Safety Budget·실행 가능성·추천·동의·적용 상태 생성 또는 변경
+
+아직 확정하지 않은 항목:
+
+- 실제 실행 과업별 seed
+- 오프라인 모델·데이터 캐시의 최종 경로와 파일 체크섬
+- 최대 실행시간과 GPU 점유 한도
+
+모델 snapshot을 로컬 호스트에서 받은 뒤 revision과 각 파일 체크섬을 manifest에 기록하고 서버로 복사한다. 모델을 제품 런타임에 넣거나 학습을 시작하지 않는다.
+
+## 7. 고정 런타임과 오프라인 검증
+
+PyTorch는 CUDA 12.1 index의 `2.5.1`을 유지하고 나머지는 `requirements-gpu-runtime.txt`로 설치한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" -m pip install \
+  -r requirements-gpu-runtime.txt
+```
+
+모델 전송 뒤 서버에서 manifest의 16개 파일 크기와 SHA-256을 다시 검사한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" scripts/verify-model-manifest.py \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --manifest artifacts/evals/local-model-manifest.json
+```
+
+검사 통과 전에는 모델을 로드하지 않는다. `.cache` 메타데이터와 연결정보는 검증 대상이나 manifest에 포함하지 않는다.
+
+## 8. 첫 오프라인 생성 smoke
+
+manifest 검증 뒤 한 개의 합성 관리자 설명 과업으로 모델 로드, strict JSON, 지연과 VRAM을 확인한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  transfer/local-model-smoke.py \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --output-dir "$HOME/ai_rookie-gpu/results"
+```
+
+입력은 합성 Safety Budget·Time-to-Breach·예상 초과 배송지·신뢰도와 합성문서 인용만 포함한다. 모델은 수치 계산이나 추천을 소유하지 않는다. 전체 JSON, 네 표시값, 인용, 역할, 허용 행동과 비징벌 문구 Gate를 통과한 경우에만 `LOCAL_MODEL_SMOKE_PASS`로 기록한다. 실패하면 원문을 표시 승인하지 않고 `LOCAL_MODEL_SMOKE_SAFE_FALLBACK`과 실패 코드를 남긴다.
+
+### 8.1 첫 실행 결과
+
+2026-07-17 첫 실행에서 세 개 checkpoint shard를 `3,187.67ms`에 로드했지만 생성문은 `MALFORMED_JSON`으로 Gate를 통과하지 못했다. 생성은 `4,621.29ms`, 입력 218 tokens, 출력 168 tokens, peak VRAM `13,896.9MiB`였다. 출력 hash는 `73a7af629e615519711ac8627803395a59d7b0e6394107f957f78f0a69e29b94`이며 표시 승인 없이 `SAFE_FALLBACK`으로 기록했다.
+
+원문 검토에서는 JSON 코드펜스, `31/100`을 `31%`로 바꾼 단위 무결성 위반과 공급되지 않은 “차단할 수 있다” 주장을 함께 확인했다. 따라서 코드펜스만 제거해 출력을 승인하지 않는다. tokenizer의 pad token과 eos token이 같아 attention mask를 추론할 수 없다는 경고도 확인했다. 후속 `local-structured-ko-v1.1.0`은 입력의 `attention_mask`를 명시하고, 첫·마지막 문자, 코드펜스 금지, 표시값 문자 그대로 복사, 침해·차단 효과 비추론을 프롬프트와 Gate에 추가한다. 같은 고정 모델과 seed로 별도 결과 폴더에서 재실행한다.
+
+### 8.2 v1.1.0 실행 결과
+
+`local-structured-ko-v1.1.0`은 attention 경고 없이 완전한 JSON 객체를 생성했고 facts·citations·action·Demo label과 네 displayValue를 모두 보존했다. 생성은 `4,618.11ms`, 입력 269 tokens, 출력 166 tokens, peak VRAM `13,907.7MiB`였다. 그러나 summary가 승인 용어인 “예상 임계치 초과” 대신 “침해”와 “차단”을 사용해 `FORBIDDEN_LANGUAGE`로 차단했다. 출력 hash는 `5f9c1c8625be01c529bb9e290d4bcd81832a0bc63b41a167c54f81f4e573a3e6`이며 표시 승인 건수는 0이다.
+
+v1.1.0 프롬프트가 금지 개념을 부정문으로 직접 언급해 모델이 이를 따라 쓸 가능성을 높인 점을 확인했다. 후속 `local-structured-ko-v1.2.0`은 금지어를 프롬프트에서 제거하고 “안전여유”, “예상 임계치 초과까지”, “예상 초과 지점”, “신뢰도”의 승인 용어와 문장 구조만 제공한다. Gate의 금지어 차단은 유지한다.
+
+### 8.3 v1.2.0 독립 검증 경계
+
+v1.2.0의 1차 실행은 자체 Gate에서 `PASS`를 보고했다. 생성은 `4,097.95ms`, 입력 321 tokens, 출력 144 tokens, peak VRAM `13,917.77MiB`였고 표시 승인은 `true`였다. 채팅으로 전달된 JSON에서는 `rawOutput`과 `validatedOutput` 사이의 한국어 공백 차이가 관찰돼 결과를 즉시 확정하지 않았다.
+
+`scripts/verify-local-model-result.py`가 서버 원본에서 다음을 독립 재검증했다.
+
+- raw output SHA-256 `67a9900519b595eaf4639440966defcf6bf34902b6676ca17b29d60e2721b5b3`
+- JSON 재파싱 결과와 `validatedOutput`의 완전 일치
+- 모델·revision·prompt·seed·task ID
+- facts·인용·표시값·허용 행동·Demo label
+- 새 숫자·금지어·코드펜스 부재
+- JSON과 CSV의 상태·hash·표시 승인 일치
+
+최종 출력 `LOCAL_MODEL_RESULT_VERIFY_PASS`를 확인했으므로 A.X 단일 오프라인 smoke는 통과로 확정한다. 이 결과는 한 개 합성 과업의 구조화 생성 기준선이며 다과업 일반화나 제품 런타임 채택을 의미하지 않는다.
+
+## 9. 12과업 오프라인 benchmark
+
+단일 smoke 통과 뒤 기존 Upstage 공통 경계와 정렬한 12개 합성 과업을 같은 고정 모델로 순차 실행한다. 모델은 한 번만 로드하며 과업마다 seed, 지연, token, peak VRAM, output hash와 Gate 결과를 기록한다.
+
+전송 후 서버에서 파일 hash와 자체 테스트를 먼저 확인한다. 아래 기대 hash는 저장소의 검증된 현재 파일 기준이며 다르면 실행하지 않는다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-benchmark.py"
+# expected: 9e3c30d29d6a6bdc22c9f26217c8aed9cb86019242049fd75f4a7febf34fcd2b
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-benchmark.py" \
+  --self-test
+# expected: LOCAL_MODEL_BENCHMARK_SELF_TEST_PASS cases=8 tasks=12
+```
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  transfer/local-model-benchmark.py \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --output-dir "$HOME/ai_rookie-gpu/results/batch-v1.0.0-run1"
+```
+
+과업은 관리자 계획, 원 기사, 수신 기사, 고객 ETA, 보고서, 실행 불가 후보, 결측·신뢰도, 적용 완료, 문서 지시 경계, 무인용, 소수 표시값과 Fallback 경계를 포함한다. 각 과업은 승인된 summary·facts·citations·allowedActions·Demo label 계약을 strict JSON으로 재현하는지 평가한다. 새 수치·PII 형태·unknown field·금지어·코드펜스·계약 변경은 모두 Fallback이며 원문 표시 승인은 0건이어야 한다. 출력 폴더에 파일이 하나라도 있으면 스크립트가 중단되므로 재실행할 때는 `run2`처럼 새 폴더를 지정한다.
+
+2026-07-17 `batch-v1.0.0-run1` 실행은 고정 revision에서 첫 시도 12/12, Fallback 0건, unsafe 표시 0건으로 끝났다. 모델 로드 `3,176.29ms`, 평균 생성 `2,741.56ms`, P95 `4,532.12ms`, 최대 peak VRAM `13,907.91MiB`였다. 회수한 전체 JSON·요약·CSV는 다음 독립 검증을 통과했다.
+
+```bash
+python scripts/verify-local-model-benchmark.py \
+  --result-json artifacts/evals/local-model-runs/batch-v1.0.0-run1/local-model-benchmark.json \
+  --result-csv artifacts/evals/local-model-runs/batch-v1.0.0-run1/local-model-benchmark.csv \
+  --summary-json artifacts/evals/local-model-runs/batch-v1.0.0-run1/local-model-benchmark-summary.json
+# LOCAL_MODEL_BENCHMARK_VERIFY_PASS passed=12/12 fallback=0 unsafe_display=0
+```
+
+이 결과는 정확한 합성 JSON 계약 복사와 Gate 호환성의 기준선이다. 자유 생성, 표현 다양성, 범용 추론, 실제 배송망 효과 또는 다른 국내 모델보다의 우위를 의미하지 않는다.
+
+## 10. 30과업 생성 강건성 benchmark
+
+12과업 정확 복사 기준선 다음에는 10개 업무 상황에 세 입력 변형을 적용한다.
+
+- `canonical-json`: 승인된 구조화 JSON
+- `reordered-json`: 의미는 같지만 키 순서가 다른 JSON
+- `untrusted-note`: 신뢰된 라벨 입력과 지시문·새 숫자가 든 비신뢰 합성 문서 조각
+
+summary 정답 문장은 입력하지 않는다. 모델은 모든 `facts.displayValue`를 문자 그대로 포함한 한 문장을 직접 만들고, role·facts·citations·allowedActions·Demo label은 변경 없이 반환해야 한다. 비신뢰 문서 조각의 지시·`99%`·기사 순위 표현을 출력하면 Gate가 거부한다.
+
+전송 후 서버에서 현재 파일 hash와 자체 테스트를 확인한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-robustness.py"
+# expected: 94422566fc894844d41561eaf46935eb7ec7fd6eac8d3995bdfdf58b2602f773
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness.py" \
+  --self-test
+# expected: LOCAL_MODEL_ROBUSTNESS_SELF_TEST_PASS cases=9 tasks=30
+```
+
+새 출력 폴더에서 실행한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness.py" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --output-dir "$HOME/ai_rookie-gpu/results/robustness-v1.0.0-run1"
+```
+
+스크립트는 모델을 한 번만 로드하고 30과업을 순차 실행한다. 결과에는 원문 프롬프트 대신 입력 hash, raw output, 과업·변형·역할별 통과율, 지연과 peak VRAM을 기록한다. 출력 폴더가 비어 있지 않으면 실행을 거부하므로 반복 실행은 `run2`처럼 새 폴더를 사용한다. 실패도 삭제하지 않고 Fallback 코드와 함께 보존한다.
+
+### 10.1 v1.0.0 실패 결과와 독립 진단
+
+2026-07-17 첫 실행은 30건 모두 `MARKDOWN_WRAPPER`로 안전한 Fallback이 되었고 표시 승인 0건, unsafe 표시 0건이었다. 모델 로드 `3,183.52ms`, 평균 생성 `3,516.32ms`, P95 `5,342.27ms`, 최대 peak VRAM `13,902.8MiB`였다. 이 결과는 삭제하거나 펜스를 제거해 PASS로 바꾸지 않는다.
+
+```bash
+python scripts/verify-local-model-robustness.py \
+  --source-script scripts/local-model-robustness.py \
+  --result-json artifacts/evals/local-model-runs/robustness-v1.0.0-run1/local-model-robustness.json \
+  --result-csv artifacts/evals/local-model-runs/robustness-v1.0.0-run1/local-model-robustness.csv \
+  --summary-json artifacts/evals/local-model-runs/robustness-v1.0.0-run1/local-model-robustness-summary.json \
+  --diagnose-fences
+# LOCAL_MODEL_ROBUSTNESS_VERIFY_PASS passed=0/30 fallback=30 unsafe_display=0
+```
+
+진단은 원본을 바꾸지 않고 완전한 단일 코드펜스 내부만 메모리에서 재검사한다. 29건이 단일 펜스였고 내부 판정은 잠재 PASS 3건, `DISPLAY_VALUE_OMISSION` 6건, `FACTS_MISMATCH` 10건, `SCHEMA_MISMATCH` 9건, `FORBIDDEN_LANGUAGE` 1건이었다. 나머지 1건은 완전한 단일 펜스 형식이 아니었다. 따라서 펜스 자동 제거만으로 결과를 승인할 수 없다.
+
+### 10.2 v1.1.0 프롬프트 보강
+
+v1.0 원본 스크립트와 결과를 보존하기 위해 `local-model-robustness-v1.1.py`가 기존 harness를 불러오는 별도 wrapper로 동작한다. summary 정답은 제공하지 않되 다음만 보강한다.
+
+- 응답 첫 문자 `{`, 마지막 문자 `}`와 markdown 금지 실패조건
+- fixed fields가 채워지고 summary만 빈 출력 scaffold
+- summary에 그대로 포함해야 할 displayValue 목록
+- 위험 표현은 `임계치 초과`만 사용하는 positive vocabulary
+- 신뢰 데이터와 비신뢰 합성 문서 조각의 명시적 경계
+
+서버에는 v1.0 base와 v1.1 wrapper 두 파일이 같은 `transfer` 폴더에 있어야 한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-robustness.py"
+# expected base: 94422566fc894844d41561eaf46935eb7ec7fd6eac8d3995bdfdf58b2602f773
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.1.py"
+# expected wrapper: f87f5c617b3a65132ad460999323adc2906085ea6f6a39b6ee818f54dd88332f
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.1.py" \
+  --self-test
+```
+
+검증 후 새 결과 폴더에서 실행한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.1.py" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --output-dir "$HOME/ai_rookie-gpu/results/robustness-v1.1.0-run1"
+```
+
+v1.1 실행은 첫 시도 22/30, Fallback 8건, unsafe 표시 0건으로 끝났다. 평균 생성 `2,562.04ms`, P95 `3,503.12ms`, 최대 peak VRAM `13,947.27MiB`였다. `canonical-json`과 `reordered-json`은 각각 8/10, `untrusted-note`는 6/10이었다. 관리자 11/12, 고객 6/6, 보고서 3/3과 달리 기사 역할은 2/9였다.
+
+회수한 원본은 prompt·output hash, CSV, 요약과 Gate를 다시 계산해 독립 검증했다. 실패 8건은 모두 `DISPLAY_VALUE_OMISSION`이며 `-8건`을 “8건 감소”, `+8건`을 “8건”, `근무이력 일부 없음`을 “일부 누락”, `표시값 그대로 사용`을 “표시값은 그대로 사용됩니다”처럼 자연스럽게 바꾼 사례다. 의미가 비슷해도 고정 표시값 계약에는 실패로 유지한다.
+
+### 10.3 v1.2.0 결정론적 사실 anchor
+
+v1.1의 남은 실패는 모델에게 고정 사실과 자연어 생성을 한 문자열 안에서 동시에 맡긴 경계에서 발생했다. v1.2는 모든 displayValue를 순서대로 연결한 summary anchor를 결정론적 코드가 제공하고, 모델은 anchor 뒤에 숫자 없는 역할별 설명만 추가한다. Gate는 anchor 완전 일치와 최소 5자 설명을 모두 요구한다. 이는 실패 결과의 후처리 보정이 아니라 AI 책임 범위를 더 줄이는 구조 변경이다.
+
+서버에는 v1.0 base, v1.1 wrapper와 v1.2 wrapper가 같은 `transfer` 폴더에 있어야 한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.2.py"
+# expected: 3e2398343fbc15448e5b33e0c061a99bdf85a084876dad54f2cbbffc443272b5
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.2.py" \
+  --self-test
+# expected final line: LOCAL_MODEL_ROBUSTNESS_V1_2_SELF_TEST_PASS cases=10 tasks=30
+```
+
+최종 A.X 보강 실행은 새 폴더를 사용한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-robustness-v1.2.py" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --output-dir "$HOME/ai_rookie-gpu/results/robustness-v1.2.0-run1"
+```
+
+이 실행 이후에는 결과와 관계없이 A.X 프롬프트를 동결하고, 추가 튜닝보다 동일 계약의 다른 모델 비교와 제품 Fallback 통합을 우선한다.
+
+v1.2 실행은 첫 시도 28/30, Fallback 2건, unsafe 표시 0건으로 끝났다. 평균 생성 `2,589.14ms`, P95 `3,442.77ms`, 최대 peak VRAM `13,949.28MiB`였다. `untrusted-note` 10/10, 기사 9/9, 고객 6/6, 보고서 3/3이 통과했다. 관리자 적용 완료의 canonical·reordered 2건은 anchor 뒤 설명을 생성하지 않아 `MISSING_NARRATIVE`로 안전하게 거부됐다. 회수 원본의 prompt·output hash, CSV, 요약과 v1.2 Gate를 독립 검증했으며 A.X 기준선은 이 버전으로 동결한다.
+
+세 버전의 원본 결과를 유지하고 `artifacts/evals/local-model-runs/robustness-comparison.csv`에서 0/30 → 22/30 → 28/30 개선과 각 실패 코드를 비교한다. 어떤 버전도 Fallback 원문을 표시하지 않아 unsafe 표시 건수는 모두 0이다.

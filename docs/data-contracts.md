@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-14
+- 최종 갱신: 2026-07-15
 - 계약 버전: `contracts-v1.0.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
@@ -122,6 +122,9 @@ type Provenance = {
   transformedBy?: string;
   parentSourceIds?: string[];
   licenseOrPolicy?: string;
+  sourceUri?: string;
+  sourceVersion?: string;
+  contentHashSha256?: string;
   isDemo: boolean;
 };
 ```
@@ -131,6 +134,7 @@ type Provenance = {
 - `MOCK`이면 `isDemo`는 반드시 `true`다.
 - `LIVE`이면 `isDemo`는 반드시 `false`다.
 - `DERIVED`는 하나 이상의 `parentSourceIds`가 있어야 한다.
+- `PUBLIC_DATA_DERIVED`는 공식 `sourceUri`, `sourceVersion`, `licenseOrPolicy`, 원본 파일 `contentHashSha256`와 `transformedBy`가 모두 있어야 한다.
 - `validAt`은 해당 값이 나타내는 현실 시각이다.
 - `collectedAt`은 시스템이 값을 받은 시각이다.
 - 여러 출처를 결합한 객체는 필드별 출처 또는 `parentSourceIds`를 보존한다.
@@ -182,6 +186,7 @@ type DataError = {
     | "MALFORMED_RESPONSE"
     | "SCHEMA_VALIDATION_FAILED"
     | "NOT_FOUND"
+    | "INCOMPLETE_COVERAGE"
     | "STALE_DATA"
     | "UNKNOWN";
   message: string;
@@ -197,6 +202,35 @@ type DataError = {
 - `ERROR`에 정상 데이터 필드를 넣지 않는다.
 - `LOADING.previous`는 화면 연속성에만 사용할 수 있으며 새 계산의 현재 입력으로 조용히 사용하지 않는다.
 - UI는 `status`를 통해 Live와 Demo를 항상 구분한다.
+
+### 3.3 날씨 Runtime 선택
+
+Live 날씨 후보가 전체 `WeatherState` 계약을 충족하지 못할 때는 필드 단위 병합을 금지하고 다음 wrapper를 사용한다.
+
+```ts
+type WeatherRuntimeSelection = {
+  schemaVersion: "weather-runtime-selection-v1";
+  active: DataResult<WeatherState[]> & { status: "FALLBACK" };
+  liveEvidence: {
+    status: "PARTIAL";
+    capturedAt: IsoDateTime;
+    sourceIds: string[];
+    responseHashes: string[];
+    readyFields: Array<{ timeScope: string; field: string }>;
+    blockingFields: Array<{ timeScope: string; field: string; reason: string }>;
+  };
+  audit: {
+    liveEvidenceUsedForSafety: false;
+    fallbackTimelineUsedForSafety: true;
+    mixedLiveAndDemoFields: false;
+  };
+};
+```
+
+- `active.fallbackReason.code`는 `INCOMPLETE_COVERAGE`다.
+- `active.data` 전체는 하나의 승인된 Demo fixture에서 와야 하며 모든 provenance는 `MOCK`, `isDemo=true`다.
+- Live evidence의 수치·해시는 감사용이며 `active.data` 객체와 병합하지 않는다.
+- 관리자와 기사 모두 `Demo fixture · Weather Fallback` 상태를 표시한다.
 
 ## 4. 공통 값 객체
 
@@ -391,6 +425,53 @@ type WeatherState = {
 ### 필드 근거
 
 현재 날씨 하나를 전체 미래에 복제하지 않고 시각별 배열로 제공할 수 있도록 단일 시점 객체로 정의한다.
+
+### 외부 날씨 후보 Gate
+
+외부 API 응답은 이 계약을 부분적으로 채웠다는 이유만으로 `WeatherState`가 되지 않는다. 기상청 `RN1` 구간값은 다음 별도 선택 결과를 거친다.
+
+```ts
+type RainfallSelection =
+  | {
+      status: "READY";
+      selectedMmPerHour: number;
+      mode: "EXACT_SOURCE_VALUE" | "CONSERVATIVE_NORMALIZATION_BOUND";
+      assumptionCode?: "KMA_RAIN_RANGE_CONSERVATIVE_NORMALIZATION_BOUND";
+    }
+  | {
+      status: "BLOCKED";
+      reason: "MISSING_RAINFALL" | "UNBOUNDED_BELOW_NORMALIZATION_CAP";
+    };
+```
+
+4.3 단기예보의 `SNO`에는 같은 원칙을 적용한다.
+
+```ts
+type SnowfallSelection =
+  | {
+      status: "READY";
+      selectedCmPerHour: number;
+      mode: "EXACT_SOURCE_VALUE" | "CONSERVATIVE_NORMALIZATION_BOUND";
+      assumptionCode?: "KMA_SNOW_RANGE_CONSERVATIVE_NORMALIZATION_BOUND";
+    }
+  | {
+      status: "BLOCKED";
+      reason: "MISSING_SNOWFALL" | "UNBOUNDED_BELOW_NORMALIZATION_CAP";
+    };
+```
+
+- 정확값은 그대로 보존한다.
+- 유한 구간은 중간값이 아니라 상한을 사용하고, 현재 모델의 20mm/h 정규화 상한에서 자른다.
+- 상한 없는 구간은 하한이 20mm/h 이상일 때만 포화값 20을 사용할 수 있다.
+- 적설 정확값은 그대로 보존한다. `0.5cm 미만`은 `0.1 <= x < 0.5`, `5.0cm 이상`은 `x >= 5`로 보존한다.
+- 적설 유한 상한 또는 모델 포화 하한은 3cm/h 정규화 상한에서 보수적으로 선택하며 중간값을 만들지 않는다.
+- 고해상도 격자 1.3의 `ta_chi`는 °C, `vs`는 km이므로 시정만 m로 1,000배 단위 변환한다. `sd_3hr`는 3시간 신적설로 별도 보존하며 3으로 나누지 않는다.
+- 4.3 미래 체감온도는 같은 발표·발효시각의 `TMP`·`REH`·`WSD`만 사용한다. 5∼9월은 공식 습구온도·습도식, 10월∼다음 해 4월은 `TMP <= 10°C`이고 `WSD >= 1.3m/s`일 때만 공식 풍속식을 적용한다.
+- 4.3 발표 최신성은 3시간 발표주기와 제공지연을 포함한 210분 이내여야 하며, 발효시각은 현재부터 120분 범위만 선택한다.
+- 체감온도 파생값에는 `KMA_SUMMER_HUMIDITY_FORMULA_2025` 또는 `KMA_WINTER_WIND_FORMULA_2025`와 원본 세 필드를 기록한다. 적용조건 밖이나 결측이면 값을 만들지 않는다.
+- `roadSurface`는 출처가 없으면 `UNKNOWN`이며 강수형태로 추정하지 않는다.
+- 현재 시간당 적설과 미래 시정이 없으면 전체 `WeatherState` 변환을 차단한다. 공식 체감온도 입력이나 계절별 적용조건이 충족되지 않은 시점도 별도로 차단한다.
+- 관측값을 미래 예보값으로 자동 복제하지 않는다.
 
 ## 8. AreaRiskProfile
 
@@ -674,6 +755,9 @@ type InterventionCandidate = {
 
 - actions는 1개 이상, v1에서 최대 2개다.
 - 같은 유형을 중복할 수 없다.
+- 두 조치 묶음은 `REST+TRANSFER_STOPS`, `REST+REORDER_STOPS`, `REST+SAFER_ROUTE`, `TRANSFER_STOPS+REORDER_STOPS`, `REST+SAFE_DELAY`, `SAFER_ROUTE+SAFE_DELAY`만 허용한다.
+- 묶음의 actions 배열은 `REST → TRANSFER_STOPS → REORDER_STOPS → SAFER_ROUTE → SAFE_DELAY` 정규 부분순서와 일치해야 한다.
+- `TRANSFER_STOPS+REORDER_STOPS`는 transfer 원 기사와 reorder 기사가 같아야 하고, `SAFER_ROUTE+SAFE_DELAY`도 같은 기사에 대한 조치여야 한다.
 - 영향을 받는 ID 집합은 actions에서 계산한 집합과 일치한다.
 - 이관 stopIds는 비어 있을 수 없고 중복될 수 없다.
 - 이관 원 기사와 수신 기사는 달라야 한다.
@@ -774,6 +858,7 @@ type DecisionStatus =
   | "RIDER_CONSENTED"
   | "MODIFICATION_REQUESTED"
   | "RIDER_DECLINED"
+  | "RIDER_CONSENT_EXPIRED"
   | "ADMIN_APPROVAL_REQUIRED"
   | "ADMIN_HELD"
   | "ADMIN_MODIFICATION_REQUESTED"
@@ -834,6 +919,31 @@ type DecisionRecord = {
 - `APPLIED` 이후에는 appliedPlanVersion이 있어야 한다.
 - `NOTICE_RECORDED` 이후에는 고객안내 ID가 최소 하나 있어야 한다.
 - Demo 사전동의는 actor와 reasonCode로 실제 동의와 구분한다.
+- 기사·관리자 actor의 event에는 actorId가 필요하다.
+- 여러 기사 중 일부 동의만 완료되면 `RIDER_RESPONSE_PENDING → RIDER_RESPONSE_PENDING` 감사 전이를 허용한다.
+- `RIDER_CONSENT_EXPIRED`는 새 후보 생성 또는 취소로만 이동한다.
+- 적용 직전 계획 버전 충돌은 `APPLYING_PLAN → REVALIDATION_REQUIRED`로 이동하며 활성 계획을 바꾸지 않는다.
+- `APPLIED`는 고객안내 요청이 기록된 뒤에만 `NOTICE_RECORDED`로 이동하고, 이후 `CLOSED`가 된다.
+
+### 결정 명령과 Demo 적용 결과
+
+모든 명령은 기존 `DecisionRecord`를 변경하지 않고 새 레코드와 감사 event를 반환한다. 허용되지 않은 상태, 행위자 권한, candidate·plan version 불일치는 안정적인 오류 코드로 거절한다.
+
+```ts
+type DemoPlanStore = {
+  activePlan: ScenarioFixture;
+  appliedDecisionVersions: Record<DecisionId, string>;
+  pendingCustomerNoticeIds: Record<DecisionId, string[]>;
+};
+
+type AtomicApplyResult =
+  | { status: "APPLIED"; decision: DecisionRecord; store: DemoPlanStore }
+  | { status: "ALREADY_APPLIED"; decision: DecisionRecord; store: DemoPlanStore }
+  | { status: "REVALIDATION_REQUIRED"; decision: DecisionRecord; store: DemoPlanStore }
+  | { status: "FAILED"; decision: DecisionRecord; store: DemoPlanStore; rollbackStatus: "UNCHANGED" };
+```
+
+`APPLIED`와 `ALREADY_APPLIED` 외 결과의 store는 입력 store와 구조적으로 같아야 한다. `proposedPlan`의 기준 plan ID와 선택 평가의 plan version이 일치해야 하며, 고객안내 요청 ID는 실제 교체 성공 시에만 pending 목록에 기록한다.
 
 ## 16. NearMissReport
 
@@ -882,7 +992,70 @@ type NearMissReport = {
 - reporterCourierId는 관리자 집계 응답에서 제거한다.
 - 신고 직후 신고 기사의 현재 Budget이나 평가에 반영하지 않는다.
 
-## 17. CustomerNotice
+## 17. ExplanationInput·Output·Result
+
+Upstage에는 전체 결정 객체가 아니라 역할별 최소 사실과 허용된 인용만 전달한다. 실제 공급자 모델명·endpoint·quota는 아직 계약에 고정하지 않는다.
+
+```ts
+type ExplanationInput = {
+  requestId: string;
+  role: "COURIER" | "ADMIN" | "CUSTOMER" | "REPORT";
+  language: "ko";
+  dataMode: "DEMO" | "LIVE_PILOT";
+  numericFacts: Array<{
+    factId: string;
+    label: string;
+    value: number;
+    unit: string;
+    displayValue: string;
+  }>;
+  stateFacts: Array<{ factId: string; label: string; value: string }>;
+  allowedCitations: Array<{
+    citationId: string;
+    documentTitle: string;
+    page?: number;
+    section?: string;
+    excerpt: string;
+  }>;
+  allowedActions: string[];
+  prohibitedTopics: string[];
+};
+
+type ExplanationOutput = {
+  requestId: string;
+  role: ExplanationInput["role"];
+  summary: string;
+  actions?: string[];
+  citedFactIds: string[];
+  citationIds: string[];
+  uncertaintyStatement?: string;
+  dataModeLabel: string;
+};
+
+type ExplanationResult =
+  | { status: "LIVE"; provider: "UPSTAGE"; data: ExplanationOutput }
+  | { status: "MOCK"; provider: "UPSTAGE_MOCK"; data: ExplanationOutput }
+  | {
+      status: "FALLBACK";
+      provider: "TEMPLATE";
+      attemptedProvider: "UPSTAGE";
+      data: ExplanationOutput;
+      fallbackReason: DataError;
+    };
+```
+
+### 검증
+
+- 입력·출력은 strict schema이며 알 수 없는 개인정보·좌표·원시 생체 필드를 거부한다.
+- 숫자가 있는 상태는 반드시 `numericFacts`와 승인된 `displayValue`로 제공한다.
+- 출력 숫자는 승인된 `displayValue`와 정확히 일치해야 하며 반올림·재계산·새 숫자를 거부한다.
+- fact ID와 citation ID는 입력의 허용 목록에 있어야 한다.
+- 출력 행동은 `allowedActions`의 부분집합이고 기사 역할은 한 번에 하나만 표시한다.
+- 역할·request ID·Demo/Live 라벨 불일치와 비난·순위·과실 문구를 거부한다.
+- 검증 실패·timeout·네트워크 오류는 결정론적 `FALLBACK`으로 전환하며 도메인 결정 객체와 병합하지 않는다.
+- 합성 안전문서 추출 규칙은 허용 hazard·condition·action과 페이지 또는 섹션 인용을 요구한다.
+
+## 18. CustomerNotice
 
 실제 적용된 계획의 ETA를 바탕으로 한 고객안내 결과다.
 
@@ -916,7 +1089,7 @@ type CustomerNotice = {
 - 기사 과실·책임을 암시하는 표현을 금지한다.
 - LLM 생성문도 updatedEta를 변경할 수 없다.
 
-## 18. ScenarioFixture
+## 19. ScenarioFixture
 
 대표 데모와 회귀 테스트를 재현하는 최상위 묶음이다.
 
@@ -945,6 +1118,30 @@ type ScenarioFixture = {
     provenance: Provenance;
   }>;
 
+  interventionInputs?: {
+    reorderPolicies: Array<{
+      courierId: CourierId;
+      reorderableStopIds: StopId[];
+      fixedStopIds: StopId[];
+      maxCandidates: 3;
+      provenance: Provenance;
+    }>;
+    saferRouteAlternatives: Array<{
+      courierId: CourierId;
+      replacementRouteId: RouteId;
+      replacedSegmentIds: SegmentId[];
+      replacementSegments: RouteSegment[];
+      provenance: Provenance;
+    }>;
+    safeDelayPolicies: Array<{
+      courierId: CourierId;
+      delayableStopIds: StopId[];
+      maximumDelayMinutes: number;
+      customerNoticeAvailable: boolean;
+      provenance: Provenance;
+    }>;
+  };
+
   expectedAssertions: {
     currentBudgetRange?: { min: number; max: number };
     breachStatus: BreachPrediction["status"];
@@ -965,13 +1162,18 @@ type ScenarioFixture = {
 - 기사별 WorkloadState가 정확히 하나 존재한다.
 - 계획의 배송지 순서와 구간 연결이 일관된다.
 - 날씨 타임라인은 예측 구간을 덮는다.
-- 모든 provenance는 Mock 또는 public-derived이며 실제 개인정보를 포함하지 않는다.
+- 현재 세 대표 fixture의 모든 provenance는 Mock이며 실제 개인정보를 포함하지 않는다.
+- 원본 증거가 없는 합성 날씨·권역·경로 특징을 public-derived로 표시하지 않는다.
 - `initialSafetyStates`는 Demo fixture의 `MOCK` provenance에서만 사용할 수 있다.
 - 직접 제공한 현재 Budget은 `derivedFromHistory: false`와 근거를 포함하고 신뢰도 `HIGH`를 만들 수 없다.
+- `interventionInputs`는 Demo `MOCK` provenance만 허용하며 실제 공급자 결과처럼 표시할 수 없다.
+- reorder policy의 재정렬·고정 stop은 해당 기사의 현재 남은 stop 집합 안에 있고 서로 겹치지 않는다.
+- 안전경로 대체 구간은 교체 대상과 같은 목적지 집합을 가지며 `SAFER`와 동일 replacementRouteId를 사용한다.
+- Safe Delay 목록은 해당 기사의 현재 남은 stop만 참조하고 최대 지연은 0보다 크다.
 - expectedAssertions는 엔진 출력을 입력으로 재사용하지 않는다.
 - 정확한 기대값을 맞추기 위한 시나리오별 숨은 가중치를 금지한다.
 
-## 19. 대표 시나리오 A 예시
+## 20. 대표 시나리오 A 예시
 
 다음은 계약 형태를 보여주는 축약 예시다. 아직 승인된 fixture 값이나 엔진 예상 출력이 아니다.
 
@@ -1071,7 +1273,7 @@ type ScenarioFixture = {
 
 빈 배열은 축약을 위한 것이므로 이 JSON은 실제 `ScenarioFixture` 검증을 통과하지 않는다. 완전한 fixture인 것처럼 복사해 사용하지 않는다.
 
-## 20. 교차 객체 불변조건
+## 21. 교차 객체 불변조건
 
 런타임 스키마의 개별 필드 검사만으로 부족한 규칙은 도메인 검증기로 검사한다.
 
@@ -1092,22 +1294,22 @@ type ScenarioFixture = {
 15. Near-miss 검증 결과가 신고자의 현재 snapshot을 소급 변경하지 않는다.
 16. Mock과 Live 데이터를 섞으면 결과 상태는 Live가 될 수 없다.
 
-## 21. API 경계 규칙
+## 22. API 경계 규칙
 
-### 21.1 입력 검증
+### 22.1 입력 검증
 
 - 사용자 입력, 외부 API, 문서 추출 JSON과 저장소 읽기 결과를 모두 검증한다.
 - 검증 실패 시 부분 객체를 도메인 엔진에 전달하지 않는다.
 - 알 수 없는 필드는 외부 경계에서 기본적으로 거부한다.
 - 문자열은 앞뒤 공백과 제어문자를 처리하되 의미가 바뀌는 자동수정을 하지 않는다.
 
-### 21.2 출력 검증
+### 22.2 출력 검증
 
 - 안전모델, 개입엔진과 Upstage 결과도 저장·응답 전에 검증한다.
 - 계산 결과가 계약을 위반하면 fallback 숫자를 만들지 않고 명시적 오류로 전환한다.
 - LLM 응답은 전용 출력 스키마를 사용하고 도메인 객체와 병합하지 않는다.
 
-### 21.3 낙관적 기본값 금지
+### 22.3 낙관적 기본값 금지
 
 다음 기본값을 금지한다.
 
@@ -1117,7 +1319,7 @@ type ScenarioFixture = {
 - 응답 없는 동의를 동의로 처리
 - 실패한 Live 요청을 배지 없는 Mock으로 처리
 
-## 22. 개인정보와 로그 제한
+## 23. 개인정보와 로그 제한
 
 ### 허용
 
@@ -1137,7 +1339,7 @@ type ScenarioFixture = {
 
 로그에는 자유문 note와 LLM 원문을 기본적으로 남기지 않는다. 필요 시 마스킹·보존기간을 `docs/privacy-and-ai-policy.md`에서 정한다.
 
-## 23. 필수 계약 테스트
+## 24. 필수 계약 테스트
 
 ### 공통
 
@@ -1190,7 +1392,15 @@ type ScenarioFixture = {
 - 적용되지 않은 ETA 고객안내 거부
 - 메시지 내 개인식별정보 패턴 거부
 
-## 24. 확정된 결정
+### Upstage 설명
+
+- 입력에 PII·정확 좌표·알 수 없는 필드 거부
+- strict 출력, 숫자 불변, 허용 인용과 행동 검증
+- role·data mode 불일치와 비난·순위 문구 거부
+- malformed·timeout·잘못된 인용 시 템플릿 Fallback
+- 설명 전후 selected candidate·계획·ETA 불변
+
+## 25. 확정된 결정
 
 - 구현은 Zod 스키마를 런타임 단일 소스로 사용하고 TypeScript 타입을 추론한다.
 - 수치 필드명에 단위를 포함한다.
@@ -1205,8 +1415,9 @@ type ScenarioFixture = {
 - 개별 스키마와 별도로 교차 객체 도메인 검증을 수행한다.
 - Mock과 Live가 혼합된 결과를 Live로 표시하지 않는다.
 - 실제 적용된 계획 ETA만 고객안내에 사용한다.
+- Upstage 설명은 도메인 객체와 분리된 strict 결과이며 검증 실패 시 템플릿으로 전환한다.
 
-## 25. 미결사항
+## 26. 미결사항
 
 - ID 생성방식과 해시 알고리즘
 - API 전송 시간대를 항상 UTC `Z`로 고정할지 여부
@@ -1216,8 +1427,8 @@ type ScenarioFixture = {
 - 배송지 우선순위와 지연 불가 분류 출처
 - 정확 위치의 메모리 보존시간과 삭제 방식
 - DecisionRecord 저장소와 이벤트 불변성 방식
-- LLM 설명 전용 입력·출력 계약
-- 외부 지도·날씨·Upstage 응답 어댑터 계약
+- 외부 지도·날씨 응답 어댑터 계약
+- Upstage Live 모델명·endpoint·quota·timeout·retry 계약
 - 완전한 세 대표 fixture와 정확 기대값
 - 오프라인 기사 응답의 충돌 해결 규칙
 

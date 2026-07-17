@@ -1,0 +1,142 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "schemaVersion": "domestic-ai-api-benchmark-v1",
+    "capturedAt": "2026-07-17T11:21:24.989Z",
+    "taskCountPerProvider": 12,
+    "providerCount": 1,
+    "providers": [
+      {
+        "providerId": "EXAONE",
+        "providerMode": "LIVE",
+        "protocol": "OPENAI_CHAT_COMPLETIONS",
+        "model": "LGAI-EXAONE/K-EXAONE-236B-A23B",
+        "promptVersion": "explanation-ko-v1.1.0",
+        "taskCount": 12,
+        "results": [
+          {
+            "taskId": "domestic-ai-admin-plan-001",
+            "role": "ADMIN",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 10014,
+            "usage": {},
+            "fallbackCode": "TIMEOUT"
+          },
+          {
+            "taskId": "domestic-ai-courier-source-002",
+            "role": "COURIER",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 10005,
+            "usage": {},
+            "fallbackCode": "TIMEOUT"
+          },
+          {
+            "taskId": "domestic-ai-courier-recipient-003",
+            "role": "COURIER",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 10006,
+            "usage": {},
+            "fallbackCode": "TIMEOUT"
+          },
+          {
+            "taskId": "domestic-ai-customer-eta-004",
+            "role": "CUSTOMER",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 49,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-report-summary-005",
+            "role": "REPORT",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 38,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-admin-blocked-006",
+            "role": "ADMIN",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 35,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-courier-confidence-007",
+            "role": "COURIER",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 47,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-admin-applied-008",
+            "role": "ADMIN",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 39,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-injection-citation-009",
+            "role": "ADMIN",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 42,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-no-citation-010",
+            "role": "CUSTOMER",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 50,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-decimal-integrity-011",
+            "role": "ADMIN",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 31,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          },
+          {
+            "taskId": "domestic-ai-fallback-boundary-012",
+            "role": "REPORT",
+            "status": "FALLBACK",
+            "passed": false,
+            "latencyMs": 30,
+            "usage": {},
+            "fallbackCode": "RATE_LIMITED"
+          }
+        ],
+        "metrics": {
+          "passed": 0,
+          "failed": 12,
+          "fallback": 12,
+          "firstAttemptPassRate": 0,
+          "averageLatencyMs": 2532,
+          "p95LatencyMs": 10014,
+          "unsafeDisplayCount": 0,
+          "fallbackCodes": {
+            "TIMEOUT": 3,
+            "RATE_LIMITED": 9
+          }
+        }
+      }
+    ]
+  }
+}

@@ -28,6 +28,7 @@ type ScenarioConfig = {
   parkingDifficultyFactor: number;
   incidentFactor: number;
   stairStopRatio: number;
+  stairStopsAtEnd?: boolean;
   finalServiceMinutes?: number;
   initialSourceBudget: number;
   initialRecipientBudget: number;
@@ -50,19 +51,19 @@ function mockProvenance(
   };
 }
 
-function publicProvenance(
+function syntheticFeatureProvenance(
   fixtureId: string,
   sourceSuffix: string,
   evaluatedAt: string,
 ): Provenance {
   return {
-    kind: "PUBLIC_DATA_DERIVED",
+    kind: "MOCK",
     sourceId: `${fixtureId}-${sourceSuffix}`,
-    sourceLabel: `Synthetic profile derived from public feature definitions · ${sourceSuffix}`,
+    sourceLabel: `SafeRoute deterministic synthetic feature · ${sourceSuffix}`,
     collectedAt: evaluatedAt,
     validAt: evaluatedAt,
     transformedBy: "scenarioFactory@1.0.0",
-    licenseOrPolicy: "Demo-only derived feature; no personal data",
+    licenseOrPolicy: "Demo-only synthetic feature; no public dataset ingested",
     isDemo: true,
   };
 }
@@ -80,12 +81,19 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
   const sourceCourierId = `${config.fixtureId}-courier-source`;
   const recipientCourierId = `${config.fixtureId}-courier-recipient`;
   const mock = mockProvenance(config.fixtureId, "operations", evaluatedAt);
-  const publicDerived = publicProvenance(config.fixtureId, "area-weather", evaluatedAt);
+  const syntheticFeature = syntheticFeatureProvenance(
+    config.fixtureId,
+    "area-weather",
+    evaluatedAt,
+  );
 
   const stops: DeliveryStop[] = Array.from({ length: config.stopCount }, (_, index) => {
     const sequence = index + 1;
     const stopId = `${config.fixtureId}-stop-${String(sequence).padStart(3, "0")}`;
-    const isStairStop = sequence <= Math.ceil(config.stopCount * config.stairStopRatio);
+    const stairStopCount = Math.ceil(config.stopCount * config.stairStopRatio);
+    const isStairStop = config.stairStopsAtEnd
+      ? sequence > config.stopCount - stairStopCount
+      : sequence <= stairStopCount;
     return {
       stopId,
       planId,
@@ -135,7 +143,20 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
     areaRiskProfileId: areaId,
     legalForVehicleClasses: ["VAN", "MOTORCYCLE", "BICYCLE"],
     routeAlternativeKind: "CURRENT",
-    provenance: [mock, publicDerived],
+    provenance: [mock, syntheticFeature],
+  }));
+
+  const saferRouteId = `${config.fixtureId}-route-safer`;
+  const saferRouteSegments: RouteSegment[] = routeSegments.map((segment, index) => ({
+    ...segment,
+    segmentId: `${config.fixtureId}-safer-segment-${String(index + 1).padStart(3, "0")}`,
+    routeId: saferRouteId,
+    expectedEndAt: atMinutes(index * 3 + 2.25),
+    durationMinutes: 2.25,
+    distanceMeters: segment.distanceMeters + 90,
+    uphillGradePct: Math.max(0, segment.uphillGradePct * 0.35),
+    roadWidthClass: "NORMAL",
+    routeAlternativeKind: "SAFER",
   }));
 
   const couriers: CourierState[] = [
@@ -257,7 +278,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
     visibilityMeters: Math.max(500, config.visibility - index * 100),
     windSpeedMetersPerSecond: 3.2,
     roadSurface: config.roadSurface,
-    provenance: publicDerived,
+    provenance: syntheticFeature,
   }));
 
   const areaRiskProfiles: AreaRiskProfile[] = [
@@ -276,7 +297,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
         lastValidatedAt: hoursBefore(12),
         weatherInteractionTags: config.rainfall > 0 ? ["RAIN"] : ["NIGHT"],
       },
-      provenance: [publicDerived],
+      provenance: [syntheticFeature],
     },
   ];
 
@@ -310,7 +331,53 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
         provenance: mock,
       },
     ],
+    interventionInputs: {
+      reorderPolicies: [
+        {
+          courierId: sourceCourierId,
+          reorderableStopIds: stops
+            .filter(
+              (stop) =>
+                !["HIGH", "NON_DELAYABLE"].includes(stop.priority) &&
+                stop.timeWindow?.kind !== "HARD",
+            )
+            .map((stop) => stop.stopId),
+          fixedStopIds: stops
+            .filter(
+              (stop) =>
+                ["HIGH", "NON_DELAYABLE"].includes(stop.priority) ||
+                stop.timeWindow?.kind === "HARD",
+            )
+            .map((stop) => stop.stopId),
+          maxCandidates: 3,
+          provenance: mock,
+        },
+      ],
+      saferRouteAlternatives: [
+        {
+          courierId: sourceCourierId,
+          replacementRouteId: saferRouteId,
+          replacedSegmentIds: routeSegments.map((segment) => segment.segmentId),
+          replacementSegments: saferRouteSegments,
+          provenance: mock,
+        },
+      ],
+      safeDelayPolicies: [
+        {
+          courierId: sourceCourierId,
+          delayableStopIds: stops
+            .filter(
+              (stop) =>
+                stop.priority === "NORMAL" && stop.timeWindow?.kind === "SOFT",
+            )
+            .map((stop) => stop.stopId),
+          maximumDelayMinutes: 60,
+          customerNoticeAvailable: true,
+          provenance: mock,
+        },
+      ],
+    },
     expectedAssertions: config.expectedAssertions,
-    provenance: [mock, publicDerived],
+    provenance: [mock, syntheticFeature],
   };
 }

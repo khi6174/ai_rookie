@@ -59,6 +59,33 @@ describe("representative scenario fixtures", () => {
     };
     expect(ScenarioFixtureSchema.safeParse(fixture).success).toBe(false);
   });
+
+  it("marks every current fixture provenance record as Demo MOCK", () => {
+    const provenanceRecords: Array<Record<string, unknown>> = [];
+    const visit = (value: unknown) => {
+      if (Array.isArray(value)) {
+        value.forEach(visit);
+        return;
+      }
+      if (typeof value !== "object" || value === null) return;
+      const record = value as Record<string, unknown>;
+      if (
+        typeof record.kind === "string" &&
+        typeof record.sourceId === "string" &&
+        typeof record.isDemo === "boolean"
+      ) {
+        provenanceRecords.push(record);
+      }
+      Object.values(record).forEach(visit);
+    };
+    scenarioFixtures.forEach(visit);
+    expect(provenanceRecords.length).toBeGreaterThan(0);
+    expect(
+      provenanceRecords.every(
+        (record) => record.kind === "MOCK" && record.isDemo === true,
+      ),
+    ).toBe(true);
+  });
 });
 
 describe("provenance and explicit data states", () => {
@@ -85,6 +112,26 @@ describe("provenance and explicit data states", () => {
         provenance: mockProvenance,
       }).success,
     ).toBe(false);
+  });
+
+  it("requires reproducible source evidence for public-derived data", () => {
+    expect(
+      ProvenanceSchema.safeParse({
+        ...mockProvenance,
+        kind: "PUBLIC_DATA_DERIVED",
+      }).success,
+    ).toBe(false);
+    expect(
+      ProvenanceSchema.safeParse({
+        ...mockProvenance,
+        kind: "PUBLIC_DATA_DERIVED",
+        sourceUri: "https://example.go.kr/datasets/safe-route-source",
+        sourceVersion: "2026-07-17",
+        licenseOrPolicy: "Public data license reference",
+        contentHashSha256: "a".repeat(64),
+        transformedBy: "public-feature-transform@1.0.0",
+      }).success,
+    ).toBe(true);
   });
 });
 

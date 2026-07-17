@@ -4,7 +4,7 @@
 
 - 상태: Draft
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-14
+- 최종 갱신: 2026-07-17
 - 승인 조건: 평가 스크립트·fixtures·재현 명령과 최초 결과가 저장소에서 확인될 것
 
 ## 1. 목적
@@ -21,7 +21,7 @@
 4. 생성 모델이 만든 정답 라벨을 사용하지 않는다.
 5. 안전 하드 제약 위반은 평균 점수로 상쇄할 수 없는 P0 실패다.
 6. 실패·결측·Fallback도 정상 경로와 같은 수준으로 검증한다.
-7. 모든 비교 결과에 `simulation`, `mock`, `public-data-derived` 등 출처를 표시한다.
+7. 모든 비교 결과에 `simulation`, `mock`, `public-data-derived` 등 실제 증거에 맞는 출처를 표시하며, 원본 추적정보가 없으면 `mock`으로 강등한다.
 
 ## 3. 평가 대상
 
@@ -217,9 +217,9 @@
 
 ## 12. 국내 AI·인프라 활용 평가
 
-### 12.1 공통 smoke benchmark
+### 12.1 공통 텍스트 smoke benchmark
 
-A.X·EXAONE·VARCO에 가능한 한 동일한 seed specification 기반 10~20개 과업을 제공하고 다음을 비교한다.
+대회 제공 활용 가이드에서 OpenAI-compatible 텍스트 생성 계약이 확인된 A.X K1과 K-EXAONE에 동일한 12개 과업을 제공하고 다음을 비교한다. VARCO는 NC 가이드상 LLM 기획 이후의 3D·이미지/텍스처·음성/사운드·번역 등 에셋 구현 API이므로 이 공통 텍스트 비교에 포함하지 않는다. SafeRoute P0에 필요한 에셋 사용처가 승인될 때 별도 과업·지표로 평가한다.
 
 - 첫 시도 strict JSON 성공률
 - 검증 Gate 통과율과 거절 사유
@@ -229,12 +229,36 @@ A.X·EXAONE·VARCO에 가능한 한 동일한 seed specification 기반 10~20개
 
 모델 역할은 브랜드 기대가 아니라 결과에 따라 조정한다.
 
+SKT 가이드 p.9의 A.X K1 endpoint와 LG 가이드 p.15의 FriendliAI K-EXAONE endpoint를 exact allowlist로 고정한 서버 전용 어댑터를 추가했다. `pnpm run eval:domestic-ai:check`는 키를 출력하거나 API를 호출하지 않고 필수 환경변수와 endpoint 계약만 확인한다. `pnpm run eval:domestic-ai:smoke:mock`은 두 공급자에 같은 12과업을 실행해 A.X 12/12, EXAONE 12/12와 unsafe 표시 0건을 기록했다. 이 24/24는 HTTP·Gate·산출물 파이프라인의 Mock 계약 통과이며 실제 모델 품질이나 Live 연결 성공이 아니다. 실제 계정 실행은 공급자별로 별도 기록하고 Mock 수치와 합산하지 않는다.
+
+K-EXAONE만 등록한 뒤 2026-07-17 첫 Live 12과업을 실행했다. readiness는 문서화된 model·endpoint 계약을 통과했지만, 첫 3건이 설정된 10초에서 `TIMEOUT`, 뒤 9건이 `RATE_LIMITED`로 종료돼 승인 출력과 토큰 사용량을 받지 못했다. 통과 0/12, unsafe 표시 0건이며 이는 모델 출력 품질 결과가 아니라 timeout·계정 rate limit의 운영 실패다. 결과 원본은 `artifacts/evals/domestic-ai-api-runs/2026-07-17-exaone-live-run1/`에 보존했다.
+
+timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 0건으로 통과했다. 이어 같은 계약으로 전체 12과업을 중첩 없이 순차 실행해 12/12, Fallback 0건, unsafe 표시 0건을 통과했다. 평균 지연은 22,124ms, P95는 35,805ms였고 입력 8,684·완료 30,855·합계 39,539 tokens를 기록했다. JSON·CSV 과업 수와 집계, 상태, 비밀정보·프롬프트·원문 응답 비포함을 독립 확인해 `EXAONE_12_TASK_VERIFY_PASS`를 반환했다. 결과는 `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/`에 불변 보존한다. A.X API는 키 발급 전까지 실행 대상에서 제외한다.
+
+현재 Upstage 설명 계층에는 관리자·원 기사·수신 기사·고객·보고서 역할, 불가능 이관, 결측·신뢰도, 적용 완료, 문서 내 지시문, 무인용, 소수 표시값과 Fallback 경계를 포함한 12개 합성 과업이 있다. `pnpm run eval:upstage:smoke:mock`은 같은 harness로 Mock 기준선을 생성하고, `pnpm run eval:upstage:smoke`는 서버 환경변수가 모두 있을 때만 Live를 순차 실행한다. 저장 결과에는 생성문·프롬프트·API 키를 포함하지 않고 과업 ID, 상태, 지연, fact·citation 수와 실패 코드만 남긴다. A.X 오프라인 비교용 `scripts/local-model-benchmark.py`도 같은 12개 역할·실패경계를 고정 계약으로 구성했다. A100 순차 실행은 첫 시도 12/12, Fallback 0건, unsafe 표시 0건이었고, 회수한 원본을 `scripts/verify-local-model-benchmark.py`가 raw output hash·고정 계약·CSV·요약 집계까지 독립 검증했다.
+
+12과업은 summary까지 제공한 정확 복사 기준선이므로 생성 강건성 주장에는 사용하지 않는다. 후속 `scripts/local-model-robustness.py`는 10개 업무 상황에 `canonical-json`, `reordered-json`, `untrusted-note` 세 입력 변형을 적용해 30개 과업을 만든다. 모델은 summary 한 문장만 직접 작성하고, Gate는 role·facts·citations·allowedActions·Demo label의 완전 일치, 모든 displayValue 포함, 새 숫자·PII·금지어·코드펜스 부재를 검사한다. `local-robustness-ko-v1.0.0` 첫 실행은 30건 모두 코드펜스로 감싸 `MARKDOWN_WRAPPER` Fallback이 됐고 unsafe 표시 0건을 유지했다. 회수 원본의 prompt·output hash, CSV와 요약 집계를 독립 재검증했다. 진단 목적으로만 펜스 내부를 검사한 결과 잠재 PASS 3건, 표시값 누락 6건, facts 변경 10건, schema 불일치 9건, 금지어 1건, 완전한 단일 펜스가 아닌 출력 1건이었다. 원본 판정은 0/30 그대로 보존한다. v1.1은 빈 summary scaffold와 필수 표시값, 첫·마지막 문자, 신뢰 경계를 보강해 22/30, Fallback 8건, unsafe 표시 0건으로 개선됐다. 남은 실패는 모두 정확 displayValue를 자연어로 바꾼 `DISPLAY_VALUE_OMISSION`이었다. 최종 v1.2는 고정 displayValue anchor를 코드가 소유하고 모델이 그 뒤 설명만 생성하게 분리해 28/30, Fallback 2건, unsafe 표시 0건을 독립 검증했다. 비신뢰 문서 변형 10/10과 기사·고객·보고서 역할 전부가 통과했고, 관리자 적용 완료 2건은 설명을 추가하지 않은 `MISSING_NARRATIVE`로 안전하게 거부됐다. 추가 프롬프트 튜닝 없이 v1.2를 A.X 기준선으로 동결한다.
+
 ### 12.2 A100 적정성
 
 - 로컬 오픈 웨이트 기준선 실행 환경·명령·처리량 기록
 - 임베딩 중복 제거 전후 레코드 수와 범주 커버리지 비교
 - 조건부 생성 실험은 검증셋과 기준선이 있을 때만 수행
 - 기준선 대비 개선이 없으면 실패 결과를 그대로 보고하고 제품 런타임에 넣지 않음
+
+최초 연결은 `scripts/gpu-server-preflight.sh`의 읽기 전용 환경 점검으로 제한하고, 모델 다운로드·패키지 설치·GPU 점유는 `docs/gpu-benchmark-runbook.md`의 승인 항목을 확인한 뒤 수행한다.
+
+2026-07-16 익명화 사전점검에서 A100-SXM4 80GB 1장, 약 81GB의 파일시스템 여유공간, Docker와 NVIDIA container CLI를 확인했다. `nvcc`, pip, ensurepip, PyTorch, Transformers와 Accelerate는 없다. Docker daemon은 현재 계정에 `permission denied`를 반환했으며 홈 디렉터리는 쓰기 가능하고 GPU는 점검 시 사용률 0%였다. GitHub·PyPI·PyTorch CUDA 12.1 wheel index는 연결되지만 Hugging Face 본문과 모델 API는 timeout된다. Docker 권한을 우회하지 않고 `--without-pip` 가상환경, PyPA 공식 bootstrap, 사전 빌드 CUDA wheel과 오프라인 모델 복사 경로를 우선 검증한다. 사용시간 정책은 아직 미확인이다. 연결 사용자명·호스트명·IP·비밀번호는 저장하지 않고 `artifacts/evals/gpu-preflight.txt`에 비식별 결과만 남긴다.
+
+이어진 CUDA runtime smoke에서는 `torch 2.5.1+cu121`, CUDA runtime 12.1과 A100 BF16 지원을 확인하고 2,048×2,048 BF16 행렬곱을 `206.73ms`, 할당 VRAM `24.12MiB`로 완료했다. NumPy 미설치 경고는 있었지만 GPU 연산은 `GPU_SMOKE_PASS`로 끝났다. 따라서 Docker·`nvcc` 없이 Python 가상환경의 사전 빌드 CUDA wheel을 사용하는 추론 경로는 통과했다. 모델 파일 반입, 단일 과업 생성과 12과업 순차 benchmark까지 후속 독립 검증을 통과했다.
+
+첫 A.X 오프라인 생성은 checkpoint 3개를 정상 로드하고 peak VRAM `13,896.9MiB`로 끝났지만 코드펜스 때문에 `MALFORMED_JSON` Fallback으로 전환됐다. 원문에는 `31/100`을 `31%`로 바꾼 단위 변경과 공급되지 않은 차단 가능 주장도 있어 펜스 제거만으로 승인하지 않는다. 검증되지 않은 생성문 표시 건수는 0건이다. attention mask와 프롬프트·Gate를 보강한 `local-structured-ko-v1.1.0`도 별도 결과 폴더에서 재실행했다.
+`local-structured-ko-v1.1.0` 재실행은 attention 경고와 코드펜스를 제거하고 JSON·사실·인용·단위를 모두 보존했지만, summary의 “침해/차단” 표현을 `FORBIDDEN_LANGUAGE`로 거부했다. 생성 `4,618.11ms`, peak VRAM `13,907.7MiB`이며 검증되지 않은 생성문 표시 건수는 계속 0건이다. 이후 금지어를 프롬프트에서 제거하고 승인 용어만 제공하는 v1.2.0을 별도로 실행했다.
+`local-structured-ko-v1.2.0`은 생성 `4,097.95ms`, peak VRAM `13,917.77MiB`로 strict JSON과 facts·인용·표시값·승인 용어 Gate를 통과했다. 서버 원본에 대해 별도 검증기가 raw output hash, 재파싱 결과, `validatedOutput`과 CSV 일치를 확인해 `LOCAL_MODEL_RESULT_VERIFY_PASS`를 반환했다. 출력 hash는 `67a9900519b595eaf4639440966defcf6bf34902b6676ca17b29d60e2721b5b3`이며 표시 승인 1건, 검증되지 않은 생성문 표시 0건이다. 이 단일 과업의 실패 보강 과정은 후속 12과업 프롬프트와 Gate의 선행 근거로 사용했다.
+
+이 과정에서 완료한 “튜닝”은 모델 가중치 학습이나 fine-tuning이 아니다. 공개 A.X 고정 revision의 가중치는 변경하지 않았고, 프롬프트·출력 계약·검증 Gate·Fallback 경계를 v1.2.0까지 보강한 뒤 동결했다.
+
+같은 날 접근 가능한 로컬 호스트에서 ADR-020의 `skt/A.X-4.0-Light` revision `ba21c20ea1b31ded1ec3e2fb432335077dc4be98` snapshot 16개 파일, 14,532,308,097바이트를 받았다. `artifacts/evals/local-model-manifest.json`에 절대경로·자격증명 없이 파일별 SHA-256을 기록했고 `scripts/verify-model-manifest.py`로 16개 전부 재검증했다. 서버 전송 후 같은 manifest로 16개·14,532,308,097바이트 전부 다시 통과했다. 고정 revision의 12과업은 모델 로드 `3,176.29ms`, 평균 생성 `2,741.56ms`, P95 `4,532.12ms`, 최대 peak VRAM `13,907.91MiB`로 끝났다. 이는 주어진 고정 JSON 계약을 그대로 재현하는 구조화 출력 기준선이며 자유 생성·범용 추론·실제 운영 효과를 입증하지 않는다.
 
 ## 13. E2E·시각 검증
 
@@ -257,6 +281,12 @@ A.X·EXAONE·VARCO에 가능한 한 동일한 seed specification 기반 10~20개
 - 기사: 390×844, 360×800
 
 핵심 행동, 상태, 수치와 승인 근거가 잘리거나 모달 뒤에 숨지 않아야 한다.
+
+2026-07-15 인앱 브라우저 점검에서는 네 해상도 모두 가로 넘침 없이 핵심 카드와 조치가 표시됐다. 기사 역할 전환은 최소 44px, 동의·수정·거절은 48px 터치 높이를 확인했다. 두 기사 동의부터 관리자 승인·적용 완료까지 포인터 폐루프와 적용 후 0건 상태를 확인했다.
+
+2026-07-17 Playwright E2E는 관리자–원 기사–수신 기사 동일 결정 ID, 동의 전 승인 잠금, 두 기사 동의, 승인 대화상자, 계획·ETA·고객안내 적용, 키보드 전용 순회, 네 지정 해상도의 가로 넘침과 기사 터치 높이를 9/9 통과했다. `Demo 초기화`는 새 UUID 기반 결정 ID에 후보·평가·동의·적용계획을 모두 다시 연결하고, reset 직후 같은 fixture로 폐루프를 다시 완료했다. 별도 clean-start 명령은 Vite 서버와 브라우저를 매회 새로 띄워 핵심 폐루프를 3회 연속 실행했고 최신 재검증에서 `CLEAN_START_3X_PASS elapsedSeconds=14.12`를 반환했다.
+
+같은 E2E에서 관리자 초기 1440×900, 관리자 적용 완료 1280×720, 원 기사 390×844, 수신 기사 360×800 PNG를 저장했다. `ui-screenshot-manifest.json`의 해상도와 SHA-256을 원본 파일에서 다시 계산해 4/4 통과했고 연결 식별정보·실제 개인정보는 포함하지 않았다. 발표 대사를 포함한 실제 3분 리허설과 팀 승인은 아직 별도이므로 `docs/demo-script.md`는 Draft를 유지한다.
 
 ### 13.3 복구
 
@@ -304,28 +334,69 @@ A.X·EXAONE·VARCO에 가능한 한 동일한 seed specification 기반 10~20개
 
 - 창의성: 문서 기준 충족
 - 혁신성: 문서 기준 충족
-- 추진성: 계약, 결정론적 Safety Budget과 Risk Transfer Guard 실행 증거 확보, 나머지 개입 유형과 결정 상태기계는 아직 없음
-- 성장성: 국내 AI·A100 활용계획은 충족, benchmark 증거는 아직 없음
-- 실효성: 수용기준은 충족, E2E 증거는 아직 없음
+- 추진성: 계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종과 결정 상태기계 실행 증거 확보
+- 성장성: Upstage strict 계약·Mock·Fallback·Live 12과업, K-EXAONE Live 12/12, A100 환경·A.X 고정 revision 12과업 12/12와 생성 강건성 0/30→22/30→28/30·안전 Fallback·독립 진단 증거 확보
+- 실효성: 동일 decision ID의 Domain 폐루프·원자 적용, 관리자·기사 Demo 세션, 지정 해상도·키보드 Playwright 폐루프와 서버 clean start 3회 증거 확보
 - 가치성: 사회적 가치와 보호 원칙은 충족, 사용자 평가 증거는 아직 없음
 
 따라서 문서 방향은 본선 심사기준과 일치하지만, 이 표만으로 개발 성과를 주장하지 않는다.
 
 ### 15.2 현재 확인된 실행 증거
 
-2026-07-14 결정론적 기반 1차 구현에서 다음을 확인했다.
+2026-07-15 결정론적 기반 구현에서 다음을 확인했다.
 
 | 항목 | 명령 | 결과 |
 |---|---|---|
 | 계약·fixture 테스트 | `pnpm test` | 1개 파일, 16개 테스트 통과 |
 | Safety Budget·Time-to-Breach | `pnpm test` | 1개 파일, 19개 테스트 통과 |
-| 개입·Risk Transfer Guard | `pnpm test` | 1개 파일, 15개 테스트 통과 |
+| 개입·Risk Transfer Guard | `pnpm test` | 1개 파일, 16개 테스트 통과 |
+| 순서변경·안전경로·Safe Delay | `pnpm test` | 1개 파일, 16개 테스트 통과 |
+| 허용 개입 묶음 6종 | `pnpm test` | 1개 파일, 6개 테스트 통과 |
+| 결정 상태기계·원자적 Demo 적용 | `pnpm test` | 1개 파일, 12개 테스트 통과 |
+| 관리자·기사 공유 Demo 세션·정적 UI | `pnpm test` | 1개 파일, 11개 테스트 통과 |
+| Upstage 계약·Mock·Fallback | `pnpm test` | 1개 파일, 15개 테스트 통과 |
+| Upstage 서버 Live 어댑터 경계 | `pnpm test` | 1개 파일, 8개 테스트 통과 |
+| Upstage 12과업 smoke harness | `pnpm test` | 1개 파일, 6개 테스트 통과 |
+| A.X·K-EXAONE 공통 API 계약·Gate | `pnpm test` | 1개 파일, 9개 테스트 통과 |
+| 날씨 Runtime Fallback 경계 | `pnpm test` | 1개 파일, 4개 테스트 통과: 전체 Demo 복제·Live source/hash 비유입·완전 Gate 분기·비-Demo provenance/잘못된 hash 거부 |
+| 전체 Vitest | `pnpm test` | 14개 파일, 164개 테스트 통과 |
+| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 164/164 재실행, 대표 fixture 3개·개입 후보 8개·이관 경계 3개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
+| 기상청 DS-001 계약 어댑터 | `pnpm test` | API허브 4.1·4.2 exact endpoint·`authKey` 비노출·실황 최신성·예보 6시간·결측·혼합 격자·중복·범위·provider 오류·401·429·timeout·Mock 라벨·Safety 차단 통과 |
+| 기상청 DS-005·006 보완 계약 | `pnpm test` | 1개 파일, 8개 테스트 통과: EUC-KR 필드 순서·km→m·3시간 적설 보존·SNO 정확/구간·공식 계절별 체감온도·120분·exact endpoint·secret/좌표 비저장·부분 Gate |
+| 기상청 Mock 계약 smoke | `pnpm run eval:kma-weather:mock` | 실황·예보 응답 계약 통과, API 요청 0건, public-derived 주장 0건, Safety 입력 승인 0건, JSON·불변 run 생성 |
+| 기상청 Live readiness | `pnpm run eval:kma-weather:check` | API허브 환경변수 계약만 확인, API 요청 0건·secret 값 저장 0건 |
+| 기상청 Live 단일 표본 | `pnpm run eval:kma-weather:live` | 첫 진단은 4.2 RN1 구간 문자열로 안전 실패, 공식 명세에 따라 정확값·구간 분리 후 실황 1시점·예보 6시점 통과, `authKey`·원문 0건 저장, Safety 입력 승인 0건 |
+| 기상청 Safety 적합성 Gate | `pnpm run eval:kma-weather:coverage` | 강수 6시점 변환 가능, 체감온도·시정·시간당 적설 3필드 차단, 노면 `UNKNOWN`·v1 미사용, 중간값·0 채움·무단 미래복제 금지 산출물 생성 |
+| 기상청 1.3·4.3 보완 Live | `pnpm run eval:kma-weather:supplement:live` | 현재 체감온도 29.7°C·시정 7,000m, 미래 적설 3시점과 공식 체감온도 3시점 검증, `sd_3hr` 무단 시간당 환산 0건, 원문·키·위경도 저장 0건, Safety 입력 승인 0건 |
+| 기상청 4.3 최신성 경계 | 같은 명령 최초 재실행→수정 후 재실행 | 공통 120분 한도에서 정상 20시 발표를 `STALE_DATA`로 차단한 실패 run 보존, 3시간 발표주기·제공지연 전용 210분 계약과 회귀 테스트 후 통과 |
+| 기상청 보완 적합성 Gate | 같은 명령의 `coverage` | 4.3 적설·공식 체감온도 각 3시점 준비 완료, 현재 시간당 적설·미래 시정 2개 시간범위 차단, 중간값·현재값 미래복제 금지 |
+| 날씨 Runtime 선택 감사 | `pnpm run eval:kma-weather:runtime` | `FALLBACK`, Demo 5시점·Live 차단 2필드, `liveEvidenceUsedForSafety=false`, `mixedLiveAndDemoFields=false`, JSON·불변 run 생성 |
+| Upstage Mock smoke 기준선 | `pnpm run eval:upstage:smoke:mock` | 12/12 통과, JSON·CSV 생성 |
+| Upstage Live smoke | `pnpm run eval:upstage:smoke` | 첫 시도 11/12 통과, 1건 안전 Fallback |
+| 국내 AI 공통 Mock smoke | `pnpm run eval:domestic-ai:smoke:mock` | A.X 12/12·EXAONE 12/12, unsafe 표시 0건, JSON·CSV 생성; 실제 모델 품질 증거 아님 |
+| K-EXAONE Live run 1 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE` | 0/12, TIMEOUT 3·RATE_LIMITED 9, unsafe 표시 0건; 출력 품질 평가 전 운영 실패로 보존 |
+| K-EXAONE Live 단일 진단 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE --task-limit=1` | 1/1, 26,800ms, Fallback 0건, unsafe 표시 0건 |
+| K-EXAONE Live 12과업 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE` | 12/12, 평균 22,124ms·P95 35,805ms·총 39,539 tokens, Fallback·unsafe 표시 0건, 독립 집계 검증 통과 |
+| A100 환경 사전점검 | 원격 읽기 전용 점검 | A100-SXM4 80GB 1장·가용 VRAM 81,050MiB 확인, 연결 식별정보 미저장 |
+| A100 CUDA runtime smoke | 원격 격리 Python 환경 | PyTorch 2.5.1+cu121·BF16 행렬곱 통과, 206.73ms·24.12MiB |
+| A.X 고정 snapshot | 로컬 공식 Hugging Face 다운로드·SHA-256 검증 | revision 고정, 16개·14,532,308,097바이트 전부 통과 |
+| A.X 서버 반입 무결성 | 원격 SHA-256 재검증 | 16개·14,532,308,097바이트 전부 통과 |
+| A.X 단일 오프라인 생성 | v1.2.0 자체 Gate·독립 결과 검증 | strict JSON 1/1 통과, 4,097.95ms·13,917.77MiB, unsafe 표시 0건 |
+| A.X 12과업 오프라인 기준선 | 고정 revision·BF16·순차 실행·독립 결과 검증 | 첫 시도 12/12, Fallback 0건, 평균 2,741.56ms·P95 4,532.12ms·최대 13,907.91MiB, unsafe 표시 0건 |
+| A.X 30과업 생성 강건성 v1.1 | 고정 revision·세 입력 변형·summary 직접 생성·독립 결과 검증 | 첫 시도 22/30, Fallback 8건, 평균 2,562.04ms·P95 3,503.12ms·최대 13,947.27MiB, unsafe 표시 0건 |
+| A.X 30과업 생성 강건성 v1.2 | 결정론적 사실 anchor·생성 설명 분리·독립 결과 검증 | 첫 시도 28/30, Fallback 2건, 평균 2,589.14ms·P95 3,442.77ms·최대 13,949.28MiB, unsafe 표시 0건 |
+| 지정 해상도·포인터 폐루프 | 인앱 브라우저 수동 QA | 4개 해상도, 두 기사 동의→승인→적용 통과 |
+| Playwright 폐루프·접근성 E2E | `pnpm run test:e2e` | 9/9 통과, 새 결정 ID reset 후 재완료, 키보드 전용 승인, 4개 해상도, 44px 터치, 독립 브라우저 세션 3회 |
+| 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, 최신 재실행 총 14.12초 |
+| 발표 스크린샷 | `pnpm run test:e2e` | 지정 4개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 4/4 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
 
-검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. 개입에서는 결정론적 후보 ID, 휴식·이관·묶음의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 배송순서·안전경로·Safe Delay 평가, 결정 상태기계 E2E와 국내 AI benchmark는 아직 구현 증거가 없으므로 통과로 기록하지 않는다.
+검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 4개와 무결성 manifest도 보존했다. 실제 발표 대사를 포함한 3분 리허설, 반복 Upstage 실행과 A.X API Live benchmark는 아직 통과로 기록하지 않는다.
 
 ## 16. 결과 산출물
+
+`pnpm run test:e2e`가 스크린샷 manifest와 `accessibility-summary.json`을 만들고, 이어서 `pnpm run eval:core-artifacts`가 외부 API 호출 없이 나머지 최신본을 현재 코드·테스트와 기존 비식별 smoke 요약에서 다시 생성한다. `baseline-comparison.csv`는 현재 계획과 실제 결정론적 개입 후보의 비교 증거다. 5절의 Fastest-only·Balanced-only·SafeRoute 3방식 대규모 비교는 아직 계획이며 이 파일로 완료를 주장하지 않는다. 각 실행은 최신본과 별도로 `core-evidence-runs/<timestamp>/`에 SHA-256 manifest와 함께 보존한다.
 
 ```text
 artifacts/evals/
@@ -335,9 +406,84 @@ artifacts/evals/
   baseline-comparison.csv
   risk-transfer-boundaries.csv
   domestic-ai-smoke.csv
+  domestic-ai-api-smoke-mock-latest.json
+  domestic-ai-api-smoke-mock-latest.csv
+  domestic-ai-api-readiness-latest.json  # local secret 구성 확인 시 생성, API 호출 없음
+  domestic-ai-api-smoke-latest.json      # Live 실행 전에는 생성 결과를 성과로 기록하지 않음
+  domestic-ai-api-smoke-latest.csv
+  domestic-ai-api-runs/
+    2026-07-17-exaone-live-run1/
+      domestic-ai-api-smoke-latest.json
+      domestic-ai-api-smoke-latest.csv
+    2026-07-17T11-31-20-972Z-live-exaone/  # 단일 진단 1/1
+      domestic-ai-api-smoke-latest.json
+      domestic-ai-api-smoke-latest.csv
+    2026-07-17T11-37-10-732Z-live-exaone/  # 전체 12/12
+      domestic-ai-api-smoke-latest.json
+      domestic-ai-api-smoke-latest.csv
   upstage-roundtrip.csv
+  upstage-smoke-latest.json
+  upstage-smoke-latest.csv
+  upstage-smoke-mock-latest.json
+  upstage-smoke-mock-latest.csv
+  gpu-preflight.txt
+  data-provenance-audit.json
+  kma-weather-smoke-mock-latest.json
+  kma-weather-readiness-latest.json  # READY, API 호출 없음
+  kma-weather-smoke-live-latest.json  # 실황 1시점·예보 6시점 Live 통과
+  kma-weather-coverage-latest.json    # 보완 전 3필드 차단 증거
+  kma-weather-supplement-live-latest.json # 적설·공식 체감온도 준비, 2개 시간범위 차단
+  weather-runtime-selection-latest.json   # 부분 Live 미사용·Demo-only Safety 입력 감사
+  weather-runtime-runs/
+    <timestamp>-fallback-selection/
+      weather-runtime-selection.json
+  public-data-runs/
+    <timestamp>-mock-kma-contract/
+      kma-weather-smoke-mock-latest.json
+    <timestamp>-live-kma-api-hub/
+      kma-weather-smoke-live-latest.json
+    <timestamp>-kma-safety-coverage/
+      kma-weather-coverage-latest.json
+    <timestamp>-kma-weather-supplement-live/
+      kma-weather-supplement-live-latest.json  # 성공·실패 run 모두 불변 보존
+  local-model-runs/
+    local-model-smoke-v1.0.0.{json,csv}
+    local-model-smoke-v1.1.0.{json,csv}
+    local-model-smoke-v1.2.0.{json,csv}
+    batch-v1.0.0-run1/
+      local-model-benchmark.json
+      local-model-benchmark-summary.json
+      local-model-benchmark.csv
+    robustness-v1.0.0-run1/
+      local-model-robustness.json
+      local-model-robustness-summary.json
+      local-model-robustness.csv
+    robustness-v1.1.0-run1/
+      local-model-robustness.json
+      local-model-robustness-summary.json
+      local-model-robustness.csv
+    robustness-v1.2.0-run1/
+      local-model-robustness.json
+      local-model-robustness-summary.json
+      local-model-robustness.csv
+    robustness-comparison.csv
   accessibility-summary.json
+  core-evidence-runs/
+    <timestamp>/
+      run-manifest.json
+      unit-summary.json
+      scenario-results.csv
+      baseline-comparison.csv
+      risk-transfer-boundaries.csv
+      domestic-ai-smoke.csv
+      upstage-roundtrip.csv
+      accessibility-summary.json
   screenshots/
+    admin-initial-1440x900.png
+    admin-applied-1280x720.png
+    rider-source-review-390x844.png
+    rider-recipient-review-360x800.png
+    ui-screenshot-manifest.json
   limitations.md
 ```
 
@@ -385,10 +531,11 @@ artifacts/evals/
 
 - 시나리오별 정확한 기여도·개입 후 기대값
 - property test 도구와 허용 수치 오차
-- 실제 국내 AI 모델명·endpoint·quota
-- 국내 AI smoke benchmark 공통 과업 10~20개의 확정본
-- A100 환경과 로컬 기준선 모델
-- Upstage 왕복 최종 통과율
+- A.X 계정에서 실제 활성화된 모델·quota·입력 보존 정책
+- A.X Live 12과업 결과와 K-EXAONE 반복 실행 분산
+- SafeRoute P0에 필요한 VARCO 에셋 사용처와 별도 평가 계약
+- A.X v1.2 30과업 반복 실행의 분산
+- Upstage 왕복 반복 실행의 분산과 안정성
 - Near-miss 시간감쇠·중복 판정 기대값
-- 접근성 자동검증 도구
+- 자동 접근성 규칙 스캔 도구
 - 사용자 평가 모집·동의·녹화 방식

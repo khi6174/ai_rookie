@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "local-model-smoke-v1",
+  "capturedAt": "2026-07-17T04:23:57.398778+00:00",
+  "taskId": "local-smoke-admin-support-001",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-structured-ko-v1.0.0",
+  "seed": 6174,
+  "status": "safe-fallback",
+  "validationCode": "MALFORMED_JSON",
+  "loadMs": 3546.58,
+  "generationMs": 4734.9,
+  "inputTokens": 218,
+  "outputTokens": 168,
+  "peakMemoryMiB": 13896.9,
+  "outputSha256": "73a7af629e615519711ac8627803395a59d7b0e6394107f957f78f0a69e29b94",
+  "displayApproved": false,
+  "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"현재 안전 예산은 31% 남아있으며, 침해까지 52분이 소요됩니다. 17번째 배송지에서 침해를 차단할 수 있고, 신뢰도는 87%입니다.\",\n  \"facts\": [{\"factId\":\"safety-budget-remaining\",\"displayValue\":\"31/100\"},{\"factId\":\"time-to-breach\",\"displayValue\":\"52분\"},{\"factId\":\"breach-stop\",\"displayValue\":\"17번째 배송지\"},{\"factId\":\"confidence\",\"displayValue\":\"87%\"}],\n  \"citations\": [\"synthetic-safety-manual#support-protocol\"],\n  \"allowedAction\": \"지원 검토\",\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+  "validatedOutput": null,
+  "fallbackOutput": {
+    "role": "admin",
+    "summary": "합성 Demo 사실을 자동 설명으로 검증하지 못했습니다. 제공된 수치와 근거를 직접 확인해 주세요.",
+    "facts": [
+      {
+        "factId": "safety-budget-remaining",
+        "displayValue": "31/100"
+      },
+      {
+        "factId": "time-to-breach",
+        "displayValue": "52분"
+      },
+      {
+        "factId": "breach-stop",
+        "displayValue": "17번째 배송지"
+      },
+      {
+        "factId": "confidence",
+        "displayValue": "87%"
+      }
+    ],
+    "citations": [
+      "synthetic-safety-manual#support-protocol"
+    ],
+    "allowedAction": "지원 검토",
+    "demoLabel": "합성 Demo"
+  }
+}

@@ -1,0 +1,113 @@
+{
+  "schemaVersion": "local-model-manifest-v1",
+  "status": "downloaded-and-checksummed",
+  "capturedAt": "2026-07-16T09:09:29.961370+00:00",
+  "source": {
+    "provider": "Hugging Face",
+    "repoId": "skt/A.X-4.0-Light",
+    "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+    "license": "Apache-2.0",
+    "private": false,
+    "gated": false
+  },
+  "benchmarkPolicy": {
+    "purpose": "A100 structured JSON generation baseline",
+    "dtype": "bfloat16",
+    "quantization": "none",
+    "batchSize": 1,
+    "maxInputTokens": 4096,
+    "maxNewTokens": 512,
+    "mayChangeDeterministicSafetyDecision": false
+  },
+  "snapshot": {
+    "fileCount": 16,
+    "totalBytes": 14532308097,
+    "files": [
+      {
+        "path": ".gitattributes",
+        "sizeBytes": 1752,
+        "sha256": "fef62d79a091ba2789a17c02ba091b378c8deb4b1fa53972422955b488c37021"
+      },
+      {
+        "path": "assets/A.X_logo.png",
+        "sizeBytes": 72833,
+        "sha256": "51b76fee619f0422be72bacd9f2a84d3d9f888b6354c1cbba4f26c97ea4bf977"
+      },
+      {
+        "path": "assets/A.X_logo_ko_4x3.png",
+        "sizeBytes": 182884,
+        "sha256": "45eecde59e22d7be0f8a451c2cd7bb7f1526e0bb5b021ed202ce12c0838fc53d"
+      },
+      {
+        "path": "config.json",
+        "sizeBytes": 674,
+        "sha256": "cde7cdcfe774ac9faa05d4316d32ef5c7945a000d2d571b0ba457a3c973b1502"
+      },
+      {
+        "path": "generation_config.json",
+        "sizeBytes": 130,
+        "sha256": "3e5faa339c15eafe4018dfb768a9941f2f7457373cb2cf3de12bfb88660e670c"
+      },
+      {
+        "path": "LICENSE",
+        "sizeBytes": 13019,
+        "sha256": "0d4b6e74abfb37024fba6f841f6b637d5570c3bf00d2dd2c3181dda4b313ae46"
+      },
+      {
+        "path": "merges.txt",
+        "sizeBytes": 1538148,
+        "sha256": "d33bd322a424d0144e5bd123dbeef33f2538ac57adabf639984599ee9b9ca9b3"
+      },
+      {
+        "path": "model-00001-of-00003.safetensors",
+        "sizeBytes": 4987786168,
+        "sha256": "2f80502d7d801be45497f1391d82f0ff2e4afb7f0c26cbe988fcd3455d768655"
+      },
+      {
+        "path": "model-00002-of-00003.safetensors",
+        "sizeBytes": 4932751024,
+        "sha256": "1725192e45669b4b6ee825aaa79832a82b2f92e9dac18a68a7f69d0bcfa5feec"
+      },
+      {
+        "path": "model-00003-of-00003.safetensors",
+        "sizeBytes": 4598751568,
+        "sha256": "cfdeb1f54032d8b6a34b235a4f9f2a67325b1a3dfc26f7d271964ae1b1950822"
+      },
+      {
+        "path": "model.safetensors.index.json",
+        "sizeBytes": 27752,
+        "sha256": "cff42ed9cea88af747cba33904f1a9541292c583cac084f0d18c1e595628b3f9"
+      },
+      {
+        "path": "README.md",
+        "sizeBytes": 14508,
+        "sha256": "c7cad6f10664142e662168eded0af2664e74766ac447ca264a2519bccf9f0554"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "sizeBytes": 1754,
+        "sha256": "312ce7c2be09ff7794368a33c1ee54ed7ed100ac84225653bb4a366c93e71039"
+      },
+      {
+        "path": "tokenizer.json",
+        "sizeBytes": 8495125,
+        "sha256": "e3973eceeed921e72d54fbbf597e1bea0a219112a0809ad8eaf62a1754f8ea44"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "sizeBytes": 12523,
+        "sha256": "f59e95cdcf892365badff2dbadac306b97a280bea24e39f4a06be97e3e308104"
+      },
+      {
+        "path": "vocab.json",
+        "sizeBytes": 2658235,
+        "sha256": "aa321d72a70362cc860441bb8c26a897adee22137ceb4d8974f764ed6b005474"
+      }
+    ]
+  },
+  "privacy": {
+    "credentialsStored": false,
+    "connectionIdentifiersStored": false,
+    "localAbsolutePathStored": false
+  }
+}

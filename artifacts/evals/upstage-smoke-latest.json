@@ -1,0 +1,133 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "runId": "upstage-smoke-20260716075628",
+    "startedAt": "2026-07-16T07:56:28.087Z",
+    "finishedAt": "2026-07-16T07:56:45.316Z",
+    "providerMode": "LIVE",
+    "model": "solar-pro3",
+    "promptVersion": "explanation-ko-v1.1.0",
+    "taskCount": 12,
+    "results": [
+      {
+        "taskId": "upstage-smoke-admin-plan-001",
+        "role": "ADMIN",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1615,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-courier-source-002",
+        "role": "COURIER",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1749,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-courier-recipient-003",
+        "role": "COURIER",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1559,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-customer-eta-004",
+        "role": "CUSTOMER",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1225,
+        "citedFactCount": 2,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-report-summary-005",
+        "role": "REPORT",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1321,
+        "citedFactCount": 3,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-admin-blocked-006",
+        "role": "ADMIN",
+        "status": "FALLBACK",
+        "passed": false,
+        "latencyMs": 1452,
+        "citedFactCount": 3,
+        "citationCount": 1,
+        "fallbackCode": "MALFORMED_RESPONSE"
+      },
+      {
+        "taskId": "upstage-smoke-courier-confidence-007",
+        "role": "COURIER",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1244,
+        "citedFactCount": 2,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-admin-applied-008",
+        "role": "ADMIN",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1680,
+        "citedFactCount": 3,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-injection-citation-009",
+        "role": "ADMIN",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1188,
+        "citedFactCount": 2,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-no-citation-010",
+        "role": "CUSTOMER",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1116,
+        "citedFactCount": 1,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-decimal-integrity-011",
+        "role": "ADMIN",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1577,
+        "citedFactCount": 2,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-fallback-boundary-012",
+        "role": "REPORT",
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1500,
+        "citedFactCount": 2,
+        "citationCount": 1
+      }
+    ],
+    "metrics": {
+      "passed": 11,
+      "failed": 1,
+      "fallback": 1,
+      "averageLatencyMs": 1436,
+      "p95LatencyMs": 1749,
+      "fallbackCodes": {
+        "MALFORMED_RESPONSE": 1
+      }
+    }
+  }
+}

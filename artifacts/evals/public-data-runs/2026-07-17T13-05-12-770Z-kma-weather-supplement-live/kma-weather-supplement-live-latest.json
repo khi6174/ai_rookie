@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "kma-weather-supplement-live-smoke-v1",
+  "capturedAt": "2026-07-17T13:05:12.770Z",
+  "status": "FAILED",
+  "requestSent": true,
+  "requests": {
+    "highResolution": {
+      "representativePointId": "kma-api-hub-public-example-seoul",
+      "timeKst": "202607172130",
+      "rawCoordinatesStored": false
+    },
+    "shortForecast": {
+      "areaId": "demo-seoul-grid-60-127",
+      "baseDate": "20260717",
+      "baseTime": "2000",
+      "gridX": 60,
+      "gridY": 127,
+      "horizonStartIso": "2026-07-17T22:00:00+09:00",
+      "horizonMinutes": 120
+    }
+  },
+  "failureStage": "SHORT_FORECAST_4_3",
+  "failureCode": "STALE_DATA",
+  "failureDiagnostic": "UNSPECIFIED",
+  "message": "KMA supplement Live smoke failed safely; no raw response was stored."
+}

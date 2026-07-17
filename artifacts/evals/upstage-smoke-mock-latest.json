@@ -1,0 +1,130 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "runId": "upstage-smoke-20260716070210",
+    "startedAt": "2026-07-16T07:02:10.858Z",
+    "finishedAt": "2026-07-16T07:02:10.865Z",
+    "providerMode": "MOCK",
+    "model": "upstage-mock-contract-v1",
+    "promptVersion": "explanation-ko-v1.0.0",
+    "taskCount": 12,
+    "results": [
+      {
+        "taskId": "upstage-smoke-admin-plan-001",
+        "role": "ADMIN",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 3,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-courier-source-002",
+        "role": "COURIER",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-courier-recipient-003",
+        "role": "COURIER",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 1,
+        "citedFactCount": 4,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-customer-eta-004",
+        "role": "CUSTOMER",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 2,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-report-summary-005",
+        "role": "REPORT",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 3,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-admin-blocked-006",
+        "role": "ADMIN",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 1,
+        "citedFactCount": 3,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-courier-confidence-007",
+        "role": "COURIER",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 2,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-admin-applied-008",
+        "role": "ADMIN",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 3,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-injection-citation-009",
+        "role": "ADMIN",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 2,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-no-citation-010",
+        "role": "CUSTOMER",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 1,
+        "citedFactCount": 1,
+        "citationCount": 0
+      },
+      {
+        "taskId": "upstage-smoke-decimal-integrity-011",
+        "role": "ADMIN",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 2,
+        "citationCount": 1
+      },
+      {
+        "taskId": "upstage-smoke-fallback-boundary-012",
+        "role": "REPORT",
+        "status": "MOCK",
+        "passed": true,
+        "latencyMs": 0,
+        "citedFactCount": 2,
+        "citationCount": 1
+      }
+    ],
+    "metrics": {
+      "passed": 12,
+      "failed": 0,
+      "fallback": 0,
+      "averageLatencyMs": 1,
+      "p95LatencyMs": 3,
+      "fallbackCodes": {}
+    }
+  }
+}

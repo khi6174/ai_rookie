@@ -8,7 +8,23 @@
     "build": "tsc --noEmit && vite build",
     "typecheck": "tsc --noEmit --pretty false",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "test:e2e": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1",
+    "test:e2e:headed": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 --headed",
+    "test:e2e:clean-start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-clean-start-rehearsal.ps1",
+    "eval:core-artifacts": "node scripts/run-core-eval-artifacts.mjs",
+    "eval:upstage:smoke": "node scripts/run-upstage-smoke.mjs",
+    "eval:upstage:smoke:mock": "node scripts/run-upstage-smoke.mjs --mock",
+    "eval:domestic-ai:smoke": "node scripts/run-domestic-ai-smoke.mjs",
+    "eval:domestic-ai:smoke:mock": "node scripts/run-domestic-ai-smoke.mjs --mock",
+    "eval:domestic-ai:check": "node scripts/run-domestic-ai-smoke.mjs --check",
+    "eval:kma-weather:check": "node scripts/run-kma-weather-smoke.mjs --check",
+    "eval:kma-weather:mock": "node scripts/run-kma-weather-smoke.mjs --mock",
+    "eval:kma-weather:live": "node scripts/run-kma-weather-smoke.mjs --live",
+    "eval:kma-weather:coverage": "node scripts/run-kma-weather-coverage.mjs",
+    "eval:kma-weather:supplement:diagnose": "node scripts/run-kma-supplement-diagnostic.mjs",
+    "eval:kma-weather:supplement:live": "node scripts/run-kma-supplement-smoke.mjs",
+    "eval:kma-weather:runtime": "node scripts/run-weather-runtime-audit.mjs"
   },
   "dependencies": {
     "react": "^19.2.7",
@@ -16,6 +32,7 @@
     "zod": "^4.4.3"
   },
   "devDependencies": {
+    "@playwright/test": "^1.61.1",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^6.0.3",

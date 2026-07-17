@@ -1,0 +1,46 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "schemaVersion": "domestic-ai-api-benchmark-v1",
+    "capturedAt": "2026-07-17T11:31:20.972Z",
+    "taskCountPerProvider": 1,
+    "providerCount": 1,
+    "providers": [
+      {
+        "providerId": "EXAONE",
+        "providerMode": "LIVE",
+        "protocol": "OPENAI_CHAT_COMPLETIONS",
+        "model": "LGAI-EXAONE/K-EXAONE-236B-A23B",
+        "promptVersion": "explanation-ko-v1.1.0",
+        "taskCount": 1,
+        "results": [
+          {
+            "taskId": "domestic-ai-admin-plan-001",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 26800,
+            "usage": {
+              "promptTokens": 854,
+              "completionTokens": 3023,
+              "totalTokens": 3877
+            }
+          }
+        ],
+        "metrics": {
+          "passed": 1,
+          "failed": 0,
+          "fallback": 0,
+          "firstAttemptPassRate": 1,
+          "averageLatencyMs": 26800,
+          "p95LatencyMs": 26800,
+          "promptTokens": 854,
+          "completionTokens": 3023,
+          "totalTokens": 3877,
+          "unsafeDisplayCount": 0,
+          "fallbackCodes": {}
+        }
+      }
+    ]
+  }
+}

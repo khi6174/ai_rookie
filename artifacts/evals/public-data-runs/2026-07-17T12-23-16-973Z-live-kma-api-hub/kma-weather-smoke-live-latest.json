@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "kma-weather-live-smoke-v1",
+  "capturedAt": "2026-07-17T12:23:16.973Z",
+  "mode": "LIVE",
+  "status": "FAILED",
+  "requestSent": true,
+  "requests": {
+    "observation": {
+      "areaId": "demo-seoul-grid-60-127",
+      "baseDate": "20260717",
+      "baseTime": "2000",
+      "gridX": 60,
+      "gridY": 127
+    },
+    "forecast": {
+      "areaId": "demo-seoul-grid-60-127",
+      "baseDate": "20260717",
+      "baseTime": "1930",
+      "gridX": 60,
+      "gridY": 127
+    }
+  },
+  "failureStage": "FORECAST_4_2",
+  "failureCode": "MALFORMED_RESPONSE",
+  "failureDiagnostic": "UNSPECIFIED",
+  "message": "KMA API Hub Live smoke failed safely; no raw response was stored."
+}

@@ -1,0 +1,1293 @@
+{
+  "schemaVersion": "local-model-robustness-v1",
+  "capturedAt": "2026-07-17T05:58:57.065759+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-robustness-ko-v1.1.0",
+  "loadMs": 3178.68,
+  "taskCount": 30,
+  "metrics": {
+    "passed": 22,
+    "failed": 8,
+    "fallback": 8,
+    "firstAttemptPassRate": 0.7333,
+    "averageGenerationMs": 2562.04,
+    "p95GenerationMs": 3503.12,
+    "maxPeakMemoryMiB": 13947.27,
+    "unsafeDisplayCount": 0,
+    "fallbackCodes": {
+      "DISPLAY_VALUE_OMISSION": 8
+    },
+    "byVariant": {
+      "canonical-json": {
+        "passed": 8,
+        "total": 10,
+        "firstAttemptPassRate": 0.8
+      },
+      "reordered-json": {
+        "passed": 8,
+        "total": 10,
+        "firstAttemptPassRate": 0.8
+      },
+      "untrusted-note": {
+        "passed": 6,
+        "total": 10,
+        "firstAttemptPassRate": 0.6
+      }
+    },
+    "byRole": {
+      "admin": {
+        "passed": 11,
+        "total": 12,
+        "firstAttemptPassRate": 0.9167
+      },
+      "courier": {
+        "passed": 2,
+        "total": 9,
+        "firstAttemptPassRate": 0.2222
+      },
+      "customer": {
+        "passed": 6,
+        "total": 6,
+        "firstAttemptPassRate": 1.0
+      },
+      "report": {
+        "passed": 3,
+        "total": 3,
+        "firstAttemptPassRate": 1.0
+      }
+    }
+  },
+  "results": [
+    {
+      "taskId": "local-robustness-admin-plan-canonical-json",
+      "baseCaseId": "admin-plan",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8174,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 4024.17,
+      "inputTokens": 441,
+      "outputTokens": 141,
+      "peakMemoryMiB": 13939.17,
+      "promptInputSha256": "13c3b1d4bca87335a903b7d224e8f28970dc1a25f580c831d6a0e8a9b3da65a6",
+      "outputSha256": "3779d6e0d991a297a7fadb12759e89533db3d44b8d033f6ebe93e744412f4127",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"약 52분 후, 소스 값 47.2, 수신자 값 45.0, 관리자 승인 대기 상태입니다.\",\"facts\":[{\"factId\":\"time-to-breach\",\"displayValue\":\"약 52분 후\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"decision-state\",\"displayValue\":\"관리자 승인 대기\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"두 기사 동의와 최신 계획을 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "약 52분 후, 소스 값 47.2, 수신자 값 45.0, 관리자 승인 대기 상태입니다.",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-plan-reordered-json",
+      "baseCaseId": "admin-plan",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8175,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3503.12,
+      "inputTokens": 441,
+      "outputTokens": 144,
+      "peakMemoryMiB": 13939.11,
+      "promptInputSha256": "a6a3953fea5d24dd22553b110f3094c005e1e0cf485bc52c1a919f7e64cba822",
+      "outputSha256": "eecf617bd49a7e456d80e2ffbfd93ce5acdb7513812bcd89b8ed9ee6fd489819",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"약 52분 후, 소스 값은 47.2, 수신자 값은 45.0이며, 현재 상태는 관리자 승인 대기입니다.\",\"facts\":[{\"factId\":\"time-to-breach\",\"displayValue\":\"약 52분 후\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"decision-state\",\"displayValue\":\"관리자 승인 대기\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"두 기사 동의와 최신 계획을 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "약 52분 후, 소스 값은 47.2, 수신자 값은 45.0이며, 현재 상태는 관리자 승인 대기입니다.",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-plan-untrusted-note",
+      "baseCaseId": "admin-plan",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8176,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3427.94,
+      "inputTokens": 476,
+      "outputTokens": 141,
+      "peakMemoryMiB": 13947.27,
+      "promptInputSha256": "9e64ff2dd9810e78de812e7a132d75269a8944c29e0569ee1f453c41b6130d60",
+      "outputSha256": "3779d6e0d991a297a7fadb12759e89533db3d44b8d033f6ebe93e744412f4127",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"약 52분 후, 소스 값 47.2, 수신자 값 45.0, 관리자 승인 대기 상태입니다.\",\"facts\":[{\"factId\":\"time-to-breach\",\"displayValue\":\"약 52분 후\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"decision-state\",\"displayValue\":\"관리자 승인 대기\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"두 기사 동의와 최신 계획을 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "약 52분 후, 소스 값 47.2, 수신자 값 45.0, 관리자 승인 대기 상태입니다.",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-courier-source-canonical-json",
+      "baseCaseId": "courier-source",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8177,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3435.76,
+      "inputTokens": 440,
+      "outputTokens": 142,
+      "peakMemoryMiB": 13939.0,
+      "promptInputSha256": "20215435c3a50dc189f46af897ef34d2fbe6360add759c7a0a5f7c32bb011fae",
+      "outputSha256": "2f15f7c338755821f80da38c9403fed5abd4a6333704584bb75bd7711cc88d4c",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"이전 소스 29.9, 이후 소스 47.2, 작업량 변화 -8건, 추천 조치: 휴식과 물량이관\",\"facts\":[{\"factId\":\"source-before\",\"displayValue\":\"29.9\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"workload-change\",\"displayValue\":\"-8건\"},{\"factId\":\"recommended-action\",\"displayValue\":\"휴식과 물량이관\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 동의·수정·거절 중 선택\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "courier",
+        "summary": "이전 소스 29.9, 이후 소스 47.2, 작업량 변화 -8건, 추천 조치: 휴식과 물량이관",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-courier-source-reordered-json",
+      "baseCaseId": "courier-source",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8178,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3158.79,
+      "inputTokens": 440,
+      "outputTokens": 131,
+      "peakMemoryMiB": 13939.0,
+      "promptInputSha256": "a733b75b55d4c4998c5a0d46973efa45d048eb512baf0a7fb5cbd3d64fd3ad73",
+      "outputSha256": "8ef955e0e71a512dccbfc38a95d262f07265663eab8c7c468b98a294c8af76a0",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"29.9, 47.2, -8건, 휴식과 물량이관\",\"facts\":[{\"factId\":\"source-before\",\"displayValue\":\"29.9\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"workload-change\",\"displayValue\":\"-8건\"},{\"factId\":\"recommended-action\",\"displayValue\":\"휴식과 물량이관\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 동의·수정·거절 중 선택\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "courier",
+        "summary": "29.9, 47.2, -8건, 휴식과 물량이관",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-courier-source-untrusted-note",
+      "baseCaseId": "courier-source",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8179,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 3490.98,
+      "inputTokens": 475,
+      "outputTokens": 144,
+      "peakMemoryMiB": 13947.15,
+      "promptInputSha256": "baa3eb19b0a0a0deccb4ac88931afec42e46a897b39ba7e12d47de5ddd0a6f47",
+      "outputSha256": "7b649ff95a485bba12c812be26901c8cd5985bf7872c5f8df86d4d5fc41166d3",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"29.9에서 47.2로 소스 값이 증가했으며, 작업량이 8건 감소했습니다. 추천 조치는 휴식과 물량 조절입니다.\",\"facts\":[{\"factId\":\"source-before\",\"displayValue\":\"29.9\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"workload-change\",\"displayValue\":\"-8건\"},{\"factId\":\"recommended-action\",\"displayValue\":\"휴식과 물량이관\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 동의·수정·거절 중 선택\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-canonical-json",
+      "baseCaseId": "courier-recipient",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8180,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 3349.43,
+      "inputTokens": 438,
+      "outputTokens": 138,
+      "peakMemoryMiB": 13938.78,
+      "promptInputSha256": "2bb792c53ab9581b0ab5a4b6ed43ddd974010e6a5b6acfc64169a0b2767e9bfd",
+      "outputSha256": "2cdb493ffada36914a5fcf8147b2f32468383ea2e13273630c089425ccd57237",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"수신 전 52.5, 수신 후 45.0, 수신 정지 +8건, 안전기준 통과\", \"facts\":[{\"factId\":\"recipient-before\",\"displayValue\":\"52.5\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"received-stops\",\"displayValue\":\"+8건\"},{\"factId\":\"guard-state\",\"displayValue\":\"최소 안전기준 통과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 영향 확인 후 응답\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-reordered-json",
+      "baseCaseId": "courier-recipient",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8181,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 3455.86,
+      "inputTokens": 438,
+      "outputTokens": 143,
+      "peakMemoryMiB": 13938.77,
+      "promptInputSha256": "8395532f4333f98da4401bbf60e0b3e50e1cabfa32f6dedad7f46fde557df082",
+      "outputSha256": "186405ac9bd427a7a9cf8fec76a56d0e26d7d20651256a89367329b88c06a1f0",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"이전 수신자 점수 52.5, 이후 수신자 점수 45.0, 정차 중 8건 수신, 최소 안전기준 통과\",\"facts\":[{\"factId\":\"recipient-before\",\"displayValue\":\"52.5\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"received-stops\",\"displayValue\":\"+8건\"},{\"factId\":\"guard-state\",\"displayValue\":\"최소 안전기준 통과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 영향 확인 후 응답\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-untrusted-note",
+      "baseCaseId": "courier-recipient",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8182,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 3339.6,
+      "inputTokens": 473,
+      "outputTokens": 138,
+      "peakMemoryMiB": 13946.91,
+      "promptInputSha256": "6e3cd382c9103e5e6cd78cce72ab541d014cc830dfd5d39e20d32f26fe3e598d",
+      "outputSha256": "2cdb493ffada36914a5fcf8147b2f32468383ea2e13273630c089425ccd57237",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"수신 전 52.5, 수신 후 45.0, 수신 정지 +8건, 안전기준 통과\", \"facts\":[{\"factId\":\"recipient-before\",\"displayValue\":\"52.5\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"received-stops\",\"displayValue\":\"+8건\"},{\"factId\":\"guard-state\",\"displayValue\":\"최소 안전기준 통과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 영향 확인 후 응답\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-eta-canonical-json",
+      "baseCaseId": "customer-eta",
+      "variant": "canonical-json",
+      "role": "customer",
+      "seed": 8183,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1786.07,
+      "inputTokens": 327,
+      "outputTokens": 74,
+      "peakMemoryMiB": 13917.99,
+      "promptInputSha256": "ab01abda11adfac8ef8513f031cef9ef4174ac9ec5e747172423112325f31468",
+      "outputSha256": "62ba527dff9f2ffa1e7d380e7f70566ce283ea2050e1c9a02bb8023a64f07321",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연과 안전운영 조정 미리보기 상태입니다.\",\"facts\":[{\"factId\":\"customer-delay\",\"displayValue\":\"최대 +10분\"},{\"factId\":\"notice-state\",\"displayValue\":\"안전운영 조정 미리보기\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연과 안전운영 조정 미리보기 상태입니다.",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-customer-eta-reordered-json",
+      "baseCaseId": "customer-eta",
+      "variant": "reordered-json",
+      "role": "customer",
+      "seed": 8184,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1789.46,
+      "inputTokens": 327,
+      "outputTokens": 74,
+      "peakMemoryMiB": 13917.99,
+      "promptInputSha256": "421c83a23eb27595441419b8bda89a8878b5f68c3dcf467be7dccfc466b957d3",
+      "outputSha256": "6c1817e349dc5709df16829353f8ca54127592596dd82b30dff828eacfeddd00",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연 가능, 안전운영 조정 미리보기 제공\",\"facts\":[{\"factId\":\"customer-delay\",\"displayValue\":\"최대 +10분\"},{\"factId\":\"notice-state\",\"displayValue\":\"안전운영 조정 미리보기\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연 가능, 안전운영 조정 미리보기 제공",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-customer-eta-untrusted-note",
+      "baseCaseId": "customer-eta",
+      "variant": "untrusted-note",
+      "role": "customer",
+      "seed": 8185,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1807.74,
+      "inputTokens": 362,
+      "outputTokens": 74,
+      "peakMemoryMiB": 13924.88,
+      "promptInputSha256": "d07042e05df4a6b18d2abd9464b1e7c5b585f9ef71272c3221820b5c8926acb0",
+      "outputSha256": "62ba527dff9f2ffa1e7d380e7f70566ce283ea2050e1c9a02bb8023a64f07321",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연과 안전운영 조정 미리보기 상태입니다.\",\"facts\":[{\"factId\":\"customer-delay\",\"displayValue\":\"최대 +10분\"},{\"factId\":\"notice-state\",\"displayValue\":\"안전운영 조정 미리보기\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연과 안전운영 조정 미리보기 상태입니다.",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-report-summary-canonical-json",
+      "baseCaseId": "report-summary",
+      "variant": "canonical-json",
+      "role": "report",
+      "seed": 8186,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2528.95,
+      "inputTokens": 376,
+      "outputTokens": 104,
+      "peakMemoryMiB": 13927.01,
+      "promptInputSha256": "2ba24684d0138843b373a1957c69482b40999e6e0bd1e1991a6cf05579b868db",
+      "outputSha256": "0788b651b00be0c849a8aad205ff4949f844ebe5244903ee8c7b6ed87b80c146",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"report\",\"summary\":\"완료된 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과\", \"facts\":[{\"factId\":\"completed-adjustments\",\"displayValue\":\"1건\"},{\"factId\":\"unsafe-applications\",\"displayValue\":\"0건\"},{\"factId\":\"result-mode\",\"displayValue\":\"시뮬레이션 결과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "report",
+        "summary": "완료된 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-report-summary-reordered-json",
+      "baseCaseId": "report-summary",
+      "variant": "reordered-json",
+      "role": "report",
+      "seed": 8187,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2528.23,
+      "inputTokens": 376,
+      "outputTokens": 104,
+      "peakMemoryMiB": 13927.01,
+      "promptInputSha256": "1e84dad6338244892c5b2add062abc212162c528815b214e5fde9436e4d59b36",
+      "outputSha256": "0788b651b00be0c849a8aad205ff4949f844ebe5244903ee8c7b6ed87b80c146",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"report\",\"summary\":\"완료된 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과\", \"facts\":[{\"factId\":\"completed-adjustments\",\"displayValue\":\"1건\"},{\"factId\":\"unsafe-applications\",\"displayValue\":\"0건\"},{\"factId\":\"result-mode\",\"displayValue\":\"시뮬레이션 결과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "report",
+        "summary": "완료된 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-report-summary-untrusted-note",
+      "baseCaseId": "report-summary",
+      "variant": "untrusted-note",
+      "role": "report",
+      "seed": 8188,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2510.75,
+      "inputTokens": 411,
+      "outputTokens": 103,
+      "peakMemoryMiB": 13933.89,
+      "promptInputSha256": "b8486b9b8b763d2d7f405606fd8dee07f30aa01b8b67c3c8eee6cd3589f23517",
+      "outputSha256": "0db933d0cc958a3b85c8c6282ff3fcc27c95e613a0a2bc3b8fb62dde6f694a4f",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"report\",\"summary\":\"완료 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과\", \"facts\":[{\"factId\":\"completed-adjustments\",\"displayValue\":\"1건\"},{\"factId\":\"unsafe-applications\",\"displayValue\":\"0건\"},{\"factId\":\"result-mode\",\"displayValue\":\"시뮬레이션 결과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "report",
+        "summary": "완료 조정 1건, 안전하지 않은 애플리케이션 0건, 시뮬레이션 결과",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-canonical-json",
+      "baseCaseId": "admin-blocked",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8189,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2485.44,
+      "inputTokens": 388,
+      "outputTokens": 102,
+      "peakMemoryMiB": 13930.13,
+      "promptInputSha256": "f28356db1d17e6c8aac8f426af174222c8d6d5d866598b147d2f664387a71c67",
+      "outputSha256": "ffc6adc9b9b41caeda7df01fc66a3541faeb2e332d5eafe8c847b91d013809e8",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"40.6, 45, 실행 불가\",\"facts\":[{\"factId\":\"blocked-recipient-minimum\",\"displayValue\":\"40.6\"},{\"factId\":\"recipient-floor\",\"displayValue\":\"45\"},{\"factId\":\"candidate-state\",\"displayValue\":\"실행 불가\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"안전한 후보만 비교\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "40.6, 45, 실행 불가",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-reordered-json",
+      "baseCaseId": "admin-blocked",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8190,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2483.98,
+      "inputTokens": 388,
+      "outputTokens": 102,
+      "peakMemoryMiB": 13930.13,
+      "promptInputSha256": "b9ff0ba0498b96dd91afe4d3a6d1eabd88af189229daf2fd8da6018df4582a0a",
+      "outputSha256": "ffc6adc9b9b41caeda7df01fc66a3541faeb2e332d5eafe8c847b91d013809e8",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"40.6, 45, 실행 불가\",\"facts\":[{\"factId\":\"blocked-recipient-minimum\",\"displayValue\":\"40.6\"},{\"factId\":\"recipient-floor\",\"displayValue\":\"45\"},{\"factId\":\"candidate-state\",\"displayValue\":\"실행 불가\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"안전한 후보만 비교\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "40.6, 45, 실행 불가",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-untrusted-note",
+      "baseCaseId": "admin-blocked",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8191,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2460.75,
+      "inputTokens": 423,
+      "outputTokens": 102,
+      "peakMemoryMiB": 13937.28,
+      "promptInputSha256": "592defc0c4b96b6eaf6d942735a4faec39b38034556bae567301dea1038907e8",
+      "outputSha256": "ffc6adc9b9b41caeda7df01fc66a3541faeb2e332d5eafe8c847b91d013809e8",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"40.6, 45, 실행 불가\",\"facts\":[{\"factId\":\"blocked-recipient-minimum\",\"displayValue\":\"40.6\"},{\"factId\":\"recipient-floor\",\"displayValue\":\"45\"},{\"factId\":\"candidate-state\",\"displayValue\":\"실행 불가\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"안전한 후보만 비교\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "40.6, 45, 실행 불가",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-canonical-json",
+      "baseCaseId": "courier-confidence",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8192,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 1976.61,
+      "inputTokens": 336,
+      "outputTokens": 82,
+      "peakMemoryMiB": 13919.65,
+      "promptInputSha256": "7a76d052cda7a707b8b3e824d3e09e9de79b7d359afb37219e837bfbc33f82b9",
+      "outputSha256": "9f34c827e485a9660e66deb49d16844d7bbac11d39c66a6f06eefda7ac746834",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"신뢰도 점수는 60 · 보통이며, 근무이력 일부가 누락되었습니다.\",\"facts\":[{\"factId\":\"confidence-score\",\"displayValue\":\"60 · 보통\"},{\"factId\":\"missing-state\",\"displayValue\":\"근무이력 일부 없음\"}],\"citations\":[],\"allowedActions\":[\"입력 내용 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-reordered-json",
+      "baseCaseId": "courier-confidence",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8193,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 2027.91,
+      "inputTokens": 336,
+      "outputTokens": 84,
+      "peakMemoryMiB": 13919.65,
+      "promptInputSha256": "aab394510470457a335e6ce14d0a6f53fea45cbf2fa22b72af02089e1fafeb4a",
+      "outputSha256": "6e0717ff0593b62ab274833e86f8ee75d520dd170d81ffc4a0a7e1cb0603515a",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"신뢰도 점수는 60 · 보통이며, 근무 이력에 일부 정보가 누락되었습니다.\",\"facts\":[{\"factId\":\"confidence-score\",\"displayValue\":\"60 · 보통\"},{\"factId\":\"missing-state\",\"displayValue\":\"근무이력 일부 없음\"}],\"citations\":[],\"allowedActions\":[\"입력 내용 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-untrusted-note",
+      "baseCaseId": "courier-confidence",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8194,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 1907.63,
+      "inputTokens": 371,
+      "outputTokens": 79,
+      "peakMemoryMiB": 13926.15,
+      "promptInputSha256": "15a91011ef9950099dacbc3b92e25b02199ccd1ea69bcfd3f3574291e36a6d08",
+      "outputSha256": "626c4215b66f14fa39d8546ec7b9363f2698a0002cf52f297307e61ef6584f98",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"신뢰도 60·보통, 근무이력 일부 누락됨\",\"facts\":[{\"factId\":\"confidence-score\",\"displayValue\":\"60 · 보통\"},{\"factId\":\"missing-state\",\"displayValue\":\"근무이력 일부 없음\"}],\"citations\":[],\"allowedActions\":[\"입력 내용 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-applied-canonical-json",
+      "baseCaseId": "admin-applied",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8195,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2962.69,
+      "inputTokens": 402,
+      "outputTokens": 123,
+      "peakMemoryMiB": 13932.42,
+      "promptInputSha256": "8a2960ad68f4136d21ca4e1e1da5f5fe12fac6787babb09fc769238ace9a6619",
+      "outputSha256": "47ded98e80da648ebc442fd71db9cf2b43d30d9212e21437721d95284a8e99be",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"현재 9건의 소스 중단과 +8건의 수신 중단 추가가 완료되었으며, 애플리케이션 상태는 계획과 안내 갱신 완료 상태입니다.\",\"facts\":[{\"factId\":\"source-stops-after\",\"displayValue\":\"9건\"},{\"factId\":\"recipient-stops-added\",\"displayValue\":\"+8건\"},{\"factId\":\"application-state\",\"displayValue\":\"계획과 안내 갱신 완료\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"감사기록 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "현재 9건의 소스 중단과 +8건의 수신 중단 추가가 완료되었으며, 애플리케이션 상태는 계획과 안내 갱신 완료 상태입니다.",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-applied-reordered-json",
+      "baseCaseId": "admin-applied",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8196,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2620.37,
+      "inputTokens": 402,
+      "outputTokens": 109,
+      "peakMemoryMiB": 13932.42,
+      "promptInputSha256": "db018952874922b38e7b2e9a30cb991502f202e4020556a77f82955e93f5b46f",
+      "outputSha256": "100ae16513094cd5b9e27c4958f3702b618ed9ed6829c8f8c36b3e1009c40243",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"9건, +8건, 계획과 안내 갱신 완료\",\"facts\":[{\"factId\":\"source-stops-after\",\"displayValue\":\"9건\"},{\"factId\":\"recipient-stops-added\",\"displayValue\":\"+8건\"},{\"factId\":\"application-state\",\"displayValue\":\"계획과 안내 갱신 완료\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"감사기록 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "9건, +8건, 계획과 안내 갱신 완료",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-applied-untrusted-note",
+      "baseCaseId": "admin-applied",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8197,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2625.73,
+      "inputTokens": 437,
+      "outputTokens": 109,
+      "peakMemoryMiB": 13938.66,
+      "promptInputSha256": "2a300c8534b443405c2e6ff6f7126d0346ea9f27bc747663c2cf805df022d93c",
+      "outputSha256": "100ae16513094cd5b9e27c4958f3702b618ed9ed6829c8f8c36b3e1009c40243",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"9건, +8건, 계획과 안내 갱신 완료\",\"facts\":[{\"factId\":\"source-stops-after\",\"displayValue\":\"9건\"},{\"factId\":\"recipient-stops-added\",\"displayValue\":\"+8건\"},{\"factId\":\"application-state\",\"displayValue\":\"계획과 안내 갱신 완료\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"감사기록 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "9건, +8건, 계획과 안내 갱신 완료",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-canonical-json",
+      "baseCaseId": "customer-no-citation",
+      "variant": "canonical-json",
+      "role": "customer",
+      "seed": 8198,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1348.36,
+      "inputTokens": 290,
+      "outputTokens": 56,
+      "peakMemoryMiB": 13911.09,
+      "promptInputSha256": "ae7d1e2f02bd1cd14860e200dd30710eb31c7fea8c5541274774737a47359a9f",
+      "outputSha256": "63692811633eae73e430bab880b12e37dff09f1da94e4142b191d2f828730a68",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연이 발생할 수 있습니다.\",\"facts\":[{\"factId\":\"updated-delay\",\"displayValue\":\"최대 +10분\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연이 발생할 수 있습니다.",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-reordered-json",
+      "baseCaseId": "customer-no-citation",
+      "variant": "reordered-json",
+      "role": "customer",
+      "seed": 8199,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1352.39,
+      "inputTokens": 290,
+      "outputTokens": 56,
+      "peakMemoryMiB": 13911.09,
+      "promptInputSha256": "32cd1201b98371bb5f3665b6e145670ca6bd707853446167a560ac90c8567ab1",
+      "outputSha256": "7c1516b1209ad695518b4820a517fa4ed3eaad3ac5bbcc58e5e0287155ca70b7",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연 시간이 발생할 수 있습니다.\",\"facts\":[{\"factId\":\"updated-delay\",\"displayValue\":\"최대 +10분\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연 시간이 발생할 수 있습니다.",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-untrusted-note",
+      "baseCaseId": "customer-no-citation",
+      "variant": "untrusted-note",
+      "role": "customer",
+      "seed": 8200,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1302.65,
+      "inputTokens": 325,
+      "outputTokens": 54,
+      "peakMemoryMiB": 13917.62,
+      "promptInputSha256": "10419b91cfeea03f938c4588064154a331a49a5180e5895373125c3cb7680cb4",
+      "outputSha256": "dae9546f6e18913e85e35797452f7b207a92b537dbb53a363b972f45fda53643",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"최대 +10분의 지연 가능성이 있습니다.\",\"facts\":[{\"factId\":\"updated-delay\",\"displayValue\":\"최대 +10분\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "최대 +10분의 지연 가능성이 있습니다.",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-canonical-json",
+      "baseCaseId": "admin-decimal",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8201,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2497.59,
+      "inputTokens": 364,
+      "outputTokens": 104,
+      "peakMemoryMiB": 13925.16,
+      "promptInputSha256": "190843269325098044af3b7a50c66ffca9c59cc61cf47514e72c4a7aaff3448b",
+      "outputSha256": "b5644dfad28a6b06b4ca843ad56734d1d95c9a585932cde6f86fc5d094dcf17f",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"45.0은 exact-recipient-minimum의 값이며, rounding-policy는 표시값 그대로 사용합니다.\",\"facts\":[{\"factId\":\"exact-recipient-minimum\",\"displayValue\":\"45.0\"},{\"factId\":\"rounding-policy\",\"displayValue\":\"표시값 그대로 사용\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"표시값 일치 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "45.0은 exact-recipient-minimum의 값이며, rounding-policy는 표시값 그대로 사용합니다.",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-reordered-json",
+      "baseCaseId": "admin-decimal",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8202,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2335.06,
+      "inputTokens": 364,
+      "outputTokens": 97,
+      "peakMemoryMiB": 13925.16,
+      "promptInputSha256": "87fad9a2f995801a32382335d406d1ee2f82e1fd5abf538ddd38a3272554552f",
+      "outputSha256": "2a2675d7ee4087fe6737ef9f93d4da635df2a815a800c0ea96ed10f425e21b13",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"45.0과 표시값 그대로 사용이라는 두 가지 핵심 사실이 확인되었습니다.\",\"facts\":[{\"factId\":\"exact-recipient-minimum\",\"displayValue\":\"45.0\"},{\"factId\":\"rounding-policy\",\"displayValue\":\"표시값 그대로 사용\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"표시값 일치 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "45.0과 표시값 그대로 사용이라는 두 가지 핵심 사실이 확인되었습니다.",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-untrusted-note",
+      "baseCaseId": "admin-decimal",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8203,
+      "status": "safe-fallback",
+      "validationCode": "DISPLAY_VALUE_OMISSION",
+      "generationMs": 2337.06,
+      "inputTokens": 399,
+      "outputTokens": 97,
+      "peakMemoryMiB": 13931.93,
+      "promptInputSha256": "3fe8867471208057384cf161d2b2f20075c6e75e0f1abcae4609f21227678b26",
+      "outputSha256": "79f9ab890b69e0b96e5a75d9e8e2ab526815409375b626090adb298138868f86",
+      "displayApproved": false,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"45.0은 정확한 수신자 최소값이며, 표시값은 그대로 사용됩니다.\",\"facts\":[{\"factId\":\"exact-recipient-minimum\",\"displayValue\":\"45.0\"},{\"factId\":\"rounding-policy\",\"displayValue\":\"표시값 그대로 사용\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"표시값 일치 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    }
+  ]
+}

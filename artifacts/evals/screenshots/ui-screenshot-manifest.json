@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "ui-screenshot-manifest-v1",
+  "dataMode": "Demo fixture",
+  "browser": "Chromium 149.0.7827.55",
+  "files": [
+    {
+      "file": "admin-initial-1440x900.png",
+      "width": 1440,
+      "height": 900,
+      "role": "ADMIN",
+      "state": "RIDER_RESPONSE_PENDING",
+      "sha256": "225c11b88d94e1868a94b66f85bbcccb9efb24cd0f73896253cc9db1e899ecac"
+    },
+    {
+      "file": "admin-applied-1280x720.png",
+      "width": 1280,
+      "height": 720,
+      "role": "ADMIN",
+      "state": "NOTICE_RECORDED",
+      "sha256": "70936c6c0bfc591c57fab40d30114290ec6a3556506d3c10c3e325e2a1e13f41"
+    },
+    {
+      "file": "rider-source-review-390x844.png",
+      "width": 390,
+      "height": 844,
+      "role": "SOURCE",
+      "state": "RIDER_RESPONSE_PENDING",
+      "sha256": "9b0a2fb354a3ea0572856f48c2810f7cd8c611dc8c93dee208d4b9bb17d92b8f"
+    },
+    {
+      "file": "rider-recipient-review-360x800.png",
+      "width": 360,
+      "height": 800,
+      "role": "RECIPIENT",
+      "state": "RIDER_RESPONSE_PENDING",
+      "sha256": "2a7896d811b32ff819e9eea151a68aca2edfb11b1fbbefdea2b39236d35f6b6f"
+    }
+  ]
+}

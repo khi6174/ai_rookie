@@ -1,0 +1,243 @@
+{
+  "status": "COMPLETED",
+  "run": {
+    "schemaVersion": "domestic-ai-api-benchmark-v1",
+    "capturedAt": "2026-07-17T07:08:09.622Z",
+    "taskCountPerProvider": 12,
+    "providerCount": 2,
+    "providers": [
+      {
+        "providerId": "AX",
+        "providerMode": "MOCK",
+        "protocol": "MOCK",
+        "model": "ax-mock-contract-v1",
+        "promptVersion": "explanation-ko-v1.1.0",
+        "taskCount": 12,
+        "results": [
+          {
+            "taskId": "domestic-ai-admin-plan-001",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-source-002",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-recipient-003",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-customer-eta-004",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-report-summary-005",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-admin-blocked-006",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-confidence-007",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-admin-applied-008",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-injection-citation-009",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-no-citation-010",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-decimal-integrity-011",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-fallback-boundary-012",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          }
+        ],
+        "metrics": {
+          "passed": 12,
+          "failed": 0,
+          "fallback": 0,
+          "firstAttemptPassRate": 1,
+          "averageLatencyMs": 0,
+          "p95LatencyMs": 1,
+          "unsafeDisplayCount": 0,
+          "fallbackCodes": {}
+        }
+      },
+      {
+        "providerId": "EXAONE",
+        "providerMode": "MOCK",
+        "protocol": "MOCK",
+        "model": "exaone-mock-contract-v1",
+        "promptVersion": "explanation-ko-v1.1.0",
+        "taskCount": 12,
+        "results": [
+          {
+            "taskId": "domestic-ai-admin-plan-001",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-source-002",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-recipient-003",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-customer-eta-004",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-report-summary-005",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-admin-blocked-006",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-courier-confidence-007",
+            "role": "COURIER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-admin-applied-008",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 2,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-injection-citation-009",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 1,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-no-citation-010",
+            "role": "CUSTOMER",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-decimal-integrity-011",
+            "role": "ADMIN",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          },
+          {
+            "taskId": "domestic-ai-fallback-boundary-012",
+            "role": "REPORT",
+            "status": "PASSED",
+            "passed": true,
+            "latencyMs": 0,
+            "usage": {}
+          }
+        ],
+        "metrics": {
+          "passed": 12,
+          "failed": 0,
+          "fallback": 0,
+          "firstAttemptPassRate": 1,
+          "averageLatencyMs": 0,
+          "p95LatencyMs": 2,
+          "unsafeDisplayCount": 0,
+          "fallbackCodes": {}
+        }
+      }
+    ]
+  }
+}

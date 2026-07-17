@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "kma-supplement-diagnostic-v1",
+  "capturedAt": "2026-07-17T12:41:30.058Z",
+  "status": "COMPLETED",
+  "request": {
+    "api": "KMA_HIGH_RESOLUTION_GRID_POINT_MULTI_ELEMENT_1_3",
+    "timeKst": "202607172100",
+    "representativePointId": "kma-api-hub-public-example-seoul",
+    "requestedFields": [
+      "ta_chi",
+      "vs",
+      "sd_3hr"
+    ],
+    "rawCoordinatesStored": false
+  },
+  "response": {
+    "contentType": "text/plain;charset=EUC-KR",
+    "byteLength": 796,
+    "lineCount": 21,
+    "dataLineCount": 1,
+    "detectedLabels": [
+      "TM",
+      "TA_CHI",
+      "VS",
+      "SD_3HR"
+    ],
+    "safeHelpLines": [
+      "#  ta_chi : ü���µ�(C)",
+      "#  vs : ���� (km)",
+      "# tm, ta_chi, vs, sd_3hr"
+    ],
+    "tokenShapes": [
+      {
+        "tokenCount": 4,
+        "tokenTypes": [
+          "KST_TIMESTAMP_12",
+          "NUMERIC",
+          "NUMERIC",
+          "NUMERIC"
+        ]
+      }
+    ],
+    "responseSha256": "d3c4fc2aedecebb48d73c73b3f9f5a81c75bf6c7318d7da8089ea4f9ce95970f",
+    "rawResponseStored": false
+  },
+  "credentialsStored": false
+}

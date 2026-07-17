@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "local-model-benchmark-v1",
+  "capturedAt": "2026-07-17T05:24:03.893441+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-batch-ko-v1.0.0",
+  "loadMs": 3176.29,
+  "taskCount": 12,
+  "metrics": {
+    "passed": 12,
+    "failed": 0,
+    "fallback": 0,
+    "firstAttemptPassRate": 1.0,
+    "averageGenerationMs": 2741.56,
+    "p95GenerationMs": 4532.12,
+    "maxPeakMemoryMiB": 13907.91,
+    "unsafeDisplayCount": 0,
+    "fallbackCodes": {}
+  }
+}

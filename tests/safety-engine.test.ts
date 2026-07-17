@@ -60,8 +60,8 @@ const exactScenarioResults = {
     confidenceScore: 65,
   },
   "scenario-night-novice-area-v1": {
-    currentBudget: 36.68,
-    minimumForecastBudget: 29.930294,
+    currentBudget: 36.81,
+    minimumForecastBudget: 29.970894,
     timeToBreachMinutes: 24,
     stopId: "scenario-night-novice-area-v1-stop-008",
     confidenceScore: 65,

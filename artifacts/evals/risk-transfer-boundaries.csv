@@ -1,0 +1,4 @@
+transferredStopCount,candidateId,feasibility,sourceBaselineMinimumBudget,sourceCandidateMinimumBudget,recipientBaselineMinimumBudget,recipientCandidateMinimumBudget,recipientBudgetDrop,minimumRecipientThreshold,maximumRecipientDrop,reasonCodes
+4,candidate-c3a80798,FEASIBLE,29.914456,35.796503,52.5,49.022483,3.477517,45,15,CONSENT_REQUIRED_BEFORE_APPLY
+8,candidate-d5a62f00,FEASIBLE,29.914456,41.817875,52.5,45.012761,7.487239,45,15,CONSENT_REQUIRED_BEFORE_APPLY
+12,candidate-e93d79a5,INFEASIBLE,29.914456,47.750764,52.5,40.566386,11.933614,45,15,TRANSFER_RECIPIENT_BUDGET_BELOW_FLOOR

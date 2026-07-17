@@ -1,0 +1,2 @@
+taskId,modelId,revision,promptVersion,seed,status,validationCode,loadMs,generationMs,inputTokens,outputTokens,peakMemoryMiB,outputSha256,displayApproved
+local-smoke-admin-support-001,skt/A.X-4.0-Light,ba21c20ea1b31ded1ec3e2fb432335077dc4be98,local-structured-ko-v1.0.0,6174,safe-fallback,MALFORMED_JSON,3546.58,4734.9,218,168,13896.9,73a7af629e615519711ac8627803395a59d7b0e6394107f957f78f0a69e29b94,False

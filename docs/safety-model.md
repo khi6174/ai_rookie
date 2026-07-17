@@ -293,6 +293,8 @@ Near-miss 기반 `incidentFactor`는 검증된 집계값만 사용한다. 신고
 
 ### 5.6 WeatherExposure
 
+외부 날씨 후보는 `WeatherState`로 변환되기 전에 필드 적합성 Gate를 통과해야 한다. 구간형 강수·적설은 임의 중간값을 사용하지 않는다. `dse-v1.0.0`의 강수 특징은 20mm/h, 적설 특징은 3cm/h에서 포화되므로 구간 상한 또는 이미 포화 상한을 넘는 하한을 `CONSERVATIVE_NORMALIZATION_BOUND`로 기록해 사용할 수 있다. 고해상도 격자 `sd_3hr`는 3시간 신적설이므로 시간당 값으로 나누지 않는다. 미래 체감온도는 같은 시점의 4.3 `TMP·REH·WSD`와 기상청 계절별 공식만 사용하며 공식 적용조건 밖이면 계산하지 않는다. 체감온도·시정·시간당 적설은 각 시점에 직접 또는 승인된 변환값이 없으면 계산을 차단한다. 현재 관측값을 미래 시점에 복제하는 행위는 별도의 가정·신뢰도 감점 정책 없이는 허용하지 않는다.
+
 ```text
 rainFactor       = clamp(rainfallMmPerHour / 20, 0, 1)
 snowFactor       = clamp(snowfallCmPerHour / 3, 0, 1)
@@ -521,6 +523,8 @@ confidenceScore = 100
 
 Mock 여부를 신뢰도 라벨만으로 숨기지 않는다.
 
+검증된 public-derived는 데이터셋 ID·공식 URI·버전·라이선스·원본 SHA-256·변환기 버전이 모두 provenance에 기록된 경우만 뜻한다. 현재 세 Demo fixture는 이 조건을 충족하지 않으므로 전부 Mock 감점을 적용한다.
+
 ### 10.6 예측범위 감점
 
 ```text
@@ -645,7 +649,7 @@ type SafetyModelConfigMetadata = {
 |---|---:|---:|---:|---|---:|
 | `scenario-rain-hill-longshift-v1` | 54.7 | 29.914456 | 52분 | `stop-017` | 60 · MEDIUM |
 | `scenario-heat-heavy-stairs-v1` | 41.95 | 29.9278 | 30분 | `stop-010` | 65 · MEDIUM |
-| `scenario-night-novice-area-v1` | 36.68 | 29.930294 | 24분 | `stop-008` | 65 · MEDIUM |
+| `scenario-night-novice-area-v1` | 36.81 | 29.970894 | 24분 | `stop-008` | 65 · MEDIUM |
 
 정확값, fixture의 허용 범위와 Zod 출력 계약은 `tests/safety-engine.test.ts`가 함께 검증한다. 개입 후 값은 개입 엔진이 구현되기 전까지 이 표에 기록하지 않는다.
 

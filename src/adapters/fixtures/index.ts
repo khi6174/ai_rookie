@@ -86,7 +86,8 @@ export const noviceNightUnfamiliarFixture = createScenarioFixture({
   parkingDifficultyFactor: 0.86,
   incidentFactor: 0.58,
   stairStopRatio: 0.25,
-  initialSourceBudget: 36.68,
+  stairStopsAtEnd: true,
+  initialSourceBudget: 36.81,
   initialRecipientBudget: 72,
   expectedAssertions: {
     currentBudgetRange: { min: 35, max: 40 },

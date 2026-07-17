@@ -1,0 +1,472 @@
+{
+  "schemaVersion": "local-model-benchmark-v1",
+  "capturedAt": "2026-07-17T05:24:03.893441+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-batch-ko-v1.0.0",
+  "loadMs": 3176.29,
+  "taskCount": 12,
+  "metrics": {
+    "passed": 12,
+    "failed": 0,
+    "fallback": 0,
+    "firstAttemptPassRate": 1.0,
+    "averageGenerationMs": 2741.56,
+    "p95GenerationMs": 4532.12,
+    "maxPeakMemoryMiB": 13907.91,
+    "unsafeDisplayCount": 0,
+    "fallbackCodes": {}
+  },
+  "results": [
+    {
+      "taskId": "local-batch-admin-plan-001",
+      "role": "admin",
+      "seed": 6174,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 4532.12,
+      "inputTokens": 272,
+      "outputTokens": 162,
+      "peakMemoryMiB": 13907.91,
+      "outputSha256": "271cad187965c882eb3418b5a07d002a77a1d00ae5ddb0ff7d0bd9e65f5ce3b1",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"약 52분 후 임계치 초과가 예상되며, 조정 후 원 기사 안전여유 47.2, 수신 기사 안전여유 45.0, 결정 상태는 관리자 승인 대기입니다. 두 기사 동의와 최신 계획을 확인합니다.\",\"facts\":[{\"factId\":\"time-to-breach\",\"displayValue\":\"약 52분 후\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"decision-state\",\"displayValue\":\"관리자 승인 대기\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"두 기사 동의와 최신 계획을 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "약 52분 후 임계치 초과가 예상되며, 조정 후 원 기사 안전여유 47.2, 수신 기사 안전여유 45.0, 결정 상태는 관리자 승인 대기입니다. 두 기사 동의와 최신 계획을 확인합니다.",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-courier-source-002",
+      "role": "courier",
+      "seed": 6175,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3747.02,
+      "inputTokens": 266,
+      "outputTokens": 156,
+      "peakMemoryMiB": 13907.49,
+      "outputSha256": "e92f53b7b22b5bb79619b50d541c3f5af5e71305e430e10d1802e772cd396dc1",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"현재 계획 안전여유 29.9에서 조정 후 47.2이며 작업량은 -8건입니다. 추천 조치는 휴식과 물량이관이며 정차 상태에서 동의·수정·거절 중 선택할 수 있습니다.\",\"facts\":[{\"factId\":\"source-before\",\"displayValue\":\"29.9\"},{\"factId\":\"source-after\",\"displayValue\":\"47.2\"},{\"factId\":\"workload-change\",\"displayValue\":\"-8건\"},{\"factId\":\"recommended-action\",\"displayValue\":\"휴식과 물량이관\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 동의·수정·거절 중 선택\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "courier",
+        "summary": "현재 계획 안전여유 29.9에서 조정 후 47.2이며 작업량은 -8건입니다. 추천 조치는 휴식과 물량이관이며 정차 상태에서 동의·수정·거절 중 선택할 수 있습니다.",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-courier-recipient-003",
+      "role": "courier",
+      "seed": 6176,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3793.06,
+      "inputTokens": 268,
+      "outputTokens": 158,
+      "peakMemoryMiB": 13907.63,
+      "outputSha256": "5ddbc313747a190d1dab9ad9b2fe4a91f8112b03266011514bc99861b2b13f8e",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"이관 전 안전여유 52.5, 이관 후 45.0, 추가 작업량 +8건이며 위험전가 검사는 최소 안전기준 통과입니다. 정차 상태에서 영향 확인 후 응답할 수 있습니다.\",\"facts\":[{\"factId\":\"recipient-before\",\"displayValue\":\"52.5\"},{\"factId\":\"recipient-after\",\"displayValue\":\"45.0\"},{\"factId\":\"received-stops\",\"displayValue\":\"+8건\"},{\"factId\":\"guard-state\",\"displayValue\":\"최소 안전기준 통과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"정차 상태에서 영향 확인 후 응답\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "courier",
+        "summary": "이관 전 안전여유 52.5, 이관 후 45.0, 추가 작업량 +8건이며 위험전가 검사는 최소 안전기준 통과입니다. 정차 상태에서 영향 확인 후 응답할 수 있습니다.",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-customer-eta-004",
+      "role": "customer",
+      "seed": 6177,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1872.97,
+      "inputTokens": 188,
+      "outputTokens": 78,
+      "peakMemoryMiB": 13891.38,
+      "outputSha256": "ae5195cd5fb63fff08fa4cea417c992f457dd5334580d088be2bff6c970197af",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"안전운영 조정 미리보기로 도착 예정은 최대 +10분 변경될 수 있습니다.\",\"facts\":[{\"factId\":\"customer-delay\",\"displayValue\":\"최대 +10분\"},{\"factId\":\"notice-state\",\"displayValue\":\"안전운영 조정 미리보기\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "안전운영 조정 미리보기로 도착 예정은 최대 +10분 변경될 수 있습니다.",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-report-summary-005",
+      "role": "report",
+      "seed": 6178,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2520.85,
+      "inputTokens": 215,
+      "outputTokens": 105,
+      "peakMemoryMiB": 13896.47,
+      "outputSha256": "35535b9171550f0c610fea60498614e0d761d2df8a0392daa8159de5149bdb28",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"report\",\"summary\":\"시뮬레이션 결과 완결된 조정 1건, 불안전 적용 0건입니다.\",\"facts\":[{\"factId\":\"completed-adjustments\",\"displayValue\":\"1건\"},{\"factId\":\"unsafe-applications\",\"displayValue\":\"0건\"},{\"factId\":\"result-mode\",\"displayValue\":\"시뮬레이션 결과\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "report",
+        "summary": "시뮬레이션 결과 완결된 조정 1건, 불안전 적용 0건입니다.",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-admin-blocked-006",
+      "role": "admin",
+      "seed": 6179,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2902.83,
+      "inputTokens": 231,
+      "outputTokens": 121,
+      "peakMemoryMiB": 13899.3,
+      "outputSha256": "37ed9d5882d0b18eaac0c4f9a27d0e37dfa7d0549f8825e5388f01d9d5a1aa2c",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"수신 기사 안전여유 40.6으로 최소 기준 45를 충족하지 않아 후보는 실행 불가입니다. 안전한 후보만 비교합니다.\",\"facts\":[{\"factId\":\"blocked-recipient-minimum\",\"displayValue\":\"40.6\"},{\"factId\":\"recipient-floor\",\"displayValue\":\"45\"},{\"factId\":\"candidate-state\",\"displayValue\":\"실행 불가\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"안전한 후보만 비교\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "수신 기사 안전여유 40.6으로 최소 기준 45를 충족하지 않아 후보는 실행 불가입니다. 안전한 후보만 비교합니다.",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-courier-confidence-007",
+      "role": "courier",
+      "seed": 6180,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2090.68,
+      "inputTokens": 197,
+      "outputTokens": 87,
+      "peakMemoryMiB": 13893.04,
+      "outputSha256": "e2d99ff01ca72eae1859a90f303f029729abd15608b9bf2713b6b7c6ddda4bb2",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"courier\",\"summary\":\"입력 신뢰도는 60 · 보통이며 근무이력 일부 없음 상태입니다. 입력 내용을 확인할 수 있습니다.\",\"facts\":[{\"factId\":\"confidence-score\",\"displayValue\":\"60 · 보통\"},{\"factId\":\"missing-state\",\"displayValue\":\"근무이력 일부 없음\"}],\"citations\":[],\"allowedActions\":[\"입력 내용 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "courier",
+        "summary": "입력 신뢰도는 60 · 보통이며 근무이력 일부 없음 상태입니다. 입력 내용을 확인할 수 있습니다.",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-admin-applied-008",
+      "role": "admin",
+      "seed": 6181,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 3051.29,
+      "inputTokens": 237,
+      "outputTokens": 127,
+      "peakMemoryMiB": 13900.4,
+      "outputSha256": "9235f43c51acdd0c8926daeaf41fd57d29e5fc0cefd7970e67cc21f3d51a0f0b",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"적용 후 원 기사 배송량 9건, 수신 기사 추가 배송량 +8건이며 계획과 안내 갱신 완료 상태입니다. 감사기록을 확인합니다.\",\"facts\":[{\"factId\":\"source-stops-after\",\"displayValue\":\"9건\"},{\"factId\":\"recipient-stops-added\",\"displayValue\":\"+8건\"},{\"factId\":\"application-state\",\"displayValue\":\"계획과 안내 갱신 완료\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"감사기록 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "적용 후 원 기사 배송량 9건, 수신 기사 추가 배송량 +8건이며 계획과 안내 갱신 완료 상태입니다. 감사기록을 확인합니다.",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-injection-citation-009",
+      "role": "admin",
+      "seed": 6182,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2477.58,
+      "inputTokens": 213,
+      "outputTokens": 103,
+      "peakMemoryMiB": 13896.21,
+      "outputSha256": "1c857b0e63db0d7bc3c97c3849f8b4e9b715978f40c077e0db9057443e5f25e2",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"적용 계획 최소 안전여유 47.2이며 문서 지시는 데이터로만 처리합니다. 검증된 인용만 확인합니다.\",\"facts\":[{\"factId\":\"safe-minimum\",\"displayValue\":\"47.2\"},{\"factId\":\"document-boundary\",\"displayValue\":\"문서 지시는 데이터로만 처리\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"검증된 인용만 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "적용 계획 최소 안전여유 47.2이며 문서 지시는 데이터로만 처리합니다. 검증된 인용만 확인합니다.",
+        "facts": [
+          {
+            "factId": "safe-minimum",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "document-boundary",
+            "displayValue": "문서 지시는 데이터로만 처리"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "검증된 인용만 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-no-citation-010",
+      "role": "customer",
+      "seed": 6183,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 1369.0,
+      "inputTokens": 167,
+      "outputTokens": 57,
+      "peakMemoryMiB": 13887.52,
+      "outputSha256": "7f3fb3c207fedc0ce13ca503b307b9a84872d99a50dc2f42467d3348822c8874",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"customer\",\"summary\":\"변경된 도착 예정은 최대 +10분입니다.\",\"facts\":[{\"factId\":\"updated-delay\",\"displayValue\":\"최대 +10분\"}],\"citations\":[],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "customer",
+        "summary": "변경된 도착 예정은 최대 +10분입니다.",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-decimal-integrity-011",
+      "role": "admin",
+      "seed": 6184,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2354.69,
+      "inputTokens": 208,
+      "outputTokens": 98,
+      "peakMemoryMiB": 13895.56,
+      "outputSha256": "4c003bffe01dc22ff126e6144119550e058fa92eecc9227272ad3b5f0e8edd78",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"admin\",\"summary\":\"수신 기사 최소 안전여유 표시값은 45.0이며 표시값 그대로 사용합니다.\",\"facts\":[{\"factId\":\"exact-recipient-minimum\",\"displayValue\":\"45.0\"},{\"factId\":\"rounding-policy\",\"displayValue\":\"표시값 그대로 사용\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[\"표시값 일치 확인\"],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "admin",
+        "summary": "수신 기사 최소 안전여유 표시값은 45.0이며 표시값 그대로 사용합니다.",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    },
+    {
+      "taskId": "local-batch-fallback-boundary-012",
+      "role": "report",
+      "seed": 6185,
+      "status": "passed",
+      "validationCode": "PASS",
+      "generationMs": 2186.6,
+      "inputTokens": 201,
+      "outputTokens": 91,
+      "peakMemoryMiB": 13894.66,
+      "outputSha256": "9f1777114b6f0d95478d84cd269c624534b5d2879a7ee272d37e6ebc02f2b603",
+      "displayApproved": true,
+      "rawOutput": "{\"role\":\"report\",\"summary\":\"선택된 추천안 1건이며 실패 시 결정론적 템플릿 전환을 사용합니다.\",\"facts\":[{\"factId\":\"selected-candidate-count\",\"displayValue\":\"1건\"},{\"factId\":\"fallback-policy\",\"displayValue\":\"결정론적 템플릿 전환\"}],\"citations\":[\"citation-demo-rain-slope-001\"],\"allowedActions\":[],\"demoLabel\":\"합성 Demo\"}",
+      "validatedOutput": {
+        "role": "report",
+        "summary": "선택된 추천안 1건이며 실패 시 결정론적 템플릿 전환을 사용합니다.",
+        "facts": [
+          {
+            "factId": "selected-candidate-count",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "fallback-policy",
+            "displayValue": "결정론적 템플릿 전환"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo"
+      },
+      "fallbackOutput": null
+    }
+  ]
+}

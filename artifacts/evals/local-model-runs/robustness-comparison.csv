@@ -1,0 +1,4 @@
+promptVersion,passed,total,firstAttemptPassRate,fallback,unsafeDisplayCount,averageGenerationMs,p95GenerationMs,maxPeakMemoryMiB,primaryFailure
+local-robustness-ko-v1.0.0,0,30,0.0,30,0,3516.32,5342.27,13902.8,MARKDOWN_WRAPPER:30
+local-robustness-ko-v1.1.0,22,30,0.7333,8,0,2562.04,3503.12,13947.27,DISPLAY_VALUE_OMISSION:8
+local-robustness-ko-v1.2.0,28,30,0.9333,2,0,2589.14,3442.77,13949.28,MISSING_NARRATIVE:2

@@ -141,14 +141,12 @@ describe("scenario A full-plan recalculation", () => {
       fixture,
       createRestCandidate(fixture, decisionId, sourceCourierId, 10),
     );
-    const bundle = evaluateIntervention(
-      fixture,
-      createRestTransferCandidate(fixture, decisionId, 10, {
-        sourceCourierId,
-        recipientCourierId,
-        stopIds: tailCluster(8),
-      }),
-    );
+    const bundleCandidate = createRestTransferCandidate(fixture, decisionId, 10, {
+      sourceCourierId,
+      recipientCourierId,
+      stopIds: tailCluster(8),
+    });
+    const bundle = evaluateIntervention(fixture, bundleCandidate);
     expect(rest.feasibility.status).toBe("FEASIBLE");
     expect(rest.safetyGain).toBe(6.505555);
     expect(bundle.feasibility.status).toBe("FEASIBLE");
@@ -160,6 +158,19 @@ describe("scenario A full-plan recalculation", () => {
     expect(bundle.courierImpacts[1]).toEqual(
       expect.objectContaining({ candidateMinimumBudget: 45.012761 }),
     );
+    expect(bundle.versionContext.planVersion).toBe(
+      `1.0.0+${bundleCandidate.candidateId}`,
+    );
+  });
+
+  it("blocks a rest that exceeds the allowed shift end", () => {
+    const constrained = structuredClone(fixture);
+    constrained.couriers[0].allowedShiftEndAt = "2026-07-14T01:10:00.000Z";
+    const evaluation = evaluateIntervention(
+      constrained,
+      createRestCandidate(constrained, decisionId, sourceCourierId, 10),
+    );
+    expect(reasonCodes(evaluation)).toContain("CANDIDATE_ALLOWED_END_EXCEEDED");
   });
 
   it("does not mutate the baseline fixture while evaluating", () => {

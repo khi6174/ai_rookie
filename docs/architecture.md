@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-14
+- 최종 갱신: 2026-07-17
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -79,7 +79,7 @@ src/
     weather/            # Live·Mock·Error·Fallback 어댑터
     maps/               # 데모 경로와 향후 지도 공급자 경계
     upstage/            # Parse·Extract·Solar 어댑터
-    domestic-ai/        # A.X·EXAONE·VARCO 오프라인 생성 도구 경계
+    domestic-ai/        # A.X·K-EXAONE 공통 텍스트 평가와 향후 승인된 에셋 도구 경계
     audit/              # 감사 이벤트 저장 경계
   ui/
     admin/              # Control Tower와 승인 흐름
@@ -121,6 +121,14 @@ tests/
 - Zod 검증, 시간대 정규화, 출처·최신성·결측 메타데이터를 추가한다.
 - Live·Mock·Loading·Error·Fallback을 판별 합집합으로 반환한다.
 - API 키, 원시 생체값, 정밀 위치와 불필요한 개인정보를 로그에 남기지 않는다.
+
+기상청 DS-001 어댑터는 API허브 4.1 초단기실황과 4.2 초단기예보를 별도 endpoint·스키마로 검증한다. 실황은 현재 기온·강수·습도·풍속·강수형태 후보, 예보는 발표시각부터 최대 6시간의 시간순 기온·강수·습도·풍속·강수형태·하늘·낙뢰 후보로 정규화한다. 원본 hash와 공식 URI·버전·이용정책을 provenance에 기록하지만, `WeatherState` 필수 필드가 모두 충족되지 않아 `safeForSafetyEngine=false`로 격리한다. 이 후보는 추가 출처와 승인된 매핑 없이 Domain 계층으로 전달할 수 없다. 계약용 가짜 응답은 별도의 Demo `MOCK` provenance를 사용한다.
+
+`KMA candidate → coverage Gate → WeatherState` 경계는 강수 정확값·구간값, 체감온도, 시정, 시간당 적설과 노면 상태를 각각 판정한다. 강수 구간은 모델 포화 상한을 이용한 보수적 경계만 허용하고 가정을 기록한다. 체감온도·시정·시간당 적설이 없으면 Gate가 `BLOCKED`를 반환하며, UI와 Safety 엔진은 기존 Demo/Fallback 상태를 유지한다.
+
+DS-005의 1.3 어댑터는 exact endpoint에서 공개 대표점의 현재 `ta_chi`와 `vs`를 읽고 `vs`만 km에서 m로 변환한다. `sd_3hr`는 3시간 신적설 후보로 별도 보존하며 시간당 값으로 나누지 않는다. DS-006의 4.3 어댑터는 최신 공개 발표시각을 선택하고 현재부터 120분 범위의 `SNO·TMP·REH·WSD`를 추출한다. 적설 구간은 중간값 대신 모델 3cm/h 포화 상한에 대한 보수적 경계로 선택하고, 체감온도는 기상청 공식 계절별 식과 적용조건으로만 산출한다. 4.3 최신성은 3시간 발표주기와 제공지연을 반영한 210분으로 별도 검증한다. 이 보완 계층도 미래 시정과 현재 시간당 적설이 없으므로 `safeForSafetyEngine=false`를 유지한다. 원문·인증키·대표점 위경도는 산출물에 저장하지 않는다.
+
+Runtime 선택기는 `safeForSafetyEngine=false`인 KMA evidence와 Demo fixture를 받으면 일부 필드를 섞지 않고 Demo `WeatherState[]` 전체를 `FALLBACK`으로 선택한다. Live evidence는 출처·해시·준비/차단 필드만 별도 보존하고 Safety 엔진에는 전달하지 않는다. 이 선택 결과는 관리자·기사 공통 배지와 감사 패널에 노출되며, 계산 모드는 계속 Demo다.
 
 ### 5.4 UI
 
@@ -200,12 +208,12 @@ BASELINE_EVALUATED
 
 | 모델 | 기본 역할 | 입력 | 출력 | 채택 통제 |
 |---|---|---|---|---|
-| SKT A.X | 구조화 운영 시나리오 후보 | seed specification | strict JSON 후보 | Zod·불변조건 Gate |
-| LG EXAONE | 경계·반례·충돌 변형 | 검증된 parent record | challenge mutation | 참조·시간·안전 Gate |
-| NC VARCO | 한국어 비정형 현장문서 | 검증된 사실 JSON | 합성 보고서·메모 | 사실 일치·개인정보 Gate |
+| SKT A.X | 공통 텍스트 평가 후 구조화 운영 시나리오 후보 | seed specification·검증된 설명 입력 | strict JSON 후보 | Zod·불변조건·표시값 Gate |
+| LG K-EXAONE | 공통 텍스트 평가 후 경계·반례·충돌 변형 | 동일 12과업·검증된 parent record | strict JSON·challenge mutation | 참조·시간·안전·표시값 Gate |
+| NC VARCO | P0 관련 사용처 승인 후의 downstream 에셋 후보 | 승인된 텍스트·사실 hash | 3D·이미지/텍스처·음성/사운드 등 해당 제품 에셋 | 제품별 계약·Synthetic 라벨·사실 불변 Gate |
 | Upstage | 문서 왕복 검증 | 합성 문서·스키마 | Parse·Extract 결과 | Zod·source citation 검증 |
 
-생성 AI는 정답 Safety Budget, 추천 후보와 합격 라벨을 만들지 않는다. 결정론 엔진이 채택된 입력을 라벨링한다. 모든 산출물에는 모델, 프롬프트 버전, seed, parent ID, 검증 결과와 거절 사유를 기록한다.
+생성 AI는 정답 Safety Budget, 추천 후보와 합격 라벨을 만들지 않는다. 결정론 엔진이 채택된 입력을 라벨링한다. 모든 산출물에는 모델, 프롬프트 버전, seed, parent ID, 검증 결과와 거절 사유를 기록한다. 대회 제공 가이드에서 동일한 OpenAI-compatible 텍스트 계약이 확인된 A.X K1과 K-EXAONE만 공통 12과업으로 비교하며, VARCO를 텍스트 LLM으로 추정하지 않는다.
 
 ### 8.2 제품 런타임 Upstage 계층
 
@@ -221,6 +229,8 @@ BASELINE_EVALUATED
 ```
 
 Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다.
+
+현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint만 허용하고 API 키·모델·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. A.X·K-EXAONE 공통 서버 어댑터는 대회 문서 endpoint를 exact allowlist로 고정했고 Mock 24과업 계약을 통과했지만, 두 API의 Live 모델 결과는 아직 실행 증거로 기록하지 않는다. Mock을 Live로 표시하지 않는다.
 
 ### 8.3 연구인프라 활용
 

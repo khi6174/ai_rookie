@@ -50,6 +50,9 @@ export const ProvenanceSchema = z
     transformedBy: z.string().min(1).optional(),
     parentSourceIds: z.array(opaqueId).optional(),
     licenseOrPolicy: z.string().min(1).optional(),
+    sourceUri: z.string().url().optional(),
+    sourceVersion: z.string().min(1).max(100).optional(),
+    contentHashSha256: z.string().regex(/^[a-f0-9]{64}$/).optional(),
     isDemo: z.boolean(),
   })
   .strict()
@@ -75,6 +78,24 @@ export const ProvenanceSchema = z
         message: "DERIVED provenance requires a parent source",
       });
     }
+    if (value.kind === "PUBLIC_DATA_DERIVED") {
+      const requiredEvidence = [
+        ["sourceUri", value.sourceUri],
+        ["sourceVersion", value.sourceVersion],
+        ["licenseOrPolicy", value.licenseOrPolicy],
+        ["contentHashSha256", value.contentHashSha256],
+        ["transformedBy", value.transformedBy],
+      ] as const;
+      for (const [field, evidence] of requiredEvidence) {
+        if (!evidence) {
+          context.addIssue({
+            code: "custom",
+            path: [field],
+            message: `PUBLIC_DATA_DERIVED requires ${field}`,
+          });
+        }
+      }
+    }
   });
 
 export const DataErrorSchema = z
@@ -86,7 +107,13 @@ export const DataErrorSchema = z
       "RATE_LIMITED",
       "MALFORMED_RESPONSE",
       "SCHEMA_VALIDATION_FAILED",
+      "UNSUPPORTED_NUMERIC_CLAIM",
+      "INVALID_CITATION",
+      "PROHIBITED_CONTENT",
+      "ROLE_MISMATCH",
+      "DATA_MODE_MISMATCH",
       "NOT_FOUND",
+      "INCOMPLETE_COVERAGE",
       "STALE_DATA",
       "UNKNOWN",
     ]),
@@ -729,7 +756,16 @@ const ReorderStopsActionSchema = z
     courierId: opaqueId,
     orderedStopIds: z.array(opaqueId).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.orderedStopIds).size !== value.orderedStopIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["orderedStopIds"],
+        message: "Reordered stop IDs must be unique",
+      });
+    }
+  });
 
 const SaferRouteActionSchema = z
   .object({
@@ -738,7 +774,16 @@ const SaferRouteActionSchema = z
     replacementRouteId: opaqueId,
     replacedSegmentIds: z.array(opaqueId).min(1),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.replacedSegmentIds).size !== value.replacedSegmentIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["replacedSegmentIds"],
+        message: "Replaced segment IDs must be unique",
+      });
+    }
+  });
 
 const SafeDelayActionSchema = z
   .object({
@@ -747,7 +792,16 @@ const SafeDelayActionSchema = z
     stopIds: z.array(opaqueId).min(1),
     delayedUntil: IsoDateTimeSchema,
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.stopIds).size !== value.stopIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["stopIds"],
+        message: "Delayed stop IDs must be unique",
+      });
+    }
+  });
 
 export const InterventionActionSchema = z.discriminatedUnion("type", [
   RestActionSchema,
@@ -755,6 +809,15 @@ export const InterventionActionSchema = z.discriminatedUnion("type", [
   ReorderStopsActionSchema,
   SaferRouteActionSchema,
   SafeDelayActionSchema,
+]);
+
+const allowedInterventionBundleKeys = new Set([
+  "REST+TRANSFER_STOPS",
+  "REST+REORDER_STOPS",
+  "REST+SAFER_ROUTE",
+  "TRANSFER_STOPS+REORDER_STOPS",
+  "REST+SAFE_DELAY",
+  "SAFER_ROUTE+SAFE_DELAY",
 ]);
 
 export const InterventionCandidateSchema = z
@@ -778,6 +841,52 @@ export const InterventionCandidateSchema = z
         code: "custom",
         path: ["actions"],
         message: "Candidate cannot repeat an action type",
+      });
+    }
+    if (
+      value.actions.length === 2 &&
+      !allowedInterventionBundleKeys.has(actionTypes.join("+"))
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["actions"],
+        message: "Candidate action bundle is not allowed or is out of canonical order",
+      });
+    }
+    const transfer = value.actions.find(
+      (action) => action.type === "TRANSFER_STOPS",
+    );
+    const reorder = value.actions.find(
+      (action) => action.type === "REORDER_STOPS",
+    );
+    if (
+      value.actions.length === 2 &&
+      transfer?.type === "TRANSFER_STOPS" &&
+      reorder?.type === "REORDER_STOPS" &&
+      transfer.sourceCourierId !== reorder.courierId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["actions"],
+        message: "Transfer and reorder bundle must target the same source courier",
+      });
+    }
+    const saferRoute = value.actions.find(
+      (action) => action.type === "SAFER_ROUTE",
+    );
+    const safeDelay = value.actions.find(
+      (action) => action.type === "SAFE_DELAY",
+    );
+    if (
+      value.actions.length === 2 &&
+      saferRoute?.type === "SAFER_ROUTE" &&
+      safeDelay?.type === "SAFE_DELAY" &&
+      saferRoute.courierId !== safeDelay.courierId
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["actions"],
+        message: "Safer route and Safe Delay bundle must target the same courier",
       });
     }
     if (new Set(value.affectedCourierIds).size !== value.affectedCourierIds.length) {
@@ -956,6 +1065,7 @@ export const DecisionStatusSchema = z.enum([
   "RIDER_CONSENTED",
   "MODIFICATION_REQUESTED",
   "RIDER_DECLINED",
+  "RIDER_CONSENT_EXPIRED",
   "ADMIN_APPROVAL_REQUIRED",
   "ADMIN_HELD",
   "ADMIN_MODIFICATION_REQUESTED",
@@ -981,12 +1091,20 @@ export const DecisionEventSchema = z
     reasonCode: z.string().min(1),
     evidenceIds: z.array(opaqueId),
   })
-  .strict();
+  .strict()
+  .superRefine((value, context) => {
+    if (value.actor !== "SYSTEM" && !value.actorId) {
+      context.addIssue({
+        code: "custom",
+        path: ["actorId"],
+        message: "Courier and administrator events require an actor ID",
+      });
+    }
+  });
 
 const approvalReadyStatuses = new Set([
   "APPROVED",
   "REVALIDATING",
-  "REVALIDATION_REQUIRED",
   "APPLYING_PLAN",
   "APPLIED",
   "APPLY_FAILED",
@@ -1010,22 +1128,36 @@ const allowedDecisionTransitions = new Map<string, Set<string>>([
   ],
   [
     "RIDER_RESPONSE_PENDING",
-    new Set(["RIDER_CONSENTED", "MODIFICATION_REQUESTED", "RIDER_DECLINED", "CANCELLED"]),
+    new Set([
+      "RIDER_RESPONSE_PENDING",
+      "RIDER_CONSENTED",
+      "MODIFICATION_REQUESTED",
+      "RIDER_DECLINED",
+      "RIDER_CONSENT_EXPIRED",
+      "CANCELLED",
+    ]),
   ],
   ["RIDER_CONSENTED", new Set(["ADMIN_APPROVAL_REQUIRED", "CANCELLED"])],
   ["MODIFICATION_REQUESTED", new Set(["CANDIDATES_GENERATED", "CANCELLED"])],
   ["RIDER_DECLINED", new Set(["CANDIDATES_GENERATED", "CANCELLED"])],
+  ["RIDER_CONSENT_EXPIRED", new Set(["CANDIDATES_GENERATED", "CANCELLED"])],
   [
     "ADMIN_APPROVAL_REQUIRED",
-    new Set(["APPROVED", "ADMIN_HELD", "ADMIN_MODIFICATION_REQUESTED", "CANCELLED"]),
+    new Set([
+      "APPROVED",
+      "ADMIN_HELD",
+      "ADMIN_MODIFICATION_REQUESTED",
+      "RIDER_CONSENT_EXPIRED",
+      "CANCELLED",
+    ]),
   ],
   ["ADMIN_HELD", new Set(["ADMIN_APPROVAL_REQUIRED", "ADMIN_MODIFICATION_REQUESTED", "CANCELLED"])],
   ["ADMIN_MODIFICATION_REQUESTED", new Set(["CANDIDATES_GENERATED", "CANCELLED"])],
   ["APPROVED", new Set(["REVALIDATING", "CANCELLED"])],
   ["REVALIDATING", new Set(["APPLYING_PLAN", "REVALIDATION_REQUIRED", "CANCELLED"])],
   ["REVALIDATION_REQUIRED", new Set(["CANDIDATES_GENERATED", "CANCELLED"])],
-  ["APPLYING_PLAN", new Set(["APPLIED", "APPLY_FAILED"])],
-  ["APPLIED", new Set(["NOTICE_RECORDED", "CLOSED"])],
+  ["APPLYING_PLAN", new Set(["APPLIED", "APPLY_FAILED", "REVALIDATION_REQUIRED"])],
+  ["APPLIED", new Set(["NOTICE_RECORDED"])],
   ["APPLY_FAILED", new Set(["REVALIDATING", "CANCELLED"])],
   ["NOTICE_RECORDED", new Set(["CLOSED"])],
   ["CANCELLED", new Set()],
@@ -1110,6 +1242,39 @@ export const DecisionRecordSchema = z
         code: "custom",
         path: ["selectedCandidateId"],
         message: "Selected candidate must belong to the decision",
+      });
+    }
+    if (new Set(value.candidateIds).size !== value.candidateIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["candidateIds"],
+        message: "Decision candidate IDs must be unique",
+      });
+    }
+    if (new Set(value.evaluationIds).size !== value.evaluationIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["evaluationIds"],
+        message: "Decision evaluation IDs must be unique",
+      });
+    }
+    if (new Set(value.events.map((event) => event.eventId)).size !== value.events.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["events"],
+        message: "Decision event IDs must be unique",
+      });
+    }
+    if (
+      value.selectedCandidateId &&
+      value.consentRequirements.some(
+        (requirement) => requirement.candidateId !== value.selectedCandidateId,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["consentRequirements"],
+        message: "Consent requirements must reference the selected candidate",
       });
     }
     if (approvalReadyStatuses.has(value.status)) {
@@ -1207,6 +1372,198 @@ export const NearMissReportSchema = z
     }
   });
 
+export const ExplanationRoleSchema = z.enum([
+  "COURIER",
+  "ADMIN",
+  "CUSTOMER",
+  "REPORT",
+]);
+
+export const NumericFactSchema = z
+  .object({
+    factId: opaqueId,
+    label: z.string().min(1).max(100),
+    value: finiteNumber,
+    unit: z.string().min(1).max(40),
+    displayValue: z.string().min(1).max(100),
+  })
+  .strict();
+
+export const StateFactSchema = z
+  .object({
+    factId: opaqueId,
+    label: z.string().min(1).max(100),
+    value: z
+      .string()
+      .min(1)
+      .max(200)
+      .refine((value) => !/\d/.test(value), {
+        message: "Numeric state values must be supplied as numeric facts",
+      }),
+  })
+  .strict();
+
+export const AllowedCitationSchema = z
+  .object({
+    citationId: opaqueId,
+    documentTitle: z.string().min(1).max(200),
+    page: z.number().int().min(1).optional(),
+    section: z.string().min(1).max(200).optional(),
+    excerpt: z.string().min(1).max(1_000),
+  })
+  .strict()
+  .refine((value) => value.page !== undefined || value.section !== undefined, {
+    message: "Citation requires a page or section",
+  });
+
+export const ExplanationInputSchema = z
+  .object({
+    requestId: opaqueId,
+    role: ExplanationRoleSchema,
+    language: z.literal("ko"),
+    dataMode: z.enum(["DEMO", "LIVE_PILOT"]),
+    numericFacts: z.array(NumericFactSchema).max(20),
+    stateFacts: z.array(StateFactSchema).max(20),
+    allowedCitations: z.array(AllowedCitationSchema).max(10),
+    allowedActions: z.array(z.string().min(1).max(200)).max(5),
+    prohibitedTopics: z.array(z.string().min(1).max(100)).min(1).max(30),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const ensureUnique = (items: string[], path: string) => {
+      if (new Set(items).size !== items.length) {
+        context.addIssue({
+          code: "custom",
+          path: [path],
+          message: `${path} values must be unique`,
+        });
+      }
+    };
+    ensureUnique(
+      [...value.numericFacts, ...value.stateFacts].map((fact) => fact.factId),
+      "facts",
+    );
+    ensureUnique(
+      value.allowedCitations.map((citation) => citation.citationId),
+      "allowedCitations",
+    );
+    ensureUnique(value.allowedActions, "allowedActions");
+  });
+
+export const ExplanationOutputSchema = z
+  .object({
+    requestId: opaqueId,
+    role: ExplanationRoleSchema,
+    summary: z.string().min(1).max(1_000),
+    actions: z.array(z.string().min(1).max(200)).max(5).optional(),
+    citedFactIds: z.array(opaqueId).max(20),
+    citationIds: z.array(opaqueId).max(10),
+    uncertaintyStatement: z.string().min(1).max(300).optional(),
+    dataModeLabel: z.string().min(1).max(50),
+  })
+  .strict();
+
+export const ExtractedSafetyRuleSchema = z
+  .object({
+    ruleId: opaqueId,
+    hazardType: z.enum([
+      "HEAVY_RAIN_SLOPE",
+      "HEAT_STAIRS",
+      "LOW_VISIBILITY",
+      "NARROW_ROAD",
+      "REST_GUIDANCE",
+      "SAFE_DELAY",
+    ]),
+    applicableConditions: z
+      .array(
+        z
+          .object({
+            field: z.enum([
+              "rainfallMmPerHour",
+              "apparentTemperatureC",
+              "visibilityMeters",
+              "slopePercent",
+              "continuousWorkMinutes",
+              "remainingStopCount",
+            ]),
+            operator: z.enum(["GTE", "LTE", "EQ", "IN"]),
+            value: z.union([
+              finiteNumber,
+              z.string().min(1).max(100),
+              z.array(z.string().min(1).max(100)).min(1).max(20),
+            ]),
+            unit: z.string().min(1).max(40).optional(),
+          })
+          .strict(),
+      )
+      .min(1)
+      .max(20),
+    recommendedActions: z
+      .array(
+        z.enum([
+          "REST",
+          "TRANSFER_STOPS",
+          "REORDER_STOPS",
+          "SAFER_ROUTE",
+          "SAFE_DELAY",
+        ]),
+      )
+      .min(1)
+      .max(5),
+    source: z
+      .object({
+        documentId: opaqueId,
+        page: z.number().int().min(1).optional(),
+        section: z.string().min(1).max(200).optional(),
+        excerpt: z.string().min(1).max(1_000),
+      })
+      .strict(),
+  })
+  .strict()
+  .refine(
+    (value) =>
+      value.source.page !== undefined || value.source.section !== undefined,
+    { message: "Extracted rule source requires a page or section" },
+  );
+
+export const ExplanationValidationSchema = z
+  .object({
+    outputSchemaValid: z.literal(true),
+    numericFactsValid: z.literal(true),
+    citationsValid: z.literal(true),
+    rolePolicyValid: z.literal(true),
+  })
+  .strict();
+
+const ExplanationSuccessMetadataSchema = z
+  .object({
+    model: z.string().min(1),
+    promptVersion: z.string().min(1),
+    receivedAt: IsoDateTimeSchema,
+    validation: ExplanationValidationSchema,
+  })
+  .strict();
+
+export const ExplanationResultSchema = z.discriminatedUnion("status", [
+  ExplanationSuccessMetadataSchema.extend({
+    status: z.literal("LIVE"),
+    data: ExplanationOutputSchema,
+    provider: z.literal("UPSTAGE"),
+  }).strict(),
+  ExplanationSuccessMetadataSchema.extend({
+    status: z.literal("MOCK"),
+    data: ExplanationOutputSchema,
+    provider: z.literal("UPSTAGE_MOCK"),
+  }).strict(),
+  ExplanationSuccessMetadataSchema.extend({
+    status: z.literal("FALLBACK"),
+    data: ExplanationOutputSchema,
+    provider: z.literal("TEMPLATE"),
+    attemptedProvider: z.literal("UPSTAGE"),
+    fallbackReason: DataErrorSchema,
+  }).strict(),
+]);
+
 export const CustomerNoticeSchema = z
   .object({
     noticeId: opaqueId,
@@ -1284,6 +1641,129 @@ const InitialSafetyStateSchema = z
     }
   });
 
+const ReorderPolicySchema = z
+  .object({
+    courierId: opaqueId,
+    reorderableStopIds: z.array(opaqueId),
+    fixedStopIds: z.array(opaqueId),
+    maxCandidates: z.literal(3),
+    provenance: ProvenanceSchema,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.reorderableStopIds).size !== value.reorderableStopIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["reorderableStopIds"],
+        message: "Reorderable stop IDs must be unique",
+      });
+    }
+    if (new Set(value.fixedStopIds).size !== value.fixedStopIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["fixedStopIds"],
+        message: "Fixed stop IDs must be unique",
+      });
+    }
+    if (value.reorderableStopIds.some((stopId) => value.fixedStopIds.includes(stopId))) {
+      context.addIssue({
+        code: "custom",
+        path: ["fixedStopIds"],
+        message: "Reorderable and fixed stops cannot overlap",
+      });
+    }
+    if (value.provenance.kind !== "MOCK" || !value.provenance.isDemo) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "Demo reorder policy requires MOCK provenance",
+      });
+    }
+  });
+
+const SaferRouteAlternativeSchema = z
+  .object({
+    courierId: opaqueId,
+    replacementRouteId: opaqueId,
+    replacedSegmentIds: z.array(opaqueId).min(1),
+    replacementSegments: z.array(RouteSegmentSchema).min(1),
+    provenance: ProvenanceSchema,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.replacedSegmentIds).size !== value.replacedSegmentIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["replacedSegmentIds"],
+        message: "Replaced segment IDs must be unique",
+      });
+    }
+    if (
+      new Set(value.replacementSegments.map((segment) => segment.segmentId)).size !==
+      value.replacementSegments.length
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["replacementSegments"],
+        message: "Replacement segment IDs must be unique",
+      });
+    }
+    if (
+      value.replacementSegments.some(
+        (segment) =>
+          segment.routeId !== value.replacementRouteId ||
+          segment.routeAlternativeKind !== "SAFER",
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["replacementSegments"],
+        message: "Replacement segments must use the declared SAFER route",
+      });
+    }
+    if (value.provenance.kind !== "MOCK" || !value.provenance.isDemo) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "Demo safer route requires MOCK provenance",
+      });
+    }
+  });
+
+const SafeDelayPolicySchema = z
+  .object({
+    courierId: opaqueId,
+    delayableStopIds: z.array(opaqueId),
+    maximumDelayMinutes: finiteNumber.gt(0),
+    customerNoticeAvailable: z.boolean(),
+    provenance: ProvenanceSchema,
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (new Set(value.delayableStopIds).size !== value.delayableStopIds.length) {
+      context.addIssue({
+        code: "custom",
+        path: ["delayableStopIds"],
+        message: "Delayable stop IDs must be unique",
+      });
+    }
+    if (value.provenance.kind !== "MOCK" || !value.provenance.isDemo) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "Demo Safe Delay policy requires MOCK provenance",
+      });
+    }
+  });
+
+const InterventionInputsSchema = z
+  .object({
+    reorderPolicies: z.array(ReorderPolicySchema).min(1),
+    saferRouteAlternatives: z.array(SaferRouteAlternativeSchema).min(1),
+    safeDelayPolicies: z.array(SafeDelayPolicySchema).min(1),
+  })
+  .strict();
+
 const ScenarioFixtureBaseSchema = z
   .object({
     fixtureId: opaqueId,
@@ -1304,6 +1784,7 @@ const ScenarioFixtureBaseSchema = z
     routeSegments: z.array(RouteSegmentSchema).min(1),
     stops: z.array(DeliveryStopSchema).min(1),
     initialSafetyStates: z.array(InitialSafetyStateSchema).optional(),
+    interventionInputs: InterventionInputsSchema.optional(),
     expectedAssertions: ExpectedAssertionsSchema,
     provenance: z.array(ProvenanceSchema).min(1),
   })
@@ -1318,6 +1799,13 @@ function addDuplicateIssues(
   if (new Set(values).size !== values.length) {
     context.addIssue({ code: "custom", path, message: `${label} must be unique` });
   }
+}
+
+function sameStringArraySet(left: string[], right: string[]) {
+  return (
+    left.length === right.length &&
+    [...left].sort().join("|") === [...right].sort().join("|")
+  );
 }
 
 export const ScenarioFixtureSchema = ScenarioFixtureBaseSchema.superRefine(
@@ -1358,6 +1846,137 @@ export const ScenarioFixtureSchema = ScenarioFixtureBaseSchema.superRefine(
             code: "custom",
             path: ["initialSafetyStates"],
             message: `Unknown initial safety state courier ${courierId}`,
+          });
+        }
+      }
+    }
+    if (value.interventionInputs) {
+      addDuplicateIssues(
+        value.interventionInputs.reorderPolicies.map((policy) => policy.courierId),
+        context,
+        ["interventionInputs", "reorderPolicies"],
+        "Reorder policy courier IDs",
+      );
+      addDuplicateIssues(
+        value.interventionInputs.saferRouteAlternatives.map(
+          (alternative) => alternative.replacementRouteId,
+        ),
+        context,
+        ["interventionInputs", "saferRouteAlternatives"],
+        "Safer replacement route IDs",
+      );
+      addDuplicateIssues(
+        value.interventionInputs.safeDelayPolicies.map((policy) => policy.courierId),
+        context,
+        ["interventionInputs", "safeDelayPolicies"],
+        "Safe Delay policy courier IDs",
+      );
+      const currentSegmentById = new Map(
+        value.routeSegments.map((segment) => [segment.segmentId, segment]),
+      );
+      for (const policy of value.interventionInputs.reorderPolicies) {
+        if (!courierSet.has(policy.courierId)) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "reorderPolicies"],
+            message: `Unknown reorder policy courier ${policy.courierId}`,
+          });
+        }
+        const remaining = new Set(
+          value.workloads.find((workload) => workload.courierId === policy.courierId)
+            ?.remainingStopIds ?? [],
+        );
+        if (
+          [...policy.reorderableStopIds, ...policy.fixedStopIds].some(
+            (stopId) => !remaining.has(stopId),
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "reorderPolicies"],
+            message: "Reorder policy can only reference the courier's remaining stops",
+          });
+        }
+        if (
+          !sameStringArraySet(
+            [...policy.reorderableStopIds, ...policy.fixedStopIds],
+            [...remaining],
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "reorderPolicies"],
+            message: "Reorder policy must classify every remaining stop",
+          });
+        }
+      }
+      for (const alternative of value.interventionInputs.saferRouteAlternatives) {
+        const courier = value.couriers.find(
+          (item) => item.courierId === alternative.courierId,
+        );
+        const replaced = alternative.replacedSegmentIds
+          .map((segmentId) => currentSegmentById.get(segmentId))
+          .filter((segment): segment is z.infer<typeof RouteSegmentSchema> => Boolean(segment));
+        if (!courier || replaced.length !== alternative.replacedSegmentIds.length) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "saferRouteAlternatives"],
+            message: "Safer route references an unknown courier or current segment",
+          });
+          continue;
+        }
+        if (
+          replaced.some(
+            (segment) =>
+              value.stops.find((stop) => stop.stopId === segment.toStopId)
+                ?.assignedCourierId !== alternative.courierId,
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "saferRouteAlternatives"],
+            message: "Safer route can only replace its courier's current segments",
+          });
+        }
+        const replacedStops = [...replaced.map((segment) => segment.toStopId)].sort();
+        const replacementStops = [
+          ...alternative.replacementSegments.map((segment) => segment.toStopId),
+        ].sort();
+        if (replacedStops.join("|") !== replacementStops.join("|")) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "saferRouteAlternatives"],
+            message: "Replacement route must preserve the destination stop set",
+          });
+        }
+        if (
+          alternative.replacementSegments.some(
+            (segment) =>
+              !stopSet.has(segment.toStopId) ||
+              !areaSet.has(segment.areaRiskProfileId) ||
+              !segment.legalForVehicleClasses.includes(courier.vehicleClass),
+          )
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "saferRouteAlternatives"],
+            message: "Replacement route is incompatible with its fixture references",
+          });
+        }
+      }
+      for (const policy of value.interventionInputs.safeDelayPolicies) {
+        const remaining = new Set(
+          value.workloads.find((workload) => workload.courierId === policy.courierId)
+            ?.remainingStopIds ?? [],
+        );
+        if (
+          !courierSet.has(policy.courierId) ||
+          policy.delayableStopIds.some((stopId) => !remaining.has(stopId))
+        ) {
+          context.addIssue({
+            code: "custom",
+            path: ["interventionInputs", "safeDelayPolicies"],
+            message: "Safe Delay policy references an unknown courier or remaining stop",
           });
         }
       }
@@ -1488,4 +2107,14 @@ export type PolicyReason = z.infer<typeof PolicyReasonSchema>;
 export type InterventionAction = z.infer<typeof InterventionActionSchema>;
 export type InterventionCandidate = z.infer<typeof InterventionCandidateSchema>;
 export type InterventionEvaluation = z.infer<typeof InterventionEvaluationSchema>;
+export type DecisionStatus = z.infer<typeof DecisionStatusSchema>;
+export type DecisionEvent = z.infer<typeof DecisionEventSchema>;
 export type DecisionRecord = z.infer<typeof DecisionRecordSchema>;
+export type ExplanationRole = z.infer<typeof ExplanationRoleSchema>;
+export type NumericFact = z.infer<typeof NumericFactSchema>;
+export type StateFact = z.infer<typeof StateFactSchema>;
+export type AllowedCitation = z.infer<typeof AllowedCitationSchema>;
+export type ExplanationInput = z.infer<typeof ExplanationInputSchema>;
+export type ExplanationOutput = z.infer<typeof ExplanationOutputSchema>;
+export type ExtractedSafetyRule = z.infer<typeof ExtractedSafetyRuleSchema>;
+export type ExplanationResult = z.infer<typeof ExplanationResultSchema>;

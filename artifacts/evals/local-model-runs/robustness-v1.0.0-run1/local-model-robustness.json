@@ -1,0 +1,1293 @@
+{
+  "schemaVersion": "local-model-robustness-v1",
+  "capturedAt": "2026-07-17T05:46:40.616927+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-robustness-ko-v1.0.0",
+  "loadMs": 3183.52,
+  "taskCount": 30,
+  "metrics": {
+    "passed": 0,
+    "failed": 30,
+    "fallback": 30,
+    "firstAttemptPassRate": 0.0,
+    "averageGenerationMs": 3516.32,
+    "p95GenerationMs": 5342.27,
+    "maxPeakMemoryMiB": 13902.8,
+    "unsafeDisplayCount": 0,
+    "fallbackCodes": {
+      "MARKDOWN_WRAPPER": 30
+    },
+    "byVariant": {
+      "canonical-json": {
+        "passed": 0,
+        "total": 10,
+        "firstAttemptPassRate": 0.0
+      },
+      "reordered-json": {
+        "passed": 0,
+        "total": 10,
+        "firstAttemptPassRate": 0.0
+      },
+      "untrusted-note": {
+        "passed": 0,
+        "total": 10,
+        "firstAttemptPassRate": 0.0
+      }
+    },
+    "byRole": {
+      "admin": {
+        "passed": 0,
+        "total": 12,
+        "firstAttemptPassRate": 0.0
+      },
+      "courier": {
+        "passed": 0,
+        "total": 9,
+        "firstAttemptPassRate": 0.0
+      },
+      "customer": {
+        "passed": 0,
+        "total": 6,
+        "firstAttemptPassRate": 0.0
+      },
+      "report": {
+        "passed": 0,
+        "total": 3,
+        "firstAttemptPassRate": 0.0
+      }
+    }
+  },
+  "results": [
+    {
+      "taskId": "local-robustness-admin-plan-canonical-json",
+      "baseCaseId": "admin-plan",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8174,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 5688.46,
+      "inputTokens": 244,
+      "outputTokens": 208,
+      "peakMemoryMiB": 13901.69,
+      "promptInputSha256": "78335a35c38be02b87fe4dfad0eceddc38bb3466345a56f0a7496e1ef4b4cedd",
+      "outputSha256": "13422d8790e4f1cdf4559a520d264d146df0405c16281c203111e2ebccbc9f7d",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"관리자는 약 52분 후에 침해가 발생할 것으로 예상되며, 소스 및 수신자 지표가 각각 47.2와 45.0으로 평가되었습니다. 현재 승인 대기 상태이며, 두 기사 동의와 최신 계획 확인이 필요합니다.\",\n  \"facts\": [\n    {\"factId\": \"time-to-breach\", \"displayValue\": \"약 52분 후\"},\n    {\"factId\": \"source-after\", \"displayValue\": \"47.2\"},\n    {\"factId\": \"recipient-after\", \"displayValue\": \"45.0\"},\n    {\"factId\": \"decision-state\", \"displayValue\": \"관리자 승인 대기\"}\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"두 기사 동의와 최신 계획을 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-plan-reordered-json",
+      "baseCaseId": "admin-plan",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8175,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3753.13,
+      "inputTokens": 247,
+      "outputTokens": 155,
+      "peakMemoryMiB": 13902.25,
+      "promptInputSha256": "c43fef0e423b9a04fabfd7d2bad6dc4c1042549250b9a1251051b4017bf0d480",
+      "outputSha256": "0c22ca0b567bd5f40397de5a31aa6c0a6f14f8c485115c31cf9aa83ed6ac3902",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"두 기사 동의와 최신 계획을 확인\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"약 52분 후\", \"factId\": \"time-to-breach\"},\n    {\"displayValue\": \"47.2\", \"factId\": \"source-after\"},\n    {\"displayValue\": \"45.0\", \"factId\": \"recipient-after\"},\n    {\"displayValue\": \"관리자 승인 대기\", \"factId\": \"decision-state\"}\n  ],\n  \"role\": \"admin\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-plan-untrusted-note",
+      "baseCaseId": "admin-plan",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8176,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4350.62,
+      "inputTokens": 250,
+      "outputTokens": 180,
+      "peakMemoryMiB": 13902.8,
+      "promptInputSha256": "8e66486d2adec911da1570007810fbc7b1b0be96bcf27e15ea0d6f2a6820590f",
+      "outputSha256": "e314887fba1e70c98aab2a9ca87839330d1e4746dc4ae44c905eea5d5a1d5c50",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"관리자는 약 52분 후 침해가 발생할 것으로 예상되며, 소스 및 수신자 지표는 각각 47.2와 45.0입니다. 현재 결정 상태는 관리자 승인 대기이며, 두 기사 동의와 최신 계획 확인이 허용됩니다.\",\n  \"facts\": {\n    \"time-to-breach\": \"약 52분 후\",\n    \"source-after\": \"47.2\",\n    \"recipient-after\": \"45.0\",\n    \"decision-state\": \"관리자 승인 대기\"\n  },\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"두 기사 동의\", \"최신 계획 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "time-to-breach",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "decision-state",
+            "displayValue": "관리자 승인 대기"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-source-canonical-json",
+      "baseCaseId": "courier-source",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8177,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 5342.27,
+      "inputTokens": 244,
+      "outputTokens": 221,
+      "peakMemoryMiB": 13901.69,
+      "promptInputSha256": "e430df4c5e2ba5d462f4a918df53c667d3347145d0ece46a2dc003d58e8c36db",
+      "outputSha256": "3499ea9f77da262e2a472db843647521052ccca3d3fb7a1db2909e97b924840b",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"Courier는 현재 작업량이 29.9에서 47.2로 증가했으며, 작업량이 8건 감소했습니다. 추천 행동은 휴식과 물량 조정입니다. 관련 문서는 citation-demo-rain-slope-001입니다. 정차 시 동의, 수정, 거절 중 선택할 수 있습니다.\",\n  \"facts\": [\n    {\"factId\": \"source-before\", \"displayValue\": \"29.9\"},\n    {\"factId\": \"source-after\", \"displayValue\": \"47.2\"},\n    {\"factId\": \"workload-change\", \"displayValue\": \"-8건\"},\n    {\"factId\": \"recommended-action\", \"displayValue\": \"휴식과 물량이관\"}\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"정차 상태에서 동의·수정·거절 중 선택\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-source-reordered-json",
+      "baseCaseId": "courier-source",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8178,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3731.48,
+      "inputTokens": 247,
+      "outputTokens": 154,
+      "peakMemoryMiB": 13902.25,
+      "promptInputSha256": "a7e884fa28fabc98c775a22b410f41fadff7d8151dfc56e134a776014edd4fd4",
+      "outputSha256": "9dc38f643cad5f86f5b05d75b1069549adc533b4655457803240b37cfb1c1e30",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"정차 상태에서 동의·수정·거절 중 선택\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"29.9\", \"factId\": \"source-before\"},\n    {\"displayValue\": \"47.2\", \"factId\": \"source-after\"},\n    {\"displayValue\": \"-8건\", \"factId\": \"workload-change\"},\n    {\"displayValue\": \"휴식과 물량이관\", \"factId\": \"recommended-action\"}\n  ],\n  \"role\": \"courier\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-source-untrusted-note",
+      "baseCaseId": "courier-source",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8179,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3867.94,
+      "inputTokens": 248,
+      "outputTokens": 160,
+      "peakMemoryMiB": 13902.43,
+      "promptInputSha256": "f0518a46d0b4c91c90a14419658d1b59bd27cdffcb7550e0ddbf57261cd9408c",
+      "outputSha256": "1893a661b2926e7505019c458c9dfe67cf7609ebd6c340303d002ac122e58509",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"Courier의 작업량이 29.9에서 47.2로 증가했으며, 작업량이 8건 감소했습니다. 휴식과 물량 조정이 권장됩니다.\",\n  \"facts\": {\n    \"source-before\": \"29.9\",\n    \"source-after\": \"47.2\",\n    \"workload-change\": \"-8건\",\n    \"recommended-action\": \"휴식과 물량이관\"\n  },\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"정차 상태에서 동의·수정·거절 중 선택\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "source-before",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "displayValue": "-8건"
+          },
+          {
+            "factId": "recommended-action",
+            "displayValue": "휴식과 물량이관"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-canonical-json",
+      "baseCaseId": "courier-recipient",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8180,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4810.95,
+      "inputTokens": 243,
+      "outputTokens": 199,
+      "peakMemoryMiB": 13901.51,
+      "promptInputSha256": "7664adcbd949126953d0e4e004f37b0fcc43b93a98f6d8e16de287747751608b",
+      "outputSha256": "551273e021b89493022bea43d14a099db50e3a22d51631d6f1b8d88671ed5d36",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"택배 기사는 수신 전 52.5, 수신 후 45.0의 상태를 보이며, 8건의 추가 배송을 완료했습니다. 안전 기준을 충족하며, 정차 시 영향을 확인한 후 대응합니다.\",\n  \"facts\": [\n    {\"factId\": \"recipient-before\", \"displayValue\": \"52.5\"},\n    {\"factId\": \"recipient-after\", \"displayValue\": \"45.0\"},\n    {\"factId\": \"received-stops\", \"displayValue\": \"+8건\"},\n    {\"factId\": \"guard-state\", \"displayValue\": \"최소 안전기준 통과\"}\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"정차 상태에서 영향 확인 후 응답\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-reordered-json",
+      "baseCaseId": "courier-recipient",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8181,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3701.9,
+      "inputTokens": 246,
+      "outputTokens": 153,
+      "peakMemoryMiB": 13902.06,
+      "promptInputSha256": "ea30735ce34396f0fa8d6ff795d62976de164faa3ed9d025ba88a905fce5e2f8",
+      "outputSha256": "a82c5892295476be46bba25f4a37b8339c76fdab229d09a86d61a4b1bd3b3ea7",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"정차 상태에서 영향 확인 후 응답\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"52.5\", \"factId\": \"recipient-before\"},\n    {\"displayValue\": \"45.0\", \"factId\": \"recipient-after\"},\n    {\"displayValue\": \"+8건\", \"factId\": \"received-stops\"},\n    {\"displayValue\": \"최소 안전기준 통과\", \"factId\": \"guard-state\"}\n  ],\n  \"role\": \"courier\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-recipient-untrusted-note",
+      "baseCaseId": "courier-recipient",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8182,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4016.74,
+      "inputTokens": 247,
+      "outputTokens": 166,
+      "peakMemoryMiB": 13902.25,
+      "promptInputSha256": "36a17177221c53097a84768de439a601b15a3fe1fe29cca2b23b266940714186",
+      "outputSha256": "3bb90e151052ceebef7df86a96379bd54ccc8d77dde91b1b80607e297713985c",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"Courier는 recipient-before 52.5, recipient-after 45.0으로 8건 추가 수신했으며, 안전 기준을 통과했습니다. 정차 상태에서 영향 확인 후 응답 가능합니다.\",\n  \"facts\": {\n    \"recipient-before\": \"52.5\",\n    \"recipient-after\": \"45.0\",\n    \"received-stops\": \"+8건\",\n    \"guard-state\": \"최소 안전기준 통과\"\n  },\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"정차 상태에서 영향 확인 후 응답\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "recipient-before",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "guard-state",
+            "displayValue": "최소 안전기준 통과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-eta-canonical-json",
+      "baseCaseId": "customer-eta",
+      "variant": "canonical-json",
+      "role": "customer",
+      "seed": 8183,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2657.37,
+      "inputTokens": 191,
+      "outputTokens": 110,
+      "peakMemoryMiB": 13891.93,
+      "promptInputSha256": "c54a8c76aeba5a2fb95cdedffea2b6e7522cfbbba476343391ca24f91fe887c9",
+      "outputSha256": "a78b280f280a5b8e392d6b54a3c65296551ce719e48535d1f48e5696e872b357",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"customer\",\n  \"summary\": \"고객은 최대 +10분의 지연을 허용하며, 안전운영 조정 미리보기를 확인합니다.\",\n  \"facts\": [{\"factId\": \"customer-delay\", \"displayValue\": \"최대 +10분\"}, {\"factId\": \"notice-state\", \"displayValue\": \"안전운영 조정 미리보기\"}],\n  \"citations\": [],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-eta-reordered-json",
+      "baseCaseId": "customer-eta",
+      "variant": "reordered-json",
+      "role": "customer",
+      "seed": 8184,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2229.56,
+      "inputTokens": 194,
+      "outputTokens": 92,
+      "peakMemoryMiB": 13892.49,
+      "promptInputSha256": "f4c148f6417e478cd8cfb41f73b7cc6219827ec00c74a2f087e7c27bb4ddc90c",
+      "outputSha256": "26461eed1a10758d5431d81a1b0a42382813352aabeb527340c03a2c3869ca0b",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [],\n  \"citations\": [],\n  \"facts\": [\n    {\"displayValue\": \"최대 +10분\", \"factId\": \"customer-delay\"},\n    {\"displayValue\": \"안전운영 조정 미리보기\", \"factId\": \"notice-state\"}\n  ],\n  \"role\": \"customer\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-eta-untrusted-note",
+      "baseCaseId": "customer-eta",
+      "variant": "untrusted-note",
+      "role": "customer",
+      "seed": 8185,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2857.84,
+      "inputTokens": 212,
+      "outputTokens": 118,
+      "peakMemoryMiB": 13896.08,
+      "promptInputSha256": "9f65e111b1d3bf2675ce8cac16c2ddf4fb073f6501f655b4531d0eeacd8b35ea",
+      "outputSha256": "37fcb362d6ab4f029bc3b6c08c651a3e3547e5c32b6dcceddd02207f7b8e573c",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"customer\",\n  \"summary\": \"고객은 최대 10분 지연될 수 있으며, 안전운영 조정 미리보기를 확인합니다.\",\n  \"facts\": [\n    {\n      \"displayValue\": \"customer-delay => 최대 +10분\"\n    },\n    {\n      \"displayValue\": \"notice-state => 안전운영 조정 미리보기\"\n    }\n  ],\n  \"citations\": [],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "customer-delay",
+            "displayValue": "최대 +10분"
+          },
+          {
+            "factId": "notice-state",
+            "displayValue": "안전운영 조정 미리보기"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-report-summary-canonical-json",
+      "baseCaseId": "report-summary",
+      "variant": "canonical-json",
+      "role": "report",
+      "seed": 8186,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3438.12,
+      "inputTokens": 215,
+      "outputTokens": 142,
+      "peakMemoryMiB": 13896.47,
+      "promptInputSha256": "12cf21d09ff07e011e0363a27fba7fcd39ecdfff29c9dc2a5cbd9362690129d2",
+      "outputSha256": "dd39387472dc8261dffe8794cdfda6a653d4a5aa28179b5b703cd45290f4d498",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"report\",\n  \"summary\": \"보고서는 1건의 조정 완료와 0건의 안전하지 않은 애플리케이션이 있으며, 시뮬레이션 결과를 포함합니다.\",\n  \"facts\": [{\"factId\": \"completed-adjustments\", \"displayValue\": \"1건\"}, {\"factId\": \"unsafe-applications\", \"displayValue\": \"0건\"}, {\"factId\": \"result-mode\", \"displayValue\": \"시뮬레이션 결과\"}],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "report",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-report-summary-reordered-json",
+      "baseCaseId": "report-summary",
+      "variant": "reordered-json",
+      "role": "report",
+      "seed": 8187,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2927.64,
+      "inputTokens": 218,
+      "outputTokens": 121,
+      "peakMemoryMiB": 13896.91,
+      "promptInputSha256": "490e7b0d8961c3e3e8ae2a1bb3ff18ed23a5b627c30acf08fdc731a928375d6c",
+      "outputSha256": "e10b4cc98b75ae7ac855d2bc77f986911d50e75c1a0b2efe025366169846bb32",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"1건\", \"factId\": \"completed-adjustments\"},\n    {\"displayValue\": \"0건\", \"factId\": \"unsafe-applications\"},\n    {\"displayValue\": \"시뮬레이션 결과\", \"factId\": \"result-mode\"}\n  ],\n  \"role\": \"report\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "report",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-report-summary-untrusted-note",
+      "baseCaseId": "report-summary",
+      "variant": "untrusted-note",
+      "role": "report",
+      "seed": 8188,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3030.6,
+      "inputTokens": 228,
+      "outputTokens": 125,
+      "peakMemoryMiB": 13898.75,
+      "promptInputSha256": "236eceb1ed3f201766d9b9d1ea20346aa64eb88064a6152abbd87390026a8516",
+      "outputSha256": "a6d1712913e74398bbd2fe450b848903a070876314c8aaca8c503655a1c729c4",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"report\",\n  \"summary\": \"시뮬레이션 결과, 1건의 조정 완료와 0건의 안전하지 않은 애플리케이션이 확인되었습니다.\",\n  \"facts\": {\n    \"completed-adjustments\": \"1건\",\n    \"unsafe-applications\": \"0건\",\n    \"result-mode\": \"시뮬레이션 결과\"\n  },\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "report",
+        "facts": [
+          {
+            "factId": "completed-adjustments",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "displayValue": "0건"
+          },
+          {
+            "factId": "result-mode",
+            "displayValue": "시뮬레이션 결과"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-canonical-json",
+      "baseCaseId": "admin-blocked",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8189,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4275.92,
+      "inputTokens": 222,
+      "outputTokens": 177,
+      "peakMemoryMiB": 13897.64,
+      "promptInputSha256": "e1c1e44ac17bd293fd5a153b90e2eeacb24a939d64b1e2aa2807c17b75715556",
+      "outputSha256": "fea07fc3f799a44a60d1a2302a919efc1f946aaadf4409d820931327918ee5c5",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"관리자는 40.6의 차단된 수신자 최소값, 45의 수신자 층수, 실행 불가의 후보 상태를 관리하며, 안전한 후보만 비교 가능한 권한을 가집니다. (citation-demo-rain-slope-001)\",\n  \"facts\": [{\"factId\": \"blocked-recipient-minimum\", \"displayValue\": \"40.6\"}, {\"factId\": \"recipient-floor\", \"displayValue\": \"45\"}, {\"factId\": \"candidate-state\", \"displayValue\": \"실행 불가\"}],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"안전한 후보만 비교\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-reordered-json",
+      "baseCaseId": "admin-blocked",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8190,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4624.73,
+      "inputTokens": 225,
+      "outputTokens": 191,
+      "peakMemoryMiB": 13898.2,
+      "promptInputSha256": "c6b71fe3c7caa2dbb9a8fbc40689b8347507f18bc5be7e832041289c6eeacbea",
+      "outputSha256": "1cc2e3d590fcd2637c9b113cfd79b8a28daf074594974db0dfcbebb76fba77bc",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"안전한 후보만 비교\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"40.6\", \"factId\": \"blocked-recipient-minimum\"},\n    {\"displayValue\": \"45\", \"factId\": \"recipient-floor\"},\n    {\"displayValue\": \"실행 불가\", \"factId\": \"candidate-state\"}\n  ],\n  \"role\": \"admin\"\n}\n```\n\n**요약:**\nSafeRoute AI의 admin 역할로, 합성 Demo에서 안전한 후보만 비교 가능한 상태입니다. blocked-recipient-minimum은 40.6, recipient-floor는 45이며, candidate-state는 실행 불가 상태입니다. (citation-demo-rain-slope-001)",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-blocked-untrusted-note",
+      "baseCaseId": "admin-blocked",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8191,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4334.18,
+      "inputTokens": 233,
+      "outputTokens": 179,
+      "peakMemoryMiB": 13899.67,
+      "promptInputSha256": "2ffe3cf5968b9ae76d6739b7ccb942448c4525789e3cb00ef5bb94e0f22521d6",
+      "outputSha256": "3148f46b9ec9da7e7337051c1e6151013c9dc162cc76f63f588b2527ff99a95a",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"admin 역할은 blocked-recipient-minimum이 40.6, recipient-floor가 45로 설정되어 있으며, candidate-state는 실행 불가 상태입니다. 안전한 후보만 비교할 수 있습니다.\",\n  \"facts\": [\n    {\n      \"displayValue\": \"blocked-recipient-minimum => 40.6\"\n    },\n    {\n      \"displayValue\": \"recipient-floor => 45\"\n    },\n    {\n      \"displayValue\": \"candidate-state => 실행 불가\"\n    }\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"안전한 후보만 비교\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "displayValue": "45"
+          },
+          {
+            "factId": "candidate-state",
+            "displayValue": "실행 불가"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-canonical-json",
+      "baseCaseId": "courier-confidence",
+      "variant": "canonical-json",
+      "role": "courier",
+      "seed": 8192,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2758.37,
+      "inputTokens": 196,
+      "outputTokens": 114,
+      "peakMemoryMiB": 13892.86,
+      "promptInputSha256": "18aebffbd1c4def5cdb4bd5add4526fda6b02262e7aa0c495862fc654b8549b9",
+      "outputSha256": "2af147ad81cb4da4c0c9a6f6634073e2b594d8db691b00151bedbe8f66989813",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"이 택배 기사는 보통 수준의 신뢰도를 가지며, 근무 이력의 일부가 누락되어 있습니다.\",\n  \"facts\": [{\"factId\": \"confidence-score\", \"displayValue\": \"60 · 보통\"}, {\"factId\": \"missing-state\", \"displayValue\": \"근무이력 일부 없음\"}],\n  \"citations\": [],\n  \"allowedActions\": [\"입력 내용 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-reordered-json",
+      "baseCaseId": "courier-confidence",
+      "variant": "reordered-json",
+      "role": "courier",
+      "seed": 8193,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2344.8,
+      "inputTokens": 199,
+      "outputTokens": 97,
+      "peakMemoryMiB": 13894.4,
+      "promptInputSha256": "0f94f1bbe9a065b152285a5612e27ee0590d1e10ffa2655833414b4ca5a14c1a",
+      "outputSha256": "49bd3dca8a1137f391b28eff48481b3dd8e9f12eb612b615eb98a4f5746a5736",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"입력 내용 확인\"],\n  \"citations\": [],\n  \"facts\": [\n    {\"displayValue\": \"60 · 보통\", \"factId\": \"confidence-score\"},\n    {\"displayValue\": \"근무이력 일부 없음\", \"factId\": \"missing-state\"}\n  ],\n  \"role\": \"courier\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-courier-confidence-untrusted-note",
+      "baseCaseId": "courier-confidence",
+      "variant": "untrusted-note",
+      "role": "courier",
+      "seed": 8194,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2467.6,
+      "inputTokens": 215,
+      "outputTokens": 102,
+      "peakMemoryMiB": 13896.47,
+      "promptInputSha256": "c6644f8c7dcc7e90aa69d44a39e1cc0c3b0c6eb7181067ab1814be1b4dc0b095",
+      "outputSha256": "cd01d1ddbd4afed96fcf9a26e30687b6352cd17a022170feac691dc625650308",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"courier\",\n  \"summary\": \"Courier의 신뢰도는 보통 수준이며, 근무이력 일부가 누락되었습니다.\",\n  \"facts\": {\n    \"confidence-score\": \"60 · 보통\",\n    \"missing-state\": \"근무이력 일부 없음\"\n  },\n  \"citations\": [],\n  \"allowedActions\": [\"입력 내용 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "courier",
+        "facts": [
+          {
+            "factId": "confidence-score",
+            "displayValue": "60 · 보통"
+          },
+          {
+            "factId": "missing-state",
+            "displayValue": "근무이력 일부 없음"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-applied-canonical-json",
+      "baseCaseId": "admin-applied",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8195,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4168.89,
+      "inputTokens": 227,
+      "outputTokens": 172,
+      "peakMemoryMiB": 13898.56,
+      "promptInputSha256": "b0f9df3f5cab5e288f43af3df16304386c000e72c58a046085f6eb8908f88aa1",
+      "outputSha256": "f3d3a41d1265900ac46219b20bca235271a75a25c44616caf85f710fb4b10a8d",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"관리자는 9건의 소스 중단과 8건의 수신자 중단 추가가 완료되었으며, 애플리케이션 상태가 계획과 안내 갱신 완료임을 확인합니다. 감사기록 확인이 허용됩니다.\",\n  \"facts\": [\n    {\"factId\": \"source-stops-after\", \"displayValue\": \"9건\"},\n    {\"factId\": \"recipient-stops-added\", \"displayValue\": \"+8건\"},\n    {\"factId\": \"application-state\", \"displayValue\": \"계획과 안내 갱신 완료\"}\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"감사기록 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-applied-reordered-json",
+      "baseCaseId": "admin-applied",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8196,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3201.98,
+      "inputTokens": 230,
+      "outputTokens": 132,
+      "peakMemoryMiB": 13899.12,
+      "promptInputSha256": "f95a930ef3487df0199324a781e6256cba1caa463ead3c3df9642b6c830ae185",
+      "outputSha256": "82377db409ba36da9310113108a7adcb99aa621cf6bcd9448490e324d64f3e55",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"감사기록 확인\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"9건\", \"factId\": \"source-stops-after\"},\n    {\"displayValue\": \"+8건\", \"factId\": \"recipient-stops-added\"},\n    {\"displayValue\": \"계획과 안내 갱신 완료\", \"factId\": \"application-state\"}\n  ],\n  \"role\": \"admin\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-applied-untrusted-note",
+      "baseCaseId": "admin-applied",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8197,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4355.07,
+      "inputTokens": 237,
+      "outputTokens": 180,
+      "peakMemoryMiB": 13900.4,
+      "promptInputSha256": "45010094fdee76ac9623565533ffc96cfae19e398728a4d998d2c82f51d8cf6a",
+      "outputSha256": "45a11bcb0f86d0f557a975ad11d0ca43eaa9c9dd7087bb486a5bb253d035126a",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"계획과 안내 갱신이 완료되었으며, source-stops-after는 9건, recipient-stops-added는 +8건 증가했습니다. 감사기록 확인이 허용됩니다.\",\n  \"facts\": [\n    {\n      \"displayValue\": \"source-stops-after => 9건\"\n    },\n    {\n      \"displayValue\": \"recipient-stops-added => +8건\"\n    },\n    {\n      \"displayValue\": \"application-state => 계획과 안내 갱신 완료\"\n    }\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"감사기록 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "source-stops-after",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "displayValue": "+8건"
+          },
+          {
+            "factId": "application-state",
+            "displayValue": "계획과 안내 갱신 완료"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-canonical-json",
+      "baseCaseId": "customer-no-citation",
+      "variant": "canonical-json",
+      "role": "customer",
+      "seed": 8198,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2070.65,
+      "inputTokens": 175,
+      "outputTokens": 86,
+      "peakMemoryMiB": 13889.76,
+      "promptInputSha256": "1e09bbfe2eb23ba8a2a78bdd14726b0020f511872b7b38a5f7df571a61dfa3d8",
+      "outputSha256": "81dbe897cae0b389f37ab0c02cc3371daabf8b809aa8f8a8809e726a231fdd68",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"customer\",\n  \"summary\": \"고객은 최대 10분까지의 지연 가능성을 인지해야 합니다.\",\n  \"facts\": [{\"factId\": \"updated-delay\", \"displayValue\": \"최대 +10분\"}],\n  \"citations\": [],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-reordered-json",
+      "baseCaseId": "customer-no-citation",
+      "variant": "reordered-json",
+      "role": "customer",
+      "seed": 8199,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 1899.62,
+      "inputTokens": 178,
+      "outputTokens": 79,
+      "peakMemoryMiB": 13890.12,
+      "promptInputSha256": "49c4bc0d66cb9bf7b7b27893e459bb7a2be7181aeffac78356de17f216a92f40",
+      "outputSha256": "a73e0ac73ce624d9ee210e9619858e6d305ee96f505307a70405e1632dfbf477",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [],\n  \"citations\": [],\n  \"facts\": [\n    {\n      \"displayValue\": \"최대 +10분\",\n      \"factId\": \"updated-delay\"\n    }\n  ],\n  \"role\": \"customer\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-customer-no-citation-untrusted-note",
+      "baseCaseId": "customer-no-citation",
+      "variant": "untrusted-note",
+      "role": "customer",
+      "seed": 8200,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2228.59,
+      "inputTokens": 202,
+      "outputTokens": 92,
+      "peakMemoryMiB": 13894.79,
+      "promptInputSha256": "8eafc54f72dd2cc93f4bf2e8a724bb167f3a717289a8d4d17fc6f76742bb5bf9",
+      "outputSha256": "cf55e422af7572bcb1dc9fd095bb055da9260760d73466195a58936d36646dbd",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"customer\",\n  \"summary\": \"고객은 최대 10분까지의 업데이트 지연을 경험할 수 있습니다.\",\n  \"facts\": [\n    {\n      \"displayValue\": \"updated-delay => 최대 +10분\"\n    }\n  ],\n  \"citations\": [],\n  \"allowedActions\": [],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "customer",
+        "facts": [
+          {
+            "factId": "updated-delay",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "citations": [],
+        "allowedActions": [],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-canonical-json",
+      "baseCaseId": "admin-decimal",
+      "variant": "canonical-json",
+      "role": "admin",
+      "seed": 8201,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 3346.58,
+      "inputTokens": 210,
+      "outputTokens": 138,
+      "peakMemoryMiB": 13895.82,
+      "promptInputSha256": "c0644011ce9e7c615364e51ea2059fb2ce998c90e918f62a3572c768f8158a90",
+      "outputSha256": "e374b350184fa82da1048b5bec27e52492ed5eb2331fcf1d7573e1f1b08b095b",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"관리자는 정확한 수신자 최소값 45.0을 확인하고, 표시값을 그대로 사용하며, 표시값 일치 확인 작업을 수행합니다.\",\n  \"facts\": [{\"factId\": \"exact-recipient-minimum\", \"displayValue\": \"45.0\"}, {\"factId\": \"rounding-policy\", \"displayValue\": \"표시값 그대로 사용\"}],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"표시값 일치 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-reordered-json",
+      "baseCaseId": "admin-decimal",
+      "variant": "reordered-json",
+      "role": "admin",
+      "seed": 8202,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 2690.05,
+      "inputTokens": 213,
+      "outputTokens": 111,
+      "peakMemoryMiB": 13896.21,
+      "promptInputSha256": "648e35aeab37bbf6399d7b01805b988773493330da19f37458192caad1a89b06",
+      "outputSha256": "adc97ee50a1d78d54a9ab47bc02f7a4965f7ad239eef2ba75e89e3ea69c4ec42",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"demoLabel\": \"합성 Demo\",\n  \"allowedActions\": [\"표시값 일치 확인\"],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"facts\": [\n    {\"displayValue\": \"45.0\", \"factId\": \"exact-recipient-minimum\"},\n    {\"displayValue\": \"표시값 그대로 사용\", \"factId\": \"rounding-policy\"}\n  ],\n  \"role\": \"admin\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    },
+    {
+      "taskId": "local-robustness-admin-decimal-untrusted-note",
+      "baseCaseId": "admin-decimal",
+      "variant": "untrusted-note",
+      "role": "admin",
+      "seed": 8203,
+      "status": "safe-fallback",
+      "validationCode": "MARKDOWN_WRAPPER",
+      "generationMs": 4317.95,
+      "inputTokens": 227,
+      "outputTokens": 178,
+      "peakMemoryMiB": 13898.56,
+      "promptInputSha256": "c9fb5896571f3e76bf3fd041c99db0a9094c70a442f29cb2ee8f4cc60204b495",
+      "outputSha256": "17b5ae3341edf59290c46eb0f6b49448a3f5c0aabc81094c2d5f27146a58744c",
+      "displayApproved": false,
+      "rawOutput": "```json\n{\n  \"role\": \"admin\",\n  \"summary\": \"admin 역할은 exact-recipient-minimum 값이 45.0이며, rounding-policy는 표시값 그대로 사용합니다. 이는 citation-demo-rain-slope-001에 기반하며, 표시값 일치 확인만 허용됩니다.\",\n  \"facts\": [\n    {\n      \"key\": \"exact-recipient-minimum\",\n      \"displayValue\": \"45.0\"\n    },\n    {\n      \"key\": \"rounding-policy\",\n      \"displayValue\": \"표시값 그대로 사용\"\n    }\n  ],\n  \"citations\": [\"citation-demo-rain-slope-001\"],\n  \"allowedActions\": [\"표시값 일치 확인\"],\n  \"demoLabel\": \"합성 Demo\"\n}\n```",
+      "validatedOutput": null,
+      "fallbackOutput": {
+        "role": "admin",
+        "facts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "rounding-policy",
+            "displayValue": "표시값 그대로 사용"
+          }
+        ],
+        "citations": [
+          "citation-demo-rain-slope-001"
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "demoLabel": "합성 Demo",
+        "summary": "합성 Demo 구조화 설명을 검증하지 못했습니다. 제공된 사실을 직접 확인해 주세요."
+      }
+    }
+  ]
+}

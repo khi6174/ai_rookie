@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "local-model-smoke-v1",
+  "capturedAt": "2026-07-17T04:47:29.405887+00:00",
+  "taskId": "local-smoke-admin-support-001",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-structured-ko-v1.1.0",
+  "seed": 6174,
+  "status": "safe-fallback",
+  "validationCode": "FORBIDDEN_LANGUAGE",
+  "loadMs": 3155.71,
+  "generationMs": 4618.11,
+  "inputTokens": 269,
+  "outputTokens": 166,
+  "peakMemoryMiB": 13907.7,
+  "outputSha256": "5f9c1c8625be01c529bb9e290d4bcd81832a0bc63b41a167c54f81f4e573a3e6",
+  "displayApproved": false,
+  "rawOutput": "{\n  \"role\": \"admin\",\n  \"summary\": \"현재 안전 예산 잔여 비율은 31/100이며, 침해까지 남은 시간은 52분입니다. 침해 차단 지점은 17번째 배송지이며, 신뢰도는 87%입니다.\",\n  \"facts\": [{\"factId\":\"safety-budget-remaining\",\"displayValue\":\"31/100\"},{\"factId\":\"time-to-breach\",\"displayValue\":\"52분\"},{\"factId\":\"breach-stop\",\"displayValue\":\"17번째 배송지\"},{\"factId\":\"confidence\",\"displayValue\":\"87%\"}],\n  \"citations\": [\"synthetic-safety-manual#support-protocol\"],\n  \"allowedAction\": \"지원 검토\",\n  \"demoLabel\": \"합성 Demo\"\n}",
+  "validatedOutput": null,
+  "fallbackOutput": {
+    "role": "admin",
+    "summary": "합성 Demo 사실을 자동 설명으로 검증하지 못했습니다. 제공된 수치와 근거를 직접 확인해 주세요.",
+    "facts": [
+      {
+        "factId": "safety-budget-remaining",
+        "displayValue": "31/100"
+      },
+      {
+        "factId": "time-to-breach",
+        "displayValue": "52분"
+      },
+      {
+        "factId": "breach-stop",
+        "displayValue": "17번째 배송지"
+      },
+      {
+        "factId": "confidence",
+        "displayValue": "87%"
+      }
+    ],
+    "citations": [
+      "synthetic-safety-manual#support-protocol"
+    ],
+    "allowedAction": "지원 검토",
+    "demoLabel": "합성 Demo"
+  }
+}

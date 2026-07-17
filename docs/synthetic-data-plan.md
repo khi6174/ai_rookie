@@ -4,14 +4,14 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-14
-- 계획 버전: `synthetic-data-v1.0.0`
-- 목표 환경: NVIDIA A100 GPU, SKT A.X API, LG EXAONE API, NC VARCO API, Upstage API
+- 최종 갱신: 2026-07-17
+- 계획 버전: `synthetic-data-v1.1.0`
+- 목표 환경: NVIDIA A100 GPU, SKT A.X API, LG K-EXAONE API, Upstage API, 필요성 승인 후 NC VARCO 에셋 API
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/intervention-policy.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 목적
 
-이 문서는 실제 택배 운영·사고 라벨이 부족한 본선 MVP에서 검증 가능한 합성데이터를 만드는 방법과 A100 및 네 가지 국내 AI의 역할을 정의한다.
+이 문서는 실제 택배 운영·사고 라벨이 부족한 본선 MVP에서 검증 가능한 합성데이터를 만드는 방법과 A100 및 국내 AI의 역할을 정의한다. 2026-07-17 대회 제공 활용 가이드를 재검토해 A.X·K-EXAONE의 공통 텍스트 생성과 VARCO의 후속 에셋 생성 역할을 분리했으며, 자세한 대체 결정은 ADR-021을 따른다.
 
 목표는 많은 데이터를 만드는 것이 아니라 다음 조건을 만족하는 재현 가능한 데이터 공장을 만드는 것이다.
 
@@ -115,28 +115,22 @@ AI-generated candidate
 
 정상 사례만으로는 발견하기 어려운 P0 실패와 정책 경계를 확보한다.
 
-### 3.3 NC VARCO — 한국어 비정형 현장문서 생성
+### 3.3 NC VARCO — 후속 에셋 API, P0 연동 보류
 
-#### 책임
+#### 확인된 역할
 
-- Near-miss 보고서
-- 배송 작업일지
-- 관리자 상황보고
-- 우천·폭염·야간 안전지침
-- 차량 점검표
-- 기사 수정 요청·이의제기 문장
-- 고객 문의와 안전지연 문맥
+대회 제공 NC 가이드는 다른 LLM이 기획·로직·텍스트를 만든 뒤 VARCO API가 3D, 이미지·텍스처, 음성·사운드, 번역 등 에셋을 구현하는 흐름을 제시한다. 따라서 VARCO를 OpenAI-compatible 텍스트 LLM이나 한국어 현장문서 생성기로 추정하지 않는다.
 
-#### 출력 원칙
+#### 적용 원칙
 
-- 원본 구조화 사건을 바꾸지 않고 표현만 다양화한다.
-- 문체·축약·오타·현장용어 변형 수준을 manifest에 기록한다.
-- 실제 개인식별정보·실제 주소·건강정보를 생성하지 않는다.
-- 공격적·비난·성과평가 표현은 별도 안전 테스트 세트에만 격리한다.
+- P0 폐루프에 필요한 구체적 에셋 사용처와 해당 제품 계약을 먼저 승인한다.
+- 장식용 이미지·음성·3D 기능 때문에 P0 일정이나 개인정보 범위를 늘리지 않는다.
+- 사용할 경우 구조화 사건과 승인 문구를 바꾸지 않는 downstream 표현 계층으로만 둔다.
+- 생성 파일에는 Synthetic·Demo 라벨, 공급자 제품·버전과 원본 사실 hash를 기록한다.
 
-#### 목표
+#### 현재 목표
 
-Upstage Parse·Extract와 역할별 한국어 설명의 견고성을 시험할 현실적인 문서 다양성을 확보한다.
+연동하지 않는 이유와 재검토 조건을 명확히 남긴다. 한국어 비정형 문서 다양성은 규칙 생성기, 수작업 고정 문서와 A.X·K-EXAONE 비교 세트로 검증한다.
 
 ### 3.4 Upstage — 문서 처리와 제품 런타임 설명
 
@@ -174,6 +168,8 @@ API 호출은 공급자 인프라에서 계산되므로 API만 사용할 경우 
 - GPU 사용성과 배치 추론 증거 확보
 
 모델명·정밀도·양자화·컨텍스트 길이는 A100 메모리와 지원 라이선스를 확인한 뒤 결정한다.
+
+2026-07-16 첫 로컬 기준선은 ADR-020에 따라 `skt/A.X-4.0-Light` revision `ba21c20ea1b31ded1ec3e2fb432335077dc4be98`, BF16·비양자화·batch size 1로 고정했다. 서버에서 Hugging Face가 timeout되므로 접근 가능한 로컬 호스트에서 약 13.53GB snapshot과 체크섬을 만든 뒤 서버에 복사해 오프라인으로 실행한다. 이 선택은 benchmark 전용이며 제품의 안전 수치나 결정을 소유하지 않는다.
 
 ### 4.2 우선순위 2 — 합성 데이터 품질 분석
 
@@ -247,7 +243,7 @@ AI Hub 등 사용 가능한 데이터가 적합할 때만 다음 중 하나를 �
 - 기사 수정·이의제기
 - 고객 문의
 
-생성 주체: VARCO, 필요 시 A.X·EXAONE 비교 세트
+생성 주체: 규칙 생성기·수작업 고정 문서 + A.X·K-EXAONE 비교 세트. VARCO는 P0 관련 에셋 사용처 승인 전에는 사용하지 않는다.
 
 ### 5.4 Round-trip Pairs
 
@@ -393,9 +389,9 @@ A.X가 seed spec과 skeleton을 받아 일반 운영 입력을 채운다. 결과
 
 검증된 운영 입력만 Safety Budget·개입 엔진에 전달한다. 계산 결과를 `derived labels`로 별도 저장한다.
 
-### 8.7 단계 6 — VARCO 문서화
+### 8.7 단계 6 — 검증된 한국어 문서화
 
-검증된 구조화 사건을 입력으로 비정형 한국어 문서를 생성한다. 문서에 원본에 없는 숫자·사건이 추가되면 거부한다.
+검증된 구조화 사건을 입력으로 규칙 생성기·수작업 고정 문서 또는 A.X·K-EXAONE 비교 세트가 비정형 한국어 문서를 생성한다. 문서에 원본에 없는 숫자·사건이 추가되면 거부한다. VARCO는 이 텍스트 단계의 기본 공급자가 아니다.
 
 ### 8.8 단계 7 — Upstage 왕복 검증
 
@@ -423,7 +419,7 @@ A.X가 seed spec과 skeleton을 받아 일반 운영 입력을 채운다. 결과
 
 ## 10. 비정형 생성 프롬프트 가드레일
 
-VARCO 문서 생성 입력에는 다음을 제공한다.
+비정형 문서 생성 입력에는 다음을 제공한다.
 
 - 문서 유형
 - 허용된 사건 사실
@@ -521,7 +517,7 @@ VARCO 문서 생성 입력에는 다음을 제공한다.
 
 ```text
 structured source fact
-→ VARCO document
+→ validated generated or human-authored document
 → Upstage Parse
 → Upstage Extract
 → extracted fact
@@ -612,7 +608,7 @@ P0 목표:
 
 ## 17. 모델 비교 실험
 
-세 생성 AI의 품질을 공통 seed spec의 일부에서 교차 비교한다.
+A.X와 K-EXAONE의 텍스트 품질을 공통 12과업과 후속 seed spec 일부에서 교차 비교한다. VARCO를 동일 텍스트 과업에 넣지 않으며, 승인된 에셋 과업이 생기면 별도 지표로 평가한다.
 
 ### 비교 항목
 
@@ -659,8 +655,8 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
   /synthetic/
     /ax/
     /exaone/
-    /varco/
     /upstage/
+    /varco/  # P0 관련 에셋 사용처가 승인될 때만 생성
 /scripts/
   /synthetic/
   /validation/
@@ -685,9 +681,9 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 - 검증 Gate 1~6
 - 세 수작업 대표 fixture
 
-### Phase 2 — API 생성 smoke benchmark
+### Phase 2 — 공통 텍스트 API smoke benchmark
 
-- 각 모델 10~20개 공통 과업
+- A.X·K-EXAONE에 동일한 12개 과업
 - 통과율·지연·비용·오류 비교
 - 역할 확정
 
@@ -695,8 +691,9 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 - A.X structured operations
 - EXAONE challenge mutations
-- VARCO documents
+- 규칙·수작업·검증된 텍스트 모델 기반 documents
 - Upstage round-trip
+- P0 관련 에셋 요구가 승인된 경우에만 VARCO 별도 평가
 
 ### Phase 4 — A100 실험
 
@@ -713,7 +710,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 21. 실패 방지
 
-### 21.1 API 세 개가 같은 데이터를 반복 생성
+### 21.1 텍스트 API가 같은 데이터를 반복 생성
 
 대응: 역할별 prompt family와 공통 비교 subset을 분리한다.
 
@@ -749,7 +746,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 권장 표현:
 
-> A.X는 구조화 운영 시나리오, EXAONE은 경계·반례, VARCO는 한국어 현장문서를 생성합니다. 모든 생성물은 결정론적 검증기를 통과해야 하며, Upstage는 문서를 다시 구조화하고 근거 있는 설명을 만듭니다. 안전점수와 추천은 생성 AI가 아니라 SafeRoute 엔진이 계산합니다.
+> A.X와 K-EXAONE은 같은 안전 설명 계약으로 먼저 비교하고, 검증된 강점에 따라 구조화 운영 시나리오와 경계·반례 후보 생성을 분담합니다. Upstage는 문서를 다시 구조화하고 근거 있는 설명을 만듭니다. VARCO는 P0에 필요한 에셋 사용처가 승인될 때만 별도로 검증합니다. 안전점수와 추천은 생성 AI가 아니라 SafeRoute 엔진이 계산합니다.
 
 > A100은 로컬 생성 기준선과 데이터 중복·커버리지 분석에 사용했으며, 결과는 실제 사고예측이 아닌 합성 시뮬레이션 평가입니다.
 
@@ -772,7 +769,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 24. 필수 산출물
 
-- ProviderProfile 4개
+- 활성 텍스트 ProviderProfile 3개와 VARCO 보류·재검토 기록
 - seed spec 3개 이상
 - 생성 manifest
 - validation report
@@ -788,12 +785,12 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 25. 확정된 결정
 
-- A.X·EXAONE·VARCO는 오프라인 합성데이터 생성에 사용한다.
+- A.X·K-EXAONE은 동일 텍스트 계약으로 비교한 뒤 오프라인 합성 후보 생성에 사용한다.
 - Upstage는 문서 Parse·Extract와 제품 런타임 설명에 사용한다.
 - A.X의 기본 역할은 구조화 운영 시나리오다.
 - EXAONE의 기본 역할은 경계·반례·충돌 시나리오다.
-- VARCO의 기본 역할은 한국어 비정형 현장문서다.
-- 실제 역할은 공통 smoke benchmark 결과로 조정할 수 있다.
+- VARCO는 후속 에셋 API이며 P0 관련 사용처 승인 전에는 연동하지 않는다.
+- A.X·K-EXAONE의 실제 역할은 공통 smoke benchmark 결과로 조정할 수 있다.
 - 생성 AI는 Safety Budget·추천·정답을 만들지 않는다.
 - 구조화 Skeleton과 최종 채택은 결정론적 코드가 소유한다.
 - A100은 로컬 기준선과 데이터 품질 분석을 우선한다.
@@ -805,15 +802,15 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 26. 미결사항
 
-- 지원받은 A.X의 정확한 모델명·엔드포인트·쿼터
-- 지원받은 EXAONE의 정확한 모델명·엔드포인트·쿼터
-- 지원받은 VARCO API의 정확한 텍스트 생성 제품·엔드포인트·쿼터
+- A.X 계정에서 실제 활성화된 모델·쿼터
+- K-EXAONE 계정에서 실제 활성화된 모델·쿼터
+- SafeRoute P0에 필요한 VARCO 에셋 사용처와 해당 제품·쿼터
 - Upstage 제품별 정확한 버전·쿼터
 - 각 API의 structured output·seed·batch 지원 여부
 - 공급자별 입력 보존·학습 사용 설정
 - A100 VRAM·접근기간·스토리지·네트워크 조건
 - 로컬 실행 모델과 라이선스
-- smoke benchmark의 공통 10~20개 과업
+- 12과업 이후 배치 합성 역할을 결정할 추가 비교 과업
 - 의미 중복 임계치
 - Upstage 왕복 평가의 최종 통과기준
 - 데이터셋의 실제 저장·배포 방식

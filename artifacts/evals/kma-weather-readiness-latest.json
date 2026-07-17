@@ -1,0 +1,15 @@
+{
+  "schemaVersion": "kma-weather-readiness-v1",
+  "status": "READY",
+  "requestSent": false,
+  "endpointContractVerified": true,
+  "enabledApis": [
+    "KMA_API_HUB_ULTRA_SHORT_OBSERVATION_4_1",
+    "KMA_API_HUB_ULTRA_SHORT_FORECAST_4_2"
+  ],
+  "allowedHost": "apihub.kma.go.kr",
+  "timeoutMs": 10000,
+  "maxResponseBytes": 200000,
+  "maxAgeMinutes": 120,
+  "message": "KMA configuration matches the approved endpoint contract. No API request was sent."
+}

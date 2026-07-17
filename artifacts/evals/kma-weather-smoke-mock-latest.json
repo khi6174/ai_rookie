@@ -1,0 +1,112 @@
+{
+  "schemaVersion": "kma-weather-smoke-v2",
+  "capturedAt": "2026-07-17T12:19:26.557Z",
+  "mode": "MOCK_CONTRACT",
+  "status": "COMPLETED",
+  "requestSent": false,
+  "observationCandidate": {
+    "schemaVersion": "kma-api-hub-ultra-short-observation-v1",
+    "areaId": "demo-kma-grid-60-127",
+    "observedAt": "2026-07-17T12:00:00+09:00",
+    "grid": {
+      "x": 60,
+      "y": 127
+    },
+    "airTemperatureCelsius": 28.4,
+    "rainfallMmPerHour": 1,
+    "relativeHumidityPercent": 78,
+    "windSpeedMetersPerSecond": 2.3,
+    "precipitationTypeCode": 1,
+    "missingSourceCategories": [],
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "missingWeatherStateFields": [
+        "snowfallCmPerHour",
+        "feelsLikeCelsius",
+        "visibilityMeters",
+        "roadSurface"
+      ],
+      "reason": "KMA_OBSERVATION_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+    },
+    "responseSha256": "7cc070e0aba4d4b9adb02c52391c5a8bfb07eb9fc2380e9707f847f6a9f4c291",
+    "provenance": {
+      "kind": "MOCK",
+      "sourceId": "kma-observation-contract-fixture-20260717-1200",
+      "sourceLabel": "기상청 초단기실황 계약 검증용 합성 응답",
+      "collectedAt": "2026-07-17T12:19:26.557Z",
+      "validAt": "2026-07-17T12:00:00+09:00",
+      "transformedBy": "kma-weather-mock-smoke@1.1.0",
+      "isDemo": true
+    }
+  },
+  "forecastCandidate": {
+    "schemaVersion": "kma-api-hub-ultra-short-forecast-v1",
+    "areaId": "demo-kma-grid-60-127",
+    "issuedAt": "2026-07-17T12:30:00+09:00",
+    "grid": {
+      "x": 60,
+      "y": 127
+    },
+    "points": [
+      {
+        "forecastAt": "2026-07-17T13:00:00+09:00",
+        "airTemperatureCelsius": 28.6,
+        "rainfallMmPerHour": 1,
+        "relativeHumidityPercent": 76,
+        "windSpeedMetersPerSecond": 2.5,
+        "precipitationTypeCode": 1,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T14:00:00+09:00",
+        "airTemperatureCelsius": 29,
+        "rainfallMmPerHour": 0,
+        "relativeHumidityPercent": 73,
+        "windSpeedMetersPerSecond": 2.1,
+        "precipitationTypeCode": 0,
+        "skyConditionCode": 3,
+        "lightningCode": 0,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      }
+    ],
+    "responseSha256": "f2c96d2dd6799ae9a869a44ac71ecd93e80ecd4b87da0cac2c71bc00508f8785",
+    "provenance": {
+      "kind": "MOCK",
+      "sourceId": "kma-forecast-contract-fixture-20260717-1230",
+      "sourceLabel": "기상청 초단기예보 계약 검증용 합성 응답",
+      "collectedAt": "2026-07-17T12:19:26.557Z",
+      "validAt": "2026-07-17T12:30:00+09:00",
+      "transformedBy": "kma-weather-mock-smoke@1.1.0",
+      "isDemo": true
+    }
+  },
+  "assertions": {
+    "observationResponseSchemaValidated": true,
+    "forecastResponseSchemaValidated": true,
+    "publicDataClaimed": false,
+    "safetyEngineInputApproved": false,
+    "secretsStored": false
+  }
+}

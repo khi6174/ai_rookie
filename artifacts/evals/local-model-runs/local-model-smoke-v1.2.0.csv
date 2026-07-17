@@ -1,0 +1,2 @@
+taskId,modelId,revision,promptVersion,seed,status,validationCode,loadMs,generationMs,inputTokens,outputTokens,peakMemoryMiB,outputSha256,displayApproved
+local-smoke-admin-support-001,skt/A.X-4.0-Light,ba21c20ea1b31ded1ec3e2fb432335077dc4be98,local-structured-ko-v1.2.0,6174,passed,PASS,3164.46,4097.95,321,144,13917.77,67a9900519b595eaf4639440966defcf6bf34902b6676ca17b29d60e2721b5b3,True

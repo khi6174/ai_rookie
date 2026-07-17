@@ -1,0 +1,93 @@
+{
+  "schemaVersion": "weather-runtime-selection-v1",
+  "capturedAt": "2026-07-17T13:24:42.874Z",
+  "status": "FALLBACK",
+  "displayLabel": "Demo fixture · Weather Fallback",
+  "safetyEngineInputSource": "DEMO_FIXTURE_ONLY",
+  "fixtureId": "scenario-rain-hill-longshift-v1",
+  "fallbackReason": {
+    "code": "INCOMPLETE_COVERAGE",
+    "message": "현재 시간당 적설과 미래 시정이 없어 전체 Demo 날씨 타임라인을 사용합니다.",
+    "retryable": false,
+    "occurredAt": "2026-07-17T13:06:28.598Z",
+    "sourceId": "kma-weather-coverage-gate"
+  },
+  "activeWeatherPointCount": 5,
+  "activeProvenanceKinds": [
+    "MOCK"
+  ],
+  "liveEvidence": {
+    "status": "PARTIAL",
+    "capturedAt": "2026-07-17T13:06:28.598Z",
+    "sourceIds": [
+      "kma-api-hub-ultra-short-observation",
+      "kma-api-hub-ultra-short-forecast",
+      "kma-api-hub-high-resolution-point",
+      "kma-api-hub-vilage-short-forecast-weather"
+    ],
+    "responseHashes": [
+      "48ec728ea332dbb73c8006e29a2e1036622a0e63c682d90a5789c58bfdcceee2",
+      "9eba57015d22ca6aea84daf674a3a9b242e81026290e485a730acdc490b2fad8",
+      "9a72ad20d9b2fdcd2b11cfd48e1eeaadb633e32f148e102d58872cc865af9ef0",
+      "0704cc984d963681daa0a38d8be091b196cca0b267429b1f2855453ffe3d2a31"
+    ],
+    "readyFields": [
+      {
+        "timeScope": "CURRENT",
+        "field": "rainfallMmPerHour"
+      },
+      {
+        "timeScope": "CURRENT",
+        "field": "feelsLikeCelsius"
+      },
+      {
+        "timeScope": "CURRENT",
+        "field": "visibilityMeters"
+      },
+      {
+        "timeScope": "CURRENT",
+        "field": "windSpeedMetersPerSecond"
+      },
+      {
+        "timeScope": "FORECAST_120_MINUTES",
+        "field": "rainfallMmPerHour"
+      },
+      {
+        "timeScope": "FORECAST_120_MINUTES",
+        "field": "snowfallCmPerHour"
+      },
+      {
+        "timeScope": "FORECAST_120_MINUTES",
+        "field": "feelsLikeCelsius"
+      },
+      {
+        "timeScope": "FORECAST_120_MINUTES",
+        "field": "windSpeedMetersPerSecond"
+      }
+    ],
+    "blockingFields": [
+      {
+        "timeScope": "CURRENT",
+        "field": "snowfallCmPerHour",
+        "reason": "THREE_HOUR_SNOW_CANNOT_BE_DIVIDED_INTO_HOURLY_VALUES"
+      },
+      {
+        "timeScope": "FORECAST_120_MINUTES",
+        "field": "visibilityMeters",
+        "reason": "NO_APPROVED_FORECAST_SOURCE_OR_POLICY"
+      }
+    ],
+    "rawResponsesStored": false,
+    "credentialsStored": false
+  },
+  "audit": {
+    "liveEvidenceUsedForSafety": false,
+    "fallbackTimelineUsedForSafety": true,
+    "mixedLiveAndDemoFields": false
+  },
+  "privacy": {
+    "rawResponsesStored": false,
+    "credentialsStored": false,
+    "personalDataIncluded": false
+  }
+}

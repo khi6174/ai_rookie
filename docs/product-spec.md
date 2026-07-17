@@ -213,7 +213,7 @@ SafeRoute는 다음 다섯 종류와 호환 가능한 묶음을 비교한다.
 
 ## 6. 대표 데모 시나리오
 
-모든 시나리오는 개인식별정보가 없는 결정론적 합성 fixture로 만든다. 각 fixture는 출처가 `mock` 또는 `public-data-derived`인지 필드별로 표시한다.
+모든 시나리오는 개인식별정보가 없는 결정론적 합성 fixture로 만든다. 현재 세 대표 fixture는 원본 공공데이터 파일과 연결되지 않은 전부 `mock`인 Demo다. 향후 `public-data-derived`를 사용하려면 데이터셋 ID·공식 URI·버전·라이선스·원본 SHA-256·변환기 버전을 필드별로 추적한다.
 
 ### 6.1 시나리오 A — 우천·경사 빌라·장시간 작업
 
@@ -249,24 +249,26 @@ SafeRoute는 다음 다섯 종류와 호환 가능한 묶음을 비교한다.
 
 | 순서 | 상태 | 시스템 행동 | 사용자 행동 | 다음 상태 |
 |---:|---|---|---|---|
-| 1 | `MONITORING` | 현재 계획을 배송지별로 예측 | 없음 | 초과 예상 시 `BREACH_PREDICTED` |
-| 2 | `BREACH_PREDICTED` | 시간·배송지·원인·신뢰도 표시 | 관리자 또는 기사 상세 확인 | `OPTIONS_GENERATED` |
-| 3 | `OPTIONS_GENERATED` | 개입 후보 생성 및 제약 검사 | 후보 비교 | 추천안 선택 시 `RIDER_REVIEW_REQUIRED` |
-| 4 | `RIDER_REVIEW_REQUIRED` | 기사에게 동일 근거와 효과 전달 | 동의·수정 요청·거절 | 응답에 따라 분기 |
-| 5 | `RIDER_CONSENTED` | 동의와 시각 기록 | 관리자 검토 | `ADMIN_APPROVAL_REQUIRED` |
-| 6 | `ADMIN_APPROVAL_REQUIRED` | 전후·ETA·형평성·고객안내 표시 | 승인 또는 보류 | 승인 시 `APPROVED` |
-| 7 | `APPROVED` | 결정 스냅샷을 잠금 | 없음 | `APPLYING_PLAN` |
-| 8 | `APPLYING_PLAN` | 경로·순서·작업량·ETA 갱신 시도 | 없음 | 성공 `PLAN_UPDATED`, 실패 `APPLY_FAILED` |
-| 9 | `PLAN_UPDATED` | 고객안내 생성·발송 요청 | 결과 확인 | `NOTICE_RECORDED` |
-| 10 | `NOTICE_RECORDED` | 전후 지표와 전체 근거 저장 | 없음 | `CLOSED` |
-| 11 | `CLOSED` | 적용 결과와 감사기록 제공 | 필요 시 재평가 | 입력 변화 시 `MONITORING` |
+| 1 | `BASELINE_EVALUATED` | 현재 계획의 Budget·초과·근거 고정 | 없음 | `CANDIDATES_GENERATED` |
+| 2 | `CANDIDATES_GENERATED` | 개입 후보와 candidate ID 기록 | 없음 | `CANDIDATES_EVALUATED` |
+| 3 | `CANDIDATES_EVALUATED` | 제약·전후 효과·추천 결과 기록 | 후보 비교 | `RIDER_REVIEW_REQUIRED` |
+| 4 | `RIDER_REVIEW_REQUIRED` | 기사에게 동일 근거와 효과 전달 | 검토 시작 | `RIDER_RESPONSE_PENDING` |
+| 5 | `RIDER_RESPONSE_PENDING` | 기사별 응답과 시각 기록 | 동의·수정 요청·거절 | 응답에 따라 분기 |
+| 6 | `RIDER_CONSENTED` | 모든 필수 동의 확인 | 관리자 검토 요청 | `ADMIN_APPROVAL_REQUIRED` |
+| 7 | `ADMIN_APPROVAL_REQUIRED` | 전후·ETA·형평성·고객안내 표시 | 승인·보류·수정 | 승인 시 `APPROVED` |
+| 8 | `APPROVED` | 선택 candidate와 승인 스냅샷 잠금 | 없음 | `REVALIDATING` |
+| 9 | `REVALIDATING` | 최신 plan version·동의·안전 제약 재검증 | 없음 | 통과 `APPLYING_PLAN`, 변화 `REVALIDATION_REQUIRED` |
+| 10 | `APPLYING_PLAN` | 계획과 고객안내 요청의 원자 교체 시도 | 없음 | 성공 `APPLIED`, 실패 `APPLY_FAILED` |
+| 11 | `APPLIED` | 실제 적용 plan version 기록 | 결과 확인 | `NOTICE_RECORDED` |
+| 12 | `NOTICE_RECORDED` | 실제 적용 ETA 기반 안내와 근거 기록 | 없음 | `CLOSED` |
+| 13 | `CLOSED` | 적용 결과와 감사 event 제공 | 필요 시 새 결정 시작 | 새 `decisionId` |
 
 ### 7.2 기사 응답 분기
 
 - 동의: `RIDER_CONSENTED`로 이동한다.
 - 수정 요청: `MODIFICATION_REQUESTED`로 이동하고 요청 범위 안에서 후보를 다시 계산한다. 새 후보는 다시 기사 검토를 받아야 한다.
 - 거절: `RIDER_DECLINED`로 이동하고 비징벌적으로 다른 후보를 재계산한다. 거절한 동일 후보를 자동 재요청하지 않는다.
-- 응답 대기: 기존 계획을 조용히 변경하지 않는다. 타임아웃 정책이 승인되기 전에는 `RIDER_RESPONSE_PENDING`을 유지한다.
+- 응답 대기: 기존 계획을 조용히 변경하지 않는다. 요청 또는 마지막 동의에서 10분이 지나면 `RIDER_CONSENT_EXPIRED`로 이동하고 최신 입력에서 새 후보와 동의를 생성한다.
 
 ### 7.3 관리자 분기
 
@@ -282,7 +284,7 @@ SafeRoute는 다음 다섯 종류와 호환 가능한 묶음을 비교한다.
 - 안전한 후보 없음: `NO_SAFE_OPTION`을 표시하고 Safe Delay 또는 물량감축을 명시적으로 요청한다.
 - Upstage 실패: 수치와 추천은 유지하고 결정론적 템플릿 설명으로 전환한다.
 - 계획 적용 실패: 원래 계획 또는 마지막 확정 계획을 유지하고 `APPLY_FAILED`를 감사기록에 남긴다.
-- 데모 Live 실패: 자동으로 `DEMO_FALLBACK`으로 전환하되 화면 전체에 Demo fixture 표시를 유지한다.
+- 데모 Live 실패 또는 전체 입력 계약 미충족: 부분 Live 필드를 Demo와 섞지 않고 Demo fixture 타임라인 전체를 `FALLBACK`으로 선택하며, 관리자·기사 화면에 `Demo fixture · Weather Fallback`을 유지한다.
 
 어떠한 실패도 성공 상태처럼 보이게 하거나 실제 반영되지 않은 계획을 적용 완료로 표시해서는 안 된다.
 
@@ -524,12 +526,12 @@ Upstage 또는 Live 데이터 실패 상태에서도 Demo fixture 표시와 함�
 
 ## 16. 미결사항
 
-- 수신 기사 동의가 필요한 정확한 조건
-- 기사 응답 타임아웃과 긴급상황 정책
-- 계획 적용 실패 시 원자적 롤백 방식
+- 수신 기사 동의를 별도 기사 화면에서 받을지 Demo 역할 전환으로 표현할지
+- 기사 응답 재알림 방식과 MVP 밖 긴급상황 정책
+- 외부 TMS 연동 시 트랜잭션·보상 작업 방식
 - Near-miss 위치 정밀도, 검증자와 시간감쇠 규칙
 - 실제 지도 또는 데모 지도 선택
 - Upstage API 버전, 요청·응답 계약과 타임아웃
-- 배송순서·안전경로·Safe Delay의 최종 fixture 값
+- 호환 개입 묶음을 화면에 노출할 최종 후보 수와 시나리오별 표시값
 
 미결사항은 관련 후속 문서가 `Approved`가 되기 전까지 구현 동작으로 간주하지 않는다.

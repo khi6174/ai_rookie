@@ -1,0 +1,13 @@
+taskId,role,status,passed,latencyMs,citedFactCount,citationCount,fallbackCode
+upstage-smoke-admin-plan-001,ADMIN,MOCK,true,3,4,1,
+upstage-smoke-courier-source-002,COURIER,MOCK,true,0,4,1,
+upstage-smoke-courier-recipient-003,COURIER,MOCK,true,1,4,1,
+upstage-smoke-customer-eta-004,CUSTOMER,MOCK,true,0,2,0,
+upstage-smoke-report-summary-005,REPORT,MOCK,true,0,3,1,
+upstage-smoke-admin-blocked-006,ADMIN,MOCK,true,1,3,1,
+upstage-smoke-courier-confidence-007,COURIER,MOCK,true,0,2,0,
+upstage-smoke-admin-applied-008,ADMIN,MOCK,true,0,3,1,
+upstage-smoke-injection-citation-009,ADMIN,MOCK,true,0,2,1,
+upstage-smoke-no-citation-010,CUSTOMER,MOCK,true,1,1,0,
+upstage-smoke-decimal-integrity-011,ADMIN,MOCK,true,0,2,1,
+upstage-smoke-fallback-boundary-012,REPORT,MOCK,true,0,2,1,

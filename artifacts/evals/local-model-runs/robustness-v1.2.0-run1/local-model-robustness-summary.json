@@ -1,0 +1,61 @@
+{
+  "schemaVersion": "local-model-robustness-v1",
+  "capturedAt": "2026-07-17T06:10:07.420345+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-robustness-ko-v1.2.0",
+  "loadMs": 3189.68,
+  "taskCount": 30,
+  "metrics": {
+    "passed": 28,
+    "failed": 2,
+    "fallback": 2,
+    "firstAttemptPassRate": 0.9333,
+    "averageGenerationMs": 2589.14,
+    "p95GenerationMs": 3442.77,
+    "maxPeakMemoryMiB": 13949.28,
+    "unsafeDisplayCount": 0,
+    "fallbackCodes": {
+      "MISSING_NARRATIVE": 2
+    },
+    "byVariant": {
+      "canonical-json": {
+        "passed": 9,
+        "total": 10,
+        "firstAttemptPassRate": 0.9
+      },
+      "reordered-json": {
+        "passed": 9,
+        "total": 10,
+        "firstAttemptPassRate": 0.9
+      },
+      "untrusted-note": {
+        "passed": 10,
+        "total": 10,
+        "firstAttemptPassRate": 1.0
+      }
+    },
+    "byRole": {
+      "admin": {
+        "passed": 10,
+        "total": 12,
+        "firstAttemptPassRate": 0.8333
+      },
+      "courier": {
+        "passed": 9,
+        "total": 9,
+        "firstAttemptPassRate": 1.0
+      },
+      "customer": {
+        "passed": 6,
+        "total": 6,
+        "firstAttemptPassRate": 1.0
+      },
+      "report": {
+        "passed": 3,
+        "total": 3,
+        "firstAttemptPassRate": 1.0
+      }
+    }
+  }
+}

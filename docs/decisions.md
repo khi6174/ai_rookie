@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-14
+- 최종 갱신: 2026-07-17
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -84,7 +84,7 @@
 ### ADR-007 — 국내 AI는 생성·문서·설명 계층에서 검증 가능하게 사용한다
 
 - 날짜: 2026-07-14
-- 상태: Approved
+- 상태: Approved; VARCO 역할과 공통 비교 범위는 ADR-021이 부분 대체
 - 결정: A.X는 구조화 운영 시나리오, EXAONE은 경계·반례, VARCO는 한국어 비정형 현장문서의 오프라인 합성 후보 생성에 사용한다. Upstage는 문서 Parse·Extract와 검증된 JSON 기반 역할별 설명에 사용한다. 실제 역할은 공통 smoke benchmark 결과로 조정할 수 있다.
 - 이유: 국내 AI 트랙의 모델 활용을 제품 핵심과 연결하되 생성 AI가 안전 정답을 소유하지 않게 하기 위해서다.
 - 기각한 대안: 이름만 나열하는 활용, LLM이 Safety Budget·실행 가능성·추천을 계산하는 방식.
@@ -163,6 +163,133 @@
 - 기각한 대안: 배송지 배열 앞에서 N개 선택, 시나리오별 숨은 예외, 생성 AI가 이관 배송지를 직접 확정하는 방식.
 - 영향 파일: `docs/intervention-policy.md`, `src/domain/interventions/`, `tests/interventions.test.ts`
 
+### ADR-016 — 남은 개입 유형은 명시적 Demo 카탈로그로 평가한다
+
+- 날짜: 2026-07-15
+- 상태: Approved
+- 결정: 배송순서 변경은 전체 stop ID 순서와 고정 stop 정책, 안전경로는 교체 대상과 완전한 대체 구간, Safe Delay는 지연 가능 stop·최대 지연·고객안내 가능 여부를 `ScenarioFixture.interventionInputs`에 명시한다. Domain은 이 입력으로 전체 계획을 다시 계산하며 실제 지도·서비스정책 알고리즘을 추정하지 않는다.
+- 이유: 세 개입의 안전효과와 하드 제약을 재현하려면 명시적 반사실 입력이 필요하지만, 실제 공급자·분류 규칙은 아직 승인되지 않았기 때문이다.
+- 기각한 대안: 현재 구간의 위험값을 임의로 낮추는 방식, 모든 일반 배송을 자동 지연 가능으로 간주하는 방식, 생성 AI가 경로·순서·지연 가능 여부를 확정하는 방식.
+- 영향 파일: `docs/data-contracts.md`, `docs/intervention-policy.md`, `src/domain/contracts/`, `src/domain/interventions/`, `src/adapters/fixtures/`, `tests/interventions.test.ts`
+
+### ADR-017 — 허용 묶음은 정규 순서로 순차 재계산한다
+
+- 날짜: 2026-07-15
+- 상태: Approved
+- 결정: v1 묶음은 정책에 명시된 두 조치 조합 6종만 허용하고 `REST → TRANSFER_STOPS → REORDER_STOPS → SAFER_ROUTE → SAFE_DELAY`의 정규 부분순서로 적용한다. 각 조치는 직전 조치가 만든 전체 계획을 입력으로 전제조건과 하드 제약을 다시 검사하며, 최종 효과는 마지막 계획을 Safety Budget 엔진으로 한 번 더 평가한다.
+- 이유: 단일 조치 효과를 합산하거나 기준 계획에 각 조치를 독립 적용하면 이관 후 잔여 배송지, 경로 변경 후 ETA와 시간창 같은 상호작용을 놓칠 수 있기 때문이다.
+- 기각한 대안: 조치별 점수 합산, 입력 배열 순서 그대로 실행, 세 개 이상 조치의 임의 순열, 정책에 없는 조합을 낙관적으로 실행하는 방식.
+- 영향 파일: `docs/data-contracts.md`, `docs/intervention-policy.md`, `src/domain/contracts/`, `src/domain/interventions/`, `tests/intervention-bundles.test.ts`
+
+### ADR-018 — 결정 명령과 Demo 계획 적용은 순수 상태 전이로 구현한다
+
+- 날짜: 2026-07-15
+- 상태: Approved
+- 결정: 기사 응답, 관리자 결정, 재검증, 계획 적용과 고객안내 기록은 허용 상태와 행위자 권한을 검사하는 순수 명령 함수로 구현한다. 동의는 10분 동안 candidate·plan·모델·정책 버전에 묶고, 만료는 `RIDER_CONSENT_EXPIRED`로 기록한다. MVP 계획 적용은 검증된 새 `ScenarioFixture`와 고객안내 요청 ID를 새 Demo store로 완성한 뒤 활성 참조를 한 번에 교체하며, 실패·버전 충돌·중복 요청은 기존 store를 변경하지 않는다.
+- 이유: UI에서 상태를 직접 바꾸거나 계획 객체를 부분 수정하면 동의·승인 우회, 감사기록 단절과 부분 적용을 막을 수 없기 때문이다.
+- 기각한 대안: React 로컬 상태가 승인 조건을 소유하는 방식, 외부 TMS 성공을 가정하는 방식, 실패 후 일부 ETA·작업목록을 남기는 방식, 기사 응답을 감사 이벤트 없이 덮어쓰는 방식.
+- 영향 파일: `docs/data-contracts.md`, `docs/intervention-policy.md`, `src/domain/contracts/`, `src/domain/decisions/`, `src/application/apply-plan/`, `tests/decision-workflow.test.ts`
+
+### ADR-019 — Upstage 설명은 검증된 별도 결과로만 표시한다
+
+- 날짜: 2026-07-16
+- 상태: Approved for MVP demo
+- 결정: 역할별 최소 사실, 허용 행동과 인용만 strict 입력으로 만들고 Upstage 출력은 숫자·인용·역할·Demo 상태 Gate를 통과한 별도 설명 결과로만 표시한다. timeout, malformed, 새 숫자, 잘못된 인용 또는 금지문구가 있으면 결정론적 템플릿으로 전환한다. 실제 모델명·endpoint·quota가 승인되기 전에는 Mock과 Fallback만 사용하고 이를 Live로 표시하지 않는다.
+- 이유: 생성문이 Safety Budget·추천·동의·적용 상태를 변경하거나 실패한 외부 연결을 정상처럼 보이게 하지 않으면서 국내 AI 활용을 폐루프 안에 연결하기 위해서다.
+- 기각한 대안: 전체 결정 객체 전송, LLM이 수치나 추천을 다시 계산하는 방식, 검증 실패 응답의 부분 표시, 브라우저에서 API 키로 직접 호출하는 방식.
+- 영향 파일: `docs/data-contracts.md`, `docs/architecture.md`, `docs/evals.md`, `src/domain/contracts/`, `src/application/explanations/`, `src/adapters/upstage/`, `src/ui/`, `tests/upstage-explanations.test.ts`
+
+### ADR-020 — A100 로컬 기준선은 A.X 4.0 Light의 고정 revision으로 실행한다
+
+- 날짜: 2026-07-16
+- 상태: Approved for benchmark
+- 결정: 첫 A100 로컬 생성 기준선은 `skt/A.X-4.0-Light` revision `ba21c20ea1b31ded1ec3e2fb432335077dc4be98`을 BF16·비양자화·batch size 1로 실행한다. 입력은 4,096 tokens 이하, 생성은 최대 512 tokens로 제한한다. 모델은 구조화 JSON smoke benchmark와 지연·VRAM·실패 측정에만 사용하며 Safety Budget, 실행 가능성, 추천, 동의와 적용 상태를 만들거나 변경하지 않는다.
+- 이유: 공식 공개 7B 한국어 모델이고 Apache-2.0이며, 약 13.53GB의 고정 snapshot이 확인돼 A100 80GB와 서버 81GB 여유공간에서 재현 가능한 단일 GPU 기준선을 구성할 수 있기 때문이다.
+- 기각한 대안: 라이선스 제한이 더 큰 EXAONE 3.5를 첫 기준선으로 사용, 35B·72B 모델로 초기 저장공간과 실행 복잡도를 늘리는 방식, 최신 `main`을 revision 없이 다운로드, 양자화를 먼저 적용해 BF16 기준선을 잃는 방식.
+- 영향 파일: `docs/synthetic-data-plan.md`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`, `artifacts/evals/local-model-manifest.json`, 향후 A100 benchmark 스크립트와 결과 CSV
+
+### ADR-021 — 공급자 가이드에 따라 공통 텍스트 평가와 VARCO 에셋 역할을 분리한다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 대체 관계: ADR-007의 VARCO 한국어 비정형 문서 생성 역할과 세 모델 공통 텍스트 benchmark 범위를 대체한다. A.X·EXAONE·Upstage의 안전 책임 경계는 유지한다.
+- 결정: 대회 제공 SKT 가이드의 OpenAI-compatible A.X K1 API와 LG 가이드의 FriendliAI 기반 K-EXAONE API만 동일한 12개 텍스트 설명 과업으로 비교한다. 문서에 명시된 HTTPS endpoint와 host만 서버 어댑터에서 허용하고 API 키는 환경변수로만 주입한다. NC 가이드가 VARCO를 3D·이미지/텍스처·음성/사운드·번역 등 LLM 기획 이후의 에셋 구현 단계로 설명하므로, VARCO를 공통 텍스트 benchmark나 비정형 현장문서 생성기로 가장하지 않는다. P0 폐루프에 필요한 에셋 사용처가 별도 승인되기 전에는 VARCO 연동을 보류한다.
+- 이유: 공급자가 문서화한 실제 제품 역할과 비교 가능한 계약을 지키고, 심사에서 모델 이름을 나열하기 위한 장식성 연동이 P0 일정과 안전 설명 계층을 왜곡하지 않게 하기 위해서다.
+- 기각한 대안: VARCO를 OpenAI-compatible 텍스트 LLM으로 추정해 같은 endpoint 계약을 적용하는 방식, P0와 무관한 이미지·음성 에셋을 심사용으로 추가하는 방식, 임의의 외부 host를 환경변수만으로 허용하는 방식.
+- 근거: 2026 AI ROOKIE 제공 자료 `SKT-AI 모델 및 API 활용법` p.9, `LG AI연구원-AI 모델 및 API 활용법` p.15, `NC AI-AI 모델 및 API 활용법` pp.10–12.
+- 영향 파일: `.env.example`, `README.md`, `docs/synthetic-data-plan.md`, `docs/evals.md`, `src/evals/domesticAiProvider.ts`, `src/evals/domesticAiBenchmark.ts`, `scripts/domestic-ai-smoke-entry.ts`, `scripts/run-domestic-ai-smoke.mjs`, `tests/domestic-ai-benchmark.test.ts`
+
+### ADR-022 — 원본 증거가 없는 합성 특징은 public-derived로 표시하지 않는다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 결정: 원본 데이터셋 ID·공식 URI·버전, 라이선스 또는 이용정책, 원본 파일 SHA-256과 변환기 버전이 모두 추적되는 경우에만 `PUBLIC_DATA_DERIVED`를 사용한다. 현재 세 대표 fixture의 날씨·권역·경로 특징은 실제 공공데이터 파일과 연결되지 않았으므로 값은 유지하되 모두 `MOCK` Demo provenance로 교정한다. 공공데이터나 AI Hub 원본을 수집하기 전에는 이를 실제 분포·현장 검증·공공데이터 활용 성과로 표현하지 않는다.
+- 이유: `public feature definitions`를 참고했다는 일반 설명만으로는 특정 데이터의 출처, 라이선스와 재현 가능한 변환을 입증할 수 없고, 심사·사용자에게 합성 Demo를 공공데이터 기반으로 오인시킬 수 있기 때문이다.
+- 기각한 대안: 현재 라벨을 유지하고 문서 각주로만 한계를 설명하는 방식, URL만 있으면 public-derived로 허용하는 방식, 합성 수치를 실제 공공데이터 원본으로 대체했다고 추정하는 방식.
+- 영향 파일: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/evals.md`, `docs/demo-script.md`, `src/domain/contracts/schemas.ts`, `src/adapters/fixtures/scenarioFactory.ts`, `tests/contracts.test.ts`, `artifacts/evals/data-provenance-audit.json`
+
+### ADR-023 — 기상청 초단기실황은 검증된 후보로 격리하고 Safety 입력으로 자동 승격하지 않는다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 결정: DS-001의 첫 연동은 기상청 초단기실황 공식 HTTPS endpoint의 exact allowlist, 서버 전용 secret, 응답 크기·timeout·최신성·스키마 검증과 원본 응답 SHA-256을 갖춘 어댑터로 제한한다. 원본이 직접 제공하는 기온·시간당 강수·습도·풍속·강수형태만 후보로 보존한다. 현재 `WeatherState`에 필수인 체감온도·시정·노면상태·시간당 적설을 원본에서 모두 확보하지 못하므로 결과에 `safeForSafetyEngine=false`와 결측 필드를 기록하고, 보완 출처와 매핑 정책이 승인될 때까지 Demo/Fallback 날씨를 유지한다. 가짜 응답 계약 검증 결과는 항상 `MOCK`으로 표시한다.
+- 이유: 일부 관측값의 실연동 성공이 전체 안전 입력의 현장 타당성을 의미하지 않으며, 원본에 없는 필드를 계산하거나 낙관적으로 채우면 Safety Budget을 왜곡할 수 있기 때문이다.
+- 기각한 대안: 기온으로 체감온도를 임의 대체하는 방식, 강수형태로 노면을 단정하는 방식, 누락된 시정·적설을 0으로 채우는 방식, Mock 응답 hash를 공공데이터 원본 증거로 기록하는 방식.
+- 영향 파일: `.env.example`, `docs/data-sources.md`, `docs/architecture.md`, `docs/evals.md`, `src/adapters/weather/kma.ts`, `scripts/kma-weather-smoke-entry.ts`, `scripts/run-kma-weather-smoke.mjs`, `tests/kma-weather-adapter.test.ts`
+
+### ADR-024 — 승인된 기상청 API허브 4.1·4.2 계약을 함께 사용한다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 대체 관계: ADR-023의 데이터 격리·Safety 자동 승격 차단은 유지하고, 최초 공공데이터포털 단일 실황 endpoint 계약을 API허브 4.1·4.2 계약으로 대체한다.
+- 결정: 사용자가 활용 승인을 받고 인증키를 발급받은 기상청 API허브 `4.1 초단기실황조회`와 `4.2 초단기예보조회`만 허용한다. exact allowlist는 `apihub.kma.go.kr`의 두 HTTPS path로 고정하고 인증은 query의 `authKey`로만 주입한다. 실황은 현재 관측 후보, 초단기예보는 발표시각부터 최대 6시간의 시간순 후보로 분리 검증한다. 인증키와 원문 응답은 산출물에 저장하지 않고 응답 SHA-256만 보존한다. 두 결과 모두 필수 안전 필드가 부족하므로 Domain 입력 승인은 계속 `false`다.
+- 이유: 승인된 공급 경로와 실제 인증 계약을 일치시키고, SafeRoute의 60~120분 미래 예측에 필요한 예보를 현재 관측과 구분해 검증하기 위해서다.
+- 기각한 대안: API허브 인증키를 공공데이터포털 `serviceKey`에 재사용하는 방식, 4.1 실황만으로 미래 날씨를 고정하는 방식, 4.2의 모든 시점을 하나의 현재값으로 병합하는 방식, 임의 host·path를 환경변수로 허용하는 방식.
+- 근거: 기상청 API허브 `단기예보자료(2001년 2월 이후) 조회`의 4.1·4.2 API 명세, 2026-07-17 사용자 활용 승인·키 발급 확인.
+- 영향 파일: `.env.example`, `README.md`, `docs/data-sources.md`, `docs/architecture.md`, `docs/evals.md`, `src/adapters/weather/kma.ts`, `scripts/kma-weather-smoke-entry.ts`, `tests/kma-weather-adapter.test.ts`
+
+### ADR-025 — Live 날씨는 적합성 Gate를 통과하기 전 Safety 입력으로 변환하지 않는다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 결정: 기상청 Live 후보와 `WeatherState` 사이에 별도의 결정론적 적합성 Gate를 둔다. `RN1` 구간값은 중간값을 만들지 않고, 유한 상한이 있으면 상한을 사용하되 Safety 모델의 강수 정규화 상한 20mm/h에서 자른다. `50mm 이상`처럼 상한이 없더라도 하한이 이미 정규화 상한을 넘으면 20mm/h를 사용한다. 이는 실제 강수량 추정값이 아니라 `CONSERVATIVE_NORMALIZATION_BOUND` 가정으로 기록한다. `roadSurface`는 현재 v1 계산에 사용되지 않으므로 `UNKNOWN`으로만 표시할 수 있다. 체감온도·시정·시간당 적설은 직접 출처 또는 별도 승인된 결정론적 변환이 없으면 차단 필드로 유지하며, 현재 관측값을 미래 120분에 자동 복제하지 않는다.
+- 이유: 강수 구간의 임의 중간값은 출처를 왜곡하지만, 단조 증가 후 20mm/h에서 포화되는 현재 모델에서는 구간 상한 또는 포화 하한을 사용하는 것이 위험을 과소평가하지 않으면서 계산 효과를 재현할 수 있기 때문이다. 나머지 세 필드는 현재·미래 의미와 단위가 달라 조용한 대체가 안전하지 않다.
+- 기각한 대안: `1mm 미만`을 0.5로 바꾸는 방식, 구간 하한을 사용하는 방식, 결측 필드를 0으로 채우는 방식, 현재 시정·체감온도·적설을 모든 미래 시점에 무감점 복제하는 방식, 노면을 강수형태만으로 `WET`·`SNOW`로 단정하는 방식.
+- 후속 후보: API허브 고해상도 격자자료 1.3의 `ta_chi`·`vs`·`sd_3hr`는 현재 상태 보완 후보이나 `sd_3hr`는 시간당 적설과 동일하지 않다. 동네예보 4.3의 `SNO`는 미래 적설 후보이며 별도 활용 승인과 계약 검증이 필요하다.
+- 영향 파일: `docs/data-sources.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/evals.md`, `src/adapters/weather/coverage.ts`, `scripts/run-kma-weather-coverage.mjs`, `tests/kma-weather-adapter.test.ts`
+
+### ADR-026 — 승인된 1.3·4.3은 현재 관측과 미래 적설의 부분 보완으로만 사용한다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 결정: 활용 승인된 DS-005 `1.3 특정지점 다중요소 API`와 DS-006 `4.3 단기예보조회 API`를 기존 서버 전용 `authKey`와 exact endpoint로만 호출한다. 1.3의 `ta_chi`는 현재 체감온도 °C로, `vs`는 km에서 m로 단위 변환해 보존한다. `sd_3hr`는 3시간 신적설이며 시간당 적설로 나누지 않는다. 4.3의 `SNO`는 현재부터 120분 범위의 미래 시간당 신적설 후보로만 사용한다. `0.5cm 미만`과 `5.0cm 이상`은 중간값을 만들지 않고 구간으로 보존하며 Safety 모델의 3cm/h 포화 상한에 대한 보수적 경계만 선택할 수 있다. 현재 시간당 적설과 미래 체감온도·시정이 남아 있으므로 전체 `WeatherState`와 Safety 입력 승인은 계속 `false`다.
+- 이유: 승인된 공공데이터로 실제 결측 일부를 줄이면서도 시간 의미가 다른 3시간 적설을 임의 환산하거나 현재 체감온도·시정을 미래에 복제해 위험을 과소평가하지 않기 위해서다.
+- 기각한 대안: `sd_3hr / 3`을 현재 시간당 적설로 사용하는 방식, 현재 `ta_chi`·`vs`를 향후 120분에 복제하는 방식, `SNO` 구간의 중간값을 사용하는 방식, 일부 필드가 채워졌다는 이유로 전체 Live Safety 입력을 승인하는 방식, 임의 endpoint를 환경변수로 허용하는 방식.
+- 실행 근거: 2026-07-17 Live 표본에서 1.3 현재 체감온도 29.7°C·시정 6,900m·3시간 신적설 0cm, 4.3 21·22·23시 적설 0cm/h 3개 시점을 스키마·최신성·SHA-256으로 검증했다. 인증키·원문·위경도는 산출물에 저장하지 않았다.
+- 영향 파일: `.env.example`, `README.md`, `docs/data-sources.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/architecture.md`, `docs/evals.md`, `src/adapters/weather/supplement.ts`, `src/adapters/weather/coverage.ts`, `scripts/kma-supplement-smoke-entry.ts`, `scripts/run-kma-supplement-smoke.mjs`, `tests/kma-weather-supplement.test.ts`, `artifacts/evals/kma-weather-supplement-live-latest.json`
+
+### ADR-027 — 4.3의 TMP·REH·WSD로 공식 계절별 체감온도만 결정론적으로 산출한다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 대체 관계: ADR-026의 미래 체감온도 차단을 공식 입력과 공식 적용조건을 충족한 시점에 한해 해소한다. 미래 시정·현재 시간당 적설 차단은 유지한다.
+- 결정: 승인된 DS-006 4.3 단기예보가 직접 제공하는 `TMP` 기온, `REH` 상대습도, `WSD` 풍속을 같은 격자·발표·발효시각으로 검증한 뒤 기상청 예보업무규정 별표 10의 체감온도 공식에만 입력한다. 5∼9월은 Stull 습구온도 추정식과 습도 기반 공식을 사용한다. 10월∼다음 해 4월은 기온 10°C 이하·풍속 1.3m/s 이상에서만 풍속을 km/h로 변환해 겨울 공식을 사용하며, 적용조건 밖이면 값을 만들지 않는다. 원본 입력과 공식 버전을 provenance에 남기고 생성형 AI나 임의 보간·반올림은 사용하지 않는다. 4.3의 3시간 발표주기와 약 10분 제공지연을 반영해 발표 최신성 한도는 전용 210분으로 고정하고, 1.3·4.1·4.2의 최신성 설정과 분리한다.
+- 이유: 기상청이 동네예보 체감온도에 여름철 습도·겨울철 풍속을 사용한다고 명시하고 공식과 입력 단위를 공개했으며, 4.3이 필요한 원본 필드를 같은 예보시점에 직접 제공하기 때문이다.
+- 기각한 대안: `TMP`를 체감온도로 그대로 복사하는 방식, 비공식 heat index 공식을 사용하는 방식, 계절·겨울 적용조건을 무시하는 방식, 현재 1.3 `ta_chi`를 미래에 복제하는 방식, 입력 결측을 0으로 채우는 방식.
+- 남은 경계: 승인된 4.3에는 육상 미래 시정이 없고 현재 시간당 적설의 관측 계약도 확정되지 않았다. 두 필드는 계속 Gate를 차단하며 신규 API 활용신청 또는 별도 정책 승인 전에는 Live `WeatherState`를 만들지 않는다.
+- 근거: 기상청 예보업무규정(2025.6.13.) 별표 10, 기상자료개방포털 체감온도 설명, 기상청 API허브 동네예보 4.3 변수 명세.
+- 실행 근거: 2026-07-17 20:00 KST 발표의 22·23·00시 `TMP·REH·WSD`에서 공식 여름식으로 약 30.04·29.38·28.71°C를 산출했다. 최초 Live 재실행은 공통 120분 최신성 한도로 정상 20시 발표를 `STALE_DATA` 처리해 실패 산출물로 보존했고, 3시간 발표주기 전용 210분 계약으로 분리한 뒤 통과했다.
+- 영향 파일: `docs/data-sources.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/architecture.md`, `docs/evals.md`, `src/adapters/weather/supplement.ts`, `src/adapters/weather/coverage.ts`, `tests/kma-weather-supplement.test.ts`, `artifacts/evals/kma-weather-supplement-live-latest.json`
+
+### ADR-028 — 불완전한 Live 날씨는 필드 혼합 없이 전체 Demo 타임라인으로 Fallback한다
+
+- 날짜: 2026-07-17
+- 상태: Approved
+- 결정: KMA 적합성 Gate가 `safeForSafetyEngine=false`이면 Live 후보의 준비된 일부 필드도 Safety 계산에 넣지 않는다. `INCOMPLETE_COVERAGE` 오류와 시간범위별 차단 필드를 기록하고, 승인된 결정론적 Demo fixture의 `WeatherState[]` 전체를 `FALLBACK` 입력으로 선택한다. Live 후보는 공식 출처 ID·수집시각·응답 SHA-256·준비/차단 필드만 별도 evidence로 보존하며 `liveEvidenceUsedForSafety=false`, `mixedLiveAndDemoFields=false`를 감사 불변조건으로 둔다. 관리자·기사 화면은 `Demo fixture · Weather Fallback`을 공통 표시하고 실제 계산값과 Live 부분 증거를 구분한다.
+- 이유: Live 강수·체감온도 같은 준비 필드와 Demo 시정·적설을 한 객체에 섞으면 출처·시점·신뢰도의 의미가 사라지고, 사용자가 부분 연동을 완전한 Live Safety 결과로 오인할 수 있기 때문이다. 전체 fixture 전환은 현재 P0 폐루프의 결정론적 재현성을 유지하면서 불완전한 외부 데이터를 정직하게 보여준다.
+- 기각한 대안: 준비된 Live 필드와 Demo 결측 필드를 병합하는 방식, 결측 시정·적설을 0으로 채우는 방식, 화면만 Live로 표시하는 방식, 마지막 Live 값을 조용히 재사용하는 방식, Live evidence 자체를 숨기는 방식.
+- 영향 파일: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/evals.md`, `src/domain/contracts/schemas.ts`, `src/adapters/weather/runtime.ts`, `src/ui/demoSession.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/weather-runtime.test.ts`, `tests/ui-demo-session.test.ts`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
@@ -170,7 +297,7 @@
 | 창의성 | ADR-001, 004, 005, 006 | Time-to-Breach와 반사실적 비교 폐루프 시연 |
 | 혁신성 | ADR-002, 004, 005, 007 | 안전 하드 제약, 위험전가 차단, 국내 AI 근거 계층 테스트 |
 | 추진성 | ADR-009, 010, 012 | 주차별 빌드·테스트·시연 체크포인트 |
-| 성장성 | ADR-007, 008, 009 | 모델별 benchmark, 데이터 manifest, 확장 가능한 어댑터 경계 |
+| 성장성 | ADR-007, 008, 009, 020 | 모델별 benchmark, 데이터 manifest, 확장 가능한 어댑터 경계 |
 | 실효성 | ADR-001, 006, 010, 011 | 기사·관리자 E2E와 계획·ETA 원자적 갱신 |
 | 가치성 | ADR-005, 006, 011, 012 | 안전·지연·형평성·비징벌성 지표와 감사기록 |
 
@@ -191,7 +318,9 @@
 
 - 실제 지도 공급자와 지도 스타일
 - 외부 TMS 연동 시 트랜잭션·롤백 계약
-- 국내 AI 공급자별 정확한 모델명·엔드포인트·쿼터
+- A.X·K-EXAONE 계정별 실제 활성 모델·쿼터·입력 보존 정책
+- SafeRoute P0에 필요한 VARCO 에셋 사용처와 제품 계약 존재 여부
+- 실제 공공·AI Hub 후보 데이터셋의 이용조건·필드 적합성·다운로드 방식
 - Near-miss GeoHash 정밀도와 최소 집계기준
 - 실제 운영 파일럿의 보존기간·권한행렬·법적 고지
 - 시나리오 A의 화면 표시값과 실제 지도 군집 연결

@@ -1,0 +1,13 @@
+taskId,role,seed,status,validationCode,generationMs,inputTokens,outputTokens,peakMemoryMiB,outputSha256,displayApproved
+local-batch-admin-plan-001,admin,6174,passed,PASS,4532.12,272,162,13907.91,271cad187965c882eb3418b5a07d002a77a1d00ae5ddb0ff7d0bd9e65f5ce3b1,True
+local-batch-courier-source-002,courier,6175,passed,PASS,3747.02,266,156,13907.49,e92f53b7b22b5bb79619b50d541c3f5af5e71305e430e10d1802e772cd396dc1,True
+local-batch-courier-recipient-003,courier,6176,passed,PASS,3793.06,268,158,13907.63,5ddbc313747a190d1dab9ad9b2fe4a91f8112b03266011514bc99861b2b13f8e,True
+local-batch-customer-eta-004,customer,6177,passed,PASS,1872.97,188,78,13891.38,ae5195cd5fb63fff08fa4cea417c992f457dd5334580d088be2bff6c970197af,True
+local-batch-report-summary-005,report,6178,passed,PASS,2520.85,215,105,13896.47,35535b9171550f0c610fea60498614e0d761d2df8a0392daa8159de5149bdb28,True
+local-batch-admin-blocked-006,admin,6179,passed,PASS,2902.83,231,121,13899.3,37ed9d5882d0b18eaac0c4f9a27d0e37dfa7d0549f8825e5388f01d9d5a1aa2c,True
+local-batch-courier-confidence-007,courier,6180,passed,PASS,2090.68,197,87,13893.04,e2d99ff01ca72eae1859a90f303f029729abd15608b9bf2713b6b7c6ddda4bb2,True
+local-batch-admin-applied-008,admin,6181,passed,PASS,3051.29,237,127,13900.4,9235f43c51acdd0c8926daeaf41fd57d29e5fc0cefd7970e67cc21f3d51a0f0b,True
+local-batch-injection-citation-009,admin,6182,passed,PASS,2477.58,213,103,13896.21,1c857b0e63db0d7bc3c97c3849f8b4e9b715978f40c077e0db9057443e5f25e2,True
+local-batch-no-citation-010,customer,6183,passed,PASS,1369.0,167,57,13887.52,7f3fb3c207fedc0ce13ca503b307b9a84872d99a50dc2f42467d3348822c8874,True
+local-batch-decimal-integrity-011,admin,6184,passed,PASS,2354.69,208,98,13895.56,4c003bffe01dc22ff126e6144119550e058fa92eecc9227272ad3b5f0e8edd78,True
+local-batch-fallback-boundary-012,report,6185,passed,PASS,2186.6,201,91,13894.66,9f1777114b6f0d95478d84cd269c624534b5d2879a7ee272d37e6ebc02f2b603,True

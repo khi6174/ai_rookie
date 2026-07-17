@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "data-provenance-audit-v1",
+  "capturedAt": "2026-07-17T13:24:42.874Z",
+  "status": "RUNTIME_FALLBACK_VERIFIED",
+  "scope": "SafeRoute deterministic fixtures and KMA API Hub adapter evidence",
+  "inventory": {
+    "fixtureCount": 3,
+    "publicDatasetFilesInRepository": 0,
+    "aiHubDatasetFilesInRepository": 0,
+    "liveOperationalDatasetFilesInRepository": 0,
+    "publicDataDerivedLiveArtifactsInRepository": 4
+  },
+  "finding": {
+    "code": "UNSUPPORTED_PUBLIC_DATA_DERIVED_LABEL",
+    "summary": "Synthetic area, weather, and route features had no traceable public dataset file, official URI, version, license, or source checksum."
+  },
+  "resolution": {
+    "provenanceKind": "MOCK",
+    "dataMode": "DEMO",
+    "numericFixtureValuesChanged": false,
+    "publicDataOutcomeClaimAllowed": false,
+    "realWorldDistributionClaimAllowed": false
+  },
+  "futurePublicDataEvidenceRequirements": [
+    "official source URI",
+    "dataset identifier and version",
+    "license or usage policy",
+    "original file SHA-256",
+    "deterministic transformer version"
+  ],
+  "externalAdapterEvidence": {
+    "provider": "KMA_API_HUB",
+    "approvedApis": [
+      "4.1_ULTRA_SHORT_OBSERVATION",
+      "4.2_ULTRA_SHORT_FORECAST",
+      "1.3_HIGH_RESOLUTION_POINT_MULTI_ELEMENT",
+      "4.3_VILAGE_SHORT_FORECAST"
+    ],
+    "liveObservationCount": 1,
+    "liveForecastResponseCount": 1,
+    "liveForecastPointCount": 6,
+    "liveHighResolutionPointCount": 1,
+    "liveShortForecastResponseCount": 1,
+    "liveShortForecastSnowPointCount": 3,
+    "rawResponsesStored": false,
+    "responseHashesStored": true,
+    "safetyEngineInputApproved": false,
+    "artifacts": [
+      "artifacts/evals/kma-weather-smoke-live-latest.json",
+      "artifacts/evals/kma-weather-supplement-live-latest.json"
+    ],
+    "coverageGate": {
+      "status": "BLOCKED",
+      "rainfallForecastPointsReady": 6,
+      "blockingFields": [
+        "snowfallCmPerHour",
+        "feelsLikeCelsius",
+        "visibilityMeters"
+      ],
+      "artifact": "artifacts/evals/kma-weather-coverage-latest.json",
+      "supplement": {
+        "status": "BLOCKED",
+        "currentFeelsLikeReady": true,
+        "currentVisibilityReady": true,
+        "forecastSnowfallPointsReady": 3,
+        "forecastFeelsLikePointsReady": 3,
+        "blockingTimeScopedFields": [
+          "CURRENT:snowfallCmPerHour",
+          "FORECAST_120_MINUTES:visibilityMeters"
+        ],
+        "artifact": "artifacts/evals/kma-weather-supplement-live-latest.json"
+      },
+      "runtimeSelection": {
+        "status": "FALLBACK",
+        "reasonCode": "INCOMPLETE_COVERAGE",
+        "safetyEngineInputSource": "DEMO_FIXTURE_ONLY",
+        "activeWeatherPointCount": 5,
+        "liveEvidenceUsedForSafety": false,
+        "fallbackTimelineUsedForSafety": true,
+        "mixedLiveAndDemoFields": false,
+        "artifact": "artifacts/evals/weather-runtime-selection-latest.json"
+      }
+    }
+  },
+  "privacy": {
+    "personalDataIncluded": false,
+    "credentialsIncluded": false,
+    "absolutePathsIncluded": false
+  }
+}

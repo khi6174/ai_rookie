@@ -1,0 +1,233 @@
+{
+  "schemaVersion": "kma-weather-live-smoke-v1",
+  "capturedAt": "2026-07-17T12:25:58.820Z",
+  "mode": "LIVE",
+  "status": "COMPLETED",
+  "requestSent": true,
+  "requests": {
+    "observation": {
+      "areaId": "demo-seoul-grid-60-127",
+      "baseDate": "20260717",
+      "baseTime": "2000",
+      "gridX": 60,
+      "gridY": 127
+    },
+    "forecast": {
+      "areaId": "demo-seoul-grid-60-127",
+      "baseDate": "20260717",
+      "baseTime": "1930",
+      "gridX": 60,
+      "gridY": 127
+    }
+  },
+  "observationCandidate": {
+    "schemaVersion": "kma-api-hub-ultra-short-observation-v1",
+    "areaId": "demo-seoul-grid-60-127",
+    "observedAt": "2026-07-17T20:00:00+09:00",
+    "grid": {
+      "x": 60,
+      "y": 127
+    },
+    "airTemperatureCelsius": 28.7,
+    "rainfallMmPerHour": 0,
+    "relativeHumidityPercent": 70,
+    "windSpeedMetersPerSecond": 0.7,
+    "precipitationTypeCode": 0,
+    "missingSourceCategories": [],
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "missingWeatherStateFields": [
+        "snowfallCmPerHour",
+        "feelsLikeCelsius",
+        "visibilityMeters",
+        "roadSurface"
+      ],
+      "reason": "KMA_OBSERVATION_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+    },
+    "responseSha256": "48ec728ea332dbb73c8006e29a2e1036622a0e63c682d90a5789c58bfdcceee2",
+    "provenance": {
+      "kind": "PUBLIC_DATA_DERIVED",
+      "sourceId": "kma-api-hub-ultra-short-observation",
+      "sourceLabel": "기상청 API허브 · 초단기실황조회",
+      "collectedAt": "2026-07-17T12:25:58.820Z",
+      "validAt": "2026-07-17T20:00:00+09:00",
+      "transformedBy": "kma-api-hub-observation-adapter@1.1.0",
+      "licenseOrPolicy": "기상청 API허브 이용정책·API별 제공조건",
+      "sourceUri": "https://apihub.kma.go.kr/apiList.do?seqApi=10&seqApiSub=286",
+      "sourceVersion": "kma-api-hub:seqApi=10:seqApiSub=286:2026-07-17",
+      "contentHashSha256": "48ec728ea332dbb73c8006e29a2e1036622a0e63c682d90a5789c58bfdcceee2",
+      "isDemo": true
+    }
+  },
+  "forecastCandidate": {
+    "schemaVersion": "kma-api-hub-ultra-short-forecast-v1",
+    "areaId": "demo-seoul-grid-60-127",
+    "issuedAt": "2026-07-17T19:30:00+09:00",
+    "grid": {
+      "x": 60,
+      "y": 127
+    },
+    "points": [
+      {
+        "forecastAt": "2026-07-17T20:00:00+09:00",
+        "airTemperatureCelsius": 28,
+        "rainfallMmPerHour": 0,
+        "relativeHumidityPercent": 70,
+        "windSpeedMetersPerSecond": 1,
+        "precipitationTypeCode": 0,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 30,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T21:00:00+09:00",
+        "airTemperatureCelsius": 28,
+        "rainfallMmPerHour": 0,
+        "relativeHumidityPercent": 75,
+        "windSpeedMetersPerSecond": 2,
+        "precipitationTypeCode": 0,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 30,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T22:00:00+09:00",
+        "airTemperatureCelsius": 28,
+        "rainfallRangeMmPerHour": {
+          "minimumInclusive": 0.1,
+          "maximumExclusive": 1
+        },
+        "relativeHumidityPercent": 80,
+        "windSpeedMetersPerSecond": 1,
+        "precipitationTypeCode": 5,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 40,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T23:00:00+09:00",
+        "airTemperatureCelsius": 27,
+        "rainfallMmPerHour": 6,
+        "relativeHumidityPercent": 85,
+        "windSpeedMetersPerSecond": 1,
+        "precipitationTypeCode": 1,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 70,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-18T00:00:00+09:00",
+        "airTemperatureCelsius": 26,
+        "rainfallRangeMmPerHour": {
+          "minimumInclusive": 0.1,
+          "maximumExclusive": 1
+        },
+        "relativeHumidityPercent": 90,
+        "windSpeedMetersPerSecond": 1,
+        "precipitationTypeCode": 1,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 60,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      },
+      {
+        "forecastAt": "2026-07-18T01:00:00+09:00",
+        "airTemperatureCelsius": 26,
+        "rainfallRangeMmPerHour": {
+          "minimumInclusive": 0.1,
+          "maximumExclusive": 1
+        },
+        "relativeHumidityPercent": 95,
+        "windSpeedMetersPerSecond": 1,
+        "precipitationTypeCode": 5,
+        "skyConditionCode": 4,
+        "lightningCode": 0,
+        "precipitationProbabilityPercent": 40,
+        "missingSourceCategories": [],
+        "domainReadiness": {
+          "safeForSafetyEngine": false,
+          "missingWeatherStateFields": [
+            "snowfallCmPerHour",
+            "feelsLikeCelsius",
+            "visibilityMeters",
+            "roadSurface"
+          ],
+          "reason": "KMA_FORECAST_DOES_NOT_COVER_REQUIRED_SAFETY_FIELDS"
+        }
+      }
+    ],
+    "responseSha256": "9eba57015d22ca6aea84daf674a3a9b242e81026290e485a730acdc490b2fad8",
+    "provenance": {
+      "kind": "PUBLIC_DATA_DERIVED",
+      "sourceId": "kma-api-hub-ultra-short-forecast",
+      "sourceLabel": "기상청 API허브 · 초단기예보조회",
+      "collectedAt": "2026-07-17T12:25:58.820Z",
+      "validAt": "2026-07-17T19:30:00+09:00",
+      "transformedBy": "kma-api-hub-forecast-adapter@1.1.0",
+      "licenseOrPolicy": "기상청 API허브 이용정책·API별 제공조건",
+      "sourceUri": "https://apihub.kma.go.kr/apiList.do?seqApi=10&seqApiSub=286",
+      "sourceVersion": "kma-api-hub:seqApi=10:seqApiSub=286:2026-07-17",
+      "contentHashSha256": "9eba57015d22ca6aea84daf674a3a9b242e81026290e485a730acdc490b2fad8",
+      "isDemo": true
+    }
+  },
+  "assertions": {
+    "publicDataProvenanceVerified": true,
+    "safetyEngineInputApproved": false,
+    "secretsStored": false
+  }
+}

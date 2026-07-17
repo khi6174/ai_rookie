@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "local-model-smoke-v1",
+  "capturedAt": "2026-07-17T04:50:38.578497+00:00",
+  "taskId": "local-smoke-admin-support-001",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-structured-ko-v1.2.0",
+  "seed": 6174,
+  "status": "passed",
+  "validationCode": "PASS",
+  "loadMs": 3164.46,
+  "generationMs": 4097.95,
+  "inputTokens": 321,
+  "outputTokens": 144,
+  "peakMemoryMiB": 13917.77,
+  "outputSha256": "67a9900519b595eaf4639440966defcf6bf34902b6676ca17b29d60e2721b5b3",
+  "displayApproved": true,
+  "rawOutput": "{\"role\":\"admin\",\"summary\":\"안전여유 31/100, 예상 임계치 초과까지 52분, 예상 초과 지점은 17번째 배송지, 신뢰도 87%입니다. 지원 검토가 필요합니다.\",\"facts\":[{\"factId\":\"safety-budget-remaining\",\"displayValue\":\"31/100\"},{\"factId\":\"time-to-breach\",\"displayValue\":\"52분\"},{\"factId\":\"breach-stop\",\"displayValue\":\"17번째 배송지\"},{\"factId\":\"confidence\",\"displayValue\":\"87%\"}],\"citations\":[\"synthetic-safety-manual#support-protocol\"],\"allowedAction\":\"지원 검토\",\"demoLabel\":\"합성 Demo\"}",
+  "validatedOutput": {
+    "role": "admin",
+    "summary": "안전여유 31/100, 예상 임계치 초과까지 52분, 예상 초과 지점은 17번째 배송지, 신뢰도 87%입니다. 지원 검토가 필요합니다.",
+    "facts": [
+      {
+        "factId": "safety-budget-remaining",
+        "displayValue": "31/100"
+      },
+      {
+        "factId": "time-to-breach",
+        "displayValue": "52분"
+      },
+      {
+        "factId": "breach-stop",
+        "displayValue": "17번째 배송지"
+      },
+      {
+        "factId": "confidence",
+        "displayValue": "87%"
+      }
+    ],
+    "citations": [
+      "synthetic-safety-manual#support-protocol"
+    ],
+    "allowedAction": "지원 검토",
+    "demoLabel": "합성 Demo"
+  },
+  "fallbackOutput": null
+}

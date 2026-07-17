@@ -408,11 +408,12 @@ export function evaluateSafetyBudget(
   }
 
   const stopById = new Map(fixture.stops.map((stop) => [stop.stopId, stop]));
+  const remainingStopIds = new Set(workload.remainingStopIds);
   const areaById = new Map(
     fixture.areaRiskProfiles.map((profile) => [profile.areaId, profile]),
   );
   const segments = fixture.routeSegments
-    .filter((segment) => stopById.get(segment.toStopId)?.assignedCourierId === courierId)
+    .filter((segment) => remainingStopIds.has(segment.toStopId))
     .sort((left, right) => left.sequence - right.sequence);
 
   const applyTimedExposure = (

@@ -1,0 +1,79 @@
+{
+  "schemaVersion": "core-eval-run-manifest-v1",
+  "capturedAt": "2026-07-17T13:59:52.474Z",
+  "generator": "scripts/run-core-eval-artifacts.mjs",
+  "command": "pnpm run eval:core-artifacts",
+  "baseCommit": "48b66a41128a9c5e21d76eb69c8840bc9e9cf5c8",
+  "workingTreeDirty": true,
+  "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
+  "credentialsStored": false,
+  "rawApiResponsesStored": false,
+  "selfHashExcluded": true,
+  "sourceHashes": [
+    {
+      "file": "scripts/run-core-eval-artifacts.mjs",
+      "sha256": "31a92e78994a70f428f0c843a99e040ade43cba784ab77d9d314caac16129f0d"
+    },
+    {
+      "file": "src/domain/safety/config.ts",
+      "sha256": "4545e84ae794a04fc29857dbc1449f5e76ecb5846a858e2e9c8f8ab1bee00dcf"
+    },
+    {
+      "file": "src/domain/safety/engine.ts",
+      "sha256": "0f9c396eb34b5d6add2802eff1025806211c73777e8e88bbe4936694254b9bb7"
+    },
+    {
+      "file": "src/domain/interventions/config.ts",
+      "sha256": "61197bb9d22e2d0787b3aba43ca7f3447a505ebefdf3cbb8397570771964230a"
+    },
+    {
+      "file": "src/domain/interventions/engine.ts",
+      "sha256": "c03333e2a22e837b04ad4208a78415a737891e57c23b7717632e2a3993c6b1e7"
+    },
+    {
+      "file": "src/adapters/fixtures/index.ts",
+      "sha256": "b0773cf762fddfeb1649140d12ad08a14642539bc09b5592b1f7b4c15d9bd743"
+    },
+    {
+      "file": "e2e/saferoute-demo.spec.ts",
+      "sha256": "6519969335715659dd06f91a0bb39c7a12d4d2c2b94d22ccb92cf9667f222a36"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "unit-summary.json",
+      "bytes": 1812,
+      "sha256": "4af43dc937a1a4b32db43da0de60b92f056ae2a5e32c4a13f454b4ec450d4dc3"
+    },
+    {
+      "file": "scenario-results.csv",
+      "bytes": 667,
+      "sha256": "b38d012571afe0f6cb5140de07b89f3fa07d97e0cdf42b7f685391cc575c4ef3"
+    },
+    {
+      "file": "baseline-comparison.csv",
+      "bytes": 1491,
+      "sha256": "8473eceb666be5d704a76c30775138262482e9092236b9cd9ee822f6cda9e2d9"
+    },
+    {
+      "file": "risk-transfer-boundaries.csv",
+      "bytes": 586,
+      "sha256": "307b0a2e38733156ad6ad0a6c37910172c5270a4664d2781cd9ac015211052b5"
+    },
+    {
+      "file": "domestic-ai-smoke.csv",
+      "bytes": 501,
+      "sha256": "3670b68a61be2b776b250497d06e51763e84cfff32080e1b70320aa1c8532a7d"
+    },
+    {
+      "file": "upstage-roundtrip.csv",
+      "bytes": 1368,
+      "sha256": "7b90d84c4b9224067deea7684216be2f59a0fc59dbe87e39a6ab04035147f8d0"
+    },
+    {
+      "file": "accessibility-summary.json",
+      "bytes": 1569,
+      "sha256": "c639eb6dbe9cc26af05898acddd9cacb42dc5e063667557a9094028060c55d87"
+    }
+  ]
+}

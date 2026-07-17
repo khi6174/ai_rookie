@@ -1,0 +1,121 @@
+{
+  "capturedAt": "2026-07-17T12:33:14.992Z",
+  "inputArtifact": "artifacts/evals/kma-weather-smoke-live-latest.json",
+  "inputHashes": {
+    "observationResponseSha256": "48ec728ea332dbb73c8006e29a2e1036622a0e63c682d90a5789c58bfdcceee2",
+    "forecastResponseSha256": "9eba57015d22ca6aea84daf674a3a9b242e81026290e485a730acdc490b2fad8"
+  },
+  "schemaVersion": "kma-weather-safety-coverage-v1",
+  "status": "BLOCKED",
+  "safeForSafetyEngine": false,
+  "evaluatedAreaId": "demo-seoul-grid-60-127",
+  "observationAt": "2026-07-17T20:00:00+09:00",
+  "forecastPointCount": 6,
+  "rainfall": {
+    "observation": {
+      "status": "READY",
+      "selectedMmPerHour": 0,
+      "mode": "EXACT_SOURCE_VALUE"
+    },
+    "forecast": [
+      {
+        "forecastAt": "2026-07-17T20:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 0,
+          "mode": "EXACT_SOURCE_VALUE"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T21:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 0,
+          "mode": "EXACT_SOURCE_VALUE"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T22:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 1,
+          "mode": "CONSERVATIVE_NORMALIZATION_BOUND",
+          "assumptionCode": "KMA_RAIN_RANGE_CONSERVATIVE_NORMALIZATION_BOUND"
+        }
+      },
+      {
+        "forecastAt": "2026-07-17T23:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 6,
+          "mode": "EXACT_SOURCE_VALUE"
+        }
+      },
+      {
+        "forecastAt": "2026-07-18T00:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 1,
+          "mode": "CONSERVATIVE_NORMALIZATION_BOUND",
+          "assumptionCode": "KMA_RAIN_RANGE_CONSERVATIVE_NORMALIZATION_BOUND"
+        }
+      },
+      {
+        "forecastAt": "2026-07-18T01:00:00+09:00",
+        "selection": {
+          "status": "READY",
+          "selectedMmPerHour": 1,
+          "mode": "CONSERVATIVE_NORMALIZATION_BOUND",
+          "assumptionCode": "KMA_RAIN_RANGE_CONSERVATIVE_NORMALIZATION_BOUND"
+        }
+      }
+    ],
+    "allPointsReady": true
+  },
+  "blockingFields": [
+    {
+      "weatherStateField": "snowfallCmPerHour",
+      "reason": "NO_HOURLY_SNOWFALL_SOURCE"
+    },
+    {
+      "weatherStateField": "feelsLikeCelsius",
+      "reason": "NO_APPROVED_CURRENT_AND_FORECAST_SOURCE"
+    },
+    {
+      "weatherStateField": "visibilityMeters",
+      "reason": "NO_APPROVED_CURRENT_AND_FORECAST_SOURCE"
+    }
+  ],
+  "explicitUnknownFields": [
+    {
+      "weatherStateField": "roadSurface",
+      "selectedValue": "UNKNOWN",
+      "usedBySafetyModelV1": false
+    }
+  ],
+  "prohibitedTransformations": [
+    "DO_NOT_USE_RAIN_RANGE_MIDPOINT",
+    "DO_NOT_FILL_MISSING_WEATHER_WITH_ZERO",
+    "DO_NOT_COPY_CURRENT_VALUES_ACROSS_FORECAST_WITHOUT_POLICY",
+    "DO_NOT_INFER_ROAD_SURFACE_FROM_PRECIPITATION_TYPE"
+  ],
+  "candidateNextSources": [
+    {
+      "sourceId": "DS-005",
+      "api": "KMA_HIGH_RESOLUTION_GRID_POINT_MULTI_ELEMENT_1_3",
+      "candidateFields": [
+        "feelsLikeCelsius",
+        "visibilityMeters"
+      ],
+      "approvalStatus": "NOT_APPLIED"
+    },
+    {
+      "sourceId": "DS-006",
+      "api": "KMA_VILAGE_SHORT_FORECAST_4_3",
+      "candidateFields": [
+        "snowfallCmPerHour"
+      ],
+      "approvalStatus": "NOT_APPLIED"
+    }
+  ]
+}
