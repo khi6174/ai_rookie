@@ -58,7 +58,7 @@
 
 ### 4.2 변형 세트
 
-- 세 시나리오에서 날씨, 연속작업, 누적근무, 남은 물량, 경로위험과 결측을 변화시킨 최소 30개
+- 첫 frozen set은 세 대표 시나리오 각각에 다음 10개 단일 변형을 적용한 정확히 30개다: 누적근무 +30/+60분, 연속근무 +15/+30분, 남은 중량 +10%, 강수 +2mm/h, 시정 -20%, 경사 +2%p, 지역 incident factor +0.05, 자기점검 결측. 변형은 generator `frozen-benchmark-v1.0.0`, seed 6174부터 순차 고정하고 모두 `FROZEN_TEST`·`MOCK`·Demo로 표시한다.
 - Risk Transfer Guard 경계 최소 20개
 - 시간·동의·버전 충돌 최소 20개
 - malformed·prompt injection·금지문구 최소 30개
@@ -80,6 +80,11 @@
 | C. SafeRoute | 안전 하드 제약 후 실행 가능한 집합에서 개입 비교 | 폐루프의 안전·지연·형평성 교환관계 검증 |
 
 세 방식은 같은 초기 입력, 경로 후보, 기준시각과 평가 구간을 사용한다.
+
+- `FASTEST_ONLY`: 실행 가능성을 필터링하지 않고 ETA 변화가 가장 작은 후보를 선택한다.
+- `BALANCED_ONLY`: 실행 가능성을 필터링하지 않고 적용 후 기사별 남은 배송 수의 최대-최소 차가 가장 작은 후보를 선택한다. 동률은 ETA, candidate ID 순으로 해소한다.
+- `SAFEROUTE`: 실행 가능한 후보만 남긴 뒤 기존 결정론적 추천 순위를 사용한다.
+- 앞의 두 방식이 실행 불가 후보를 선택하면 이를 실패에서 제외하지 않고 `hardConstraintViolation=true`로 보존한다. 이 비교는 합성 시뮬레이션이며 실제 사고감소나 현장 우월성 증거가 아니다.
 
 ## 6. 핵심 지표
 
@@ -359,8 +364,9 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 | Upstage 12과업 smoke harness | `pnpm test` | 1개 파일, 6개 테스트 통과 |
 | A.X·K-EXAONE 공통 API 계약·Gate | `pnpm test` | 1개 파일, 9개 테스트 통과 |
 | 날씨 Runtime Fallback 경계 | `pnpm test` | 1개 파일, 4개 테스트 통과: 전체 Demo 복제·Live source/hash 비유입·완전 Gate 분기·비-Demo provenance/잘못된 hash 거부 |
-| 전체 Vitest | `pnpm test` | 14개 파일, 164개 테스트 통과 |
-| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 164/164 재실행, 대표 fixture 3개·개입 후보 8개·이관 경계 3개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
+| 전체 Vitest | `pnpm test` | 15개 파일, 171개 테스트 통과 |
+| 30개 frozen 변형·3전략 비교 | `pnpm run eval:core-artifacts` | 같은 후보 집합으로 90회 비교: Fastest-only 하드 제약 위반 17건, Balanced-only 11건, SafeRoute 0건; SafeRoute 30/30 실행 가능한 후보 선택 |
+| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 171/171 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 3개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
 | 기상청 DS-001 계약 어댑터 | `pnpm test` | API허브 4.1·4.2 exact endpoint·`authKey` 비노출·실황 최신성·예보 6시간·결측·혼합 격자·중복·범위·provider 오류·401·429·timeout·Mock 라벨·Safety 차단 통과 |
 | 기상청 DS-005·006 보완 계약 | `pnpm test` | 1개 파일, 8개 테스트 통과: EUC-KR 필드 순서·km→m·3시간 적설 보존·SNO 정확/구간·공식 계절별 체감온도·120분·exact endpoint·secret/좌표 비저장·부분 Gate |
 | 기상청 Mock 계약 smoke | `pnpm run eval:kma-weather:mock` | 실황·예보 응답 계약 통과, API 요청 0건, public-derived 주장 0건, Safety 입력 승인 0건, JSON·불변 run 생성 |
@@ -396,7 +402,7 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 
 ## 16. 결과 산출물
 
-`pnpm run test:e2e`가 스크린샷 manifest와 `accessibility-summary.json`을 만들고, 이어서 `pnpm run eval:core-artifacts`가 외부 API 호출 없이 나머지 최신본을 현재 코드·테스트와 기존 비식별 smoke 요약에서 다시 생성한다. `baseline-comparison.csv`는 현재 계획과 실제 결정론적 개입 후보의 비교 증거다. 5절의 Fastest-only·Balanced-only·SafeRoute 3방식 대규모 비교는 아직 계획이며 이 파일로 완료를 주장하지 않는다. 각 실행은 최신본과 별도로 `core-evidence-runs/<timestamp>/`에 SHA-256 manifest와 함께 보존한다.
+`pnpm run test:e2e`가 스크린샷 manifest와 `accessibility-summary.json`을 만들고, 이어서 `pnpm run eval:core-artifacts`가 외부 API 호출 없이 나머지 최신본을 현재 코드·테스트와 기존 비식별 smoke 요약에서 다시 생성한다. `frozen-variant-results.csv`는 30개 변형의 입력 계보와 기준 결과를, `baseline-comparison.csv`는 같은 후보 집합에서 세 전략이 선택한 90개 결과를 보존한다. 이는 합성 시뮬레이션이며 실제 사고감소나 현장 성과로 표현하지 않는다. 각 실행은 최신본과 별도로 `core-evidence-runs/<timestamp>/`에 SHA-256 manifest와 함께 보존한다.
 
 ```text
 artifacts/evals/
@@ -404,6 +410,8 @@ artifacts/evals/
   unit-summary.json
   scenario-results.csv
   baseline-comparison.csv
+  frozen-variant-results.csv
+  frozen-benchmark-summary.json
   risk-transfer-boundaries.csv
   domestic-ai-smoke.csv
   domestic-ai-api-smoke-mock-latest.json
@@ -474,6 +482,8 @@ artifacts/evals/
       unit-summary.json
       scenario-results.csv
       baseline-comparison.csv
+      frozen-variant-results.csv
+      frozen-benchmark-summary.json
       risk-transfer-boundaries.csv
       domestic-ai-smoke.csv
       upstage-roundtrip.csv

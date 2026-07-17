@@ -116,8 +116,8 @@ SafeRoute의 결정론적 P0 폐루프는 작동한다. Safety Budget과 Time-to
 
 1. 현재 검증 상태를 코드·문서·평가 산출물 단위로 검토한 뒤 체크포인트 커밋과 원격 푸시를 만든다.
 2. 자동 검증 가능한 리허설 항목과 팀원이 직접 확인해야 할 항목을 분리하고 `docs/demo-script.md`·`docs/evals.md`의 승인 조건을 정리한다.
-3. Fastest-only·Balanced-only·SafeRoute 3방식과 30개 이상 frozen 변형 비교를 별도 하네스로 생성한다. 현재 `baseline-comparison.csv`는 대표 fixture의 실제 개입 후보 비교이며 이 완료조건을 대신하지 않는다.
-4. 이후 A.X API가 준비되면 동일 12과업만 실행하고, 새 기능 추가보다 제출·발표 증거와 파일럿 계획을 우선한다.
+3. **완료(2026-07-17)**: Fastest-only·Balanced-only·SafeRoute를 30개 frozen 변형의 같은 후보 집합에서 90회 비교했다. 하드 제약 위반은 Fastest 17건, Balanced 11건, SafeRoute 0건이며 합성 시뮬레이션 한계를 함께 기록했다.
+4. Risk Transfer Guard 경계를 최소 20개로 확장한 뒤, A.X API가 준비되면 동일 12과업만 실행하고 새 기능보다 제출·발표 증거와 파일럿 계획을 우선한다.
 
 ## 8. 결정사항
 
@@ -129,7 +129,6 @@ SafeRoute의 결정론적 P0 폐루프는 작동한다. Safety Budget과 Time-to
 ## 9. 미결사항
 
 - Draft 문서별 승인 담당자와 승인 시점
-- 3방식 베이스라인·30개 frozen 변형의 생성 범위와 최종 실행 시점
 - 다섯 단일 개입을 본편 또는 Q&A 중 어디에서 보여줄지
 - A.X API 키 발급 시점과 반복 실행 예산
 - 파일럿 대상 운영사·기사·관리자의 참여 가능 여부

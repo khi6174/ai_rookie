@@ -290,6 +290,16 @@
 - 기각한 대안: 준비된 Live 필드와 Demo 결측 필드를 병합하는 방식, 결측 시정·적설을 0으로 채우는 방식, 화면만 Live로 표시하는 방식, 마지막 Live 값을 조용히 재사용하는 방식, Live evidence 자체를 숨기는 방식.
 - 영향 파일: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/evals.md`, `src/domain/contracts/schemas.ts`, `src/adapters/weather/runtime.ts`, `src/ui/demoSession.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/weather-runtime.test.ts`, `tests/ui-demo-session.test.ts`
 
+### ADR-029 — 3방식 비교는 같은 후보 집합에서 선택 규칙만 분리한다
+
+- 날짜: 2026-07-17
+- 상태: Approved for evaluation
+- 결정: frozen benchmark의 `FASTEST_ONLY`, `BALANCED_ONLY`, `SAFEROUTE`는 같은 합성 fixture, 기준시각, 후보 카탈로그와 결정론적 개입 평가를 공유한다. `FASTEST_ONLY`는 실행 가능성과 Safety Budget을 보지 않고 `etaDeltaMinutes`가 가장 작은 후보를 고른다. `BALANCED_ONLY`는 실행 가능성과 Safety Budget을 보지 않고 후보 적용 후 기사별 남은 배송 수의 최대-최소 차가 가장 작은 후보를 고르며, 동률이면 ETA와 candidate ID 순으로 고른다. `SAFEROUTE`는 기존 Risk Transfer Guard를 포함한 하드 제약을 먼저 통과한 후보만 기존 추천 순위로 고른다. 앞의 두 방식이 고른 실행 불가 후보는 제거하지 않고 `hardConstraintViolation=true`로 기록한다.
+- frozen set: 대표 fixture 3개의 각 parent에서 누적근무 +30/+60분, 연속근무 +15/+30분, 남은 중량 +10%, 강수 +2mm/h, 시정 -20%, 경사 +2%p, 지역 incident factor +0.05, 자기점검 결측의 10개 단일 변형을 만든다. 총 30개는 모두 `FROZEN_TEST`, `MOCK`, `isDemo=true`이며 generator version, seed, parent ID와 변형 ID를 고정한다. 자기점검 결측은 현재 v1 신뢰도 모델이 선택형 입력 부재에 감점을 주지 않는 경계를 드러내는 평가 사례이며, 현장 결측 처리 완료를 의미하지 않는다.
+- 이유: 안전 제약의 효과를 비교하면서도 서로 다른 입력·후보를 사용해 SafeRoute에 유리한 비교를 만들지 않고, 평균값이 하드 제약 위반을 숨기지 않게 하기 위해서다.
+- 기각한 대안: 세 방식마다 다른 후보 집합을 사용하는 방식, Fastest/Balanced의 불안전 후보를 사후 제거하는 방식, LLM으로 변형·정답을 생성하는 방식, 한 번에 여러 요인을 바꿔 원인을 추적하기 어렵게 하는 방식.
+- 영향 파일: `docs/evals.md`, `src/evals/frozenBenchmark.ts`, `tests/frozen-benchmark.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/frozen-variant-results.csv`, `artifacts/evals/baseline-comparison.csv`, `artifacts/evals/frozen-benchmark-summary.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

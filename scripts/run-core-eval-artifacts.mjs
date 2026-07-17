@@ -18,6 +18,8 @@ const latestArtifactNames = [
   "unit-summary.json",
   "scenario-results.csv",
   "baseline-comparison.csv",
+  "frozen-variant-results.csv",
+  "frozen-benchmark-summary.json",
   "risk-transfer-boundaries.csv",
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
@@ -93,29 +95,6 @@ function feasibilityReasons(evaluation) {
   return evaluation.reasons.map((reason) => reason.code).join("|");
 }
 
-function nightReorderOrder(fixture) {
-  const policy = fixture.interventionInputs?.reorderPolicies[0];
-  if (!policy) throw new Error("Night fixture has no reorder policy");
-  const baselineOrder = fixture.workloads[0].remainingStopIds;
-  const movableStairs = fixture.stops
-    .filter(
-      (stop) =>
-        stop.access.elevator === "UNAVAILABLE" &&
-        policy.reorderableStopIds.includes(stop.stopId),
-    )
-    .map((stop) => stop.stopId);
-  const reordered = [
-    ...movableStairs,
-    ...baselineOrder.filter((stopId) => !movableStairs.includes(stopId)),
-  ];
-  for (const fixedStopId of policy.fixedStopIds) {
-    const targetIndex = baselineOrder.indexOf(fixedStopId);
-    reordered.splice(reordered.indexOf(fixedStopId), 1);
-    reordered.splice(targetIndex, 0, fixedStopId);
-  }
-  return reordered;
-}
-
 async function generateUnitSummary() {
   await mkdir(resolve(root, "tmp"), { recursive: true });
   const pnpmEntry = process.env.npm_execpath;
@@ -163,7 +142,7 @@ async function generateDomainArtifacts() {
     const fixtures = await vite.ssrLoadModule("/src/adapters/fixtures/index.ts");
     const safety = await vite.ssrLoadModule("/src/domain/safety/index.ts");
     const interventions = await vite.ssrLoadModule("/src/domain/interventions/index.ts");
-    const demo = await vite.ssrLoadModule("/src/ui/demoSession.ts");
+    const frozen = await vite.ssrLoadModule("/src/evals/frozenBenchmark.ts");
     const scenarioRows = fixtures.scenarioFixtures.map((fixture) => {
       const snapshot = safety.evaluateSafetyBudget(fixture, fixture.couriers[0].courierId);
       return {
@@ -187,83 +166,38 @@ async function generateDomainArtifacts() {
       "utf8",
     );
 
-    const heat = fixtures.heatHeavyStairsFixture;
-    const heatCourier = heat.couriers[0].courierId;
-    const heatPolicy = heat.interventionInputs?.safeDelayPolicies[0];
-    if (!heatPolicy) throw new Error("Heat fixture has no Safe Delay policy");
-    const heatCandidates = [
-      interventions.createRestCandidate(heat, "decision-core-evidence-heat-v1", heatCourier, 15),
-      interventions.createSafeDelayCandidate(
-        heat,
-        "decision-core-evidence-heat-v1",
-        heatCourier,
-        heatPolicy.delayableStopIds.slice(0, 3),
-        "2026-07-14T04:45:00.000Z",
-      ),
-    ];
-
-    const night = fixtures.noviceNightUnfamiliarFixture;
-    const nightCourier = night.couriers[0].courierId;
-    const route = night.interventionInputs?.saferRouteAlternatives[0];
-    if (!route) throw new Error("Night fixture has no safer-route alternative");
-    const nightCandidates = [
-      interventions.createReorderCandidate(
-        night,
-        "decision-core-evidence-night-v1",
-        nightCourier,
-        nightReorderOrder(night),
-      ),
-      interventions.createSaferRouteCandidate(
-        night,
-        "decision-core-evidence-night-v1",
-        nightCourier,
-        route.replacementRouteId,
-        route.replacedSegmentIds,
-      ),
-    ];
-    const rankedByFixture = new Map([
-      [fixtures.rainyHillyLongShiftFixture.fixtureId, demo.demoEvaluations],
-      [heat.fixtureId, interventions.rankInterventions(
-        heatCandidates.map((candidate) => interventions.evaluateIntervention(heat, candidate)),
-      )],
-      [night.fixtureId, interventions.rankInterventions(
-        nightCandidates.map((candidate) => interventions.evaluateIntervention(night, candidate)),
-      )],
-    ]);
-    const candidateById = new Map([
-      ...demo.demoCandidates,
-      ...heatCandidates,
-      ...nightCandidates,
-    ].map((candidate) => [candidate.candidateId, candidate]));
-    const baselineRows = [...rankedByFixture].flatMap(([fixtureId, evaluations]) =>
-      evaluations.map((evaluation) => {
-        const candidate = candidateById.get(evaluation.candidateId);
-        if (!candidate) throw new Error(`Missing candidate ${evaluation.candidateId}`);
-        const source = sourceImpact(evaluation);
-        const recipient = recipientImpact(evaluation);
-        return {
-          fixtureId,
-          candidateId: evaluation.candidateId,
-          actionKinds: candidate.actions.map((action) => action.type),
-          feasibility: evaluation.feasibility.status,
-          rank: evaluation.rank,
-          baselineMinimumBudget: source?.baselineMinimumBudget,
-          candidateMinimumBudget: source?.candidateMinimumBudget,
-          safetyGain: evaluation.safetyGain,
-          breachOutcome: evaluation.breachOutcome,
-          etaDeltaMinutes: evaluation.etaDeltaMinutes,
-          maxCustomerEtaDeltaMinutes: evaluation.maxCustomerEtaDeltaMinutes,
-          recipientMinimumBudget: recipient?.candidateMinimumBudget,
-          recommendationScore: evaluation.recommendationScore,
-          reasonCodes: feasibilityReasons(evaluation),
-        };
-      }),
-    );
+    const benchmark = frozen.evaluateFrozenBenchmark(fixtures.scenarioFixtures);
     await writeFile(
       resolve(outputDirectory, "baseline-comparison.csv"),
-      toCsv(Object.keys(baselineRows[0]), baselineRows),
+      toCsv(Object.keys(benchmark.comparisons[0]), benchmark.comparisons),
       "utf8",
     );
+    await writeFile(
+      resolve(outputDirectory, "frozen-variant-results.csv"),
+      toCsv(Object.keys(benchmark.variantResults[0]), benchmark.variantResults),
+      "utf8",
+    );
+    await writeJson("frozen-benchmark-summary.json", {
+      schemaVersion: benchmark.schemaVersion,
+      capturedAt,
+      generatorVersion: benchmark.generatorVersion,
+      seedStart: benchmark.seedStart,
+      split: benchmark.split,
+      dataMode: benchmark.dataMode,
+      isDemo: benchmark.isDemo,
+      parentCount: benchmark.parentCount,
+      mutationCountPerParent: benchmark.mutationCountPerParent,
+      variantCount: benchmark.variantCount,
+      comparisonCount: benchmark.comparisonCount,
+      strategies: benchmark.strategies,
+      allSafeRouteSelectionsRespectHardConstraints:
+        benchmark.allSafeRouteSelectionsRespectHardConstraints,
+      limitations: [
+        "Synthetic deterministic simulation; not evidence of real accident reduction.",
+        "Fastest-only and Balanced-only intentionally do not filter hard-constraint violations.",
+        "Optional self-check missingness does not add a confidence penalty in safety-config-v1.0.0.",
+      ],
+    });
 
     const rainy = fixtures.rainyHillyLongShiftFixture;
     const sourceCourierId = rainy.couriers[0].courierId;
@@ -303,7 +237,12 @@ async function generateDomainArtifacts() {
       toCsv(Object.keys(boundaryRows[0]), boundaryRows),
       "utf8",
     );
-    return { scenarios: scenarioRows.length, transferBoundaries: boundaryRows.length };
+    return {
+      scenarios: scenarioRows.length,
+      frozenVariants: benchmark.variantCount,
+      comparisons: benchmark.comparisonCount,
+      transferBoundaries: boundaryRows.length,
+    };
   } finally {
     await vite.close();
   }
@@ -377,6 +316,8 @@ async function generateManifest() {
   }
   const sourceFiles = [
     "scripts/run-core-eval-artifacts.mjs",
+    "src/evals/frozenBenchmark.ts",
+    "tests/frozen-benchmark.test.ts",
     "src/domain/safety/config.ts",
     "src/domain/safety/engine.ts",
     "src/domain/interventions/config.ts",
@@ -420,8 +361,9 @@ try {
   await generateManifest();
   console.log(
     `CORE_EVAL_ARTIFACTS_PASS tests=${testCount} scenarios=${domain.scenarios} ` +
+      `frozenVariants=${domain.frozenVariants} comparisons=${domain.comparisons} ` +
       `transferBoundaries=${domain.transferBoundaries} domesticProviders=${ai.domesticProviders} ` +
-      `upstageTasks=${ai.upstageTasks} artifacts=8`,
+      `upstageTasks=${ai.upstageTasks} artifacts=10`,
   );
 } finally {
   await rm(temporaryVitestResult, { force: true });
