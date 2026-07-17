@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "accessibility-summary-v1",
+  "capturedAt": "2026-07-17T13:57:15.840Z",
+  "dataMode": "Demo fixture",
+  "browser": "Chromium 149.0.7827.55",
+  "scope": [
+    "horizontal overflow at four required viewports",
+    "44px minimum touch height for four decision controls in both rider views",
+    "visible Demo fixture provenance label"
+  ],
+  "excluded": [
+    "automated WCAG rule scan",
+    "screen-reader announcement audit",
+    "Lighthouse score"
+  ],
+  "checks": [
+    {
+      "viewport": "1440x900",
+      "role": "ADMIN",
+      "state": "RIDER_RESPONSE_PENDING",
+      "horizontalOverflow": false,
+      "demoModeLabelVisible": true,
+      "checkedTouchTargets": 0,
+      "passed": true
+    },
+    {
+      "viewport": "1280x720",
+      "role": "ADMIN",
+      "state": "NOTICE_RECORDED",
+      "horizontalOverflow": false,
+      "demoModeLabelVisible": true,
+      "checkedTouchTargets": 0,
+      "passed": true
+    },
+    {
+      "viewport": "390x844",
+      "role": "SOURCE",
+      "state": "RIDER_RESPONSE_PENDING",
+      "horizontalOverflow": false,
+      "demoModeLabelVisible": true,
+      "checkedTouchTargets": 4,
+      "minimumTouchHeightPx": 44,
+      "requiredTouchHeightPx": 44,
+      "passed": true
+    },
+    {
+      "viewport": "360x800",
+      "role": "RECIPIENT",
+      "state": "RIDER_RESPONSE_PENDING",
+      "horizontalOverflow": false,
+      "demoModeLabelVisible": true,
+      "checkedTouchTargets": 4,
+      "minimumTouchHeightPx": 44,
+      "requiredTouchHeightPx": 44,
+      "passed": true
+    }
+  ],
+  "passed": true
+}

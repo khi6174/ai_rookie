@@ -59,7 +59,7 @@
 ### 4.2 변형 세트
 
 - 첫 frozen set은 세 대표 시나리오 각각에 다음 10개 단일 변형을 적용한 정확히 30개다: 누적근무 +30/+60분, 연속근무 +15/+30분, 남은 중량 +10%, 강수 +2mm/h, 시정 -20%, 경사 +2%p, 지역 incident factor +0.05, 자기점검 결측. 변형은 generator `frozen-benchmark-v1.0.0`, seed 6174부터 순차 고정하고 모두 `FROZEN_TEST`·`MOCK`·Demo로 표시한다.
-- Risk Transfer Guard 경계 최소 20개
+- Risk Transfer Guard 직접 경계 20개: candidate minimum `44.99·45·45.01·60`×Budget drop `0·14.99·15·15.01`의 16개와 breach 상태·복합 위반 4개. 우천 fixture의 4·8·12건 전체 계획 재계산 3개를 별도로 더해 결과표는 총 23행을 유지한다.
 - 시간·동의·버전 충돌 최소 20개
 - malformed·prompt injection·금지문구 최소 30개
 - 문서 왕복 쌍 최소 60개
@@ -364,9 +364,10 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 | Upstage 12과업 smoke harness | `pnpm test` | 1개 파일, 6개 테스트 통과 |
 | A.X·K-EXAONE 공통 API 계약·Gate | `pnpm test` | 1개 파일, 9개 테스트 통과 |
 | 날씨 Runtime Fallback 경계 | `pnpm test` | 1개 파일, 4개 테스트 통과: 전체 Demo 복제·Live source/hash 비유입·완전 Gate 분기·비-Demo provenance/잘못된 hash 거부 |
-| 전체 Vitest | `pnpm test` | 15개 파일, 171개 테스트 통과 |
+| 전체 Vitest | `pnpm test` | 16개 파일, 177개 테스트 통과 |
 | 30개 frozen 변형·3전략 비교 | `pnpm run eval:core-artifacts` | 같은 후보 집합으로 90회 비교: Fastest-only 하드 제약 위반 17건, Balanced-only 11건, SafeRoute 0건; SafeRoute 30/30 실행 가능한 후보 선택 |
-| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 171/171 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 3개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
+| Risk Transfer Guard 경계 suite | `pnpm run eval:core-artifacts` | 직접 숫자·breach 경계 20/20, 4·8·12건 전체 계획 재계산 3/3 통과; Budget 45·감소 15 허용, 0.01 경계와 수신 기사 breach 차단 |
+| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 177/177 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 23개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
 | 기상청 DS-001 계약 어댑터 | `pnpm test` | API허브 4.1·4.2 exact endpoint·`authKey` 비노출·실황 최신성·예보 6시간·결측·혼합 격자·중복·범위·provider 오류·401·429·timeout·Mock 라벨·Safety 차단 통과 |
 | 기상청 DS-005·006 보완 계약 | `pnpm test` | 1개 파일, 8개 테스트 통과: EUC-KR 필드 순서·km→m·3시간 적설 보존·SNO 정확/구간·공식 계절별 체감온도·120분·exact endpoint·secret/좌표 비저장·부분 Gate |
 | 기상청 Mock 계약 smoke | `pnpm run eval:kma-weather:mock` | 실황·예보 응답 계약 통과, API 요청 0건, public-derived 주장 0건, Safety 입력 승인 0건, JSON·불변 run 생성 |
@@ -413,6 +414,7 @@ artifacts/evals/
   frozen-variant-results.csv
   frozen-benchmark-summary.json
   risk-transfer-boundaries.csv
+  risk-transfer-boundary-summary.json
   domestic-ai-smoke.csv
   domestic-ai-api-smoke-mock-latest.json
   domestic-ai-api-smoke-mock-latest.csv
@@ -485,6 +487,7 @@ artifacts/evals/
       frozen-variant-results.csv
       frozen-benchmark-summary.json
       risk-transfer-boundaries.csv
+      risk-transfer-boundary-summary.json
       domestic-ai-smoke.csv
       upstage-roundtrip.csv
       accessibility-summary.json

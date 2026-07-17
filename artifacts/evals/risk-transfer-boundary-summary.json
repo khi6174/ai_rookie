@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "risk-transfer-boundary-summary-v1",
+  "capturedAt": "2026-07-17T14:20:57.284Z",
+  "generatorVersion": "risk-transfer-boundary-v1.0.0",
+  "dataMode": "MOCK",
+  "isDemo": true,
+  "directCaseCount": 20,
+  "fullPlanCaseCount": 3,
+  "totalCaseCount": 23,
+  "passedCount": 23,
+  "failedCount": 0,
+  "reasonCodeCounts": {
+    "TRANSFER_RECIPIENT_BUDGET_BELOW_FLOOR": 5,
+    "TRANSFER_RECIPIENT_BUDGET_DROP_EXCEEDED": 4,
+    "TRANSFER_RECIPIENT_BREACH_PREDICTED": 3
+  },
+  "allPassed": true,
+  "limitations": [
+    "Synthetic deterministic guard evaluation; not a field safety outcome.",
+    "Direct numeric cases are paired with three full-plan transfer recalculations."
+  ]
+}

@@ -300,6 +300,15 @@
 - 기각한 대안: 세 방식마다 다른 후보 집합을 사용하는 방식, Fastest/Balanced의 불안전 후보를 사후 제거하는 방식, LLM으로 변형·정답을 생성하는 방식, 한 번에 여러 요인을 바꿔 원인을 추적하기 어렵게 하는 방식.
 - 영향 파일: `docs/evals.md`, `src/evals/frozenBenchmark.ts`, `tests/frozen-benchmark.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/frozen-variant-results.csv`, `artifacts/evals/baseline-comparison.csv`, `artifacts/evals/frozen-benchmark-summary.json`
 
+### ADR-030 — Risk Transfer Guard 경계는 직접 20건과 전체 계획 3건으로 이중 검증한다
+
+- 날짜: 2026-07-17
+- 상태: Approved for evaluation
+- 결정: 수신 기사 최소 Budget 45와 최대 감소 15점의 부등호를 직접 검증하는 결정론적 경계 세트 20건을 고정한다. 16건은 candidate minimum `44.99·45·45.01·60`과 Budget drop `0·14.99·15·15.01`의 조합이고, 4건은 `NO_BREACH_IN_HORIZON`, `PREDICTED`, `ALREADY_BREACHED`와 임계값 동시 위반을 검사한다. 이에 더해 우천 대표 fixture의 4·8·12건 이관 전체 계획 재계산 3건을 같은 결과표에 보존한다. 직접 경계와 전체 계획의 기대 판정은 구현 결과와 별도로 명시하고 불일치 시 산출물 생성을 실패시킨다.
+- 이유: 4·8·12건 예시만으로는 정확히 45와 15인 허용 경계, 0.01 아래·위와 수신 기사 breach 판정을 충분히 입증하지 못하기 때문이다.
+- 기각한 대안: 임의 난수만 사용해 정확 경계를 놓치는 방식, 직접 함수만 검사하고 전체 계획 재계산을 생략하는 방식, 실행 불가 결과를 평균에서 제외하는 방식.
+- 영향 파일: `docs/evals.md`, `src/evals/riskTransferBoundaries.ts`, `tests/risk-transfer-boundaries.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/risk-transfer-boundaries.csv`, `artifacts/evals/risk-transfer-boundary-summary.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -21,6 +21,7 @@ const latestArtifactNames = [
   "frozen-variant-results.csv",
   "frozen-benchmark-summary.json",
   "risk-transfer-boundaries.csv",
+  "risk-transfer-boundary-summary.json",
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
   "accessibility-summary.json",
@@ -28,10 +29,6 @@ const latestArtifactNames = [
 
 function sha256(bytes) {
   return createHash("sha256").update(bytes).digest("hex");
-}
-
-function roundForEvidence(value) {
-  return Number(value.toFixed(6));
 }
 
 function csvCell(value) {
@@ -83,18 +80,6 @@ function git(args) {
   });
 }
 
-function sourceImpact(evaluation) {
-  return evaluation.courierImpacts.find((impact) => impact.role === "SOURCE");
-}
-
-function recipientImpact(evaluation) {
-  return evaluation.courierImpacts.find((impact) => impact.role === "RECIPIENT");
-}
-
-function feasibilityReasons(evaluation) {
-  return evaluation.reasons.map((reason) => reason.code).join("|");
-}
-
 async function generateUnitSummary() {
   await mkdir(resolve(root, "tmp"), { recursive: true });
   const pnpmEntry = process.env.npm_execpath;
@@ -141,8 +126,10 @@ async function generateDomainArtifacts() {
   try {
     const fixtures = await vite.ssrLoadModule("/src/adapters/fixtures/index.ts");
     const safety = await vite.ssrLoadModule("/src/domain/safety/index.ts");
-    const interventions = await vite.ssrLoadModule("/src/domain/interventions/index.ts");
     const frozen = await vite.ssrLoadModule("/src/evals/frozenBenchmark.ts");
+    const riskTransfer = await vite.ssrLoadModule(
+      "/src/evals/riskTransferBoundaries.ts",
+    );
     const scenarioRows = fixtures.scenarioFixtures.map((fixture) => {
       const snapshot = safety.evaluateSafetyBudget(fixture, fixture.couriers[0].courierId);
       return {
@@ -199,49 +186,39 @@ async function generateDomainArtifacts() {
       ],
     });
 
-    const rainy = fixtures.rainyHillyLongShiftFixture;
-    const sourceCourierId = rainy.couriers[0].courierId;
-    const recipientCourierId = rainy.couriers[1].courierId;
-    const boundaryRows = [4, 8, 12].map((transferredStopCount) => {
-      const candidate = interventions.createTransferCandidate(
-        rainy,
-        `decision-core-evidence-transfer-${transferredStopCount}-v1`,
-        {
-          sourceCourierId,
-          recipientCourierId,
-          stopIds: rainy.stops.slice(-transferredStopCount).map((stop) => stop.stopId),
-        },
-      );
-      const evaluation = interventions.evaluateIntervention(rainy, candidate);
-      const source = sourceImpact(evaluation);
-      const recipient = recipientImpact(evaluation);
-      if (!source || !recipient) throw new Error("Transfer evaluation has incomplete impacts");
-      return {
-        transferredStopCount,
-        candidateId: candidate.candidateId,
-        feasibility: evaluation.feasibility.status,
-        sourceBaselineMinimumBudget: source.baselineMinimumBudget,
-        sourceCandidateMinimumBudget: source.candidateMinimumBudget,
-        recipientBaselineMinimumBudget: recipient.baselineMinimumBudget,
-        recipientCandidateMinimumBudget: recipient.candidateMinimumBudget,
-        recipientBudgetDrop: roundForEvidence(
-          recipient.baselineMinimumBudget - recipient.candidateMinimumBudget,
-        ),
-        minimumRecipientThreshold: interventions.interventionConfig.riskTransferGuard.recipientMinimumBudget,
-        maximumRecipientDrop: interventions.interventionConfig.riskTransferGuard.maximumRecipientBudgetDrop,
-        reasonCodes: feasibilityReasons(evaluation),
-      };
-    });
+    const boundarySuite = riskTransfer.evaluateRiskTransferBoundarySuite();
+    if (!boundarySuite.allPassed) {
+      throw new Error("Risk Transfer Guard boundary suite failed");
+    }
     await writeFile(
       resolve(outputDirectory, "risk-transfer-boundaries.csv"),
-      toCsv(Object.keys(boundaryRows[0]), boundaryRows),
+      toCsv(Object.keys(boundarySuite.rows[0]), boundarySuite.rows),
       "utf8",
     );
+    await writeJson("risk-transfer-boundary-summary.json", {
+      schemaVersion: boundarySuite.schemaVersion,
+      capturedAt,
+      generatorVersion: boundarySuite.generatorVersion,
+      dataMode: boundarySuite.dataMode,
+      isDemo: boundarySuite.isDemo,
+      directCaseCount: boundarySuite.directCaseCount,
+      fullPlanCaseCount: boundarySuite.fullPlanCaseCount,
+      totalCaseCount: boundarySuite.totalCaseCount,
+      passedCount: boundarySuite.passedCount,
+      failedCount: boundarySuite.failedCount,
+      reasonCodeCounts: boundarySuite.reasonCodeCounts,
+      allPassed: boundarySuite.allPassed,
+      limitations: [
+        "Synthetic deterministic guard evaluation; not a field safety outcome.",
+        "Direct numeric cases are paired with three full-plan transfer recalculations.",
+      ],
+    });
     return {
       scenarios: scenarioRows.length,
       frozenVariants: benchmark.variantCount,
       comparisons: benchmark.comparisonCount,
-      transferBoundaries: boundaryRows.length,
+      transferBoundaries: boundarySuite.totalCaseCount,
+      directTransferBoundaries: boundarySuite.directCaseCount,
     };
   } finally {
     await vite.close();
@@ -318,6 +295,8 @@ async function generateManifest() {
     "scripts/run-core-eval-artifacts.mjs",
     "src/evals/frozenBenchmark.ts",
     "tests/frozen-benchmark.test.ts",
+    "src/evals/riskTransferBoundaries.ts",
+    "tests/risk-transfer-boundaries.test.ts",
     "src/domain/safety/config.ts",
     "src/domain/safety/engine.ts",
     "src/domain/interventions/config.ts",
@@ -362,8 +341,8 @@ try {
   console.log(
     `CORE_EVAL_ARTIFACTS_PASS tests=${testCount} scenarios=${domain.scenarios} ` +
       `frozenVariants=${domain.frozenVariants} comparisons=${domain.comparisons} ` +
-      `transferBoundaries=${domain.transferBoundaries} domesticProviders=${ai.domesticProviders} ` +
-      `upstageTasks=${ai.upstageTasks} artifacts=10`,
+      `transferBoundaries=${domain.transferBoundaries} directTransferBoundaries=${domain.directTransferBoundaries} ` +
+      `domesticProviders=${ai.domesticProviders} upstageTasks=${ai.upstageTasks} artifacts=11`,
   );
 } finally {
   await rm(temporaryVitestResult, { force: true });
