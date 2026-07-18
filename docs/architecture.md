@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-17
+- 최종 갱신: 2026-07-18
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -49,14 +49,14 @@
 
 ### 4.1 단일 애플리케이션
 
-- UI: React, TypeScript, Vite, Tailwind CSS
+- UI: React, TypeScript, Vite, CSS custom properties
 - 계약 검증: Zod
-- 서버 경계: Vercel Functions
+- 서버 경계: Node 전용 평가·Live smoke 어댑터, 본선 P0 배포 서버 없음
 - 단위·계약 테스트: Vitest
 - E2E·반응형 검증: Playwright
 - MVP 저장: 버전된 JSON fixtures와 실행 중 불변 스냅샷
 
-관리자와 기사 화면은 같은 애플리케이션의 역할별 route로 구현한다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다.
+관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. 기사 화면은 설치형 PWA나 독립 인증 세션이 아닌 반응형 모바일 웹이다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
 
 ### 4.2 권장 디렉터리
 
@@ -83,14 +83,14 @@ src/
     audit/              # 감사 이벤트 저장 경계
   ui/
     admin/              # Control Tower와 승인 흐름
-    courier/            # 기사 PWA와 Near-miss
+    courier/            # 기사 반응형 모바일 웹과 Near-miss
     shared/             # 동일 수치·상태 표현 컴포넌트
   demo/
     controller/         # 단계 전환, reset, fallback
     fixtures/           # 고정 데모 manifest
-api/
-  upstage/              # 비밀정보를 브라우저에 노출하지 않는 서버 함수
-  external-data/        # 허용된 외부 조회 프록시
+api/                    # P0 미구현, 실제 배포 승인 후 추가
+  upstage/              # 향후 비밀정보를 브라우저에 노출하지 않는 서버 함수
+  external-data/        # 향후 허용된 외부 조회 프록시
 tests/
   fixtures/
   contract/
@@ -317,7 +317,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 - 실제 지도 공급자 또는 정적 데모 지도 구현 방식
 - MVP 감사 스냅샷의 파일·브라우저 메모리 저장 선택
-- Vercel Functions의 정확한 API 경로와 배포 환경
+- 실제 파일럿 서버 함수의 API 경로와 배포 환경
 - 공급자별 국내 AI 모델명·엔드포인트·쿼터
 - Upstage timeout·retry·회로차단 수치
 - Near-miss GeoHash 정밀도와 검증 워크플로

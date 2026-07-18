@@ -24,6 +24,7 @@ const latestArtifactNames = [
   "risk-transfer-boundary-summary.json",
   "decision-workflow-boundaries.csv",
   "decision-workflow-boundary-summary.json",
+  "domestic-track-compliance-latest.json",
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
   "accessibility-summary.json",
@@ -327,6 +328,7 @@ async function generateManifest() {
   }
   const sourceFiles = [
     "scripts/run-core-eval-artifacts.mjs",
+    "scripts/run-domestic-track-audit.mjs",
     "src/evals/frozenBenchmark.ts",
     "tests/frozen-benchmark.test.ts",
     "src/evals/riskTransferBoundaries.ts",
@@ -370,6 +372,7 @@ async function generateManifest() {
 
 await mkdir(outputDirectory, { recursive: true });
 try {
+  run(process.execPath, [resolve(root, "scripts/run-domestic-track-audit.mjs")]);
   const testCount = await generateUnitSummary();
   const domain = await generateDomainArtifacts();
   const ai = await generateAiEvidence();
@@ -379,7 +382,7 @@ try {
       `frozenVariants=${domain.frozenVariants} comparisons=${domain.comparisons} ` +
       `transferBoundaries=${domain.transferBoundaries} directTransferBoundaries=${domain.directTransferBoundaries} ` +
       `decisionWorkflowBoundaries=${domain.decisionWorkflowBoundaries} ` +
-      `domesticProviders=${ai.domesticProviders} upstageTasks=${ai.upstageTasks} artifacts=13`,
+      `domesticProviders=${ai.domesticProviders} upstageTasks=${ai.upstageTasks} artifacts=${latestArtifactNames.length}`,
   );
 } finally {
   await rm(temporaryVitestResult, { force: true });

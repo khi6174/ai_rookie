@@ -1,0 +1,137 @@
+{
+  "schemaVersion": "domestic-track-compliance-v1",
+  "capturedAt": "2026-07-18T07:07:52.717Z",
+  "status": "PASSED",
+  "scope": {
+    "competitionTrack": "DOMESTIC_AI",
+    "auditedTrackedFileCount": 65,
+    "auditedAreas": [
+      "runtime adapters",
+      "evaluation scripts",
+      "server-only environment contract",
+      "JavaScript dependencies",
+      "GPU runtime manifest"
+    ],
+    "excludedFromRuntimeConclusion": [
+      "developer assistance tools",
+      "isolated design prototype",
+      "documentation-only historical references"
+    ]
+  },
+  "domesticAiUsage": [
+    {
+      "provider": "UPSTAGE",
+      "model": "solar-pro3",
+      "role": "validated explanation and document evidence layer"
+    },
+    {
+      "provider": "SKT",
+      "models": [
+        "skt/A.X-K1",
+        "skt/A.X-4.0-Light"
+      ],
+      "role": "common text benchmark and fixed-revision offline generation evaluation"
+    },
+    {
+      "provider": "LG_AI_RESEARCH",
+      "model": "LGAI-EXAONE/K-EXAONE-236B-A23B",
+      "role": "common text benchmark and counterexample generation evaluation"
+    },
+    {
+      "provider": "NC_AI",
+      "product": "VARCO",
+      "role": "not integrated; downstream asset use remains out of P0 scope"
+    }
+  ],
+  "nonAiExternalInput": {
+    "provider": "KMA_API_HUB",
+    "role": "public weather evidence; not a generative AI provider"
+  },
+  "allowedRuntimeHosts": [
+    "api.ax-k1.sktai.qa",
+    "api.friendli.ai",
+    "api.upstage.ai",
+    "apihub.kma.go.kr"
+  ],
+  "allowedDistributionHosts": [
+    "download.pytorch.org"
+  ],
+  "observedRuntimeHosts": [
+    "api.ax-k1.sktai.qa",
+    "api.friendli.ai",
+    "api.upstage.ai",
+    "apihub.kma.go.kr",
+    "download.pytorch.org"
+  ],
+  "checks": [
+    {
+      "id": "TRACKED_SECRET_ENV_FILES",
+      "passed": true,
+      "details": "Only .env.example is tracked; local secret files are excluded."
+    },
+    {
+      "id": "RUNTIME_HOST_ALLOWLIST",
+      "passed": true,
+      "details": "AI, public-data, and distribution HTTPS hosts are classified: api.ax-k1.sktai.qa, api.friendli.ai, api.upstage.ai, apihub.kma.go.kr, download.pytorch.org"
+    },
+    {
+      "id": "DOMESTIC_PROVIDER_REGISTRY",
+      "passed": true,
+      "details": "The shared text benchmark registry contains only SKT A.X and LG K-EXAONE endpoints."
+    },
+    {
+      "id": "UPSTAGE_ENDPOINT_CONTRACT",
+      "passed": true,
+      "details": "The explanation adapter is pinned to the official Upstage HTTPS chat endpoint."
+    },
+    {
+      "id": "DOMESTIC_MODEL_EVIDENCE",
+      "passed": true,
+      "details": "Expected domestic model identifiers are evidenced: skt/A.X-K1, skt/A.X-4.0-Light, LGAI-EXAONE/K-EXAONE-236B-A23B, solar-pro3"
+    },
+    {
+      "id": "NON_DOMESTIC_AI_SDKS",
+      "passed": true,
+      "details": "No non-domestic generative AI SDK is installed in package.json."
+    },
+    {
+      "id": "NON_DOMESTIC_AI_SECRET_NAMES",
+      "passed": true,
+      "details": "No non-domestic generative AI credential name is present in runtime or evaluation scope."
+    }
+  ],
+  "declaredNonRuntimeReferences": [
+    {
+      "path": "SafeRoute_AI_Fable5_Prompt_Pack_KR.md",
+      "classification": "LEGACY_DEVELOPMENT_REFERENCE",
+      "submissionDisposition": "EXCLUDE",
+      "runtimeImported": false
+    },
+    {
+      "path": "docs/design-system.md",
+      "reference": "saferoute-screen-demo.khiyw.chatgpt.site",
+      "classification": "ISOLATED_DESIGN_REFERENCE",
+      "submissionDisposition": "EXCLUDE_EXTERNAL_PROTOTYPE",
+      "runtimeImported": false
+    },
+    {
+      "path": "scripts/download-hf-model.py",
+      "reference": "huggingface_hub",
+      "classification": "DOMESTIC_MODEL_DISTRIBUTION_TOOLING",
+      "submissionDisposition": "INCLUDE_WITH_EXPLANATION",
+      "runtimeImported": false,
+      "domesticModel": "skt/A.X-4.0-Light"
+    }
+  ],
+  "protocolClarification": {
+    "label": "OPENAI_CHAT_COMPLETIONS",
+    "occurrences": 5,
+    "meaning": "Wire-format compatibility only. No OpenAI service, model, endpoint, SDK, or credential is used by the product runtime or model evaluation."
+  },
+  "submissionStatement": "SafeRoute AI uses domestic AI providers only in its generative AI runtime and model evaluation. Non-domestic AI models and APIs are not used for product execution, training, or evaluation.",
+  "limitations": [
+    "This audit verifies repository contracts and tracked runtime/evaluation files; it does not certify competition eligibility on behalf of the organizer.",
+    "Developer assistance tools are disclosed separately from product runtime AI use.",
+    "FriendliAI is used only as the competition-documented serving endpoint for LG K-EXAONE."
+  ]
+}

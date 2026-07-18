@@ -50,6 +50,7 @@ pnpm dev
 pnpm run eval:core-artifacts
 pnpm run eval:upstage:smoke:mock
 pnpm run eval:upstage:smoke
+pnpm run eval:domestic-track:audit
 pnpm run eval:domestic-ai:smoke:mock
 pnpm run eval:domestic-ai:check
 # readiness 통과 후 명시적으로 Live 12과업 실행
@@ -66,9 +67,9 @@ pnpm run eval:kma-weather:supplement:live
 pnpm run eval:kma-weather:runtime
 ```
 
-`eval:core-artifacts`는 외부 API를 호출하지 않는다. Vitest를 새로 실행하고 대표 fixture·개입·Risk Transfer Guard를 현재 코드로 재계산한 뒤, 기존 국내 AI·Upstage 요약과 Playwright 접근성 결과를 묶어 `artifacts/evals/` 최신본과 SHA-256 불변 run을 생성한다. Upstage Live는 opt-in smoke 명령에서만 활성화한다. `eval:upstage:smoke:mock`은 자격증명 없이 12개 합성 과업 기준선을 생성하고, `eval:upstage:smoke`는 [.env.example](./.env.example)을 복사한 로컬 `.env.local`의 서버 변수로 실행한다. 현재 Live 첫 시도 검증 통과는 11/12이며 나머지 1건은 안전한 Fallback으로 전환됐다. 국내 AI 공통 명령은 대회 가이드에서 텍스트 API 계약이 확인된 A.X K1과 K-EXAONE만 대상으로 한다. `eval:domestic-ai:check`는 API 호출 없이 secret과 exact endpoint 계약을 점검하고, Live 명령은 readiness 이후에만 명시적으로 실행한다. K-EXAONE은 60초 timeout에서 12/12를 통과했고 평균 22,124ms·P95 35,805ms·총 39,539 tokens를 기록했다. 기상청은 API허브 4.1·4.2 Mock 계약과 무호출 readiness를 먼저 검증하며, Live 명령은 승인된 로컬 `authKey`가 준비된 뒤에만 실황·예보를 각 1회 호출한다. 1.3·4.3 보완 명령도 같은 서버 전용 키를 재사용하고 exact endpoint만 호출하므로 새 키나 새 환경변수는 필요 없다. `eval:kma-weather:runtime`은 외부 API를 호출하지 않고 승인된 Live 증거의 미완전 범위와 Demo-only 계산 경계를 재검증한다. `VITE_` 접두사를 사용하지 않으며 키를 저장소나 채팅에 넣지 않는다. A100의 A.X 고정 revision은 정확 복사 12/12와 최종 생성 강건성 28/30을 독립 검증했고 나머지 2건은 안전한 Fallback으로 전환됐다. 로컬 모델 benchmark도 접속정보·비밀번호를 저장하지 않고 고정 revision과 비식별 결과만 보존한다.
+`eval:core-artifacts`는 외부 API를 호출하지 않는다. Vitest를 새로 실행하고 대표 fixture·개입·Risk Transfer Guard를 현재 코드로 재계산한 뒤, 기존 국내 AI·Upstage 요약과 Playwright 접근성 결과를 묶어 `artifacts/evals/` 최신본과 SHA-256 불변 run을 생성한다. `eval:domestic-track:audit`도 외부 API를 호출하지 않고 추적된 런타임·평가 파일, 허용 host, 모델 식별자, 의존성, 비밀정보 경계를 검사해 국내 AI 트랙 활용 증거를 만든다. `OPENAI_CHAT_COMPLETIONS`는 요청 형식 이름일 뿐 OpenAI 모델·서비스 사용을 뜻하지 않는다. Upstage Live는 opt-in smoke 명령에서만 활성화한다. `eval:upstage:smoke:mock`은 자격증명 없이 12개 합성 과업 기준선을 생성하고, `eval:upstage:smoke`는 [.env.example](./.env.example)을 복사한 로컬 `.env.local`의 서버 변수로 실행한다. 현재 Live 첫 시도 검증 통과는 11/12이며 나머지 1건은 안전한 Fallback으로 전환됐다. 국내 AI 공통 명령은 대회 가이드에서 텍스트 API 계약이 확인된 A.X K1과 K-EXAONE만 대상으로 한다. `eval:domestic-ai:check`는 API 호출 없이 secret과 exact endpoint 계약을 점검하고, Live 명령은 readiness 이후에만 명시적으로 실행한다. K-EXAONE은 60초 timeout에서 12/12를 통과했고 평균 22,124ms·P95 35,805ms·총 39,539 tokens를 기록했다. 기상청은 API허브 4.1·4.2 Mock 계약과 무호출 readiness를 먼저 검증하며, Live 명령은 승인된 로컬 `authKey`가 준비된 뒤에만 실황·예보를 각 1회 호출한다. 1.3·4.3 보완 명령도 같은 서버 전용 키를 재사용하고 exact endpoint만 호출하므로 새 키나 새 환경변수는 필요 없다. `eval:kma-weather:runtime`은 외부 API를 호출하지 않고 승인된 Live 증거의 미완전 범위와 Demo-only Safety 입력 경계를 재검증한다. `VITE_` 접두사를 사용하지 않으며 키를 저장소나 채팅에 넣지 않는다. A100의 A.X 고정 revision은 정확 복사 12/12와 최종 생성 강건성 28/30을 독립 검증했고 나머지 2건은 안전한 Fallback으로 전환됐다. 로컬 모델 benchmark도 접속정보·비밀번호를 저장하지 않고 고정 revision과 비식별 결과만 보존한다.
 
-`eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개와 해당 SHA-256 요약도 포함된다.
+`eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개, 국내트랙 자동 감사와 해당 SHA-256 요약도 포함된다.
 
 ## 핵심 문서
 

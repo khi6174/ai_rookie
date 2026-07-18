@@ -21,7 +21,7 @@
 이 정책은 다음에 적용한다.
 
 - 관리자 웹
-- 기사 PWA
+- 기사 반응형 모바일 웹
 - 고객안내 미리보기
 - Safety Budget과 개입 엔진
 - Upstage Document Parse, Information Extract와 Solar
@@ -227,7 +227,7 @@ synthetic courier or synthetic plan present
 
 ### 7.1 알 권리
 
-기사 PWA는 다음을 평이한 한국어로 설명한다.
+기사 반응형 모바일 웹은 다음을 평이한 한국어로 설명한다.
 
 - 어떤 데이터가 사용되는가
 - 각 데이터가 계산에 어떤 역할을 하는가

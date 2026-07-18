@@ -400,7 +400,7 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
 
-검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. 별도 결정 경계 30개는 9.999분 허용과 정확히 10분 차단, 양측 동의·대리응답·중복응답·수정·거절·보류, 계획·모델·설정·정책·후보·중요 입력 변경과 적용 경쟁을 직접 재현했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 4개와 무결성 manifest도 보존했다. 실제 화면 기준 상황보고형 리허설과 팀 승인은 완료했으며, 반복 Upstage 실행과 A.X API Live benchmark는 아직 통과로 기록하지 않는다.
+검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. 별도 결정 경계 30개는 9.999분 허용과 정확히 10분 차단, 양측 동의·대리응답·중복응답·수정·거절·보류, 계획·모델·설정·정책·후보·중요 입력 변경과 적용 경쟁을 직접 재현했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 6개와 무결성 manifest도 보존했다. 실제 화면 기준 상황보고형 리허설과 팀 승인은 완료했으며, 반복 Upstage 실행과 A.X API Live benchmark는 아직 통과로 기록하지 않는다.
 
 ## 16. 결과 산출물
 
@@ -418,6 +418,7 @@ artifacts/evals/
   risk-transfer-boundary-summary.json
   decision-workflow-boundaries.csv
   decision-workflow-boundary-summary.json
+  domestic-track-compliance-latest.json
   domestic-ai-smoke.csv
   domestic-ai-api-smoke-mock-latest.json
   domestic-ai-api-smoke-mock-latest.csv
@@ -493,6 +494,7 @@ artifacts/evals/
       risk-transfer-boundary-summary.json
       decision-workflow-boundaries.csv
       decision-workflow-boundary-summary.json
+      domestic-track-compliance-latest.json
       domestic-ai-smoke.csv
       upstage-roundtrip.csv
       accessibility-summary.json
@@ -504,7 +506,6 @@ artifacts/evals/
     rider-source-review-390x844.png
     rider-recipient-review-360x800.png
     ui-screenshot-manifest.json
-  limitations.md
 ```
 
 실제 경로는 구현 시 저장소 구조에 맞춰 확정하되 본선 보고서에서 직접 추적 가능해야 한다.

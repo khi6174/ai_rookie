@@ -6,7 +6,7 @@
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-18
 - 대체 문서: `docs/midpoint-review.md`
-- 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`
+- 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 1. 결론
 
@@ -36,7 +36,8 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 결정 폐루프 경계 | 시간 8·동의/권한 12·버전 10, 30/30 통과 |
 | 전략 비교 | 30개 변형·90회 비교, SafeRoute 하드 제약 위반 0건 |
 | 국내 AI 표시 안전 | 검증되지 않은 생성문 표시 0건, 실패는 Fallback |
-| 증거 무결성 | 13개 핵심 산출물과 SHA-256 run manifest 생성 |
+| 국내 AI 트랙 경계 | 제품·평가 host·모델·SDK·credential 자동 감사 통과 필요 |
+| 증거 무결성 | 국내트랙 자동 감사를 포함한 14개 핵심 산출물과 SHA-256 run manifest 생성 |
 
 모든 수치는 합성·Mock·시뮬레이션 또는 명시된 비식별 API smoke 결과다. 실제 운영효과로 일반화하지 않는다.
 
@@ -53,6 +54,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 - `docs/architecture.md`
 - `docs/evals.md`
 - `docs/demo-script.md`
+- `docs/domestic-ai-track-compliance.md`
 - `docs/decisions.md`
 
 ### 의도적으로 Draft 유지
@@ -77,6 +79,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - 발표자와 보조자의 클릭·복구 역할 확정
 - 실제 발표 PC의 전원·브라우저·해상도·네트워크 확인
 - 제출 파일과 GitHub 커밋 SHA 기록
+- `pnpm run eval:domestic-track:audit` 통과와 활용명세·제출 제외 항목 확인
 - A.X API 키가 발급되면 기존 12과업 계약만 별도 실행하고 데모 폐루프에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
 

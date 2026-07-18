@@ -120,8 +120,8 @@
 ### ADR-011 — 관리자와 기사 화면은 같은 결정 스냅샷을 사용한다
 
 - 날짜: 2026-07-14
-- 상태: Approved
-- 결정: 관리자 Control Tower와 기사 PWA는 같은 결정 ID, 수치, 기여도와 개입 평가를 사용하며 역할별 표현만 다르게 한다.
+- 상태: Approved; 기사 표면은 ADR-031이 반응형 모바일 웹으로 구체화
+- 결정: 관리자 Control Tower와 기사 모바일 화면은 같은 결정 ID, 수치, 기여도와 개입 평가를 사용하며 역할별 표현만 다르게 한다.
 - 이유: 비대칭 정보와 설명 불일치를 막고 Two-Key Consent를 검증하기 위해서다.
 - 기각한 대안: 화면별 fixture 또는 별도 계산, 기사에게 근거 없이 권고만 제시하는 방식.
 - 영향 파일: `docs/design-system.md`, `docs/architecture.md`, `docs/evals.md`, `docs/demo-script.md`
@@ -326,6 +326,15 @@
 - 이유: 정상 폐루프 한 건과 단편적인 단위 테스트만으로는 정확히 10분인 동의 만료 경계, 동의 후 입력 변경, 승인 후 계획 경쟁과 중복 적용 방지를 제출 증거로 추적하기 어렵기 때문이다.
 - 기각한 대안: 기존 테스트 개수만 성과로 기록하는 방식, UI 클릭만으로 경쟁조건을 추정하는 방식, 난수 기반 경계 생성, 상태기계 내부 함수를 복제해 실제 command를 호출하지 않는 방식.
 - 영향 파일: `docs/evals.md`, `docs/decisions.md`, `src/evals/decisionWorkflowBoundaries.ts`, `tests/decision-workflow-boundaries.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/decision-workflow-boundaries.csv`, `artifacts/evals/decision-workflow-boundary-summary.json`
+
+### ADR-033 — 국내 AI 트랙 성과는 제품 런타임·평가 경계로 자동 감사한다
+
+- 날짜: 2026-07-18
+- 상태: Approved for evaluation
+- 결정: SafeRoute의 생성형 AI 런타임과 모델 평가 공급자를 Upstage Solar, SKT A.X와 LG K-EXAONE으로 한정하고 exact HTTPS host·모델 식별자·SDK·credential 경계를 자동 감사한다. `OpenAI-compatible`은 통신 형식으로만 분류하며 OpenAI 서비스 사용으로 계산하지 않는다. NC VARCO는 P0 미연동을 유지한다. Hugging Face는 SKT A.X 고정 revision 배포 도구로만 분류하고 hosted inference로 사용하지 않는다. 과거 Claude 개발 프롬프트와 격리형 ChatGPT 디자인 프로토타입은 제품 런타임·평가 성과가 아니며 최종 제출 패키지에서 제외한다.
+- 이유: 국내 AI 트랙 활용명세를 설명에만 의존하면 프로토콜 이름, 모델 배포 도구와 과거 개발 참고물이 실제 해외 AI 런타임 사용으로 오해될 수 있다. 반대로 흔적을 숨기지 않고 제품·평가 실행 경계와 제출 범위를 자동 검사하면 실제 국내 AI 활용 성과를 재현 가능하게 설명할 수 있다.
+- 기각한 대안: 저장소의 모든 `OpenAI` 문자열을 삭제해 프로토콜 계약을 불명확하게 만드는 방식, 개발 보조 도구를 국내 AI 사용 성과로 포함하는 방식, 문서 선언만 하고 endpoint·SDK·credential을 검사하지 않는 방식, VARCO를 P0 텍스트 모델로 추가하는 방식.
+- 영향 파일: `docs/domestic-ai-track-compliance.md`, `docs/final-readiness.md`, `docs/decisions.md`, `README.md`, `package.json`, `scripts/run-domestic-track-audit.mjs`, `artifacts/evals/domestic-track-compliance-latest.json`
 
 ## 4. 심사기준 연결
 
