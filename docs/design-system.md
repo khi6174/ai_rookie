@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-18
-- 디자인 버전: `design-v1.1.0`
+- 디자인 버전: `design-v1.2.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 디자인 목표
@@ -51,6 +51,70 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 ### 2.3 발표 보조 — 제한적 Dark Map
 
 발표 영상의 지도 확대 장면에서만 어두운 네이비 지도를 사용할 수 있다. 전체 관리자 제품을 다크·네온 상황판으로 만들지 않는다.
+
+### 2.4 외부 레퍼런스 우선순위와 적용 범위
+
+외부 레퍼런스는 완성 화면을 복제하기 위한 템플릿이 아니라, SafeRoute의 정보구조와 상호작용을 구체화하는 시각적 근거로만 사용한다. 원본의 로고, 아이콘, 일러스트, 지도 형태, 카드 비율과 세부 레이아웃을 그대로 복제하지 않는다.
+
+#### 관리자 웹
+
+| 우선순위 | 레퍼런스 | 가져올 패턴 | 가져오지 않을 요소 |
+|---:|---|---|---|
+| 1 | [Bridges — Logistics Fleet Delivery Control Tower Dashboard](https://dribbble.com/shots/27333427-Bridges-Logistics-Fleet-Delivery-Control-Tower-Dashboard) | 밝은 Control Tower, 큰 지도 작업면, 지도 옆 실행 큐, 절제된 운영 밀도 | 일반 배송 성과판, 기사 순위, 장식 통계, 원본 레이아웃 복제 |
+| 2 | [Dynamic Map and List Based Shipment Tracking Dashboard](https://dribbble.com/shots/24796728-Dynamic-Map-and-List-Based-Shipment-Tracking-Dashboard) | 지도와 목록의 동시 선택, route progression, 선택 구간과 상세의 연결 | 단순 화물 추적 상태를 안전 판정처럼 사용하는 표현 |
+
+관리자 첫 화면은 두 레퍼런스의 `map + linked queue + route progression` 구조를 결합한다. 질문은 배송 성과가 아니라 `향후 60분 안에 누구에게 어떤 지원이 필요한가`로 고정한다.
+
+#### 기사 모바일 웹
+
+| 우선순위 | 레퍼런스 | 가져올 패턴 | SafeRoute 적용 위치 |
+|---:|---|---|---|
+| 1 | [Mobile UI Screens for Driver App](https://dribbble.com/shots/25669008-Mobile-UI-Screens-for-Driver-App) | 현재 운행 상태 우선, 다음 업무와 경로의 한눈 요약, 큰 주요 행동 | `운행` 탭의 Safe-until, 배송 진행, compact route와 검토 버튼 |
+| 2 | [Field Service Dispatch Mobile App](https://dribbble.com/shots/26302643-Field-Service-Dispatch-Mobile-App) | 현장 작업 카드, 짧은 상태 흐름, 고정된 소수의 앱 내비게이션 | `운행 / 안전지원 / 내 정보` 3탭과 검토·응답 상태 전이 |
+| 3 | [Drileaf — Fresh Produce Delivery Driver App Concept](https://dribbble.com/shots/26340526-Drileaf-Fresh-Produce-Delivery-Driver-App-Concept) | 브랜드 진입면, 배정 정보 확인, 명확한 시작 행동 | Demo fixture 로그인 화면에만 사용 |
+
+3순위 레퍼런스는 실제 인증 기능의 근거가 아니다. 로그인 화면은 합성 기사 ID, 허브와 차량을 확인하는 데모 진입면이며 `실제 개인정보나 로그인 정보를 사용하지 않음`을 표시한다.
+
+### 2.5 디자인 근거 캡처
+
+아래 이미지는 외부 작품의 복사본이 아니라, 2.4의 패턴을 SafeRoute 언어와 가드레일로 재해석한 격리형 디자인 프로토타입 캡처다. 구현 수용기준이나 실제 운영 연동 증거로 사용하지 않는다.
+
+| 캡처 | 확인할 디자인 의도 | 파일 |
+|---|---|---|
+| 관리자 Control Tower · 1440×900 | 지도 60%, 지원 큐 40%, Time-to-Breach와 Fallback 표시 | [`reference-admin-control-tower-1440x900.png`](design-references/reference-admin-control-tower-1440x900.png) |
+| 기사 Demo 로그인 · 390×844 | 3순위 레퍼런스를 진입면에만 제한하고 실제 인증으로 오인하지 않음 | [`reference-rider-login-390x844.png`](design-references/reference-rider-login-390x844.png) |
+| 기사 운행 · 390×844 | Safe-until 우선, compact route, 배송 진행, 앱형 정보 밀도 | [`reference-rider-route-390x844.png`](design-references/reference-rider-route-390x844.png) |
+| 기사 안전지원 · 390×844 | 한 화면 한 결정, 전후 비교, 동의·수정·거절의 비징벌적 제공 | [`reference-rider-support-390x844.png`](design-references/reference-rider-support-390x844.png) |
+
+![관리자 Control Tower 디자인 근거](design-references/reference-admin-control-tower-1440x900.png)
+
+![기사 Demo 로그인 디자인 근거](design-references/reference-rider-login-390x844.png)
+
+![기사 운행 디자인 근거](design-references/reference-rider-route-390x844.png)
+
+![기사 안전지원 디자인 근거](design-references/reference-rider-support-390x844.png)
+
+캡처 메타데이터:
+
+- 확인일: 2026-07-18
+- 데이터 상태: `Demo fixture`, 날씨·지도 `Fallback`
+- 프로토타입: `artifacts/saferoute-web-demo`, 별도 nested repository
+- 공개 미리보기: `https://saferoute-screen-demo.khiyw.chatgpt.site`
+- 범위: 디자인 참고만 허용하며 Safety Budget, 개입 판정, 동의·승인 상태기계와 실제 SafeRoute 구현을 대체하지 않음
+
+### 2.6 디자인 문서 반영 경계
+
+이 버전은 색상, 정보 우선순위, 화면 구성, 내비게이션과 지도 표현을 확정한다. 다음 항목은 이 문서 갱신만으로 구현을 승인하지 않는다.
+
+- Safety Budget·Time-to-Breach 계산과 임계치
+- 개입 후보, Risk Transfer Guard와 추천 순위
+- 원 기사·수신 기사 동의와 관리자 승인 상태기계
+- 설치형 PWA, manifest, service worker와 오프라인 캐시
+- 실제 인증, 별도 기사 세션과 권한 모델
+- 실제 지도 공급자, TMS·알림·날씨 실연동
+- 새로운 외부 UI·지도·아이콘 의존성
+
+실제 화면 반영은 기존 테스트·폐루프와 승인 문서를 보존하는 별도 구현 작업으로 수행한다. 디자인 캡처에 보인 요소라도 현재 제품 범위를 넘으면 추가하지 않는다.
 
 ## 3. 디자인 원칙
 
