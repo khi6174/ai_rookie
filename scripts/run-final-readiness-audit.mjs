@@ -90,6 +90,7 @@ const requiredApprovedDocuments = [
   "docs/demo-script.md",
   "docs/decisions.md",
   "docs/domestic-ai-track-compliance.md",
+  "docs/submission-package.md",
   "docs/final-readiness.md",
 ];
 const documentStatuses = [];

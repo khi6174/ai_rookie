@@ -13,6 +13,7 @@
     "test:e2e:headed": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 --headed",
     "test:e2e:clean-start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-clean-start-rehearsal.ps1",
     "verify:final": "node scripts/run-final-readiness-audit.mjs",
+    "package:submission": "node scripts/build-submission-package.mjs",
     "eval:core-artifacts": "node scripts/run-core-eval-artifacts.mjs",
     "eval:upstage:smoke": "node scripts/run-upstage-smoke.mjs",
     "eval:upstage:smoke:mock": "node scripts/run-upstage-smoke.mjs --mock",

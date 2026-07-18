@@ -99,7 +99,7 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 - 확인일: 2026-07-18
 - 데이터 상태: `Demo fixture`, 날씨·지도 `Fallback`
 - 프로토타입: `artifacts/saferoute-web-demo`, 별도 nested repository
-- 공개 미리보기: `https://saferoute-screen-demo.khiyw.chatgpt.site`
+- 격리형 미리보기: 제품 런타임·최종 제출물에서 제외하며 외부 주소를 최종 문서에 노출하지 않는다.
 - 범위: 디자인 참고만 허용하며 Safety Budget, 개입 판정, 동의·승인 상태기계와 실제 SafeRoute 구현을 대체하지 않음
 
 ### 2.6 디자인 문서 반영 경계

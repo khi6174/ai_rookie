@@ -244,10 +244,10 @@ const declaredNonRuntimeReferences = [
     runtimeImported: false,
   },
   {
-    path: "docs/design-system.md",
-    reference: "saferoute-screen-demo.khiyw.chatgpt.site",
+    path: "artifacts/saferoute-web-demo/",
     classification: "ISOLATED_DESIGN_REFERENCE",
     submissionDisposition: "EXCLUDE_EXTERNAL_PROTOTYPE",
+    trackedInMain: false,
     runtimeImported: false,
   },
   {

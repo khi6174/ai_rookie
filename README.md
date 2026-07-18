@@ -45,6 +45,8 @@ pnpm run test:e2e
 pnpm run test:e2e:clean-start
 # 외부 API 호출 없이 최종 빌드·E2E·평가·국내트랙 게이트를 한 번에 검증
 pnpm run verify:final
+# clean commit에서 국내트랙 제출용 allowlist ZIP과 SHA-256 manifest 생성
+pnpm run package:submission
 pnpm run typecheck
 pnpm run build
 pnpm dev
@@ -74,6 +76,8 @@ pnpm run eval:kma-weather:runtime
 `eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개, 국내트랙 자동 감사와 해당 SHA-256 요약도 포함된다.
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 9개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
+
+`package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사 결과가 모두 `PASSED`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 과거 Claude 개발 프롬프트·격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다.
 
 ## 핵심 문서
 
