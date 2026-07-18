@@ -406,9 +406,15 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 
 `pnpm run test:e2e`가 스크린샷 manifest와 `accessibility-summary.json`을 만들고, 이어서 `pnpm run eval:core-artifacts`가 외부 API 호출 없이 나머지 최신본을 현재 코드·테스트와 기존 비식별 smoke 요약에서 다시 생성한다. `frozen-variant-results.csv`는 30개 변형의 입력 계보와 기준 결과를, `baseline-comparison.csv`는 같은 후보 집합에서 세 전략이 선택한 90개 결과를 보존한다. 이는 합성 시뮬레이션이며 실제 사고감소나 현장 성과로 표현하지 않는다. 각 실행은 최신본과 별도로 `core-evidence-runs/<timestamp>/`에 SHA-256 manifest와 함께 보존한다.
 
+`pnpm run verify:final`은 빌드, 전체 Playwright, clean-start 3회, 핵심 평가와 국내트랙 감사를 하나의 최종 릴리스 게이트로 다시 실행한다. 결과는 `final-readiness-latest.json`과 `final-readiness-runs/<timestamp>/final-readiness.json`에 저장한다. 실제 발표 PC, 발표자 역할, 제출 폼과 업로드는 자동화할 수 없는 사람 확인 항목으로 남긴다.
+
 ```text
 artifacts/evals/
   run-manifest.json
+  final-readiness-latest.json
+  final-readiness-runs/
+    <timestamp>/
+      final-readiness.json
   unit-summary.json
   scenario-results.csv
   baseline-comparison.csv

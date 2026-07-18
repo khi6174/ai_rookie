@@ -37,9 +37,13 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 전략 비교 | 30개 변형·90회 비교, SafeRoute 하드 제약 위반 0건 |
 | 국내 AI 표시 안전 | 검증되지 않은 생성문 표시 0건, 실패는 Fallback |
 | 국내 AI 트랙 경계 | 제품·평가 host·모델·SDK·credential 자동 감사 통과 필요 |
-| 증거 무결성 | 국내트랙 자동 감사를 포함한 14개 핵심 산출물과 SHA-256 run manifest 생성 |
+| 증거 무결성 | 국내트랙 자동 감사를 포함한 핵심 산출물 13개와 SHA-256 run manifest, 총 14개 파일 생성 |
 
 모든 수치는 합성·Mock·시뮬레이션 또는 명시된 비식별 API smoke 결과다. 실제 운영효과로 일반화하지 않는다.
+
+### 3.1 자동 최종 릴리스 게이트
+
+`pnpm run verify:final`의 2026-07-18 검증 실행은 명령 5/5, 증거 검사 9/9와 Approved 문서 12/12를 통과했다. 이 게이트는 빌드, Playwright 9개, clean-start 3회, 핵심 평가와 국내트랙 감사를 외부 API 호출 없이 다시 실행한다. 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 
@@ -67,6 +71,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 ## 5. 발표 전 운영 체크
 
 - 발표 PC에서 `pnpm run build`와 `pnpm run test:e2e:clean-start`를 마지막으로 한 번 실행한다.
+- 가능하면 `pnpm run verify:final`로 빌드·E2E·clean-start·핵심 평가·국내트랙 감사를 한 번에 재검증한다.
 - 1280×720, 브라우저 확대 100%, 알림과 자동 업데이트를 끈다.
 - `Demo 초기화` 후 새 decision ID와 `Demo fixture · Weather Fallback`을 확인한다.
 - 원 기사와 수신 기사 역할 전환 후 각각 `안전지원` 탭에서 동의를 기록한다.
@@ -80,6 +85,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - 실제 발표 PC의 전원·브라우저·해상도·네트워크 확인
 - 제출 파일과 GitHub 커밋 SHA 기록
 - `pnpm run eval:domestic-track:audit` 통과와 활용명세·제출 제외 항목 확인
+- `artifacts/evals/final-readiness-latest.json`의 `PASSED`와 사람 확인 항목 기록
 - A.X API 키가 발급되면 기존 12과업 계약만 별도 실행하고 데모 폐루프에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
 
