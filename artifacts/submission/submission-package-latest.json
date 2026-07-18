@@ -1,11 +1,11 @@
 {
   "schemaVersion": "saferoute-submission-archive-summary-v1",
-  "capturedAt": "2026-07-18T07:45:19.614Z",
-  "gitCommit": "8da112570e7792fda9d089cd32c337296f1639e7",
-  "archive": "saferoute-ai-domestic-track-8da1125.zip",
-  "bytes": 1151532,
-  "sha256": "8ac2b796d918242e901e9cb61429306d2eebaa92b3f0c33688a58766bf8bb006",
-  "includedFileCount": 159,
+  "capturedAt": "2026-07-18T07:56:08.323Z",
+  "gitCommit": "0da1b6e3e8220c9a8d902f8c3c75aa339088952e",
+  "archive": "saferoute-ai-domestic-track-0da1b6e.zip",
+  "bytes": 1275468,
+  "sha256": "30c2e9020465fa1841f77eb30c7238c2762ab7675e065759d90dde536889ff06",
+  "includedFileCount": 162,
   "finalReadinessStatus": "PASSED",
   "domesticTrackStatus": "PASSED",
   "explicitExclusions": [
