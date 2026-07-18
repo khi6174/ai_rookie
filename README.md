@@ -2,7 +2,7 @@
 
 SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전 가능영역을 검증하고, 같은 결정 근거와 기사 동의·관리자 승인 아래 계획을 갱신하는 라스트마일 안전운영 코파일럿입니다.
 
-계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE Live 12과업도 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 다음 단계는 시간·동의·버전 충돌 평가 세트, 실제 발표 대사를 포함한 3분 리허설과 A.X API 키 발급 후 동일 계약 비교입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
+계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE Live 12과업도 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 182/182다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 본선 P0 데모는 기능 동결 상태이며 남은 작업은 발표 PC·역할·제출물의 운영 점검과, A.X API 키 발급 시 기존 12과업 계약의 선택적 비교입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
@@ -33,7 +33,8 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - Playwright 관리자–두 기사 폐루프·새 ID reset·키보드·4개 해상도·스크린샷 9/9과 서버 clean start 3회 통과
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
-- Vitest 계약 테스트
+- 시간·동의·버전 충돌 결정 경계 30/30 통과
+- Vitest 17개 파일·182/182 통과
 
 ## 실행
 
@@ -67,6 +68,8 @@ pnpm run eval:kma-weather:runtime
 
 `eval:core-artifacts`는 외부 API를 호출하지 않는다. Vitest를 새로 실행하고 대표 fixture·개입·Risk Transfer Guard를 현재 코드로 재계산한 뒤, 기존 국내 AI·Upstage 요약과 Playwright 접근성 결과를 묶어 `artifacts/evals/` 최신본과 SHA-256 불변 run을 생성한다. Upstage Live는 opt-in smoke 명령에서만 활성화한다. `eval:upstage:smoke:mock`은 자격증명 없이 12개 합성 과업 기준선을 생성하고, `eval:upstage:smoke`는 [.env.example](./.env.example)을 복사한 로컬 `.env.local`의 서버 변수로 실행한다. 현재 Live 첫 시도 검증 통과는 11/12이며 나머지 1건은 안전한 Fallback으로 전환됐다. 국내 AI 공통 명령은 대회 가이드에서 텍스트 API 계약이 확인된 A.X K1과 K-EXAONE만 대상으로 한다. `eval:domestic-ai:check`는 API 호출 없이 secret과 exact endpoint 계약을 점검하고, Live 명령은 readiness 이후에만 명시적으로 실행한다. K-EXAONE은 60초 timeout에서 12/12를 통과했고 평균 22,124ms·P95 35,805ms·총 39,539 tokens를 기록했다. 기상청은 API허브 4.1·4.2 Mock 계약과 무호출 readiness를 먼저 검증하며, Live 명령은 승인된 로컬 `authKey`가 준비된 뒤에만 실황·예보를 각 1회 호출한다. 1.3·4.3 보완 명령도 같은 서버 전용 키를 재사용하고 exact endpoint만 호출하므로 새 키나 새 환경변수는 필요 없다. `eval:kma-weather:runtime`은 외부 API를 호출하지 않고 승인된 Live 증거의 미완전 범위와 Demo-only 계산 경계를 재검증한다. `VITE_` 접두사를 사용하지 않으며 키를 저장소나 채팅에 넣지 않는다. A100의 A.X 고정 revision은 정확 복사 12/12와 최종 생성 강건성 28/30을 독립 검증했고 나머지 2건은 안전한 Fallback으로 전환됐다. 로컬 모델 benchmark도 접속정보·비밀번호를 저장하지 않고 고정 revision과 비식별 결과만 보존한다.
 
+`eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개와 해당 SHA-256 요약도 포함된다.
+
 ## 핵심 문서
 
 - `AGENTS.md`: 프로젝트 가드레일
@@ -78,6 +81,7 @@ pnpm run eval:kma-weather:runtime
 - `docs/evals.md`: 평가·심사 증거 계획
 - `docs/demo-script.md`: 3분 폐루프 시연
 - `docs/midpoint-review.md`: 본선 MVP와 본선 이후 궁극적 목표 중간점검
+- `docs/final-readiness.md`: 본선 최종준비 증거·동결 범위·발표 전 체크
 - `docs/gpu-benchmark-runbook.md`: A100 사전점검과 로컬 기준선 실행 경계
 
 ## 표현 경계

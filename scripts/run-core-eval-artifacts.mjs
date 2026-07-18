@@ -22,6 +22,8 @@ const latestArtifactNames = [
   "frozen-benchmark-summary.json",
   "risk-transfer-boundaries.csv",
   "risk-transfer-boundary-summary.json",
+  "decision-workflow-boundaries.csv",
+  "decision-workflow-boundary-summary.json",
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
   "accessibility-summary.json",
@@ -130,6 +132,9 @@ async function generateDomainArtifacts() {
     const riskTransfer = await vite.ssrLoadModule(
       "/src/evals/riskTransferBoundaries.ts",
     );
+    const decisionWorkflow = await vite.ssrLoadModule(
+      "/src/evals/decisionWorkflowBoundaries.ts",
+    );
     const scenarioRows = fixtures.scenarioFixtures.map((fixture) => {
       const snapshot = safety.evaluateSafetyBudget(fixture, fixture.couriers[0].courierId);
       return {
@@ -213,12 +218,41 @@ async function generateDomainArtifacts() {
         "Direct numeric cases are paired with three full-plan transfer recalculations.",
       ],
     });
+
+    const decisionBoundarySuite =
+      decisionWorkflow.evaluateDecisionWorkflowBoundarySuite();
+    if (!decisionBoundarySuite.allPassed) {
+      throw new Error("Decision workflow boundary suite failed");
+    }
+    await writeFile(
+      resolve(outputDirectory, "decision-workflow-boundaries.csv"),
+      toCsv(Object.keys(decisionBoundarySuite.rows[0]), decisionBoundarySuite.rows),
+      "utf8",
+    );
+    await writeJson("decision-workflow-boundary-summary.json", {
+      schemaVersion: decisionBoundarySuite.schemaVersion,
+      capturedAt,
+      generatorVersion: decisionBoundarySuite.generatorVersion,
+      dataMode: decisionBoundarySuite.dataMode,
+      isDemo: decisionBoundarySuite.isDemo,
+      caseCount: decisionBoundarySuite.caseCount,
+      categoryCounts: decisionBoundarySuite.categoryCounts,
+      passedCount: decisionBoundarySuite.passedCount,
+      failedCount: decisionBoundarySuite.failedCount,
+      reasonCodeCounts: decisionBoundarySuite.reasonCodeCounts,
+      allPassed: decisionBoundarySuite.allPassed,
+      limitations: [
+        "Synthetic deterministic workflow evaluation; not evidence of field behavior.",
+        "Boundary cases validate the MVP in-memory decision state machine and plan store.",
+      ],
+    });
     return {
       scenarios: scenarioRows.length,
       frozenVariants: benchmark.variantCount,
       comparisons: benchmark.comparisonCount,
       transferBoundaries: boundarySuite.totalCaseCount,
       directTransferBoundaries: boundarySuite.directCaseCount,
+      decisionWorkflowBoundaries: decisionBoundarySuite.caseCount,
     };
   } finally {
     await vite.close();
@@ -297,6 +331,8 @@ async function generateManifest() {
     "tests/frozen-benchmark.test.ts",
     "src/evals/riskTransferBoundaries.ts",
     "tests/risk-transfer-boundaries.test.ts",
+    "src/evals/decisionWorkflowBoundaries.ts",
+    "tests/decision-workflow-boundaries.test.ts",
     "src/domain/safety/config.ts",
     "src/domain/safety/engine.ts",
     "src/domain/interventions/config.ts",
@@ -342,7 +378,8 @@ try {
     `CORE_EVAL_ARTIFACTS_PASS tests=${testCount} scenarios=${domain.scenarios} ` +
       `frozenVariants=${domain.frozenVariants} comparisons=${domain.comparisons} ` +
       `transferBoundaries=${domain.transferBoundaries} directTransferBoundaries=${domain.directTransferBoundaries} ` +
-      `domesticProviders=${ai.domesticProviders} upstageTasks=${ai.upstageTasks} artifacts=11`,
+      `decisionWorkflowBoundaries=${domain.decisionWorkflowBoundaries} ` +
+      `domesticProviders=${ai.domesticProviders} upstageTasks=${ai.upstageTasks} artifacts=13`,
   );
 } finally {
   await rm(temporaryVitestResult, { force: true });

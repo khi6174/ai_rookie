@@ -2,9 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Draft
+- 상태: Superseded
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-17
+- 최종 갱신: 2026-07-18
+- 대체 문서: `docs/final-readiness.md`
 - 점검 기준: 본선 MVP와 본선 이후 파일럿 준비를 포함한 궁극적 목표
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`
 

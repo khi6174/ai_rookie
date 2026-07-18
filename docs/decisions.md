@@ -318,6 +318,15 @@
 - 기각한 대안: 별도 Next.js 프로토타입을 제품 저장소에 병합하는 방식, 관리자·기사 UI 전체 재작성, 실제 로그인처럼 보이는 Demo 진입, 실지도 공급자 도입, 설치형 PWA·오프라인·푸시 기능 추가, 외부 UI 의존성 추가, 레퍼런스 화면의 외형을 복제하는 방식.
 - 영향 파일: `docs/design-system.md`, `docs/decisions.md`, `docs/demo-script.md`, `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/screenshots/`, `artifacts/evals/accessibility-summary.json`
 
+### ADR-032 — 결정 폐루프는 시간·동의·버전 30개 경계로 독립 고정한다
+
+- 날짜: 2026-07-18
+- 상태: Approved for evaluation
+- 결정: 기존 결정 상태기계와 원자 적용 코드를 변경하지 않고, 실제 command를 실행하는 결정론적 경계 30개를 고정한다. 시간 8개는 사건시각 역행·동일시각과 동의 9.999분·정확히 10분의 승인·만료·재검증을 검사한다. 동의·권한 12개는 상태 건너뛰기, 대리·미요청·중복 응답, 양측 동의, 수정·거절, 동일 후보 재사용, 관리자 보류·재개를 검사한다. 버전 10개는 활성 계획·Safety 모델·설정·개입 정책·평가 계획·후보·중요 입력 변경, 적용시점 경쟁, 제안 계획 불일치와 멱등 재실행을 검사한다. 각 사례는 예상 outcome과 reason code를 구현 결과와 별도로 고정하며 하나라도 다르면 평가 산출물 생성을 실패시킨다.
+- 이유: 정상 폐루프 한 건과 단편적인 단위 테스트만으로는 정확히 10분인 동의 만료 경계, 동의 후 입력 변경, 승인 후 계획 경쟁과 중복 적용 방지를 제출 증거로 추적하기 어렵기 때문이다.
+- 기각한 대안: 기존 테스트 개수만 성과로 기록하는 방식, UI 클릭만으로 경쟁조건을 추정하는 방식, 난수 기반 경계 생성, 상태기계 내부 함수를 복제해 실제 command를 호출하지 않는 방식.
+- 영향 파일: `docs/evals.md`, `docs/decisions.md`, `src/evals/decisionWorkflowBoundaries.ts`, `tests/decision-workflow-boundaries.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/decision-workflow-boundaries.csv`, `artifacts/evals/decision-workflow-boundary-summary.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

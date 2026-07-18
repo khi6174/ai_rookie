@@ -1,6 +1,6 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-18T05:52:12.047Z",
+  "capturedAt": "2026-07-18T05:44:22.037Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
   "baseCommit": "a74c4a443621abab316c223a8d53ebc367a71b5e",
@@ -67,7 +67,7 @@
     {
       "file": "unit-summary.json",
       "bytes": 2153,
-      "sha256": "c40083a962a8ee497bcc7721b39fd7aefcbdf157646b801bce6297b895f72b03"
+      "sha256": "0ade9aece72ebcf2684d205ee4984857ab3d8c3be421d867761b0f348ba66432"
     },
     {
       "file": "scenario-results.csv",
@@ -87,7 +87,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "ccd2b295104ad59ef988afab9b9ad06b0ea9883da1786c9c1bb47bc733fc65ed"
+      "sha256": "c394597fdda722c243082ece3f7cf1b00f76dd559ae9147e6f17efc4bc2c65e2"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -97,7 +97,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "ee19a00dbe8bf3cec2d26d93ca899909f6435fb0272f5b0e6c4a167e5e25aa68"
+      "sha256": "3356b6ee50f60498b17fc5e917f9717ea9fb8ce7d0b271729e01bf94279065ad"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -107,7 +107,7 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "b4e08fc734900680a2ad69b5856ea47cbee600e92afdf26452df040bcf7124ac"
+      "sha256": "c3c1a874b32b234967aacae473eeda5c4579c4753706ef40959ec43e15a89260"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -122,7 +122,7 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 1569,
-      "sha256": "a41fec4b0145f6b7be74ce07827debbb0bfb1c0fa391084a1a84138f0f365524"
+      "sha256": "f4400a2f706006929e97d212a566130c837030d56c1767acabcf59838fbc7ecb"
     }
   ]
 }
