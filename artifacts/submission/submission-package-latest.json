@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "saferoute-submission-archive-summary-v1",
+  "capturedAt": "2026-07-18T07:34:28.106Z",
+  "gitCommit": "f4f55a259dffd8823bacead9f5dcc9d50a9c602d",
+  "archive": "saferoute-ai-domestic-track-f4f55a2.zip",
+  "bytes": 1148906,
+  "sha256": "5901ebae1e18a09abf052a6e272ae4a450c2fe260bb789823059f73327485d31",
+  "includedFileCount": 155,
+  "finalReadinessStatus": "PASSED",
+  "domesticTrackStatus": "PASSED",
+  "explicitExclusions": [
+    "SafeRoute_AI_Fable5_Prompt_Pack_KR.md",
+    "SafeRoute_AI_Final_Strategy_Design_Manual_KR.pdf",
+    "artifacts/saferoute-web-demo/",
+    "artifacts/saferoute-web-demo-site.tar.gz",
+    "artifacts/saferoute-web-demo-site-v2.tar.gz",
+    ".env.local",
+    "node_modules/",
+    "playwright-report/",
+    "test-results/"
+  ],
+  "secretAndIdentityScanPassed": true
+}
