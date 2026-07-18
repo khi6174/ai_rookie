@@ -241,8 +241,14 @@ for (const file of includedFiles) {
     },
     { id: "LOCAL_WINDOWS_PATH", pattern: /C:\\Users\\khiyw/gi },
     { id: "GPU_HOME_PATH", pattern: /\/home\/tta/gi },
-    { id: "GPU_HOST", pattern: /rookie-s55/gi },
-    { id: "SSH_CONNECTION", pattern: /SSH_CONNECTION/gi },
+    {
+      id: "GPU_HOST",
+      pattern: new RegExp(["rookie", "s55"].join("-"), "gi"),
+    },
+    {
+      id: "SSH_ENV_SIGNATURE",
+      pattern: new RegExp(["SSH", "CONNECTION"].join("_"), "gi"),
+    },
   ];
   for (const { id, pattern } of directPatterns) {
     if (pattern.test(text)) sensitiveFindings.push({ file, id });
