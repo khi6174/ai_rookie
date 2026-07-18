@@ -12,15 +12,19 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
   await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeDisabled();
   await expect(page.getByText("17번째 배송지 · 임계치 초과 예상")).toBeVisible();
   await expect(page.getByText("12건 이관은 실행할 수 없습니다.")).toBeVisible();
+  await expect(page.getByText("휴식 · 물량이관 · 순서변경 · 안전경로 · Safe Delay")).toBeVisible();
 }
 
 async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId) {
   await page.getByRole("tab", { name: "원 기사" }).click();
+  await expect(page.getByRole("heading", { name: "17번째 배송지 전에 안전지원이 필요합니다" })).toBeVisible();
+  await page.getByRole("tab", { name: "안전지원" }).click();
   await expect(page.getByRole("heading", { name: "약 52분 안에 계획 조정이 필요합니다" })).toBeVisible();
   await page.getByRole("button", { name: "동의", exact: true }).click();
   await expect(page.getByText("동의가 기록되었습니다. 계획은 아직 변경되지 않았습니다.").first()).toBeVisible();
 
   await page.getByRole("tab", { name: "수신 기사" }).click();
+  await page.getByRole("tab", { name: "안전지원" }).click();
   await expect(page.getByRole("heading", { name: "8건 이관 요청을 검토해 주세요" })).toBeVisible();
   await page.getByRole("button", { name: "동의", exact: true }).click();
   await expect(page.getByText("모든 필수 동의가 완료되어 관리자 승인을 기다립니다.").first()).toBeVisible();
@@ -77,6 +81,7 @@ test("두 기사 동의 후 관리자 승인으로 계획·ETA·안내를 함께
 test("Demo 초기화는 같은 fixture를 새 결정 ID와 연결하고 폐루프를 다시 완료한다", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("tab", { name: "원 기사" }).click();
+  await page.getByRole("tab", { name: "안전지원" }).click();
   await page.getByRole("button", { name: "동의", exact: true }).click();
   await page.getByRole("button", { name: "Demo 초기화" }).click();
 
@@ -94,9 +99,11 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
   await activateUsingKeyboard(page, sourceTab);
   await expect(sourceTab).toHaveAttribute("aria-selected", "true");
   expect(await sourceTab.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none");
+  await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "동의", exact: true }));
 
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "수신 기사" }));
+  await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "동의", exact: true }));
 
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "관리자" }));
@@ -127,6 +134,12 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/");
     await page.getByRole("tab", { name: "원 기사" }).click();
+    await expect(page.getByRole("heading", { name: "17번째 배송지 전에 안전지원이 필요합니다" })).toBeVisible();
+    await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
+    for (const tabName of ["운행", "안전지원", "내 정보"]) {
+      await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
+    }
+    await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByRole("heading", { name: "약 52분 안에 계획 조정이 필요합니다" })).toBeVisible();
     await expect(page.getByText("수정하거나 거절해도 불이익은 없습니다.", { exact: false })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
@@ -183,7 +196,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await expectNoPageHorizontalOverflow(page);
-    const demoModeLabelVisible = await page.getByText("Demo fixture").first().isVisible();
+    const demoModeLabelVisible = await page.locator(".mode-badge:visible").filter({ hasText: "Demo" }).first().isVisible();
     expect(demoModeLabelVisible).toBe(true);
     const touchTargets = input.role === "SOURCE" || input.role === "RECIPIENT"
       ? [
@@ -242,6 +255,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
 
   await page.goto("/");
   await page.getByRole("tab", { name: "원 기사" }).click();
+  await page.getByRole("tab", { name: "안전지원" }).click();
   await capture({
     file: "rider-source-review-390x844.png",
     width: 390,
@@ -252,6 +266,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
 
   await page.goto("/");
   await page.getByRole("tab", { name: "수신 기사" }).click();
+  await page.getByRole("tab", { name: "안전지원" }).click();
   await capture({
     file: "rider-recipient-review-360x800.png",
     width: 360,

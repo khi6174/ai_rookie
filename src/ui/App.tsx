@@ -30,6 +30,7 @@ import {
 } from "./demoExplanation";
 
 type Role = "ADMIN" | "SOURCE" | "RECIPIENT";
+type RiderTab = "ROUTE" | "SUPPORT" | "PROFILE";
 type AppProps = {
   initialSession?: DemoSession;
   initialExplanation?: ExplanationResult;
@@ -112,7 +113,7 @@ function AppHeader({
       </div>
       <RoleSwitcher role={role} onChange={onRoleChange} />
       <div className="header-actions">
-        <span className="mode-badge"><span aria-hidden="true">◇</span> {demoWeatherRuntime.displayLabel}</span>
+        <span className="mode-badge"><span aria-hidden="true">◇</span><span className="mode-label-full">{demoWeatherRuntime.displayLabel}</span><span className="mode-label-short">Demo · Weather Fallback</span></span>
         <button type="button" className="button button-quiet button-small" onClick={onReset}>
           Demo 초기화
         </button>
@@ -126,7 +127,7 @@ function StatusPill({ session }: { session: DemoSession }) {
   const tone = status === "NOTICE_RECORDED"
     ? "success"
     : status.includes("MODIFICATION") || status === "ADMIN_HELD"
-      ? "purple"
+      ? "info"
       : status === "RIDER_DECLINED"
         ? "neutral"
         : "pending";
@@ -161,13 +162,19 @@ function AdminNavigation() {
 
 function RouteSchematic({ applied }: { applied: boolean }) {
   return (
-    <section className="panel route-panel" aria-labelledby="route-heading">
+    <section className="panel route-panel linked-decision" id="route-decision" tabIndex={-1} aria-labelledby="route-heading">
       <div className="panel-heading">
         <div>
           <p className="section-kicker">합성 관악 허브 · 우천 경사 권역</p>
           <h2 id="route-heading">남은 배송계획과 예상 초과 지점</h2>
         </div>
-        <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 조정 계획</span>
+        <div className="route-heading-meta">
+          <span className="fallback-map-badge">Fallback schematic map</span>
+          <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 조정 계획</span>
+        </div>
+      </div>
+      <div className="route-progress" aria-label="배송 진행 상태">
+        <span>현재 위치</span><strong>14번째 배송지 예정</strong><span aria-hidden="true">→</span><strong>{applied ? "휴식 후 조정 경로" : "17번째 배송지 전 지원"}</strong>
       </div>
       <div className="route-canvas" role="img" aria-label={applied
         ? "8건 이관이 적용되어 원 기사 배송지가 9건으로 조정된 개략 경로"
@@ -196,6 +203,7 @@ function RouteSchematic({ applied }: { applied: boolean }) {
         <div><span>{applied ? "적용 계획 최소" : "추천안 적용 후"}</span><strong className="text-teal">47.2</strong></div>
         <div><span>입력 신뢰도</span><strong>{demoConfidence}</strong></div>
       </div>
+      <a className="decision-link" href="#support-queue">같은 결정을 지원 큐에서 보기 <span aria-hidden="true">→</span></a>
     </section>
   );
 }
@@ -206,7 +214,7 @@ function InterventionQueue({ session, onOpenApproval }: { session: DemoSession; 
   const approvalReady = session.decision.status === "ADMIN_APPROVAL_REQUIRED";
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
   return (
-    <aside className="panel intervention-queue" aria-labelledby="queue-heading">
+    <aside className="panel intervention-queue linked-decision" id="support-queue" tabIndex={-1} aria-labelledby="queue-heading">
       <div className="panel-heading compact">
         <div>
           <p className="section-kicker">{applied ? "완료된 개입 · 1건" : "개입 큐 · 1건"}</p>
@@ -239,6 +247,7 @@ function InterventionQueue({ session, onOpenApproval }: { session: DemoSession; 
       {!approvalReady && !applied && (
         <p className="button-help">두 기사 모두 같은 조정안에 동의해야 승인할 수 있습니다.</p>
       )}
+      <a className="decision-link queue-map-link" href="#route-decision">지도에서 같은 결정 보기 <span aria-hidden="true">→</span></a>
     </aside>
   );
 }
@@ -287,6 +296,11 @@ function ComparisonTable() {
       <div className="blocked-explanation">
         <strong><span aria-hidden="true">⊘</span> 12건 이관은 실행할 수 없습니다.</strong>
         <span>수신 기사의 최소 안전여유가 {formatBudget(demoTransfer12Evaluation.courierImpacts[1].candidateMinimumBudget)}로 내려가 기준 45를 충족하지 못합니다.</span>
+      </div>
+      <div className="intervention-coverage" aria-label="결정론적 개입 엔진 검증 범위">
+        <span>엔진 검증 범위</span>
+        <strong>휴식 · 물량이관 · 순서변경 · 안전경로 · Safe Delay</strong>
+        <small>현재 장면은 이 계획에 적용 가능한 대표 후보만 비교합니다.</small>
       </div>
     </section>
   );
@@ -472,6 +486,23 @@ function AdminDashboard({
   );
 }
 
+function RiderCompactRoute({ applied }: { applied: boolean }) {
+  return (
+    <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약">
+      <div className="compact-map-heading">
+        <div><span>다음 경로</span><strong>{applied ? "휴식 후 조정 순서" : "17번째 배송지 전 지원"}</strong></div>
+        <span className="fallback-map-badge">Fallback map</span>
+      </div>
+      <div className="compact-route-line" aria-hidden="true">
+        <span className="compact-stop is-current">현재</span>
+        <span className="compact-stop is-rest">휴식</span>
+        <span className="compact-stop is-next">17</span>
+      </div>
+      <div className="compact-map-footer"><span>14번째 배송지 예정</span><strong>{applied ? "15:48 휴식 지점으로 이동" : "약 52분 안에 지원 필요"}</strong></div>
+    </section>
+  );
+}
+
 function RiderView({
   session,
   courierId,
@@ -483,6 +514,7 @@ function RiderView({
   isRecipient: boolean;
   onResponse: (response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED") => void;
 }) {
+  const [tab, setTab] = useState<RiderTab>("ROUTE");
   const consentStatus = consentStatusFor(session, courierId);
   const canRespond = session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
@@ -490,6 +522,8 @@ function RiderView({
   const recipientImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "RECIPIENT")!;
   const impact = isRecipient ? recipientImpact : sourceImpact;
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
+  const tabContentId = `rider-${tab.toLowerCase()}-panel`;
+
   return (
     <main id="main-content" className="rider-stage">
       <div className="rider-phone">
@@ -497,57 +531,125 @@ function RiderView({
           <span className="mode-badge"><span aria-hidden="true">◇</span> {demoWeatherRuntime.displayLabel}</span>
           <span className="stopped-badge"><span aria-hidden="true">✓</span> 정차 상태 확인됨</span>
         </div>
-        <p className="rider-overline">오늘의 안전배송 · {isRecipient ? "수신 기사" : "원 기사"}</p>
-        <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "8건 이관 요청을 검토해 주세요" : "약 52분 안에 계획 조정이 필요합니다"}</h1>
-        <p className="rider-lead">{applied
-          ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
-          : isRecipient
-            ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
-            : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다."}</p>
 
-        <section className="rider-safety-card" aria-labelledby="rider-safety-heading">
-          <div className="safety-card-heading"><span className="band-label">{applied ? "조정 완료" : "조정 권장"}</span><span>입력 신뢰도 {demoConfidence}</span></div>
-          <h2 id="rider-safety-heading">{isRecipient ? "이관 후 남은 안전여유" : "조정 전후 최소 안전여유"}</h2>
-          <div className="before-after">
-            <div><span>현재 계획</span><strong>{formatBudget(impact.baselineMinimumBudget)}</strong></div>
-            <span className="change-arrow" aria-label="에서">→</span>
-            <div className="after"><span>추천 조치 후</span><strong>{formatBudget(impact.candidateMinimumBudget)}</strong></div>
-          </div>
-          <p className="threshold-note"><span aria-hidden="true">✓</span> {isRecipient ? "수신 기사 최소 기준 45를 통과했습니다." : "임계치 30 아래로 내려가는 예상을 해소합니다."}</p>
-        </section>
+        {tab === "ROUTE" && (
+          <section id={tabContentId} role="tabpanel" aria-labelledby="rider-route-tab">
+            <p className="rider-overline">오늘의 안전배송 · {isRecipient ? "수신 기사" : "원 기사"}</p>
+            <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 안전지원이 필요합니다"}</h1>
+            <p className="rider-lead">{applied
+              ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
+              : "현재 계획은 아직 바뀌지 않았습니다. 정차 상태에서 지원안을 확인해 주세요."}</p>
+            <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
+              <div><span>배송 진행</span><strong>14 / 31</strong><small>{activeWorkload.remainingLoad.stopCount}건 남음</small></div>
+              <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
+            </section>
+            <RiderCompactRoute applied={applied} />
+            <section className="rider-next-plan">
+              <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>
+              <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
+              <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
+            </section>
+            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => setTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
+          </section>
+        )}
 
-        <section className="rider-action-card" aria-labelledby="rider-action-heading">
-          <p className="section-kicker">추천 조치</p>
-          <h2 id="rider-action-heading">{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</h2>
-          <dl>
-            <div><dt>내 작업량</dt><dd>{isRecipient ? "+8건" : "-8건"}</dd></div>
-            <div><dt>예상 종료</dt><dd>{isRecipient ? "+25분" : "-15분"}</dd></div>
-            <div><dt>고객 ETA</dt><dd>{isRecipient ? "인계 계획 반영" : "최대 +10분"}</dd></div>
-          </dl>
-          <details>
-            <summary>왜 이 조치를 추천하나요?</summary>
-            <ul>
-              <li>연속작업과 남은 물량 노출을 함께 줄입니다.</li>
-              <li>수신 기사의 안전여유·용량·시간창을 모두 확인했습니다.</li>
-              <li>이 수치는 사고확률이 아닌 Demo 운영 위험지수입니다.</li>
-            </ul>
-          </details>
-        </section>
+        {tab === "SUPPORT" && (
+          <section id={tabContentId} role="tabpanel" aria-labelledby="rider-support-tab">
+            <p className="rider-overline">안전지원 · 한 화면에서 결정</p>
+            <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "8건 이관 요청을 검토해 주세요" : "약 52분 안에 계획 조정이 필요합니다"}</h1>
+            <p className="rider-lead">{applied
+              ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
+              : isRecipient
+                ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
+                : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다."}</p>
 
-        <div className="rider-response-status" aria-live="polite">
-          <StatusPill session={session} />
-          <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
-        </div>
-        <div className="rider-actions" aria-label="조치 응답">
-          <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>동의</button>
-          <button type="button" className="button button-purple" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>수정 요청</button>
-          <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>거절</button>
-        </div>
-        <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
-        <details className="data-scope">
-          <summary>이 결정에 사용된 데이터</summary>
-          <p>합성 근무시간, 남은 작업량, Demo 강수·경사와 검증된 경로 특징만 사용했습니다. 기상청 Live 부분 표본은 Safety 계산에 섞지 않았습니다. 원시 생체정보와 정밀 이동궤적은 관리자에게 제공하지 않습니다.</p>
-        </details>
+            <section className="rider-safety-card" aria-labelledby="rider-safety-heading">
+              <div className="safety-card-heading"><span className="band-label">{applied ? "조정 완료" : "조정 권장"}</span><span>입력 신뢰도 {demoConfidence}</span></div>
+              <h2 id="rider-safety-heading">{isRecipient ? "이관 후 남은 안전여유" : "조정 전후 최소 안전여유"}</h2>
+              <div className="before-after">
+                <div><span>현재 계획</span><strong>{formatBudget(impact.baselineMinimumBudget)}</strong></div>
+                <span className="change-arrow" aria-label="에서">→</span>
+                <div className="after"><span>추천 조치 후</span><strong>{formatBudget(impact.candidateMinimumBudget)}</strong></div>
+              </div>
+              <p className="threshold-note"><span aria-hidden="true">✓</span> {isRecipient ? "수신 기사 최소 기준 45를 통과했습니다." : "임계치 30 아래로 내려가는 예상을 해소합니다."}</p>
+            </section>
+
+            <section className="rider-action-card" aria-labelledby="rider-action-heading">
+              <p className="section-kicker">추천 조치</p>
+              <h2 id="rider-action-heading">{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</h2>
+              <dl>
+                <div><dt>내 작업량</dt><dd>{isRecipient ? "+8건" : "-8건"}</dd></div>
+                <div><dt>예상 종료</dt><dd>{isRecipient ? "+25분" : "-15분"}</dd></div>
+                <div><dt>고객 ETA</dt><dd>{isRecipient ? "인계 계획 반영" : "최대 +10분"}</dd></div>
+              </dl>
+              <details>
+                <summary>왜 이 조치를 추천하나요?</summary>
+                <ul>
+                  <li>연속작업과 남은 물량 노출을 함께 줄입니다.</li>
+                  <li>수신 기사의 안전여유·용량·시간창을 모두 확인했습니다.</li>
+                  <li>이 수치는 사고확률이 아닌 Demo 운영 위험지수입니다.</li>
+                </ul>
+              </details>
+            </section>
+
+            <div className="rider-response-status" aria-live="polite">
+              <StatusPill session={session} />
+              <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
+            </div>
+            <div className="rider-actions" aria-label="조치 응답">
+              <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>동의</button>
+              <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>수정 요청</button>
+              <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>거절</button>
+            </div>
+            <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
+          </section>
+        )}
+
+        {tab === "PROFILE" && (
+          <section id={tabContentId} role="tabpanel" aria-labelledby="rider-profile-tab">
+            <p className="rider-overline">내 정보 · Demo 안내</p>
+            <h1>필요한 운영 상태만 공유합니다</h1>
+            <p className="rider-lead">실제 인증이나 개인정보를 사용하지 않는 합성 기사 계정 화면입니다.</p>
+            <section className="rider-profile-card">
+              <span>관리자에게 보이는 정보</span>
+              <strong>날씨·경로·작업량에서 계산한 파생 상태</strong>
+              <p>원시 생체정보, 장기 이동궤적과 개인 성과평가는 표시하지 않습니다.</p>
+            </section>
+            <section className="rider-profile-card">
+              <span>이 결정에 사용한 데이터</span>
+              <strong>결정론적 합성 fixture · 날씨 Fallback</strong>
+              <p>기상청 Live 부분 표본은 Safety 계산에 섞지 않았으며 전체 Demo 날씨 타임라인을 사용했습니다.</p>
+            </section>
+            <section className="rider-profile-card">
+              <span>이의제기와 도움</span>
+              <strong>수정·거절·정정 요청에 불이익이 없습니다</strong>
+              <p>현재 데모에서는 안전지원 탭의 수정 요청과 거절로 운영팀의 재검토를 요청할 수 있습니다.</p>
+            </section>
+            <code className="rider-decision-code">Decision ID · {session.decision.decisionId}</code>
+          </section>
+        )}
+
+        <nav className="rider-tab-bar" role="tablist" aria-label="기사 모바일 웹 주요 메뉴">
+          {([
+            ["ROUTE", "운행", "rider-route-tab"],
+            ["SUPPORT", "안전지원", "rider-support-tab"],
+            ["PROFILE", "내 정보", "rider-profile-tab"],
+          ] as const).map(([value, label, id]) => (
+            <button
+              key={value}
+              id={id}
+              type="button"
+              role="tab"
+              aria-selected={tab === value}
+              aria-controls={`rider-${value.toLowerCase()}-panel`}
+              className={tab === value ? "is-active" : undefined}
+              onClick={() => setTab(value)}
+            >
+              <span aria-hidden="true">{value === "ROUTE" ? "↗" : value === "SUPPORT" ? "!" : "○"}</span>
+              {label}
+            </button>
+          ))}
+        </nav>
       </div>
     </main>
   );
@@ -604,7 +706,7 @@ function ApprovalDialog({
       </div>
       <div className="dialog-footer">
         <button type="button" className="button button-neutral" onClick={onHold}>보류</button>
-        <button type="button" className="button button-purple" onClick={onModification}>수정 요청</button>
+        <button type="button" className="button button-secondary" onClick={onModification}>수정 요청</button>
         <button type="button" className="button button-primary" onClick={onApprove}>승인 및 계획 적용</button>
       </div>
       <code className="dialog-decision-id">Decision ID · {session.decision.decisionId}</code>

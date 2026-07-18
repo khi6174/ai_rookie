@@ -309,6 +309,15 @@
 - 기각한 대안: 임의 난수만 사용해 정확 경계를 놓치는 방식, 직접 함수만 검사하고 전체 계획 재계산을 생략하는 방식, 실행 불가 결과를 평균에서 제외하는 방식.
 - 영향 파일: `docs/evals.md`, `src/evals/riskTransferBoundaries.ts`, `tests/risk-transfer-boundaries.test.ts`, `scripts/run-core-eval-artifacts.mjs`, `artifacts/evals/risk-transfer-boundaries.csv`, `artifacts/evals/risk-transfer-boundary-summary.json`
 
+### ADR-031 — 본선 데모 디자인은 기존 폐루프 위에 최소 이식한다
+
+- 날짜: 2026-07-18
+- 상태: Approved
+- 결정: 현재 React·Vite 단일 애플리케이션과 결정론적 폐루프를 유지하고, 별도 디자인 프로토타입에서는 레이아웃·정보구조·색상 패턴만 이식한다. 관리자는 밝은 Calm Control Tower와 큰 schematic route를 유지하며 지도와 지원 큐의 같은 decision을 양방향 연결한다. 기사 화면은 설치형 PWA가 아닌 반응형 모바일 웹으로 명시하고 하단 주요 탭을 `운행 / 안전지원 / 내 정보` 세 개로 고정한다. 기사 지도는 현재 위치·휴식 지점·다음 배송지만 나타내는 compact `Fallback map`으로 제한한다. 팔레트는 오프화이트·네이비 구조, 블루 운영 행동, 틸 안전 상태, 앰버 대기, 빨강 실제 초과·차단으로 통일하고 보라색은 사용하지 않는다.
+- 이유: 완성된 안전 엔진·동의·승인·계획 적용 테스트를 보존하면서도 관리자와 기사가 실제 운영 흐름을 더 빠르게 이해하도록 정보 위계를 정리하기 위해서다.
+- 기각한 대안: 별도 Next.js 프로토타입을 제품 저장소에 병합하는 방식, 관리자·기사 UI 전체 재작성, 실제 로그인처럼 보이는 Demo 진입, 실지도 공급자 도입, 설치형 PWA·오프라인·푸시 기능 추가, 외부 UI 의존성 추가, 레퍼런스 화면의 외형을 복제하는 방식.
+- 영향 파일: `docs/design-system.md`, `docs/decisions.md`, `docs/demo-script.md`, `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/screenshots/`, `artifacts/evals/accessibility-summary.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
