@@ -1,8 +1,9 @@
-import { copyFile, mkdir, readFile, writeFile } from "node:fs/promises";
+import { copyFile, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(".");
 const hostingPath = resolve(root, ".openai/hosting.json");
+const clientDirectory = resolve(root, "dist/client");
 const workerDirectory = resolve(root, "dist/server");
 const metadataDirectory = resolve(root, "dist/.openai");
 
@@ -47,6 +48,15 @@ const worker = {
 export default worker;
 `;
 
+await rm(clientDirectory, { recursive: true, force: true });
+await mkdir(clientDirectory, { recursive: true });
+await copyFile(
+  resolve(root, "dist/index.html"),
+  resolve(clientDirectory, "index.html"),
+);
+await cp(resolve(root, "dist/assets"), resolve(clientDirectory, "assets"), {
+  recursive: true,
+});
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");

@@ -128,6 +128,10 @@ try {
     resolve(root, "dist/server/index.js"),
     "utf8",
   );
+  const publicIndex = await readFile(
+    resolve(root, "dist/client/index.html"),
+    "utf8",
+  );
   const hostingConfig = JSON.parse(hostingConfigText);
   publicDemoBuild = {
     configured:
@@ -135,7 +139,8 @@ try {
       hostingConfig.project_id.startsWith("appgprj_"),
     workerPresent:
       workerSource.includes("env.ASSETS.fetch") &&
-      workerSource.includes("/index.html"),
+      workerSource.includes("/index.html") &&
+      publicIndex.includes('<div id="root"></div>'),
     packagedMetadataMatches:
       hostingConfigText.trim() === packagedHostingConfigText.trim(),
   };
