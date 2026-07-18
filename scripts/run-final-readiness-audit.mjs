@@ -67,14 +67,14 @@ const commands = [
     /CLEAN_START_3X_PASS/,
   ),
   runPnpm(
-    "CORE_EVIDENCE",
-    ["run", "eval:core-artifacts"],
-    /CORE_EVAL_ARTIFACTS_PASS/,
-  ),
-  runPnpm(
     "DOMESTIC_TRACK_AUDIT",
     ["run", "eval:domestic-track:audit"],
     /DOMESTIC_TRACK_AUDIT_PASS/,
+  ),
+  runPnpm(
+    "CORE_EVIDENCE",
+    ["run", "eval:core-artifacts"],
+    /CORE_EVAL_ARTIFACTS_PASS/,
   ),
 ];
 
