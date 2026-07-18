@@ -1,0 +1,195 @@
+{
+  "schemaVersion": "final-readiness-audit-v1",
+  "capturedAt": "2026-07-18T07:17:02.451Z",
+  "status": "PASSED",
+  "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
+  "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
+  "commands": [
+    {
+      "id": "BUILD",
+      "command": "pnpm run build",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1635,
+      "outputSha256": "1e9a728397c402e28032527bf71bf338205367b1e1ba36f78bc5641a6c04e59b",
+      "evidenceLine": "\u001b[32m✓ built in 192ms\u001b[39m"
+    },
+    {
+      "id": "PLAYWRIGHT_E2E",
+      "command": "pnpm run test:e2e",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 40702,
+      "outputSha256": "24a0905bcef34ffb252f8ae876550dcebca77c7ff680e3cfc0db40cd8fc29c4d",
+      "evidenceLine": "9 passed (37.9s)"
+    },
+    {
+      "id": "CLEAN_START_3X",
+      "command": "pnpm run test:e2e:clean-start",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 22641,
+      "outputSha256": "64b92d8c1b56ecd38e317f26023ffab83624661510d0f85a0330706114a33d3b",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=21.92"
+    },
+    {
+      "id": "DOMESTIC_TRACK_AUDIT",
+      "command": "pnpm run eval:domestic-track:audit",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 613,
+      "outputSha256": "e668aa67d73c52338fa76a47f61c4582e60665990b3afee1da6dcaa5ff2b4db2",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=5 sha256=8a2e802aeb01a132fef8c3cba60c2734ff6be8ecd1affbedd8851673cd4c27b4"
+    },
+    {
+      "id": "CORE_EVIDENCE",
+      "command": "pnpm run eval:core-artifacts",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 10490,
+      "outputSha256": "bda23137394dc97f6244886e7d8a42ef9a2c7795410ae03deceb3be7bf4ed282",
+      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=182 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=3 upstageTasks=12 artifacts=13"
+    }
+  ],
+  "documentStatuses": [
+    {
+      "file": "docs/product-spec.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/data-contracts.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/safety-model.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/intervention-policy.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/privacy-and-ai-policy.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/design-system.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/architecture.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/evals.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/demo-script.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/decisions.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/domestic-ai-track-compliance.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/final-readiness.md",
+      "status": "Approved",
+      "approved": true
+    }
+  ],
+  "evidenceChecks": [
+    {
+      "id": "APPROVED_DOCUMENTS",
+      "passed": true,
+      "details": "12/12 approved"
+    },
+    {
+      "id": "UNIT_TESTS",
+      "passed": true,
+      "details": "182/182 passed"
+    },
+    {
+      "id": "ACCESSIBILITY_VIEWPORTS",
+      "passed": true,
+      "details": "6/6 checks passed"
+    },
+    {
+      "id": "FROZEN_STRATEGY_COMPARISON",
+      "passed": true,
+      "details": "90 comparisons, SafeRoute violations=0"
+    },
+    {
+      "id": "RISK_TRANSFER_BOUNDARIES",
+      "passed": true,
+      "details": "23/23 passed"
+    },
+    {
+      "id": "DECISION_WORKFLOW_BOUNDARIES",
+      "passed": true,
+      "details": "30/30 passed"
+    },
+    {
+      "id": "DOMESTIC_AI_TRACK",
+      "passed": true,
+      "details": "7/7 passed"
+    },
+    {
+      "id": "WEATHER_FALLBACK_INTEGRITY",
+      "passed": true,
+      "details": "Demo fixture · Weather Fallback, mixed=false"
+    },
+    {
+      "id": "CORE_MANIFEST",
+      "passed": true,
+      "details": "13 artifacts, credentialsStored=false"
+    }
+  ],
+  "summary": {
+    "unitTests": 182,
+    "e2eTests": 9,
+    "cleanStartRuns": 3,
+    "requiredViewports": 4,
+    "screenshotAndAccessibilityChecks": 6,
+    "frozenVariants": 30,
+    "strategyComparisons": 90,
+    "safeRouteHardConstraintViolations": 0,
+    "riskTransferBoundaries": 23,
+    "decisionWorkflowBoundaries": 30,
+    "domesticTrackChecks": 7,
+    "coreArtifacts": 13
+  },
+  "explicitLimitations": [
+    "Finals Demo readiness is not production deployment approval.",
+    "No real courier or customer personal data is processed.",
+    "No real TMS, map provider, authentication, or customer message delivery is integrated.",
+    "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",
+    "Synthetic simulation results are not evidence of real accident reduction."
+  ],
+  "remainingHumanChecks": [
+    "Run on the actual presentation PC at 1280x720 and browser zoom 100%.",
+    "Assign presenter and recovery operator roles.",
+    "Confirm the exact submission form, video filename, and organizer upload deadline.",
+    "Record the final GitHub commit SHA in the submitted materials."
+  ]
+}
