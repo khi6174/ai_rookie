@@ -93,25 +93,68 @@ function RoleSwitcher({ role, onChange }: { role: Role; onChange: (role: Role) =
   );
 }
 
+function RiderRoleMenu({ role, onChange }: { role: Exclude<Role, "ADMIN">; onChange: (role: Role) => void }) {
+  const riderId = role === "SOURCE" ? "R-017" : "R-024";
+  return (
+    <details className="rider-role-menu">
+      <summary aria-label={`${riderId} · Demo 화면 전환`}>
+        <span>{riderId}</span>
+        <small>화면</small>
+      </summary>
+      <RoleSwitcher role={role} onChange={onChange} />
+    </details>
+  );
+}
+
+function DemoFlowSteps({ session }: { session: DemoSession }) {
+  const status = session.decision.status;
+  const currentStep = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(status)
+    ? 4
+    : status === "ADMIN_APPROVAL_REQUIRED" || status === "ADMIN_HELD"
+      ? 3
+      : status === "RIDER_RESPONSE_PENDING"
+        ? 2
+        : 1;
+
+  return (
+    <ol className="demo-flow-steps" aria-label="의사결정 진행 단계">
+      {["판단", "기사 검토", "관리자 승인", "계획 적용"].map((label, index) => {
+        const step = index + 1;
+        return (
+          <li key={label} className={step < currentStep ? "is-done" : step === currentStep ? "is-current" : undefined}>
+            <span aria-hidden="true">{step < currentStep ? "✓" : step}</span>
+            <strong>{label}</strong>
+          </li>
+        );
+      })}
+    </ol>
+  );
+}
+
 function AppHeader({
   role,
+  session,
   onRoleChange,
   onReset,
 }: {
   role: Role;
+  session: DemoSession;
   onRoleChange: (role: Role) => void;
   onReset: () => void;
 }) {
   return (
-    <header className="app-header">
+    <header className={`app-header ${role === "ADMIN" ? "is-admin" : "is-rider"}`}>
       <div className="brand-lockup" aria-label="SafeRoute AI">
         <span className="brand-mark" aria-hidden="true">SR</span>
         <span>
-          <strong>SafeRoute AI</strong>
-          <small>안전운영 코파일럿</small>
+          <strong>SafeRoute</strong>
+          <small>{role === "ADMIN" ? "운영 안전 데모" : "기사 안전배송"}</small>
         </span>
       </div>
-      <RoleSwitcher role={role} onChange={onRoleChange} />
+      {role === "ADMIN" && <DemoFlowSteps session={session} />}
+      {role === "ADMIN"
+        ? <RoleSwitcher role={role} onChange={onRoleChange} />
+        : <RiderRoleMenu role={role} onChange={onRoleChange} />}
       <div className="header-actions">
         <span className="mode-badge"><span aria-hidden="true">◇</span><span className="mode-label-full">{demoWeatherRuntime.displayLabel}</span><span className="mode-label-short">Demo · Weather Fallback</span></span>
         <button type="button" className="button button-quiet button-small" onClick={onReset}>
@@ -137,21 +180,19 @@ function StatusPill({ session }: { session: DemoSession }) {
 function AdminNavigation() {
   return (
     <nav className="admin-nav" aria-label="관리자 주요 메뉴">
-      <p className="nav-label">운영</p>
+      <strong className="nav-title">Control<br />Tower</strong>
       <a className="nav-item is-current" href="#control-tower" aria-current="page">
-        <span aria-hidden="true">⌂</span><span>Control Tower</span>
+        <span aria-hidden="true">01</span><span>지원 상황</span>
       </a>
       {[
-        ["경로", "준비 중"],
-        ["기사", "준비 중"],
-        ["개입안", "1건 대기"],
+        ["02", "경로"],
+        ["03", "개입 검토"],
       ].map(([label, meta]) => (
-        <span className="nav-item is-muted" key={label}>
-          <span aria-hidden="true">·</span><span>{label}<small>{meta}</small></span>
-        </span>
+        <a className="nav-item" href={label === "02" ? "#route-decision" : "#comparison-heading"} key={label}>
+          <span aria-hidden="true">{label}</span><span>{meta}</span>
+        </a>
       ))}
-      <p className="nav-label nav-label-later">책임과 기록</p>
-      <a className="nav-item" href="#audit"><span aria-hidden="true">≡</span><span>Privacy / Audit</span></a>
+      <a className="nav-item" href="#audit"><span aria-hidden="true">04</span><span>감사기록</span></a>
       <div className="nav-simulation">
         <strong>Simulation result</strong>
         <span>실제 사고감소 효과가 아닙니다.</span>
@@ -180,22 +221,29 @@ function RouteSchematic({ applied }: { applied: boolean }) {
         ? "8건 이관이 적용되어 원 기사 배송지가 9건으로 조정된 개략 경로"
         : "17번째 배송지에서 52분 후 임계치 초과가 예상되는 개략 경로"}
       >
-        <div className={`route-line ${applied ? "is-applied" : ""}`} />
-        {demoFixture.stops.map((stop, index) => (
-          <span
-            key={stop.stopId}
-            className={`route-stop ${index >= 9 && applied ? "is-transferred" : ""} ${index === 16 && !applied ? "is-breach" : ""}`}
-            title={index >= 9 && applied
-              ? `${index + 1}번째 배송지 · 수신 기사로 이관`
-              : `${index + 1}번째 배송지`}
-          >
-            {index + 1}
-          </span>
-        ))}
+        <span className="map-road road-one" aria-hidden="true" />
+        <span className="map-road road-two" aria-hidden="true" />
+        <span className="map-road road-three" aria-hidden="true" />
+        <span className="map-road road-four" aria-hidden="true" />
+        <span className="map-block block-one" aria-hidden="true" />
+        <span className="map-block block-two" aria-hidden="true" />
+        <span className="map-block block-three" aria-hidden="true" />
+        <span className={`map-route route-a ${applied ? "is-applied" : ""}`} aria-hidden="true" />
+        <span className={`map-route route-b ${applied ? "is-applied" : ""}`} aria-hidden="true" />
+        <span className={`map-route route-c ${applied ? "is-applied" : ""}`} aria-hidden="true" />
+        {!applied && <span className="map-exposure" aria-hidden="true" />}
+        <span className="map-pin pin-depot">허브</span>
+        <span className="map-pin pin-current">14</span>
+        <span className="map-pin pin-rest">휴식</span>
+        <span className={`map-pin pin-breach ${applied ? "is-applied" : ""}`}>17</span>
+        <span className="map-label label-depot">관악 합성 허브</span>
+        <span className="map-label label-rest">10분 휴식 지점</span>
+        <span className="map-label label-breach">{applied ? "조정 후 안전범위" : "예상 초과 지점"}</span>
         <div className="route-callout">
           <strong>{applied ? "조정 계획 적용" : "약 52분 후"}</strong>
-          <span>{applied ? "원 기사 9건 · 수신 기사 +8건" : "17번째 배송지 · 임계치 초과 예상"}</span>
+          <span>{applied ? "원 기사 9건 · 수신 기사로 이관 · 8건" : "17번째 배송지 · 임계치 초과 예상"}</span>
         </div>
+        <span className="map-provenance">Fallback schematic map</span>
       </div>
       <div className="timeline-summary">
         <div><span>현재 안전여유</span><strong>54.7</strong></div>
@@ -503,6 +551,42 @@ function RiderCompactRoute({ applied }: { applied: boolean }) {
   );
 }
 
+function RiderLogin({
+  isRecipient,
+  onEnter,
+  onBack,
+}: {
+  isRecipient: boolean;
+  onEnter: () => void;
+  onBack: () => void;
+}) {
+  return (
+    <main id="main-content" className="rider-login-stage">
+      <section className="rider-login" aria-labelledby="rider-login-title">
+        <div className="login-hero">
+          <div className="login-brand"><span aria-hidden="true">SR</span><strong>SafeRoute</strong></div>
+          <div className="login-route-art" aria-hidden="true"><i /><i /><i /><b /></div>
+          <p>오늘의 배송을 시작하기 전에</p>
+          <h1 id="rider-login-title">안전한 운행을<br />함께 준비합니다.</h1>
+        </div>
+        <div className="login-panel">
+          <span className="fixture-pill">Demo fixture</span>
+          <h2>기사 계정 확인</h2>
+          <p>배정된 허브와 차량을 확인하고 업무 화면으로 이동합니다.</p>
+          <dl>
+            <div><dt>기사 ID</dt><dd>{isRecipient ? "R-024" : "R-017"}</dd></div>
+            <div><dt>배정 허브</dt><dd>관악 합성 허브</dd></div>
+            <div><dt>차량</dt><dd>{isRecipient ? "EV-31" : "EV-24"} · 확인됨</dd></div>
+          </dl>
+          <button type="button" className="button button-primary button-block login-primary" onClick={onEnter}>데모 계정으로 시작</button>
+          <button type="button" className="button button-quiet button-block login-back" onClick={onBack}>관리자 화면으로 돌아가기</button>
+          <small>실제 개인정보나 로그인 정보는 사용하지 않습니다.</small>
+        </div>
+      </section>
+    </main>
+  );
+}
+
 function RiderView({
   session,
   courierId,
@@ -523,22 +607,33 @@ function RiderView({
   const impact = isRecipient ? recipientImpact : sourceImpact;
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
   const tabContentId = `rider-${tab.toLowerCase()}-panel`;
+  const selectTab = (nextTab: RiderTab) => {
+    setTab(nextTab);
+    window.scrollTo({ top: 0, behavior: "auto" });
+  };
 
   return (
     <main id="main-content" className="rider-stage">
       <div className="rider-phone">
         <div className="rider-topline">
           <span className="mode-badge"><span aria-hidden="true">◇</span> {demoWeatherRuntime.displayLabel}</span>
-          <span className="stopped-badge"><span aria-hidden="true">✓</span> 정차 상태 확인됨</span>
+          <span className="stopped-badge"><span aria-hidden="true">✓</span> 정차 확인</span>
+        </div>
+        <div className="rider-route-bar">
+          <div><span>관악 합성 권역</span><strong>{tab === "ROUTE" ? "오늘의 운행" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
+          <div><span>배송 진행</span><strong>{isRecipient ? "9 / 24" : "14 / 31"}</strong></div>
         </div>
 
         {tab === "ROUTE" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-route-tab">
             <p className="rider-overline">오늘의 안전배송 · {isRecipient ? "수신 기사" : "원 기사"}</p>
-            <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 안전지원이 필요합니다"}</h1>
-            <p className="rider-lead">{applied
-              ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
-              : "현재 계획은 아직 바뀌지 않았습니다. 정차 상태에서 지원안을 확인해 주세요."}</p>
+            <section className={`rider-hero-card ${applied ? "is-applied" : ""}`}>
+              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : "지원 계획이 도착했어요"}</span>
+              <h1>{applied ? "조정된 계획으로 운행합니다" : "약 16:20, 17번째 배송지 전까지 안전한 범위입니다"}</h1>
+              <p>{applied
+                ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
+                : "약 16:20까지 안전한 범위입니다. 비와 경사 구간, 남은 작업량이 겹쳐 정차 후 지원 계획을 확인해 주세요."}</p>
+            </section>
             <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
               <div><span>배송 진행</span><strong>14 / 31</strong><small>{activeWorkload.remainingLoad.stopCount}건 남음</small></div>
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
@@ -549,19 +644,22 @@ function RiderView({
               <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
               <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
             </section>
-            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => setTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
+            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
           </section>
         )}
 
         {tab === "SUPPORT" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-support-tab">
             <p className="rider-overline">안전지원 · 한 화면에서 결정</p>
-            <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "8건 이관 요청을 검토해 주세요" : "약 52분 안에 계획 조정이 필요합니다"}</h1>
-            <p className="rider-lead">{applied
-              ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
-              : isRecipient
-                ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
-                : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다."}</p>
+            <section className={`rider-hero-card rider-support-hero ${applied ? "is-applied" : ""}`}>
+              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : isRecipient ? "함께 안전기준을 확인했어요" : "약 52분 안에 지원이 필요할 수 있어요"}</span>
+              <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "배송지 8건을 전달받습니다" : "10분 쉬고, 배송지 8건을 이관합니다"}</h1>
+              <p>{applied
+                ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
+                : isRecipient
+                  ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
+                  : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다. 동의 전에는 현재 계획이 바뀌지 않습니다."}</p>
+            </section>
 
             <section className="rider-safety-card" aria-labelledby="rider-safety-heading">
               <div className="safety-card-heading"><span className="band-label">{applied ? "조정 완료" : "조정 권장"}</span><span>입력 신뢰도 {demoConfidence}</span></div>
@@ -597,9 +695,9 @@ function RiderView({
               <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
             </div>
             <div className="rider-actions" aria-label="조치 응답">
-              <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>동의</button>
-              <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>수정 요청</button>
-              <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>거절</button>
+              <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>이 조정에 동의</button>
+              <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>다른 방법 요청</button>
+              <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>지금은 거절</button>
             </div>
             <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
           </section>
@@ -643,7 +741,7 @@ function RiderView({
               aria-selected={tab === value}
               aria-controls={`rider-${value.toLowerCase()}-panel`}
               className={tab === value ? "is-active" : undefined}
-              onClick={() => setTab(value)}
+              onClick={() => selectTab(value)}
             >
               <span aria-hidden="true">{value === "ROUTE" ? "↗" : value === "SUPPORT" ? "!" : "○"}</span>
               {label}
@@ -716,6 +814,10 @@ function ApprovalDialog({
 
 export function App({ initialSession, initialExplanation }: AppProps) {
   const [role, setRole] = useState<Role>("ADMIN");
+  const [riderEntry, setRiderEntry] = useState<Record<"SOURCE" | "RECIPIENT", boolean>>({
+    SOURCE: false,
+    RECIPIENT: false,
+  });
   const [session, setSession] = useState(
     () => initialSession ?? createInitialDemoSession(),
   );
@@ -730,6 +832,7 @@ export function App({ initialSession, initialExplanation }: AppProps) {
     setSession(createInitialDemoSession(createResetDemoDecisionId()));
     setExplanation(null);
     setExplanationLoading(false);
+    setRiderEntry({ SOURCE: false, RECIPIENT: false });
     setRole("ADMIN");
   };
 
@@ -749,12 +852,16 @@ export function App({ initialSession, initialExplanation }: AppProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">본문으로 건너뛰기</a>
-      <AppHeader role={role} onRoleChange={setRole} onReset={reset} />
-      <div className="global-announcement" aria-live="polite">
-        <StatusPill session={session} />
-        <span>{session.announcement}</span>
-        <code>{session.decision.decisionId}</code>
-      </div>
+      {role === "ADMIN" || riderEntry[role] ? (
+        <>
+          <AppHeader role={role} session={session} onRoleChange={setRole} onReset={reset} />
+          <div className="global-announcement" aria-live="polite">
+            <StatusPill session={session} />
+            <span>{session.announcement}</span>
+            <code>{session.decision.decisionId}</code>
+          </div>
+        </>
+      ) : null}
       {role === "ADMIN" ? (
         <AdminDashboard
           session={session}
@@ -764,12 +871,18 @@ export function App({ initialSession, initialExplanation }: AppProps) {
           onGenerateExplanation={() => void requestExplanation(false)}
           onFallbackExplanation={() => void requestExplanation(true)}
         />
-      ) : (
+      ) : riderEntry[role] ? (
         <RiderView
           session={session}
           courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
           isRecipient={role === "RECIPIENT"}
           onResponse={(response) => respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
+        />
+      ) : (
+        <RiderLogin
+          isRecipient={role === "RECIPIENT"}
+          onEnter={() => setRiderEntry((current) => ({ ...current, [role]: true }))}
+          onBack={() => setRole("ADMIN")}
         />
       )}
       <ApprovalDialog

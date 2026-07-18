@@ -116,6 +116,17 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 
 실제 화면 반영은 기존 테스트·폐루프와 승인 문서를 보존하는 별도 구현 작업으로 수행한다. 디자인 캡처에 보인 요소라도 현재 제품 범위를 넘으면 추가하지 않는다.
 
+### 2.7 실제 데모 반영 상태
+
+2026-07-18 별도 구현 작업에서 2.4~2.6의 허용 범위를 실제 React 데모에 이식했다. 관리자에는 의사결정 단계, 큰 `Fallback schematic map`, 지도와 연결된 지원 큐를 적용했다. 기사 모바일 웹에는 실제 인증이 아닌 Demo 계정 확인, Safe-until 중심 운행 화면, 조치 중심 안전지원 화면, `운행 / 안전지원 / 내 정보` 3탭과 compact Fallback map을 적용했다. Safety 계산, 개입 판정, 동의·승인 상태기계와 외부 의존성은 변경하지 않았다.
+
+실제 E2E 캡처:
+
+- [`admin-initial-1440x900.png`](../artifacts/evals/screenshots/admin-initial-1440x900.png)
+- [`rider-login-390x844.png`](../artifacts/evals/screenshots/rider-login-390x844.png)
+- [`rider-source-route-390x844.png`](../artifacts/evals/screenshots/rider-source-route-390x844.png)
+- [`rider-source-review-390x844.png`](../artifacts/evals/screenshots/rider-source-review-390x844.png)
+
 ## 3. 디자인 원칙
 
 ### 3.1 지원 중심

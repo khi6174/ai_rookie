@@ -5,6 +5,22 @@ import { expect, test, type Browser, type Locator, type Page } from "@playwright
 
 const decisionId = "decision-scenario-a-ui-v1";
 
+async function switchDemoRole(page: Page, role: "관리자" | "원 기사" | "수신 기사") {
+  const target = page.getByRole("tab", { name: role });
+  if (!await target.isVisible()) {
+    const menu = page.locator(".rider-role-menu summary");
+    await expect(menu).toBeVisible();
+    await menu.click();
+  }
+  await target.click();
+}
+
+async function enterRider(page: Page, role: "원 기사" | "수신 기사") {
+  await switchDemoRole(page, role);
+  const enterButton = page.getByRole("button", { name: "데모 계정으로 시작" });
+  if (await enterButton.isVisible()) await enterButton.click();
+}
+
 async function expectCleanInitialState(page: Page, expectedDecisionId = decisionId) {
   await expect(page.getByRole("heading", { name: "향후 60분 안에 어떤 지원이 필요한가?" })).toBeVisible();
   await expect(page.getByText("Demo fixture").first()).toBeVisible();
@@ -16,20 +32,20 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
 }
 
 async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId) {
-  await page.getByRole("tab", { name: "원 기사" }).click();
-  await expect(page.getByRole("heading", { name: "17번째 배송지 전에 안전지원이 필요합니다" })).toBeVisible();
+  await enterRider(page, "원 기사");
+  await expect(page.getByRole("heading", { name: "약 16:20, 17번째 배송지 전까지 안전한 범위입니다" })).toBeVisible();
   await page.getByRole("tab", { name: "안전지원" }).click();
-  await expect(page.getByRole("heading", { name: "약 52분 안에 계획 조정이 필요합니다" })).toBeVisible();
-  await page.getByRole("button", { name: "동의", exact: true }).click();
-  await expect(page.getByText("동의가 기록되었습니다. 계획은 아직 변경되지 않았습니다.").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
+  await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
+  await expect(page.locator(".rider-response-status").getByText("동의가 기록되었습니다. 계획은 아직 변경되지 않았습니다.")).toBeVisible();
 
-  await page.getByRole("tab", { name: "수신 기사" }).click();
+  await enterRider(page, "수신 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
-  await expect(page.getByRole("heading", { name: "8건 이관 요청을 검토해 주세요" })).toBeVisible();
-  await page.getByRole("button", { name: "동의", exact: true }).click();
-  await expect(page.getByText("모든 필수 동의가 완료되어 관리자 승인을 기다립니다.").first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "배송지 8건을 전달받습니다" })).toBeVisible();
+  await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
+  await expect(page.locator(".rider-response-status").getByText("모든 필수 동의가 완료되어 관리자 승인을 기다립니다.")).toBeVisible();
 
-  await page.getByRole("tab", { name: "관리자" }).click();
+  await switchDemoRole(page, "관리자");
   const reviewButton = page.getByRole("button", { name: "승인 검토" });
   await expect(reviewButton).toBeEnabled();
   await reviewButton.click();
@@ -80,9 +96,10 @@ test("두 기사 동의 후 관리자 승인으로 계획·ETA·안내를 함께
 
 test("Demo 초기화는 같은 fixture를 새 결정 ID와 연결하고 폐루프를 다시 완료한다", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("tab", { name: "원 기사" }).click();
+  await enterRider(page, "원 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
-  await page.getByRole("button", { name: "동의", exact: true }).click();
+  await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
+  await switchDemoRole(page, "관리자");
   await page.getByRole("button", { name: "Demo 초기화" }).click();
 
   const resetDecisionId = await page.locator(".global-announcement code").textContent();
@@ -97,15 +114,22 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
 
   const sourceTab = page.getByRole("tab", { name: "원 기사" });
   await activateUsingKeyboard(page, sourceTab);
-  await expect(sourceTab).toHaveAttribute("aria-selected", "true");
-  expect(await sourceTab.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none");
+  const enterButton = page.getByRole("button", { name: "데모 계정으로 시작" });
+  await focusUsingTab(page, enterButton);
+  await expect(enterButton).toBeFocused();
+  expect(await enterButton.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none");
+  await page.keyboard.press("Enter");
+  await expect(page.locator(".rider-role-menu summary")).toHaveAttribute("aria-label", "R-017 · Demo 화면 전환");
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
-  await activateUsingKeyboard(page, page.getByRole("button", { name: "동의", exact: true }));
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
 
+  await activateUsingKeyboard(page, page.locator(".rider-role-menu summary"));
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "수신 기사" }));
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "데모 계정으로 시작" }));
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
-  await activateUsingKeyboard(page, page.getByRole("button", { name: "동의", exact: true }));
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
 
+  await activateUsingKeyboard(page, page.locator(".rider-role-menu summary"));
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "관리자" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "승인 검토" }));
   await expect(page.getByRole("dialog", { name: "승인 후 계획을 적용할까요?" })).toBeVisible();
@@ -133,20 +157,20 @@ for (const viewport of [
   test(`${viewport.name}에서 핵심 문구와 44px 터치 대상을 유지한다`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
-    await page.getByRole("tab", { name: "원 기사" }).click();
-    await expect(page.getByRole("heading", { name: "17번째 배송지 전에 안전지원이 필요합니다" })).toBeVisible();
+    await enterRider(page, "원 기사");
+    await expect(page.getByRole("heading", { name: "약 16:20, 17번째 배송지 전까지 안전한 범위입니다" })).toBeVisible();
     await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
     for (const tabName of ["운행", "안전지원", "내 정보"]) {
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
     }
     await page.getByRole("tab", { name: "안전지원" }).click();
-    await expect(page.getByRole("heading", { name: "약 52분 안에 계획 조정이 필요합니다" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
     await expect(page.getByText("수정하거나 거절해도 불이익은 없습니다.", { exact: false })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
-    await expectMinimumTouchHeight(page.getByRole("tab", { name: "원 기사" }));
-    await expectMinimumTouchHeight(page.getByRole("button", { name: "동의", exact: true }));
-    await expectMinimumTouchHeight(page.getByRole("button", { name: "수정 요청" }));
-    await expectMinimumTouchHeight(page.getByRole("button", { name: "거절" }));
+    await expectMinimumTouchHeight(page.locator(".rider-role-menu summary"));
+    await expectMinimumTouchHeight(page.getByRole("button", { name: "이 조정에 동의", exact: true }));
+    await expectMinimumTouchHeight(page.getByRole("button", { name: "다른 방법 요청" }));
+    await expectMinimumTouchHeight(page.getByRole("button", { name: "지금은 거절" }));
   });
 }
 
@@ -196,14 +220,26 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await expectNoPageHorizontalOverflow(page);
-    const demoModeLabelVisible = await page.locator(".mode-badge:visible").filter({ hasText: "Demo" }).first().isVisible();
+    const demoModeLabelVisible = await page.locator(".mode-badge:visible, .fixture-pill:visible").filter({ hasText: "Demo" }).first().isVisible();
     expect(demoModeLabelVisible).toBe(true);
-    const touchTargets = input.role === "SOURCE" || input.role === "RECIPIENT"
+    const touchTargets = input.state === "LOGIN"
       ? [
-          page.getByRole("tab", { name: input.role === "SOURCE" ? "원 기사" : "수신 기사" }),
-          page.getByRole("button", { name: "동의", exact: true }),
-          page.getByRole("button", { name: "수정 요청" }),
-          page.getByRole("button", { name: "거절" }),
+          page.getByRole("button", { name: "데모 계정으로 시작" }),
+          page.getByRole("button", { name: "관리자 화면으로 돌아가기" }),
+        ]
+      : input.state === "RIDER_ROUTE"
+        ? [
+            page.getByRole("tab", { name: "운행" }),
+            page.getByRole("tab", { name: "안전지원" }),
+            page.getByRole("tab", { name: "내 정보" }),
+            page.getByRole("button", { name: "안전지원 검토" }),
+          ]
+        : input.role === "SOURCE" || input.role === "RECIPIENT"
+      ? [
+          page.locator(".rider-role-menu summary"),
+          page.getByRole("button", { name: "이 조정에 동의", exact: true }),
+          page.getByRole("button", { name: "다른 방법 요청" }),
+          page.getByRole("button", { name: "지금은 거절" }),
         ]
       : [];
     const touchHeights = await Promise.all(touchTargets.map(async (target) => {
@@ -255,6 +291,21 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
 
   await page.goto("/");
   await page.getByRole("tab", { name: "원 기사" }).click();
+  await capture({
+    file: "rider-login-390x844.png",
+    width: 390,
+    height: 844,
+    role: "SOURCE",
+    state: "LOGIN",
+  });
+  await page.getByRole("button", { name: "데모 계정으로 시작" }).click();
+  await capture({
+    file: "rider-source-route-390x844.png",
+    width: 390,
+    height: 844,
+    role: "SOURCE",
+    state: "RIDER_ROUTE",
+  });
   await page.getByRole("tab", { name: "안전지원" }).click();
   await capture({
     file: "rider-source-review-390x844.png",
@@ -265,7 +316,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
   });
 
   await page.goto("/");
-  await page.getByRole("tab", { name: "수신 기사" }).click();
+  await enterRider(page, "수신 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
   await capture({
     file: "rider-recipient-review-360x800.png",
@@ -294,7 +345,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
       browser: `Chromium ${browser.version()}`,
       scope: [
         "horizontal overflow at four required viewports",
-        "44px minimum touch height for four decision controls in both rider views",
+        "44px minimum touch height for login, route and decision controls in rider views",
         "visible Demo fixture provenance label",
       ],
       excluded: [
@@ -303,7 +354,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
         "Lighthouse score",
       ],
       checks: accessibilityChecks,
-      passed: accessibilityChecks.length === 4 && accessibilityChecks.every((check) => check.passed),
+      passed: accessibilityChecks.length === 6 && accessibilityChecks.every((check) => check.passed),
     }, null, 2)}\n`,
     "utf8",
   );

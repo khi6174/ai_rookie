@@ -289,9 +289,9 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 
 2026-07-15 인앱 브라우저 점검에서는 네 해상도 모두 가로 넘침 없이 핵심 카드와 조치가 표시됐다. 기사 역할 전환은 최소 44px, 동의·수정·거절은 48px 터치 높이를 확인했다. 두 기사 동의부터 관리자 승인·적용 완료까지 포인터 폐루프와 적용 후 0건 상태를 확인했다.
 
-2026-07-18 Playwright E2E는 관리자–원 기사–수신 기사 동일 결정 ID, 동의 전 승인 잠금, 두 기사 동의, 승인 대화상자, 계획·ETA·고객안내 적용, 키보드 전용 순회, 기사 모바일 웹 3탭, 네 지정 해상도의 가로 넘침과 기사 터치 높이를 9/9 통과했다. `Demo 초기화`는 새 UUID 기반 결정 ID에 후보·평가·동의·적용계획을 모두 다시 연결하고, reset 직후 같은 fixture로 폐루프를 다시 완료했다. 별도 clean-start 명령은 Vite 서버와 브라우저를 매회 새로 띄워 핵심 폐루프를 3회 연속 실행했고 최종 재검증에서 `CLEAN_START_3X_PASS elapsedSeconds=13.19`를 반환했다.
+2026-07-18 Playwright E2E는 관리자–원 기사–수신 기사 동일 결정 ID, 동의 전 승인 잠금, 두 기사 동의, 승인 대화상자, 계획·ETA·고객안내 적용, 키보드 전용 순회, Demo 계정 확인, 기사 모바일 웹 3탭, 네 지정 해상도의 가로 넘침과 기사 터치 높이를 9/9 통과했다. `Demo 초기화`는 새 UUID 기반 결정 ID에 후보·평가·동의·적용계획을 모두 다시 연결하고, reset 직후 같은 fixture로 폐루프를 다시 완료했다. 별도 clean-start 명령은 Vite 서버와 브라우저를 매회 새로 띄워 핵심 폐루프를 3회 연속 실행했고 디자인 이식 후 최종 재검증에서 `CLEAN_START_3X_PASS elapsedSeconds=20.68`을 반환했다.
 
-같은 E2E에서 관리자 초기 1440×900, 관리자 적용 완료 1280×720, 원 기사 390×844, 수신 기사 360×800 PNG를 저장했다. `ui-screenshot-manifest.json`의 해상도와 SHA-256을 원본 파일에서 다시 계산해 4/4 통과했고 연결 식별정보·실제 개인정보는 포함하지 않았다. 실제 화면 기준 상황보고형 리허설과 팀 승인을 거쳐 `docs/demo-script.md`는 Approved다.
+같은 E2E에서 네 지정 해상도에 걸쳐 관리자 초기·적용 완료, 기사 Demo 계정 확인·운행·원 기사 안전지원·수신 기사 안전지원 PNG 6개를 저장했다. `ui-screenshot-manifest.json`의 해상도와 SHA-256을 원본 파일에서 다시 계산해 6/6 통과했고 연결 식별정보·실제 개인정보는 포함하지 않았다. 실제 화면 기준 상황보고형 리허설과 팀 승인을 거쳐 `docs/demo-script.md`는 Approved다.
 
 ### 13.3 복구
 
@@ -395,8 +395,8 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 | A.X 30과업 생성 강건성 v1.2 | 결정론적 사실 anchor·생성 설명 분리·독립 결과 검증 | 첫 시도 28/30, Fallback 2건, 평균 2,589.14ms·P95 3,442.77ms·최대 13,949.28MiB, unsafe 표시 0건 |
 | 지정 해상도·포인터 폐루프 | 인앱 브라우저 수동 QA | 4개 해상도, 두 기사 동의→승인→적용 통과 |
 | Playwright 폐루프·접근성 E2E | `pnpm run test:e2e` | 9/9 통과, 새 결정 ID reset 후 재완료, 키보드 전용 승인, 4개 해상도, 44px 터치, 독립 브라우저 세션 3회 |
-| 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, 최종 재실행 총 13.19초 |
-| 발표 스크린샷 | `pnpm run test:e2e` | 지정 4개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 4/4 |
+| 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, 디자인 이식 후 최종 재실행 총 20.68초 |
+| 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
 
@@ -499,6 +499,8 @@ artifacts/evals/
   screenshots/
     admin-initial-1440x900.png
     admin-applied-1280x720.png
+    rider-login-390x844.png
+    rider-source-route-390x844.png
     rider-source-review-390x844.png
     rider-recipient-review-360x800.png
     ui-screenshot-manifest.json
