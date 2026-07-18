@@ -43,7 +43,6 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 
 | 항목 | 분류 | 제품 런타임·평가 사용 | 제출 처리 |
 |---|---|---:|---|
-| `SafeRoute_AI_Fable5_Prompt_Pack_KR.md` | 과거 개발 참고문서 | 없음 | 최종 제출 패키지에서 제외 |
 | `saferoute-screen-demo.khiyw.chatgpt.site` | 격리된 디자인 참고 프로토타입 | 없음 | 실제 SafeRoute 데모·성과에서 제외 |
 | Codex 등 개발 보조 도구 | 개발 과정 보조 | 없음 | 제품 AI로 주장하지 않고 질문 시 투명하게 설명 |
 | `huggingface_hub` | 국내 A.X 고정 revision 파일 배포 도구 | Hosted inference 없음 | SKT A.X 파일 전달 용도로만 명시 |
@@ -80,7 +79,7 @@ pnpm run eval:domestic-track:audit
 - 제품·평가 실행 경로에 비국내 생성형 AI endpoint·SDK·credential이 없다.
 - 국내 AI별 역할·모델·상태·증거가 활용명세에서 추적된다.
 - `OpenAI-compatible`을 OpenAI 모델 사용으로 오해하지 않도록 설명한다.
-- 과거 개발·디자인 참고물과 제품 런타임을 제출 범위에서 분리한다.
+- 격리형 디자인 참고물과 제품 런타임을 제출 범위에서 분리한다.
 - 실제 실행하지 않은 VARCO·A.X K1 API Live 결과를 사용 성과로 주장하지 않는다.
 
 ## 8. 비목표
@@ -94,4 +93,3 @@ pnpm run eval:domestic-track:audit
 
 - A.X 계정의 활성 모델·quota·입력 보존 정책 최종 확인
 - 운영사무국이 개발 보조 AI 공개를 별도 양식으로 요구하는지 확인
-- 과거 Claude 개발 프롬프트 문서를 GitHub main에서도 삭제할지 팀 승인

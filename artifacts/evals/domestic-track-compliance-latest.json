@@ -1,6 +1,6 @@
 {
   "schemaVersion": "domestic-track-compliance-v1",
-  "capturedAt": "2026-07-18T07:31:56.137Z",
+  "capturedAt": "2026-07-18T07:42:20.739Z",
   "status": "PASSED",
   "scope": {
     "competitionTrack": "DOMESTIC_AI",
@@ -101,12 +101,6 @@
     }
   ],
   "declaredNonRuntimeReferences": [
-    {
-      "path": "SafeRoute_AI_Fable5_Prompt_Pack_KR.md",
-      "classification": "LEGACY_DEVELOPMENT_REFERENCE",
-      "submissionDisposition": "EXCLUDE",
-      "runtimeImported": false
-    },
     {
       "path": "artifacts/saferoute-web-demo/",
       "classification": "ISOLATED_DESIGN_REFERENCE",

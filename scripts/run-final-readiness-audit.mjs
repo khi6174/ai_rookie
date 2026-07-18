@@ -110,6 +110,42 @@ const decisionWorkflow = await readJson(
 const domesticTrack = await readJson("domestic-track-compliance-latest.json");
 const weather = await readJson("weather-runtime-selection-latest.json");
 const coreManifest = await readJson("run-manifest.json");
+let publicDemoBuild = {
+  configured: false,
+  workerPresent: false,
+  packagedMetadataMatches: false,
+};
+try {
+  const hostingConfigText = await readFile(
+    resolve(root, ".openai/hosting.json"),
+    "utf8",
+  );
+  const packagedHostingConfigText = await readFile(
+    resolve(root, "dist/.openai/hosting.json"),
+    "utf8",
+  );
+  const workerSource = await readFile(
+    resolve(root, "dist/server/index.js"),
+    "utf8",
+  );
+  const hostingConfig = JSON.parse(hostingConfigText);
+  publicDemoBuild = {
+    configured:
+      typeof hostingConfig.project_id === "string" &&
+      hostingConfig.project_id.startsWith("appgprj_"),
+    workerPresent:
+      workerSource.includes("env.ASSETS.fetch") &&
+      workerSource.includes("/index.html"),
+    packagedMetadataMatches:
+      hostingConfigText.trim() === packagedHostingConfigText.trim(),
+  };
+} catch {
+  publicDemoBuild = {
+    configured: false,
+    workerPresent: false,
+    packagedMetadataMatches: false,
+  };
+}
 const safeRouteStrategy = frozen.strategies.find(
   (strategy) => strategy.strategy === "SAFEROUTE",
 );
@@ -167,6 +203,13 @@ const evidenceChecks = [
       coreManifest.rawApiResponsesStored === false,
     `${coreManifest.artifacts.length} artifacts, credentialsStored=${coreManifest.credentialsStored}`,
   ),
+  check(
+    "PUBLIC_DEMO_BUILD",
+    publicDemoBuild.configured &&
+      publicDemoBuild.workerPresent &&
+      publicDemoBuild.packagedMetadataMatches,
+    `configured=${publicDemoBuild.configured}, worker=${publicDemoBuild.workerPresent}, metadata=${publicDemoBuild.packagedMetadataMatches}`,
+  ),
 ];
 
 const commandChecksPassed = commands.every((command) => command.passed);
@@ -195,9 +238,13 @@ const result = {
     decisionWorkflowBoundaries: decisionWorkflow.caseCount,
     domesticTrackChecks: domesticTrack.checks.length,
     coreArtifacts: coreManifest.artifacts.length,
+    publicDemoBuildReady:
+      publicDemoBuild.configured &&
+      publicDemoBuild.workerPresent &&
+      publicDemoBuild.packagedMetadataMatches,
   },
   explicitLimitations: [
-    "Finals Demo readiness is not production deployment approval.",
+    "The public Finals Demo is not approval for production operation.",
     "No real courier or customer personal data is processed.",
     "No real TMS, map provider, authentication, or customer message delivery is integrated.",
     "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",

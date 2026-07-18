@@ -77,7 +77,7 @@ pnpm run eval:kma-weather:runtime
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 9개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
-`package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사 결과가 모두 `PASSED`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 과거 Claude 개발 프롬프트·격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다.
+`package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사 결과가 모두 `PASSED`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다.
 
 ## 핵심 문서
 

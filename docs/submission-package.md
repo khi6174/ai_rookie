@@ -9,7 +9,7 @@
 
 ## 1. 결정사항
 
-최종 제출 패키지는 GitHub 전체 작업폴더를 압축하지 않고 승인된 소스·문서·최신 평가 증거·스크린샷과 같은 commit의 정적 빌드만 allowlist 방식으로 포함한다. 로컬 비밀정보, 중복 run, 과거 비국내 AI 개발 참고물과 격리형 디자인 프로토타입은 명시적으로 제외한다.
+최종 제출 패키지는 GitHub 전체 작업폴더를 압축하지 않고 승인된 소스·문서·최신 평가 증거·스크린샷과 같은 commit의 정적 빌드만 allowlist 방식으로 포함한다. 로컬 비밀정보, 중복 run과 격리형 디자인 프로토타입은 명시적으로 제외한다.
 
 ## 2. 생성 명령
 
@@ -43,7 +43,6 @@ pnpm run package:submission
 
 ## 4. 명시적 제외
 
-- `SafeRoute_AI_Fable5_Prompt_Pack_KR.md`
 - 별도 전략 디자인 PDF
 - `artifacts/saferoute-web-demo/`와 관련 압축파일
 - `.env.local`, API 키, 인증정보
@@ -65,7 +64,7 @@ pnpm run package:submission
 - 패키지 생성 명령이 clean commit에서 통과한다.
 - manifest의 모든 파일 해시가 압축을 푼 파일과 일치한다.
 - 비밀정보·실제 개인정보·로컬 경로가 없다.
-- 과거 비국내 AI 개발 참고물과 격리형 프로토타입이 없다.
+- 격리형 프로토타입과 비승인 외부 산출물이 없다.
 - 최종 readiness와 국내트랙 감사가 모두 `PASSED`다.
 - 정적 빌드가 패키지의 commit에서 재생성된다.
 

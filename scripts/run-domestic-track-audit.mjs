@@ -238,12 +238,6 @@ const checks = [
 const failedChecks = checks.filter((check) => !check.passed);
 const declaredNonRuntimeReferences = [
   {
-    path: "SafeRoute_AI_Fable5_Prompt_Pack_KR.md",
-    classification: "LEGACY_DEVELOPMENT_REFERENCE",
-    submissionDisposition: "EXCLUDE",
-    runtimeImported: false,
-  },
-  {
     path: "artifacts/saferoute-web-demo/",
     classification: "ISOLATED_DESIGN_REFERENCE",
     submissionDisposition: "EXCLUDE_EXTERNAL_PROTOTYPE",

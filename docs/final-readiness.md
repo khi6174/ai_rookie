@@ -43,7 +43,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`의 2026-07-18 검증 실행은 명령 5/5, 증거 검사 9/9와 당시 Approved 문서 12/12를 통과했다. 제출 패키지 문서 추가 후에는 Approved 문서 13/13을 요구한다. 이 게이트는 빌드, Playwright 9개, clean-start 3회, 핵심 평가와 국내트랙 감사를 외부 API 호출 없이 다시 실행한다. 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`의 2026-07-18 검증 실행은 명령 5/5, 증거 검사 9/9와 당시 Approved 문서 12/12를 통과했다. 제출 패키지·공개 Demo 배포 경계 추가 후에는 Approved 문서 13/13과 증거 검사 10/10을 요구한다. 이 게이트는 빌드, Playwright 9개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 
@@ -87,6 +87,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - `pnpm run eval:domestic-track:audit` 통과와 활용명세·제출 제외 항목 확인
 - `artifacts/evals/final-readiness-latest.json`의 `PASSED`와 사람 확인 항목 기록
 - `pnpm run package:submission`으로 allowlist ZIP과 SHA-256 manifest 생성
+- 공개 URL에서도 `Demo fixture`, `Fallback map`과 비운영 한계 표시 확인
 - A.X API 키가 발급되면 기존 12과업 계약만 별도 실행하고 데모 폐루프에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
 

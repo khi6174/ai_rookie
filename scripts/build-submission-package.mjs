@@ -100,6 +100,7 @@ if (domesticTrack.status !== "PASSED") {
 
 const rootFiles = new Set([
   ".env.example",
+  ".openai/hosting.json",
   "AGENTS.md",
   "README.md",
   "index.html",
@@ -201,7 +202,6 @@ const includedFiles = trackedFiles.filter(
 );
 
 const explicitExclusions = [
-  "SafeRoute_AI_Fable5_Prompt_Pack_KR.md",
   "SafeRoute_AI_Final_Strategy_Design_Manual_KR.pdf",
   "artifacts/saferoute-web-demo/",
   "artifacts/saferoute-web-demo-site.tar.gz",
@@ -300,7 +300,6 @@ pnpm run dev
 
 ## 명시적 제외
 
-- 과거 Claude 개발 프롬프트 문서
 - 격리형 ChatGPT 디자인 프로토타입과 압축파일
 - 로컬 API 키와 \`.env.local\`
 - \`node_modules\`, 테스트 리포트와 이전 중복 평가 run

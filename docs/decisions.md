@@ -336,6 +336,15 @@
 - 기각한 대안: 저장소의 모든 `OpenAI` 문자열을 삭제해 프로토콜 계약을 불명확하게 만드는 방식, 개발 보조 도구를 국내 AI 사용 성과로 포함하는 방식, 문서 선언만 하고 endpoint·SDK·credential을 검사하지 않는 방식, VARCO를 P0 텍스트 모델로 추가하는 방식.
 - 영향 파일: `docs/domestic-ai-track-compliance.md`, `docs/final-readiness.md`, `docs/decisions.md`, `README.md`, `package.json`, `scripts/run-domestic-track-audit.mjs`, `artifacts/evals/domestic-track-compliance-latest.json`
 
+### ADR-034 — 공개 배포는 합성 Demo 전용 정적 앱으로 제한한다
+
+- 날짜: 2026-07-18
+- 상태: Approved
+- 결정: 팀 승인에 따라 과거 비국내 AI 개발 프롬프트 파일을 GitHub main에서 삭제한다. SafeRoute 공개 사이트는 현재 검증된 React·Vite 화면과 결정론적 fixture만 배포하며, Cloudflare Worker 호환 정적 자산 어댑터는 `ASSETS` 제공과 SPA fallback만 담당한다. 공개 접근을 허용하되 API 키와 `.env.local`은 배포물에 포함하지 않고, 실제 인증·지도·TMS·고객 알림·개인정보 처리처럼 보이는 기능을 추가하지 않는다. 화면의 `Demo fixture`, `Fallback map`, 합성 결과 한계를 유지한다.
+- 이유: 국내 AI 트랙 제출 범위를 더 명확하게 만들고 심사자가 별도 설치 없이 같은 폐루프를 재현할 수 있게 하면서도, 공개 배포를 실제 운영 서비스로 오인하거나 서버 자격증명이 노출되는 위험을 막기 위해서다.
+- 기각한 대안: 과거 프롬프트를 main에 계속 보존하는 방식, API 키가 필요한 Live 데모 공개, 별도 디자인 프로토타입 배포, 실제 인증처럼 보이는 진입 화면, 검증되지 않은 외부 지도·알림 연동 추가.
+- 영향 파일: `SafeRoute_AI_Fable5_Prompt_Pack_KR.md`, `.openai/hosting.json`, `package.json`, `scripts/build-sites-worker.mjs`, `scripts/run-domestic-track-audit.mjs`, `scripts/run-final-readiness-audit.mjs`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`, `docs/final-readiness.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
