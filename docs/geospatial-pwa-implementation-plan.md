@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G2
+- 상태: Approved through G3-A
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-19
-- 계획 버전: `geospatial-pwa-plan-v1.2.0`
+- 계획 버전: `geospatial-pwa-plan-v1.3.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -117,6 +117,15 @@ PWA 진입
 - 키보드와 screen reader 대안으로 같은 decision 선택 가능
 
 ### G3 — 기사 PWA 시각 구조
+
+실행 상태:
+
+- `G3-A` 완료: 기존 역할 전환형 반응형 모바일 웹 안에서 `운행 / 안전지원 / 내 정보` 3탭을 유지하고 Field-first 시각 계층을 적용했다.
+- 운행 첫 화면은 Safe-until, 다음 배송, 합성 현재 위치, 강수·경사 맥락, 휴식 지점과 구조화 경로, 큰 `안전지원 검토` 행동 순서로 재배치했다.
+- 안전지원은 조정 전후, 내 작업 변화, 현재 계획 불변 안내와 동의·수정·거절을 상세 설명보다 먼저 표시한다. 내 정보에는 공유·비공유·기사 권리를 시각 요약한다.
+- 390×844·360×800에서 현재 위치 맥락과 주요 행동이 하단 탭 위 첫 화면에 들어오고, 주요 행동 48px·나머지 터치 대상 44px를 유지한다.
+- 외부 이미지·아이콘·지도 SDK·비국내 AI 생성 에셋은 추가하지 않았다. 기능 목적의 CSS schematic route와 한국어 구조화 목록으로 같은 과업을 완료한다.
+- `G3-B` 잔여: 설치 manifest·install prompt·service worker, 위치 권한, 오프라인·캐시 만료 동작은 별도 보안·캐시 계약과 사용자 승인 후 구현한다. 현재 화면은 설치형 PWA나 실제 위치를 주장하지 않는다.
 
 작업:
 

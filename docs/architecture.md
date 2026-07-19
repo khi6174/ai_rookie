@@ -77,6 +77,8 @@ G2-A의 `src/adapters/maps`는 `national`, `region`, `decision` 세 가시 범�
 
 G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과를 재계산하지 않는다. 정상 SVG 지도와 구조화 목록은 동일 `MapRenderModel`을 읽으며, 지도 가용성은 UI 표시 상태에만 영향을 준다. 오류 중에도 breadcrumb, 지역·기사·decision 선택과 배송순서 목록, 지원 큐 링크를 사용할 수 있고 복구 후 같은 selection을 유지한다.
 
+G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경이다. 기사 모바일의 합성 위치·날씨·경로는 기존 Demo fixture와 Weather Fallback만 읽으며 브라우저 위치 API, service worker, 캐시, 설치 manifest, 실제 인증을 호출하지 않는다. 운행·안전지원·내 정보는 동일 `DemoSession`의 상태와 decision ID를 유지하므로 시각 순서 변경이 동의·승인 상태기계에 영향을 주지 않는다.
+
 ### 4.2 권장 디렉터리
 
 ```text

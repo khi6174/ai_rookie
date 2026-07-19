@@ -375,6 +375,16 @@
 - 기각한 대안: 오류 시 빈 지도 표시, 정상 지도 스크린샷으로 대체, 별도 하드코딩 목록, 지도 복구 시 선택 초기화, 오류 중 승인 기능 전체 차단.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/accessibility-summary.json`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
 
+### ADR-038 — G3-A 기사 모바일은 위치 맥락과 결정 행동을 첫 화면에 우선한다
+
+- 날짜: 2026-07-19
+- 상태: Approved
+- 결정: 기사 운행 화면은 Safe-until·다음 배송, 합성 현재 위치·날씨·경사, 휴식 지점과 구조화 경로, 큰 안전지원 행동 순서로 구성한다. 안전지원 화면은 조정 전후·내 작업 변화·현재 계획 불변 안내와 동의·수정·거절을 상세 설명보다 먼저 둔다. `운행 / 안전지원 / 내 정보` 3탭과 비징벌적 권리는 유지한다.
+- 경계: G3-A는 역할 전환형 반응형 모바일 웹의 시각 구조만 바꾼다. 실제 위치, 설치 manifest, service worker, 오프라인 캐시, 푸시, 실제 인증과 새 외부 이미지·지도·아이콘 의존성을 추가하지 않는다.
+- 이유: 기존 화면은 안전 근거는 충분했지만 현재 위치 맥락과 주요 행동이 긴 카드 아래로 밀려 현장 사용자가 첫 화면에서 다음 행동을 빠르게 파악하기 어려웠다.
+- 기각한 대안: 텍스트 카드를 계속 세로로 누적하는 방식, 복잡한 전체 지도, 운전 중 긴 입력, 동의 버튼만 고정해 근거를 가리는 방식, 출처·라이선스가 없는 외부 이미지와 비국내 AI 생성 에셋 추가.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/accessibility-summary.json`, `artifacts/evals/screenshots/`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

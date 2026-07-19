@@ -33,7 +33,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "RIDER_ROUTE",
-      "sha256": "c2f7fbb60d2398a9e4c63efbf8a3435b4fae6066d37239f508664c84abaf6c8a"
+      "sha256": "194359f0b15d77c7fe6f132f4e19c2f973d12410ec7bb4b3bbec587a301cdbbe"
     },
     {
       "file": "rider-source-review-390x844.png",
@@ -41,7 +41,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "f86c5be910ec7671c2c103190628752271e0a9f8877a705ec9e2429f7a2d01e5"
+      "sha256": "1e38e2e212cc01d9f9ba02de3b5eaf9022c4963694460c4b0d8552e177fced8b"
     },
     {
       "file": "rider-recipient-review-360x800.png",
@@ -49,7 +49,7 @@
       "height": 800,
       "role": "RECIPIENT",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "06628e175a9931fa08691ba0bf58c0a1dd1e89b36fb55d2dbcf0fd9b65bfafe2"
+      "sha256": "01a1f838f140e2a01aff1eda1c1bfa257c8d1fd3baa300f860673fcde91cf531"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "accessibility-summary-v1",
-  "capturedAt": "2026-07-19T04:18:23.581Z",
+  "capturedAt": "2026-07-19T04:33:57.971Z",
   "dataMode": "Demo fixture",
   "browser": "Chromium 149.0.7827.55",
   "scope": [
@@ -8,7 +8,9 @@
     "44px minimum touch height for login, route and decision controls in rider views",
     "visible Demo fixture provenance label",
     "map error fallback with structured region, courier, decision and delivery-order navigation",
-    "keyboard-only structured map alternative navigation"
+    "keyboard-only structured map alternative navigation",
+    "rider current-position context, next delivery and primary support action above the mobile tab bar",
+    "rider decision summary and consent action above the mobile tab bar"
   ],
   "excluded": [
     "automated WCAG rule scan",
@@ -52,7 +54,7 @@
       "horizontalOverflow": false,
       "demoModeLabelVisible": true,
       "checkedTouchTargets": 4,
-      "minimumTouchHeightPx": 48,
+      "minimumTouchHeightPx": 52,
       "requiredTouchHeightPx": 44,
       "passed": true
     },

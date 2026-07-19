@@ -90,6 +90,15 @@ async function expectMinimumTouchHeight(locator: Locator, minimum = 44) {
   expect(box!.height).toBeGreaterThanOrEqual(minimum);
 }
 
+async function expectAboveMobileTabBar(page: Page, locator: Locator, reservedBottom = 72) {
+  const box = await locator.boundingBox();
+  const viewport = page.viewportSize();
+  expect(box, "핵심 행동이 모바일 첫 화면에 렌더링되어야 합니다.").not.toBeNull();
+  expect(viewport, "모바일 viewport가 설정되어야 합니다.").not.toBeNull();
+  expect(box!.y).toBeGreaterThanOrEqual(0);
+  expect(box!.y + box!.height).toBeLessThanOrEqual(viewport!.height - reservedBottom);
+}
+
 test("두 기사 동의 후 관리자 승인으로 계획·ETA·안내를 함께 적용한다", async ({ page }) => {
   await page.goto("/");
   await expectCleanInitialState(page);
@@ -210,11 +219,16 @@ for (const viewport of [
     await enterRider(page, "원 기사");
     await expect(page.getByRole("heading", { name: "약 16:20, 17번째 배송지 전까지 안전한 범위입니다" })).toBeVisible();
     await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
+    await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
+    await expect(page.getByText("14번째 · 약 6분", { exact: true })).toBeVisible();
+    await expectAboveMobileTabBar(page, page.getByRole("button", { name: "안전지원 검토" }));
     for (const tabName of ["운행", "안전지원", "내 정보"]) {
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
     }
     await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
+    await expect(page.getByLabel("조정 전후와 내 작업 변화 요약")).toBeVisible();
+    await expectAboveMobileTabBar(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
     await expect(page.getByText("수정하거나 거절해도 불이익은 없습니다.", { exact: false })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
     await expectMinimumTouchHeight(page.locator(".rider-role-menu summary"));
@@ -399,6 +413,8 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
         "visible Demo fixture provenance label",
         "map error fallback with structured region, courier, decision and delivery-order navigation",
         "keyboard-only structured map alternative navigation",
+        "rider current-position context, next delivery and primary support action above the mobile tab bar",
+        "rider decision summary and consent action above the mobile tab bar",
       ],
       excluded: [
         "automated WCAG rule scan",

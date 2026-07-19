@@ -775,18 +775,30 @@ function AdminDashboard({
 }
 
 function RiderCompactRoute({ applied }: { applied: boolean }) {
+  const currentWeather = demoWeatherRuntime.active.data[0];
   return (
     <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약">
       <div className="compact-map-heading">
-        <div><span>다음 경로</span><strong>{applied ? "휴식 후 조정 순서" : "17번째 배송지 전 지원"}</strong></div>
+        <div><span>현재 운행 경로</span><strong>{applied ? "휴식 후 조정 순서" : "17번째 배송지 전 지원"}</strong></div>
         <span className="fallback-map-badge">Fallback map</span>
       </div>
-      <div className="compact-route-line" aria-hidden="true">
-        <span className="compact-stop is-current">현재</span>
-        <span className="compact-stop is-rest">휴식</span>
-        <span className="compact-stop is-next">17</span>
+      <div className="compact-map-stage">
+        <div className="compact-map-context" aria-label="합성 위치와 날씨 상태">
+          <span><i aria-hidden="true">⌖</i> 합성 현재 위치</span>
+          <span><i aria-hidden="true">☂</i> 강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</span>
+          <span><i aria-hidden="true">△</i> 경사 구간</span>
+        </div>
+        <div className="compact-route-line" aria-hidden="true">
+          <span className="compact-stop is-current">현재</span>
+          <span className="compact-stop is-rest">휴식</span>
+          <span className="compact-stop is-next">17</span>
+        </div>
       </div>
-      <div className="compact-map-footer"><span>14번째 배송지 예정</span><strong>{applied ? "15:48 휴식 지점으로 이동" : "약 52분 안에 지원 필요"}</strong></div>
+      <ol className="compact-route-list" aria-label="구조화된 다음 경로">
+        <li><span>현재</span><strong>14번째 배송지 구간</strong></li>
+        <li><span>다음 안전 거점</span><strong>{applied ? "15:48 휴식 지점" : "10분 휴식 지점"}</strong></li>
+        <li><span>지원 기준</span><strong>{applied ? "조정 순서 적용" : "약 52분 · 17번째 전"}</strong></li>
+      </ol>
     </section>
   );
 }
@@ -873,18 +885,22 @@ function RiderView({
               <p>{applied
                 ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
                 : "약 16:20까지 안전한 범위입니다. 비와 경사 구간, 남은 작업량이 겹쳐 정차 후 지원 계획을 확인해 주세요."}</p>
+              <div className="rider-hero-metrics" aria-label="현재 운행 핵심 상태">
+                <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong></div>
+                <div><span>다음 배송</span><strong>14번째 · 약 6분</strong></div>
+              </div>
             </section>
             <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
               <div><span>배송 진행</span><strong>14 / 31</strong><small>{activeWorkload.remainingLoad.stopCount}건 남음</small></div>
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
             </section>
             <RiderCompactRoute applied={applied} />
+            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
             <section className="rider-next-plan">
               <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>
               <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
               <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
             </section>
-            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
           </section>
         )}
 
@@ -900,6 +916,24 @@ function RiderView({
                   ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
                   : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다. 동의 전에는 현재 계획이 바뀌지 않습니다."}</p>
             </section>
+
+            <section className="rider-decision-brief" aria-label="조정 전후와 내 작업 변화 요약">
+              <div><span>현재 최소</span><strong>{formatBudget(impact.baselineMinimumBudget)}</strong></div>
+              <span className="decision-brief-arrow" aria-label="에서">→</span>
+              <div className="is-safe"><span>조정 후</span><strong>{formatBudget(impact.candidateMinimumBudget)}</strong></div>
+              <div className="decision-brief-work"><span>내 작업</span><strong>{isRecipient ? "+8건" : "-8건"}</strong><small>{isRecipient ? "기준 45 통과" : "예상 초과 해소"}</small></div>
+            </section>
+
+            <div className="rider-response-status" aria-live="polite">
+              <StatusPill session={session} />
+              <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
+            </div>
+            <div className="rider-actions" aria-label="조치 응답">
+              <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>이 조정에 동의</button>
+              <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>다른 방법 요청</button>
+              <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>지금은 거절</button>
+            </div>
+            <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
 
             <section className="rider-safety-card" aria-labelledby="rider-safety-heading">
               <div className="safety-card-heading"><span className="band-label">{applied ? "조정 완료" : "조정 권장"}</span><span>입력 신뢰도 {demoConfidence}</span></div>
@@ -929,17 +963,6 @@ function RiderView({
                 </ul>
               </details>
             </section>
-
-            <div className="rider-response-status" aria-live="polite">
-              <StatusPill session={session} />
-              <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
-            </div>
-            <div className="rider-actions" aria-label="조치 응답">
-              <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>이 조정에 동의</button>
-              <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>다른 방법 요청</button>
-              <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>지금은 거절</button>
-            </div>
-            <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
           </section>
         )}
 
@@ -948,6 +971,11 @@ function RiderView({
             <p className="rider-overline">내 정보 · Demo 안내</p>
             <h1>필요한 운영 상태만 공유합니다</h1>
             <p className="rider-lead">실제 인증이나 개인정보를 사용하지 않는 합성 기사 계정 화면입니다.</p>
+            <section className="rider-privacy-visual" aria-label="공유 정보와 기사 권리 요약">
+              <div><span aria-hidden="true">◇</span><strong>공유</strong><small>운영 파생 상태</small></div>
+              <div><span aria-hidden="true">⊘</span><strong>비공유</strong><small>생체·장기 궤적</small></div>
+              <div><span aria-hidden="true">↺</span><strong>기사 권리</strong><small>수정·거절·정정</small></div>
+            </section>
             <section className="rider-profile-card">
               <span>관리자에게 보이는 정보</span>
               <strong>날씨·경로·작업량에서 계산한 파생 상태</strong>
@@ -983,7 +1011,7 @@ function RiderView({
               className={tab === value ? "is-active" : undefined}
               onClick={() => selectTab(value)}
             >
-              <span aria-hidden="true">{value === "ROUTE" ? "↗" : value === "SUPPORT" ? "!" : "○"}</span>
+              <span aria-hidden="true">{value === "ROUTE" ? "⌖" : value === "SUPPORT" ? "✦" : "◉"}</span>
               {label}
             </button>
           ))}
