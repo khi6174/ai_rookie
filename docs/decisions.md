@@ -385,6 +385,25 @@
 - 기각한 대안: 텍스트 카드를 계속 세로로 누적하는 방식, 복잡한 전체 지도, 운전 중 긴 입력, 동의 버튼만 고정해 근거를 가리는 방식, 출처·라이선스가 없는 외부 이미지와 비국내 AI 생성 에셋 추가.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/accessibility-summary.json`, `artifacts/evals/screenshots/`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
 
+### ADR-039 — 승인된 최종 GOAL 안에서는 자율 실행하고 고위험 경계만 재승인한다
+
+- 날짜: 2026-07-19
+- 상태: Approved
+- 결정: 승인된 최종 GOAL과 문서 경계 안의 코드·UI·문서·테스트·평가, 필요 최소 로컬 의존성, 합성 Demo, 오류 수정, 커밋·푸시와 기존 공개 Demo 갱신은 작업자가 개별 승인 없이 완료한다. typecheck·단위·E2E·clean-start·국내 트랙 감사·build는 생략 가능한 승인 절차가 아니라 작업자가 직접 통과해야 하는 배포 Gate다. 실제 개인정보·정밀 위치·인증·알림·유료 API·새 secret·지도 계약·외부 전송·국내 트랙 모델 경계·안전 권리·공개 범위·비가역 변경은 구현 전에 사용자 재승인을 받는다.
+- 이유: 반복적인 저위험 승인 대기가 최종 완성 속도를 늦추지 않게 하면서도, 사용자 권리와 비용·계약·대외 공개처럼 되돌리기 어려운 결정은 사용자가 계속 소유하도록 하기 위해서다.
+- 기각한 대안: 모든 파일 변경마다 승인을 요구하는 방식, 검증과 변경통제를 모두 제거하는 방식, 작업자가 실제 위치·인증·외부 계약까지 임의 확정하는 방식.
+- 영향 파일: `AGENTS.md`, `docs/decisions.md`, 이후 승인된 GOAL 안의 구현·검증·배포 절차
+
+### ADR-040 — G3-B는 정적 app shell과 만료 가능한 승인 Demo 계획만 오프라인 제공한다
+
+- 날짜: 2026-07-19
+- 상태: Approved
+- 결정: 기사 화면에 manifest, 결정론적으로 생성한 192·512 아이콘, 설치 prompt 상태와 버전된 same-origin 정적 app shell service worker를 추가한다. 로컬 계획 캐시는 `APPROVED + APPLIED` 합성 계획의 decision·plan 버전, 저장·만료시각과 합성 기사별 남은 배송 건수만 저장하며 TTL은 30분이다. 오프라인에서는 신선한 캐시를 읽기만 하고 동의·수정·거절·승인·적용을 전부 차단한다. 만료·손상·빈 캐시는 최신 계획으로 표시하지 않는다.
+- 경계: 브라우저 위치·알림 권한, 실제 인증·기사 세션, 서버 동기화, 외부 지도·아이콘·AI 에셋 의존성을 추가하지 않는다. service worker와 캐시는 Safety 계산·추천·상태기계를 소유하지 않는다.
+- 이유: 현장 연결 장애에서도 마지막으로 사람이 승인한 Demo 계획과 저장시각을 확인하게 하면서, 오래된 계획이나 오프라인 응답이 운영 성공으로 오인되는 위험을 먼저 차단하기 위해서다.
+- 기각한 대안: 전체 Demo session을 무기한 캐시하는 방식, 오프라인 응답 큐를 서버 계약 없이 구현하는 방식, 실제 인증처럼 보이는 계정 지속, 외부 PWA 플러그인·아이콘·비국내 AI 생성 에셋 추가, 만료 캐시를 마지막 최신 계획으로 계속 표시하는 방식.
+- 영향 파일: `public/manifest.webmanifest`, `public/sw.js`, `public/icons/`, `src/pwa/`, `src/main.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/approved-plan-cache.test.ts`, `tests/pwa-assets.test.ts`, `e2e/saferoute-demo.spec.ts`, 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

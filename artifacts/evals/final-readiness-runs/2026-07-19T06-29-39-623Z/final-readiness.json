@@ -1,7 +1,7 @@
 {
   "schemaVersion": "final-readiness-audit-v1",
-  "capturedAt": "2026-07-19T06:32:01.448Z",
-  "status": "PASSED",
+  "capturedAt": "2026-07-19T06:29:39.623Z",
+  "status": "FAILED",
   "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
   "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
   "commands": [
@@ -11,19 +11,19 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 2493,
-      "outputSha256": "9f0f8405f36a706f1ac21ddc2bb1aa73286e9fb6e8a0d81ae8a24b2dc66ca375",
-      "evidenceLine": "\u001b[32m✓ built in 264ms\u001b[39m"
+      "elapsedMs": 1976,
+      "outputSha256": "b0f527fec23ab2124bcb6573ad9c753e00116b9dd1969fde87290fb8b5eb529b",
+      "evidenceLine": "\u001b[32m✓ built in 286ms\u001b[39m"
     },
     {
       "id": "PLAYWRIGHT_E2E",
       "command": "pnpm run test:e2e",
-      "passed": true,
+      "passed": false,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 54857,
-      "outputSha256": "a8a3e1cd5c362b4d0dc621eb60ceff06bf1ff31378c758f3aa19a22b3babfa07",
-      "evidenceLine": "15 passed (52.2s)"
+      "elapsedMs": 53325,
+      "outputSha256": "5931befd4ff3cba5c1a7e28ccd5ff2173f82c5f4620ade1109a86a375cc406ed",
+      "evidenceLine": null
     },
     {
       "id": "CLEAN_START_3X",
@@ -31,9 +31,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 20939,
-      "outputSha256": "38d4b8c377521f4cd416ed431c8cba5232bf74df382c8ebc9c8f446ca77ced2e",
-      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=20.16"
+      "elapsedMs": 21509,
+      "outputSha256": "d954479ba5e24932f33083ed579f7422be7a39b1104072e1459de076aa4e3224",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=20.74"
     },
     {
       "id": "DOMESTIC_TRACK_AUDIT",
@@ -41,9 +41,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 682,
-      "outputSha256": "909a72c824215bd0c708d86d60984fcb1ed662b8f4d41c47b1a0f0f015c22fc4",
-      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=5 sha256=0cf2ee5224c02c1a7fc2c0098abbfc44cd4011df3c839c8ebafaa1ebbb7c4387"
+      "elapsedMs": 685,
+      "outputSha256": "b3b937acf2564fd2d84dacb6b2f4499dde13f353962a4176ee7dec7ef09a0299",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=5 sha256=65719d44c18ab88da81182f7dd38b7a9566aa5d09b45ae9c07a9e6b8a594120f"
     },
     {
       "id": "CORE_EVIDENCE",
@@ -51,7 +51,7 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 13114,
+      "elapsedMs": 13487,
       "outputSha256": "ee4e10fa446c122f801e96eb304feeaf2e2152c42658d74df3328f8f23a52536",
       "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=205 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=3 upstageTasks=12 artifacts=13"
     }
@@ -177,7 +177,7 @@
   ],
   "summary": {
     "unitTests": 205,
-    "e2eTests": 15,
+    "e2eTests": 9,
     "cleanStartRuns": 3,
     "requiredViewports": 4,
     "screenshotAndAccessibilityChecks": 6,

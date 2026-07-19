@@ -11,6 +11,14 @@ import {
   type MapAdapter,
 } from "../adapters/maps";
 import {
+  clearCachedApprovedDemoPlan,
+  createCachedApprovedDemoPlan,
+  readCachedApprovedDemoPlan,
+  writeCachedApprovedDemoPlan,
+  type CachedApprovedDemoPlanState,
+} from "../pwa/approvedPlanCache";
+import { usePwaRuntime, type PwaInstallStatus } from "../pwa/usePwaRuntime";
+import {
   approveAndApplyDemo,
   consentStatusFor,
   createInitialDemoSession,
@@ -839,25 +847,92 @@ function RiderLogin({
   );
 }
 
+function formatCachedAt(value: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    month: "numeric",
+    day: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(new Date(value));
+}
+
+function RiderPwaStatus({
+  online,
+  shellReady,
+  cacheState,
+}: {
+  online: boolean;
+  shellReady: boolean;
+  cacheState: CachedApprovedDemoPlanState;
+}) {
+  if (online) {
+    return (
+      <section className="rider-pwa-status is-online" aria-live="polite">
+        <span aria-hidden="true">●</span>
+        <div><strong>온라인 · Demo session</strong><small>{shellReady ? "오프라인 앱 셸 준비됨" : "앱 셸 확인 중"}</small></div>
+      </section>
+    );
+  }
+
+  if (cacheState.status === "FRESH") {
+    return (
+      <section className="rider-pwa-status is-offline" aria-live="polite">
+        <span aria-hidden="true">↓</span>
+        <div>
+          <strong>오프라인 · 마지막 승인 Demo 계획</strong>
+          <small>{formatCachedAt(cacheState.plan.storedAt)} 저장 · {formatCachedAt(cacheState.plan.expiresAt)}까지 읽기 전용</small>
+        </div>
+      </section>
+    );
+  }
+
+  if (cacheState.status === "EXPIRED") {
+    return (
+      <section className="rider-pwa-status is-expired" aria-live="assertive">
+        <span aria-hidden="true">!</span>
+        <div><strong>캐시 만료 · 최신 계획 아님</strong><small>연결 후 승인된 계획을 다시 확인해 주세요. 동의·적용은 기록되지 않습니다.</small></div>
+      </section>
+    );
+  }
+
+  return (
+    <section className="rider-pwa-status is-empty" aria-live="assertive">
+      <span aria-hidden="true">×</span>
+      <div><strong>오프라인 · 저장된 승인 계획 없음</strong><small>현재 화면을 최신 배송계획으로 사용하지 마세요. 연결 후 다시 확인해 주세요.</small></div>
+    </section>
+  );
+}
+
 function RiderView({
   session,
   courierId,
   isRecipient,
   onResponse,
+  pwa,
 }: {
   session: DemoSession;
   courierId: string;
   isRecipient: boolean;
   onResponse: (response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED") => void;
+  pwa: {
+    online: boolean;
+    shellReady: boolean;
+    installStatus: PwaInstallStatus;
+    requestInstall: () => Promise<"accepted" | "dismissed" | "UNAVAILABLE">;
+    cacheState: CachedApprovedDemoPlanState;
+  };
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
   const consentStatus = consentStatusFor(session, courierId);
-  const canRespond = session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
-  const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
+  const canRespond = pwa.online && session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
+  const offlinePlan = !pwa.online && pwa.cacheState.status === "FRESH" ? pwa.cacheState.plan : null;
+  const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status) || Boolean(offlinePlan);
   const sourceImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "SOURCE")!;
   const recipientImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "RECIPIENT")!;
   const impact = isRecipient ? recipientImpact : sourceImpact;
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
+  const cachedCourierPlan = offlinePlan?.couriers.find((courier) => courier.courierId === courierId);
+  const remainingStopCount = cachedCourierPlan?.remainingStopCount ?? activeWorkload.remainingLoad.stopCount;
   const tabContentId = `rider-${tab.toLowerCase()}-panel`;
   const selectTab = (nextTab: RiderTab) => {
     setTab(nextTab);
@@ -875,6 +950,9 @@ function RiderView({
           <div><span>관악 합성 권역</span><strong>{tab === "ROUTE" ? "오늘의 운행" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
           <div><span>배송 진행</span><strong>{isRecipient ? "9 / 24" : "14 / 31"}</strong></div>
         </div>
+        {(!pwa.online || tab === "PROFILE") && (
+          <RiderPwaStatus online={pwa.online} shellReady={pwa.shellReady} cacheState={pwa.cacheState} />
+        )}
 
         {tab === "ROUTE" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-route-tab">
@@ -883,7 +961,7 @@ function RiderView({
               <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : "지원 계획이 도착했어요"}</span>
               <h1>{applied ? "조정된 계획으로 운행합니다" : "약 16:20, 17번째 배송지 전까지 안전한 범위입니다"}</h1>
               <p>{applied
-                ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
+                ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
                 : "약 16:20까지 안전한 범위입니다. 비와 경사 구간, 남은 작업량이 겹쳐 정차 후 지원 계획을 확인해 주세요."}</p>
               <div className="rider-hero-metrics" aria-label="현재 운행 핵심 상태">
                 <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong></div>
@@ -891,7 +969,7 @@ function RiderView({
               </div>
             </section>
             <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
-              <div><span>배송 진행</span><strong>14 / 31</strong><small>{activeWorkload.remainingLoad.stopCount}건 남음</small></div>
+              <div><span>배송 진행</span><strong>14 / 31</strong><small>{remainingStopCount}건 남음</small></div>
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
             </section>
             <RiderCompactRoute applied={applied} />
@@ -911,7 +989,7 @@ function RiderView({
               <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : isRecipient ? "함께 안전기준을 확인했어요" : "약 52분 안에 지원이 필요할 수 있어요"}</span>
               <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "배송지 8건을 전달받습니다" : "10분 쉬고, 배송지 8건을 이관합니다"}</h1>
               <p>{applied
-                ? `현재 남은 배송은 ${activeWorkload.remainingLoad.stopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
+                ? `현재 남은 배송은 ${remainingStopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
                 : isRecipient
                   ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
                   : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다. 동의 전에는 현재 계획이 바뀌지 않습니다."}</p>
@@ -926,7 +1004,7 @@ function RiderView({
 
             <div className="rider-response-status" aria-live="polite">
               <StatusPill session={session} />
-              <span>{canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
+              <span>{!pwa.online ? "오프라인에서는 동의·수정·거절을 기록하지 않습니다." : canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
             </div>
             <div className="rider-actions" aria-label="조치 응답">
               <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>이 조정에 동의</button>
@@ -990,6 +1068,18 @@ function RiderView({
               <span>이의제기와 도움</span>
               <strong>수정·거절·정정 요청에 불이익이 없습니다</strong>
               <p>현재 데모에서는 안전지원 탭의 수정 요청과 거절로 운영팀의 재검토를 요청할 수 있습니다.</p>
+            </section>
+            <section className="rider-profile-card rider-pwa-card">
+              <span>기기 설치와 오프라인</span>
+              <strong>{pwa.installStatus === "INSTALLED" ? "이 기기에 설치됨" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치할 수 있음" : pwa.shellReady ? "오프라인 앱 셸 준비됨" : "설치 조건 확인 중"}</strong>
+              <p>마지막 승인·적용 Demo 계획만 30분 동안 기기에 최소 필드로 저장합니다. 오프라인에서는 읽기 전용이며 만료 계획을 최신으로 표시하지 않습니다.</p>
+              <button
+                type="button"
+                className="button button-secondary button-block"
+                disabled={pwa.installStatus !== "AVAILABLE"}
+                onClick={() => void pwa.requestInstall()}
+              >{pwa.installStatus === "INSTALLED" ? "설치 완료" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치" : "브라우저 설치 조건 확인"}</button>
+              <small>실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.</small>
             </section>
             <code className="rider-decision-code">Decision ID · {session.decision.decisionId}</code>
           </section>
@@ -1094,9 +1184,36 @@ export function App({ initialSession, initialExplanation }: AppProps) {
     initialExplanation ?? null,
   );
   const [explanationLoading, setExplanationLoading] = useState(false);
+  const pwaRuntime = usePwaRuntime();
+  const [cachedPlanState, setCachedPlanState] = useState<CachedApprovedDemoPlanState>(
+    () => readCachedApprovedDemoPlan(),
+  );
+
+  useEffect(() => {
+    const planVersion = session.store.appliedDecisionVersions[session.decision.decisionId];
+    if (!planVersion) return;
+    const plan = createCachedApprovedDemoPlan({
+      decisionId: session.decision.decisionId,
+      planId: session.decision.baselinePlanId,
+      planVersion,
+      couriers: session.store.activePlan.workloads.map((workload) => ({
+        courierId: workload.courierId,
+        remainingStopCount: workload.remainingLoad.stopCount,
+      })),
+    });
+    setCachedPlanState(writeCachedApprovedDemoPlan(plan)
+      ? { status: "FRESH", plan }
+      : { status: "INVALID", reason: "STORAGE_UNAVAILABLE" });
+  }, [session]);
+
+  useEffect(() => {
+    setCachedPlanState(readCachedApprovedDemoPlan());
+  }, [pwaRuntime.online]);
 
   const reset = () => {
     setApprovalOpen(false);
+    clearCachedApprovedDemoPlan();
+    setCachedPlanState({ status: "EMPTY" });
     setSession(createInitialDemoSession(createResetDemoDecisionId()));
     setExplanation(null);
     setExplanationLoading(false);
@@ -1145,6 +1262,7 @@ export function App({ initialSession, initialExplanation }: AppProps) {
           courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
           isRecipient={role === "RECIPIENT"}
           onResponse={(response) => respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
+          pwa={{ ...pwaRuntime, cacheState: cachedPlanState }}
         />
       ) : (
         <RiderLogin

@@ -246,6 +246,71 @@ test("저장 상태가 없는 독립 브라우저 세션 3회에서 같은 폐�
   expect(Date.now() - startedAt).toBeLessThan(180_000);
 });
 
+test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 읽기 전용으로 제공한다", async ({ context, page }) => {
+  await page.goto("/?pwa-test=1");
+  await completeDecisionLoop(page);
+  await expect.poll(() => page.evaluate(() => localStorage.getItem("saferoute.approved-demo-plan.v1") !== null)).toBe(true);
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+
+  await page.reload();
+  await expectCleanInitialState(page);
+  await context.setOffline(true);
+  try {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await enterRider(page, "원 기사");
+    await expect(page.getByText("오프라인 · 마지막 승인 Demo 계획")).toBeVisible();
+    await expect(page.getByText("읽기 전용", { exact: false })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "조정된 계획으로 운행합니다" })).toBeVisible();
+    await page.getByRole("tab", { name: "안전지원" }).click();
+    await expect(page.getByText("오프라인에서는 동의·수정·거절을 기록하지 않습니다.")).toBeVisible();
+    await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
+    await expectNoPageHorizontalOverflow(page);
+  } finally {
+    await context.setOffline(false);
+  }
+});
+
+test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행동에 사용하지 않는다", async ({ context, page }) => {
+  await page.goto("/?pwa-test=1");
+  await page.evaluate(() => {
+    const storedAt = new Date(Date.now() - 60 * 60 * 1_000);
+    localStorage.setItem("saferoute.approved-demo-plan.v1", JSON.stringify({
+      schemaVersion: "cached-approved-demo-plan-v1",
+      dataMode: "DEMO",
+      approvalState: "APPROVED_APPLIED",
+      decisionId: "decision-expired-demo-v1",
+      planId: "plan-expired-demo-v1",
+      planVersion: "1.0.1",
+      storedAt: storedAt.toISOString(),
+      expiresAt: new Date(storedAt.getTime() + 30 * 60 * 1_000).toISOString(),
+      couriers: [{ courierId: "courier-scenario-a-source", remainingStopCount: 9 }],
+    }));
+  });
+  await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
+  await page.reload();
+  await context.setOffline(true);
+  try {
+    await page.reload({ waitUntil: "domcontentloaded" });
+    await enterRider(page, "원 기사");
+    await expect(page.getByText("캐시 만료 · 최신 계획 아님")).toBeVisible();
+    await expect(page.getByRole("heading", { name: "약 16:20, 17번째 배송지 전까지 안전한 범위입니다" })).toBeVisible();
+    await page.getByRole("tab", { name: "안전지원" }).click();
+    await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
+  } finally {
+    await context.setOffline(false);
+  }
+});
+
+test("내 정보에서 설치 가능 상태와 실제 미구현 권한 경계를 구분한다", async ({ page }) => {
+  await page.goto("/?pwa-test=1");
+  await enterRider(page, "원 기사");
+  await page.getByRole("tab", { name: "내 정보" }).click();
+  await expect(page.getByText("기기 설치와 오프라인")).toBeVisible();
+  await expect(page.getByText("마지막 승인·적용 Demo 계획만 30분 동안", { exact: false })).toBeVisible();
+  await expect(page.getByText("실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.")).toBeVisible();
+  await expectMinimumTouchHeight(page.locator(".rider-pwa-card button"));
+});
+
 test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다", async ({ browser, page }) => {
   const outputDirectory = resolve("artifacts/evals/screenshots");
   const accessibilityOutput = resolve("artifacts/evals/accessibility-summary.json");

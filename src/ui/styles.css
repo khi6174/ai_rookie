@@ -1427,6 +1427,18 @@ tr.is-recommended {
   line-height: 1.55;
 }
 
+.rider-pwa-card .button {
+  min-height: 46px;
+  margin-top: 7px;
+}
+
+.rider-pwa-card > small {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.62rem;
+  line-height: 1.45;
+}
+
 .rider-support-cta {
   margin-top: 16px;
 }
@@ -2520,6 +2532,39 @@ summary {
 .rider-route-bar > div:last-child { justify-items: end; }
 .rider-route-bar span { color: var(--color-text-muted); font-size: 0.58rem; }
 .rider-route-bar strong { color: var(--color-navy-900); font-size: 0.76rem; }
+
+.rider-pwa-status {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  align-items: center;
+  gap: 9px;
+  min-height: 52px;
+  padding: 8px 16px;
+  border-bottom: 1px solid var(--color-border);
+  color: var(--color-navy-900);
+  background: var(--color-surface);
+}
+
+.rider-pwa-status > span {
+  display: grid;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border-radius: 9px;
+  color: var(--color-blue-800);
+  background: var(--color-blue-100);
+  font-size: 0.72rem;
+  font-weight: 900;
+}
+
+.rider-pwa-status > div { display: grid; gap: 2px; }
+.rider-pwa-status strong { font-size: 0.68rem; }
+.rider-pwa-status small { color: var(--color-text-muted); font-size: 0.56rem; line-height: 1.35; }
+.rider-pwa-status.is-offline { border-color: var(--color-border-strong); background: var(--color-amber-100); }
+.rider-pwa-status.is-offline > span { color: var(--color-amber-800); background: var(--color-surface); }
+.rider-pwa-status.is-expired { border-color: var(--color-border-strong); background: var(--color-red-100); }
+.rider-pwa-status.is-expired > span { color: var(--color-red-700); background: var(--color-surface); }
+.rider-pwa-status.is-empty { background: var(--color-surface-subtle); }
 
 .rider-phone > section[role="tabpanel"] {
   min-height: calc(100vh - 168px);

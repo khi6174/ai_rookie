@@ -1,0 +1,28 @@
+{
+  "id": "/",
+  "name": "SafeRoute AI 기사 안전지원",
+  "short_name": "SafeRoute",
+  "description": "합성 Demo 계획으로 기사 동의와 관리자 승인을 검증하는 안전운영 코파일럿",
+  "lang": "ko-KR",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f3f6fb",
+  "theme_color": "#101c2c",
+  "categories": ["business", "navigation", "productivity"],
+  "icons": [
+    {
+      "src": "/icons/saferoute-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/saferoute-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

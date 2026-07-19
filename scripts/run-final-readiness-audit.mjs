@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /9 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /15 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -231,7 +231,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 9,
+    e2eTests: 15,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -287,7 +287,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=9 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=15 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

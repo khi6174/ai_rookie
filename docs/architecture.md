@@ -56,9 +56,9 @@
 - E2E·반응형 검증: Playwright
 - MVP 저장: 버전된 JSON fixtures와 실행 중 불변 스냅샷
 
-관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. 기사 화면은 설치형 PWA나 독립 인증 세션이 아닌 반응형 모바일 웹이다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
+관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. G3-B부터 기사 화면은 설치 가능한 PWA app shell을 제공하지만 독립 인증 세션·Live 위치·푸시 알림은 포함하지 않는다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
 
-이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도만 추가했다. 실제 지도 SDK, 위치 stream, service worker와 인증 세션은 도입하지 않는다.
+이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도만 추가했다. G3-B에서는 정적 app shell service worker와 최소 승인 Demo 계획 캐시만 추가했으며 실제 지도 SDK, 위치 stream과 인증 세션은 도입하지 않는다.
 
 ### 4.2 공간운영 확장 계층
 
@@ -78,6 +78,8 @@ G2-A의 `src/adapters/maps`는 `national`, `region`, `decision` 세 가시 범�
 G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과를 재계산하지 않는다. 정상 SVG 지도와 구조화 목록은 동일 `MapRenderModel`을 읽으며, 지도 가용성은 UI 표시 상태에만 영향을 준다. 오류 중에도 breadcrumb, 지역·기사·decision 선택과 배송순서 목록, 지원 큐 링크를 사용할 수 있고 복구 후 같은 selection을 유지한다.
 
 G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경이다. 기사 모바일의 합성 위치·날씨·경로는 기존 Demo fixture와 Weather Fallback만 읽으며 브라우저 위치 API, service worker, 캐시, 설치 manifest, 실제 인증을 호출하지 않는다. 운행·안전지원·내 정보는 동일 `DemoSession`의 상태와 decision ID를 유지하므로 시각 순서 변경이 동의·승인 상태기계에 영향을 주지 않는다.
+
+G3-B의 `public/sw.js`는 같은 origin의 정적 app shell만 버전된 Cache Storage에 저장한다. `src/pwa/approvedPlanCache.ts`는 `APPROVED + APPLIED`된 합성 계획의 decision·plan 버전과 기사별 남은 건수만 localStorage에 30분 TTL로 저장한다. 캐시는 Safety 계산·추천·동의·승인 상태를 만들거나 변경할 수 없고 오프라인에서는 모든 응답 행동을 비활성화한다. 만료·손상·저장소 차단은 각각 명시적 상태로 전환하며 최신 계획으로 승격하지 않는다.
 
 ### 4.2 권장 디렉터리
 
@@ -105,11 +107,12 @@ src/
     audit/              # 감사 이벤트 저장 경계
   ui/
     admin/              # Control Tower와 승인 흐름
-    courier/            # 기사 반응형 모바일 웹, 향후 PWA와 Near-miss
+    courier/            # 설치 가능한 기사 PWA UI와 향후 Near-miss
     shared/             # 동일 수치·상태 표현 컴포넌트
   demo/
     controller/         # 단계 전환, reset, fallback
     fixtures/           # 고정 데모 manifest
+  pwa/                  # service worker 등록, 설치 상태와 최소 승인 Demo 계획 캐시
 api/                    # P0 미구현, 실제 배포 승인 후 추가
   upstage/              # 향후 비밀정보를 브라우저에 노출하지 않는 서버 함수
   external-data/        # 향후 허용된 외부 조회 프록시
@@ -289,6 +292,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 - AI adapters: malformed·timeout·prompt injection·숫자 불변·인용 검증
 - UI/E2E: 동일 결정 ID, 키보드, 모바일 터치, 오류·fallback·reset
 - Geospatial: region·hub·courier·plan 참조, Demo/Live 분리, 집계 일치, stale 정지, 지도·큐 동일 decision
+- PWA: manifest·app shell, 실제 offline reload, 승인 계획 TTL·만료·손상, 오프라인 명령 차단
 - Demo: clean start에서 동일 시나리오 3회 연속 통과
 
 구체적인 지표와 통과 기준은 `docs/evals.md`가 소유한다.
@@ -343,7 +347,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 - 실제 지도 공급자 또는 정적 데모 지도 구현 방식
 - 위치 최신성·정확도·갱신주기와 메모리 보존시간
-- 기사 PWA 인증·오프라인 캐시·푸시 권한 계약
+- 기사 PWA 실제 인증·위치 권한·푸시 알림과 서버 동기화 계약
 - MVP 감사 스냅샷의 파일·브라우저 메모리 저장 선택
 - 실제 파일럿 서버 함수의 API 경로와 배포 환경
 - 공급자별 국내 AI 모델명·엔드포인트·쿼터

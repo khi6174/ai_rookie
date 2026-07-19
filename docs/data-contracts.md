@@ -1448,7 +1448,36 @@ type ScenarioFixture = {
 - malformed·timeout·잘못된 인용 시 템플릿 Fallback
 - 설명 전후 selected candidate·계획·ETA 불변
 
-## 25. 확정된 결정
+## 25. CachedApprovedDemoPlan
+
+G3-B의 기기 로컬 캐시는 서버 기록이나 실제 배송계획이 아니라 마지막 승인·적용 합성 계획을 제한 시간 동안 읽기 전용으로 보여주는 최소 계약이다.
+
+```ts
+type CachedApprovedDemoPlan = {
+  schemaVersion: "cached-approved-demo-plan-v1";
+  dataMode: "DEMO";
+  approvalState: "APPROVED_APPLIED";
+  decisionId: DecisionId;
+  planId: PlanId;
+  planVersion: string;
+  storedAt: IsoDateTime;
+  expiresAt: IsoDateTime;
+  couriers: Array<{
+    courierId: CourierId;
+    remainingStopCount: number;
+  }>;
+};
+```
+
+### 검증
+
+- strict schema이며 알 수 없는 이름·전화번호·주소·좌표·생체·고객 필드를 거부한다.
+- `expiresAt`은 `storedAt`보다 늦어야 하고 v1 TTL은 30분이다.
+- 정확히 `expiresAt`부터 `EXPIRED`이며 최신 계획·온라인 성공 상태로 사용할 수 없다.
+- malformed JSON·schema 오류·storage unavailable을 구분하고 도메인 계획으로 병합하지 않는다.
+- `APPROVED_APPLIED` 외 상태를 저장하지 않는다.
+
+## 26. 확정된 결정
 
 - 구현은 Zod 스키마를 런타임 단일 소스로 사용하고 TypeScript 타입을 추론한다.
 - 수치 필드명에 단위를 포함한다.
@@ -1467,7 +1496,7 @@ type ScenarioFixture = {
 - 다지역 지도 projection은 검증된 식별자·위치 상태만 표현하며 Safety 계산에 참여하지 않는다.
 - G1 위치는 모두 결정론적 Demo MOCK이며 Live와 혼합하지 않는다.
 
-## 26. 미결사항
+## 27. 미결사항
 
 - ID 생성방식과 해시 알고리즘
 - API 전송 시간대를 항상 UTC `Z`로 고정할지 여부
@@ -1480,6 +1509,6 @@ type ScenarioFixture = {
 - 외부 지도·날씨 응답 어댑터 계약
 - Upstage Live 모델명·endpoint·quota·timeout·retry 계약
 - 완전한 세 대표 fixture와 정확 기대값
-- 오프라인 기사 응답의 충돌 해결 규칙
+- 오프라인 기사 응답의 서버 동기화·충돌 해결 규칙. G3-B는 오프라인 응답을 저장하지 않는다.
 
 위 미결 필드명과 enum은 별도 Approved 결정이 기록되기 전까지 구현의 확정 계약이 아니다.

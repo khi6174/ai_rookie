@@ -1,6 +1,6 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-19T06:33:21.164Z",
+  "capturedAt": "2026-07-19T06:30:57.819Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
   "baseCommit": "1d23949ba9778c633a8b7046586ac2dc26394a9b",
@@ -71,7 +71,7 @@
     {
       "file": "unit-summary.json",
       "bytes": 2582,
-      "sha256": "43951ae9187a2c37100b042f412a2de0664e41f3276965b08b4e1591cd746b00"
+      "sha256": "c669846490ac1d25f9ef526221b5b28be3325c44d46fbc9b6da6161dd4758c6d"
     },
     {
       "file": "scenario-results.csv",
@@ -91,7 +91,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "5870f143c144cb8e72ddf2f8048a6566aa751ae525be00a19aa4c0350fdfdb60"
+      "sha256": "39d65613be245beb1bd3c7355f6e2ddd7cf9b08649f101cefdc0d36096c81eb6"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -101,7 +101,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "267a4ff71a77578d052b57056fb08ca603502ec9c25b8cc8a847422740299e38"
+      "sha256": "58ed445d7d288cc4e7e16672bed4cd509f81cb8ef85938174bc998518485f1cb"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -111,12 +111,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "2abf33e9785308353c3ed3f8c24fd8b63a4fb389e31a2a10a1b607d1502c994c"
+      "sha256": "65831eb6951b9be53d5d26cfae03a8c1bfa20a4b126faf0e8dc0cb2e43072bd8"
     },
     {
       "file": "domestic-track-compliance-latest.json",
       "bytes": 4461,
-      "sha256": "9424d2f28f9aa2821879d17343022890f1c9b38dca931608ffa243776e69b349"
+      "sha256": "c34ed77cdd5d2a2530543a6e19fdf94840298f031f33bde69fc745424501a938"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -131,7 +131,7 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 2484,
-      "sha256": "2826bfab018e68dd303f49bec08c186528221f0bd7dc8a13fe669465d759d7ce"
+      "sha256": "fa88a5bb7fcd3b0d33da44588b8169d1d1abb872c34e1c7c28fb8b337fdbd6d6"
     }
   ]
 }
