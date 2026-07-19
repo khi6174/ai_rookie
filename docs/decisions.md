@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-17
+- 최종 갱신: 2026-07-19
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -365,6 +365,15 @@
 - 이유: 지도 공급자·라이선스·Live 위치 계약이 미결인 상태에서도 다지역 탐색과 개인정보 가시 범위를 먼저 검증하고, 기존 폐루프·국내 AI 책임 경계·공개 정적 배포를 보존하기 위해서다.
 - 기각한 대안: 공급자를 먼저 확정해 SDK를 직접 UI에 결합하는 방식, 전국 화면에서 24명 개별 위치를 모두 표시하는 방식, 합성 좌표를 실시간으로 움직이는 방식, 지도가 Safety 판정이나 추천 순위를 다시 계산하는 방식.
 - 영향 파일: `src/adapters/maps/index.ts`, `src/adapters/fixtures/multiRegionMapFixture.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-adapter.test.ts`, `tests/multi-region-map-fixture.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
+
+### ADR-037 — 지도 오류에서도 동일 projection의 구조화 목록으로 폐루프를 유지한다
+
+- 날짜: 2026-07-19
+- 상태: Approved
+- 결정: 지도 렌더링 오류 시 빈 상자나 정상 Live 상태를 표시하지 않고, 동일 `MapRenderModel`에서 파생한 지역·기사·decision·배송순서 목록을 자동으로 제공한다. 정상 상태에서도 구조화 대안을 키보드로 펼칠 수 있으며 지도와 목록, 지원 큐는 같은 selection과 `decisionId`를 공유한다. 지도 오류·복구는 UI 가용성만 바꾸고 Safety 계산, 추천, 동의·승인과 적용 상태를 변경하지 않는다.
+- 이유: 지도 공급자 장애나 시각적 지도 사용이 어려운 상황에서도 관리자가 같은 근거로 지원 결정을 찾아 폐루프를 완료할 수 있어야 하며, 별도 Fallback 데이터로 수치·상태가 갈라지는 위험을 막기 위해서다.
+- 기각한 대안: 오류 시 빈 지도 표시, 정상 지도 스크린샷으로 대체, 별도 하드코딩 목록, 지도 복구 시 선택 초기화, 오류 중 승인 기능 전체 차단.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `artifacts/evals/accessibility-summary.json`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
 
 ## 4. 심사기준 연결
 

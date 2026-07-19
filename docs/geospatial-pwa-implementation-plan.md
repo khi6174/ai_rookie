@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G2-A
+- 상태: Approved through G2
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-18
-- 계획 버전: `geospatial-pwa-plan-v1.1.0`
+- 최종 갱신: 2026-07-19
+- 계획 버전: `geospatial-pwa-plan-v1.2.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -97,7 +97,9 @@ PWA 진입
 - `G2-A` 완료: 외부 지도 SDK 없이 동작하는 `MapAdapter`, 3개 지역·24명 합성 projection, 전국→지역→기사·decision 드릴다운, breadcrumb·전체 보기, 지도→decision과 지원 큐→동일 decision 연결을 구현했다.
 - 전국 화면은 지역 집계만 노출하고 개별 기사·정밀 위치를 표시하지 않는다. 지역 화면은 해당 지역의 8명만, decision 화면은 선택 기사 1명만 표시한다.
 - 위치는 정지된 결정론적 `Demo fixture`이며 `Live 0명`, stale·offline 상태를 텍스트와 함께 표시한다. 실제 이동·지도 공급자·위치 스트림을 암시하지 않는다.
-- `G2-B` 잔여: 지도 오류 주입과 배송순서 목록 fallback, screen reader용 구조화 대안, 양방향 선택의 Playwright·지정 해상도 재검증을 완료한 뒤 G2 전체를 종료한다.
+- `G2-B` 완료: 지도 오류를 명시적으로 재현·복구하고, 오류 시 같은 projection을 읽는 지역→기사→decision 목록과 배송순서 Fallback을 자동 제공한다. 평상시에도 키보드로 펼칠 수 있는 구조화 대안을 유지한다.
+- 지도→지원 큐→지도 왕복, 키보드 전용 목록 탐색, 1440×900·1280×720·390×844·360×800, 기존 두 기사 동의→관리자 승인 폐루프를 Playwright 12/12로 재검증했다.
+- G2 종료: 외부 지도 공급자와 Live 위치 없이 공급자 독립 2D 탐색·오류 복구·접근 가능한 의사결정 대안을 완성했다. 실제 지도 SDK와 성능 예산은 후속 공급자 승인 Gate로 남긴다.
 
 작업:
 

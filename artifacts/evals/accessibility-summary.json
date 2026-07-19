@@ -1,12 +1,14 @@
 {
   "schemaVersion": "accessibility-summary-v1",
-  "capturedAt": "2026-07-18T07:54:42.091Z",
+  "capturedAt": "2026-07-19T04:18:23.581Z",
   "dataMode": "Demo fixture",
   "browser": "Chromium 149.0.7827.55",
   "scope": [
     "horizontal overflow at four required viewports",
     "44px minimum touch height for login, route and decision controls in rider views",
-    "visible Demo fixture provenance label"
+    "visible Demo fixture provenance label",
+    "map error fallback with structured region, courier, decision and delivery-order navigation",
+    "keyboard-only structured map alternative navigation"
   ],
   "excluded": [
     "automated WCAG rule scan",

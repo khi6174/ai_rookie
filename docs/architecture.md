@@ -75,6 +75,8 @@
 
 G2-A의 `src/adapters/maps`는 `national`, `region`, `decision` 세 가시 범위를 강제한다. 전국 범위는 지역 집계만 반환하고, 지역 범위는 선택 지역의 허브·기사·경로만, decision 범위는 동일 `decisionId`의 기사·경로만 반환한다. React UI는 이 projection만 렌더링하므로 원본 fixture를 직접 순회해 저배율 개인정보 경계를 우회하지 않는다.
 
+G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과를 재계산하지 않는다. 정상 SVG 지도와 구조화 목록은 동일 `MapRenderModel`을 읽으며, 지도 가용성은 UI 표시 상태에만 영향을 준다. 오류 중에도 breadcrumb, 지역·기사·decision 선택과 배송순서 목록, 지원 큐 링크를 사용할 수 있고 복구 후 같은 selection을 유지한다.
+
 ### 4.2 권장 디렉터리
 
 ```text

@@ -155,6 +155,38 @@ test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
 });
 
+test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순서를 확인하고 복구한다", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("button", { name: "지도 오류 재현" }).click();
+  await expect(page.getByRole("alert").getByText("지도를 불러오지 못했습니다.")).toBeVisible();
+  await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toHaveCount(0);
+  await page.getByRole("button", { name: "합성 북부권역 목록 보기" }).click();
+  await expect(page.getByRole("list", { name: "합성 북부권역 기사와 위치 상태 목록" })).toBeVisible();
+  await page.getByRole("button", { name: "courier-01 decision 선택" }).click();
+  const routeOrder = page.getByLabel("지도 없이 확인하는 배송순서와 지원 조치");
+  await expect(routeOrder.getByRole("heading", { name: "지도 없이 확인하는 배송순서와 지원 조치" })).toBeVisible();
+  await expect(routeOrder.getByText(`Decision ID · ${decisionId}`)).toBeVisible();
+  await expect(page.getByText("기사 동의와 관리자 승인 전에는 변경 없음")).toBeVisible();
+  await page.getByRole("link", { name: "같은 결정을 지원 큐에서 보기" }).click();
+  await expect(page.getByRole("heading", { name: "지금 확인할 지원 상황" })).toBeVisible();
+  await page.getByRole("link", { name: "지도에서 같은 decision 보기" }).click();
+  await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
+  await page.getByRole("button", { name: "지도 복구" }).click();
+  await expect(page.getByRole("img", { name: "합성 북부권역의 합성 허브, 기사 위치 상태와 계획 경로 지도" })).toBeVisible();
+});
+
+test("키보드로 구조화 지도 대안을 열고 decision을 선택한다", async ({ page }) => {
+  await page.goto("/");
+  const alternative = page.getByText("지도 없이 배송순서·decision 보기", { exact: true });
+  await activateUsingKeyboard(page, alternative);
+  await expect(page.getByRole("list", { name: "합성 권역 목록" })).toBeVisible();
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "합성 북부권역 목록 보기" }));
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "courier-01 decision 선택" }));
+  const routeOrder = page.getByLabel("지도 없이 확인하는 배송순서와 지원 조치");
+  await expect(routeOrder.getByRole("heading", { name: "지도 없이 확인하는 배송순서와 지원 조치" })).toBeVisible();
+  await expect(routeOrder.getByText(`Decision ID · ${decisionId}`)).toBeVisible();
+});
+
 for (const viewport of [
   { name: "관리자 1440×900", width: 1440, height: 900 },
   { name: "관리자 1280×720", width: 1280, height: 720 },
@@ -365,6 +397,8 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
         "horizontal overflow at four required viewports",
         "44px minimum touch height for login, route and decision controls in rider views",
         "visible Demo fixture provenance label",
+        "map error fallback with structured region, courier, decision and delivery-order navigation",
+        "keyboard-only structured map alternative navigation",
       ],
       excluded: [
         "automated WCAG rule scan",

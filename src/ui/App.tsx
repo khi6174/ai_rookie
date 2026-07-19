@@ -222,12 +222,16 @@ function MultiRegionControlMap({
   fixture,
   adapter,
   selection,
+  mapAvailable,
+  onMapAvailabilityChange,
   onSelectionChange,
 }: {
   applied: boolean;
   fixture: MultiRegionMapFixture;
   adapter: MapAdapter;
   selection: MapSelection;
+  mapAvailable: boolean;
+  onMapAvailabilityChange: (available: boolean) => void;
   onSelectionChange: (selection: MapSelection) => void;
 }) {
   const model = adapter.getModel(selection);
@@ -247,6 +251,60 @@ function MultiRegionControlMap({
   const selectDecision = (decisionId: string) => {
     onSelectionChange(adapter.selectionForDecision(decisionId));
   };
+  const structuredAlternative = (
+    <div className="map-structured-content">
+      <p className="map-structured-status">
+        현재 범위 · <strong>{title}</strong>
+      </p>
+      {model.scope === "NATIONAL" ? (
+        <ul className="map-region-list" aria-label="합성 권역 목록">
+          {model.regions.map((region) => (
+            <li key={region.regionId}>
+              <div>
+                <strong>{region.label}</strong>
+                <span>기사 {region.courierCount}명 · 지원 decision {region.supportDecisionCount}건 · stale/offline {region.staleOrOfflineCount}명</span>
+              </div>
+              <button type="button" onClick={() => onSelectionChange({ regionId: region.regionId })}>
+                {region.label} 목록 보기
+              </button>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <ul className="map-courier-list" aria-label={`${selectedRegion?.label ?? "선택 권역"} 기사와 위치 상태 목록`}>
+          {model.couriers.map((courier) => (
+            <li key={courier.courierId} className={model.selection.courierId === courier.courierId ? "is-selected" : undefined}>
+              <div>
+                <strong>{courier.courierId.slice(-10)}</strong>
+                <span>{mapSupportLabels[courier.supportStatus]} · 위치 {courier.positionStatus}</span>
+              </div>
+              <button
+                type="button"
+                aria-pressed={model.selection.courierId === courier.courierId}
+                onClick={() => courier.decisionId
+                  ? selectDecision(courier.decisionId)
+                  : onSelectionChange({ regionId: courier.regionId, courierId: courier.courierId })}
+              >
+                {courier.decisionId ? `${courier.courierId.slice(-10)} decision 선택` : `${courier.courierId.slice(-10)} 경로 선택`}
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+      {model.selectedDecision && (
+        <div className="map-route-order" aria-labelledby="map-route-order-heading">
+          <h3 id="map-route-order-heading">지도 없이 확인하는 배송순서와 지원 조치</h3>
+          <ol>
+            <li><span>현재 계획</span><strong>14번째 배송지 예정</strong></li>
+            <li><span>예상 지원 시점</span><strong>약 52분 후 · 17번째 배송지 전</strong></li>
+            <li><span>추천 조치</span><strong>10분 휴식 + 배송지 8건 이관</strong></li>
+            <li><span>{applied ? "적용 결과" : "승인 후 계획"}</span><strong>{applied ? "원 기사 9건 · 수신 기사 추가 8건" : "기사 동의와 관리자 승인 전에는 변경 없음"}</strong></li>
+          </ol>
+          <code>Decision ID · {model.selectedDecision.decisionId}</code>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <section className="panel route-panel linked-decision" id="route-decision" tabIndex={-1} aria-labelledby="route-heading">
@@ -258,6 +316,14 @@ function MultiRegionControlMap({
         <div className="route-heading-meta">
           <span className="fallback-map-badge">Demo schematic map</span>
           <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 적용 계획</span>
+          <button
+            type="button"
+            className="map-error-toggle"
+            aria-pressed={!mapAvailable}
+            onClick={() => onMapAvailabilityChange(!mapAvailable)}
+          >
+            {mapAvailable ? "지도 오류 재현" : "지도 복구"}
+          </button>
         </div>
       </div>
       <nav className="map-breadcrumb" aria-label="지도 탐색 위치">
@@ -287,7 +353,8 @@ function MultiRegionControlMap({
         )}
         <button type="button" className="map-reset-camera" onClick={() => onSelectionChange(adapter.resetSelection())}>전체 보기</button>
       </nav>
-      <div className={`control-map-canvas scope-${model.scope.toLowerCase()}`}>
+      <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 Fallback · ${title}`}</p>
+      {mapAvailable ? <div className={`control-map-canvas scope-${model.scope.toLowerCase()}`}>
         <svg
           className="control-map-svg"
           viewBox="0 0 100 100"
@@ -354,7 +421,24 @@ function MultiRegionControlMap({
             지도에서 decision 보기
           </button>
         </div>
-      </div>
+      </div> : (
+        <div className="map-error-boundary" role="alert">
+          <div className="map-error-message">
+            <span aria-hidden="true">!</span>
+            <div>
+              <strong>지도를 불러오지 못했습니다.</strong>
+              <p>빈 화면 대신 같은 합성 fixture의 지역·기사·배송순서 목록을 제공합니다. Safety 계산과 현재 결정은 변경되지 않았습니다.</p>
+            </div>
+          </div>
+          {structuredAlternative}
+        </div>
+      )}
+      {mapAvailable && (
+        <details className="map-structured-alternative">
+          <summary>지도 없이 배송순서·decision 보기</summary>
+          {structuredAlternative}
+        </details>
+      )}
       <div className="map-status-strip" aria-label="선택 권역 위치 상태">
         <span><i className="status-dot is-current" />현재 위치 {model.scope === "NATIONAL" ? 18 : model.couriers.filter((courier) => courier.positionStatus === "CURRENT").length}</span>
         <span><i className="status-dot is-stale" />stale {model.scope === "NATIONAL" ? 3 : model.couriers.filter((courier) => courier.positionStatus === "STALE").length}</span>
@@ -631,9 +715,11 @@ function AdminDashboard({
     [mapFixture],
   );
   const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const [mapAvailable, setMapAvailable] = useState(true);
 
   useEffect(() => {
     setMapSelection(mapAdapter.resetSelection());
+    setMapAvailable(true);
   }, [mapAdapter]);
 
   const selectPrimaryDecision = () => {
@@ -661,6 +747,8 @@ function AdminDashboard({
             fixture={mapFixture}
             adapter={mapAdapter}
             selection={mapSelection}
+            mapAvailable={mapAvailable}
+            onMapAvailabilityChange={setMapAvailable}
             onSelectionChange={setMapSelection}
           />
           <InterventionQueue
