@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-15
-- 계약 버전: `contracts-v1.0.0`
+- 최종 갱신: 2026-07-19
+- 계약 버전: `contracts-v1.1.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -81,6 +81,9 @@ type PlanId = string;
 type DecisionId = string;
 type CandidateId = string;
 type ReportId = string;
+type RegionId = string;
+type HubId = string;
+type PositionEventId = string;
 ```
 
 fixtures에서는 `courier-a`, `stop-017` 같은 합성 ID를 사용한다.
@@ -264,6 +267,51 @@ type CoarseLocation = {
 ```
 
 관리자 Near-miss 화면과 감사기록에는 원칙적으로 `CoarseLocation`을 사용한다. 정확한 `GeoPoint`는 경로계산의 일시적 입력으로만 사용할 수 있으며 보존정책은 `privacy-and-ai-policy.md`에서 정한다.
+
+#### 다지역 지도 projection
+
+지도 projection은 UI 탐색용 계약이며 Safety Budget·추천·실행 가능성을 계산하지 않는다.
+
+```ts
+type PositionObservation = {
+  positionEventId: PositionEventId;
+  courierId: CourierId;
+  regionId: RegionId;
+  hubId: HubId;
+  planId: PlanId;
+  capturedAt: IsoDateTime;
+  receivedAt: IsoDateTime;
+  point: GeoPoint;
+  accuracyMeters: number;
+  headingDegrees?: number;
+  speedMetersPerSecond?: number;
+  sourceMode: "LIVE" | "DEMO";
+  provenance: Provenance[];
+};
+
+type PositionAvailability =
+  | { status: "CURRENT"; observation: PositionObservation }
+  | { status: "STALE"; lastObservation: PositionObservation; staleSince: IsoDateTime }
+  | { status: "OFFLINE"; lastApprovedPlanId: PlanId; disconnectedAt: IsoDateTime }
+  | { status: "PERMISSION_DENIED"; lastApprovedPlanId: PlanId }
+  | { status: "UNAVAILABLE"; reason: "NOT_COLLECTED" | "INVALID" | "PROVIDER_ERROR" };
+
+type MapSelection = {
+  regionId?: RegionId;
+  hubId?: HubId;
+  courierId?: CourierId;
+  planId?: PlanId;
+  decisionId?: DecisionId;
+};
+```
+
+- `receivedAt >= capturedAt`이어야 한다.
+- 위치 정확도는 양의 유한수이며 승인 상한 밖이면 `CURRENT`가 될 수 없다.
+- 방향은 0 이상 360 미만, 속도는 0 이상의 유한수다.
+- Demo와 Live 관측을 같은 stream으로 결합하지 않는다.
+- stale·offline·permission denied는 이동 가능한 현재 위치로 표시할 수 없다.
+- 정확 좌표를 AI 입력·일반 로그·스크린샷·장기 감사기록에 넣지 않는다.
+- 다지역 fixture의 region·hub·courier·plan·decision 참조는 모두 존재하고 유일해야 한다.
 
 ### 4.3 시간창
 
@@ -1416,13 +1464,15 @@ type ScenarioFixture = {
 - Mock과 Live가 혼합된 결과를 Live로 표시하지 않는다.
 - 실제 적용된 계획 ETA만 고객안내에 사용한다.
 - Upstage 설명은 도메인 객체와 분리된 strict 결과이며 검증 실패 시 템플릿으로 전환한다.
+- 다지역 지도 projection은 검증된 식별자·위치 상태만 표현하며 Safety 계산에 참여하지 않는다.
+- G1 위치는 모두 결정론적 Demo MOCK이며 Live와 혼합하지 않는다.
 
 ## 26. 미결사항
 
 - ID 생성방식과 해시 알고리즘
 - API 전송 시간대를 항상 UTC `Z`로 고정할지 여부
 - GeoHash 정밀도와 관리자 Near-miss 공간 단위
-- 기사 상태·경로·날씨별 최신성 허용시간의 계약 위치
+- 기사 상태·경로·날씨·위치별 최신성 허용시간의 계약 위치
 - 차량 종류와 용량 차원의 최종 enum
 - 배송지 우선순위와 지연 불가 분류 출처
 - 정확 위치의 메모리 보존시간과 삭제 방식

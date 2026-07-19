@@ -345,15 +345,36 @@
 - 기각한 대안: 과거 프롬프트를 main에 계속 보존하는 방식, API 키가 필요한 Live 데모 공개, 별도 디자인 프로토타입 배포, 실제 인증처럼 보이는 진입 화면, 검증되지 않은 외부 지도·알림 연동 추가.
 - 영향 파일: `SafeRoute_AI_Fable5_Prompt_Pack_KR.md`, `.openai/hosting.json`, `package.json`, `scripts/build-sites-worker.mjs`, `scripts/run-domestic-track-audit.mjs`, `scripts/run-final-readiness-audit.mjs`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`, `docs/final-readiness.md`
 
+### ADR-035 — 최종 디자인 목표를 다지역 지리공간 Control Tower와 현장형 기사 PWA로 고정한다
+
+- 날짜: 2026-07-18
+- 상태: Approved
+- 대체 관계: ADR-031의 단일 schematic 지도와 반응형 모바일 웹은 현재 공개 Demo의 정직한 구현 경계로 유지하되, 최종 제품 디자인 목표에 한해서 이 결정이 대체한다.
+- 결정: 최종 관리자 화면은 `전국·권역 → 지역·허브 → 기사·decision`으로 좁혀 가는 다지역·다기사 지리공간 Control Tower로 설계한다. 지도와 지원 큐는 같은 식별자로 양방향 연결하고, 기사 위치·계획 경로·날씨·도로위험·집계 Near-miss·지원 decision을 출처와 최신성이 있는 레이어로 표시한다. 낮은 확대 수준에서는 개별 기사와 정밀 위치를 군집화한다. 검증된 Live 위치만 움직이며 stale·오프라인·Demo는 멈춤과 명시적 라벨로 구분한다. 기본 지도는 2D이고, 지형·도심 구조·겹친 경로를 더 잘 설명하는 경우에만 접근 가능한 2.5D·3D를 점진적으로 제공한다. 최종 기사 화면은 설치 가능한 현장형 PWA를 목표로 하며 `운행 / 안전지원 / 내 정보` 3탭, 현재 위치 지도, 다음 지점·Safe-until, 현장 맥락 이미지·일러스트와 큰 단일 행동을 사용한다. 사람의 동의·수정·거절·승인과 Risk Transfer Guard는 모든 시각 추천보다 우선한다.
+- 변경통제: `docs/design-system.md`의 `design-v2.0.0`을 source of truth로 사용한다. 이 방향을 바꾸려면 문제, 사용자 근거, 안전·개인정보 영향, 대안, 테스트 영향과 승인자를 새 ADR에 기록하고 사용자 승인을 받아야 한다. 디자인 목표 승인은 위치 수집, 지도 공급자, PWA 보안, 실제 인증이나 새 외부 의존성의 구현 승인이 아니다. 구현 전 `product-spec`, `data-contracts`, `privacy-and-ai-policy`, `architecture`, `evals`의 관련 계약을 먼저 갱신한다.
+- 레퍼런스 근거: Bridges의 밝은 실시간 fleet Control Tower, Dynamic Map and List의 지도·목록·실시간 경로 연결, Human-in-the-Loop AI Decision Dashboard의 후보 비교·설명·사람 승인, Mobile UI Screens for Driver App의 이동 중 빠른 판단, Field Service Dispatch의 모바일 재배치, Drileaf의 Demo 진입면 패턴만 사용한다. 원본 이미지·아이콘·레이아웃은 복제하지 않는다.
+- 이유: 현재 단일 기사·단일 decision schematic 데모는 폐루프 설명에는 충분하지만 여러 지역에서 함께 일하는 기사들의 공간적 관계, 데이터 최신성, 지원 우선순위와 현장 위치 맥락을 한눈에 설명하지 못한다. 텍스트 카드 중심 모바일 화면도 실제 운행 중 빠른 상황 인지에 한계가 있다.
+- 기각한 대안: 단일 기사 지도를 최종 화면으로 유지하는 방식, 모든 기사를 저배율에 개별 표시하는 방식, 기사 순위·성과판, Live 데이터 없이 움직이는 마커, 장식용 3D·자동 카메라, 장기 개인 궤적 재생, Dribbble 원본 복제, 위치·인증 계약 없이 실지도·PWA가 완료된 것처럼 표시하는 방식.
+- 영향 파일: `docs/design-system.md`, `docs/decisions.md`; 후속 승인 대상은 `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`, 관리자·기사 UI, 지도·위치 어댑터와 E2E·성능·접근성 산출물
+
+### ADR-036 — G2-A 지도는 공급자 독립 projection과 기능형 SVG로 시작한다
+
+- 날짜: 2026-07-19
+- 상태: Approved
+- 결정: 첫 다지역 지도 구현은 새 지도 SDK나 외부 의존성 없이 `MapAdapter`와 기능 목적의 SVG 2D 작업면으로 구현한다. `national` 범위는 지역 집계만, `region` 범위는 선택 지역의 기사·경로만, `decision` 범위는 선택 decision의 기사·경로만 반환한다. 지도와 지원 큐는 같은 `decisionId`를 사용하며, 위치는 움직이지 않는 결정론적 합성 Demo로 표시한다.
+- 이유: 지도 공급자·라이선스·Live 위치 계약이 미결인 상태에서도 다지역 탐색과 개인정보 가시 범위를 먼저 검증하고, 기존 폐루프·국내 AI 책임 경계·공개 정적 배포를 보존하기 위해서다.
+- 기각한 대안: 공급자를 먼저 확정해 SDK를 직접 UI에 결합하는 방식, 전국 화면에서 24명 개별 위치를 모두 표시하는 방식, 합성 좌표를 실시간으로 움직이는 방식, 지도가 Safety 판정이나 추천 순위를 다시 계산하는 방식.
+- 영향 파일: `src/adapters/maps/index.ts`, `src/adapters/fixtures/multiRegionMapFixture.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-adapter.test.ts`, `tests/multi-region-map-fixture.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/design-system.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
 |---|---|---|
-| 창의성 | ADR-001, 004, 005, 006 | Time-to-Breach와 반사실적 비교 폐루프 시연 |
-| 혁신성 | ADR-002, 004, 005, 007 | 안전 하드 제약, 위험전가 차단, 국내 AI 근거 계층 테스트 |
+| 창의성 | ADR-001, 004, 005, 006, 035 | Time-to-Breach와 반사실적 비교 폐루프, 다지역 지도와 현장형 PWA 시연 |
+| 혁신성 | ADR-002, 004, 005, 007, 035 | 안전 하드 제약, 위험전가 차단, 사람 검토형 지리공간 의사결정과 국내 AI 근거 계층 테스트 |
 | 추진성 | ADR-009, 010, 012 | 주차별 빌드·테스트·시연 체크포인트 |
 | 성장성 | ADR-007, 008, 009, 020 | 모델별 benchmark, 데이터 manifest, 확장 가능한 어댑터 경계 |
-| 실효성 | ADR-001, 006, 010, 011 | 기사·관리자 E2E와 계획·ETA 원자적 갱신 |
+| 실효성 | ADR-001, 006, 010, 011, 035 | 기사·관리자 E2E, 계획·ETA 원자적 갱신과 다기사 지도·큐 동기화 |
 | 가치성 | ADR-005, 006, 011, 012 | 안전·지연·형평성·비징벌성 지표와 감사기록 |
 
 ## 5. 수용기준

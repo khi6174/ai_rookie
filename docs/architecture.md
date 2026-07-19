@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-18
+- 최종 갱신: 2026-07-19
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -58,6 +58,23 @@
 
 관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. 기사 화면은 설치형 PWA나 독립 인증 세션이 아닌 반응형 모바일 웹이다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
 
+이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도만 추가했다. 실제 지도 SDK, 위치 stream, service worker와 인증 세션은 도입하지 않는다.
+
+### 4.2 공간운영 확장 계층
+
+```text
+결정론적 다지역 fixture
+→ 위치·지역·허브 Zod 계약
+→ 지도 projection·집계
+→ MapAdapter
+→ 관리자 2D 지도 / 기사 compact map
+→ schematic fallback·목록 대안
+```
+
+지도 projection은 Domain의 Safety 계산 결과와 식별자를 읽기 전용으로 조합한다. 위치·지도 상태가 Safety Budget, 후보 실행 가능성, 추천 순위와 동의·승인 상태를 변경할 수 없다.
+
+G2-A의 `src/adapters/maps`는 `national`, `region`, `decision` 세 가시 범위를 강제한다. 전국 범위는 지역 집계만 반환하고, 지역 범위는 선택 지역의 허브·기사·경로만, decision 범위는 동일 `decisionId`의 기사·경로만 반환한다. React UI는 이 projection만 렌더링하므로 원본 fixture를 직접 순회해 저배율 개인정보 경계를 우회하지 않는다.
+
 ### 4.2 권장 디렉터리
 
 ```text
@@ -77,13 +94,14 @@ src/
   adapters/
     fixtures/           # 대표 시나리오와 변형
     weather/            # Live·Mock·Error·Fallback 어댑터
-    maps/               # 데모 경로와 향후 지도 공급자 경계
+    maps/               # 다지역 projection, Demo 경로와 향후 지도 공급자 경계
+    positions/          # Demo·Live 위치 관측과 최신성 판별 경계
     upstage/            # Parse·Extract·Solar 어댑터
     domestic-ai/        # A.X·K-EXAONE 공통 텍스트 평가와 향후 승인된 에셋 도구 경계
     audit/              # 감사 이벤트 저장 경계
   ui/
     admin/              # Control Tower와 승인 흐름
-    courier/            # 기사 반응형 모바일 웹과 Near-miss
+    courier/            # 기사 반응형 모바일 웹, 향후 PWA와 Near-miss
     shared/             # 동일 수치·상태 표현 컴포넌트
   demo/
     controller/         # 단계 전환, reset, fallback
@@ -266,6 +284,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 - Application: 허용 상태 전이, 재동의, 승인 직전 재검증, 원자적 적용
 - AI adapters: malformed·timeout·prompt injection·숫자 불변·인용 검증
 - UI/E2E: 동일 결정 ID, 키보드, 모바일 터치, 오류·fallback·reset
+- Geospatial: region·hub·courier·plan 참조, Demo/Live 분리, 집계 일치, stale 정지, 지도·큐 동일 decision
 - Demo: clean start에서 동일 시나리오 3회 연속 통과
 
 구체적인 지표와 통과 기준은 `docs/evals.md`가 소유한다.
@@ -282,6 +301,9 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 8. Upstage 문서·설명 계층
 9. 평가 하네스와 국내 AI benchmark
 10. 데모 모드·접근성·독립 검증
+11. G0 위치·지도·PWA 계약 승인
+12. G1 다지역 합성 fixture와 공급자 독립 projection
+13. G2 2D 지도 → G3 기사 PWA → G4 Demo 이동 → 조건부 G5 3D
 
 ## 13. 심사기준과 아키텍처 증거
 
@@ -316,6 +338,8 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 ## 16. 미결사항
 
 - 실제 지도 공급자 또는 정적 데모 지도 구현 방식
+- 위치 최신성·정확도·갱신주기와 메모리 보존시간
+- 기사 PWA 인증·오프라인 캐시·푸시 권한 계약
 - MVP 감사 스냅샷의 파일·브라우저 메모리 저장 선택
 - 실제 파일럿 서버 함수의 API 경로와 배포 환경
 - 공급자별 국내 AI 모델명·엔드포인트·쿼터

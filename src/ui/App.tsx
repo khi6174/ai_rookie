@@ -1,8 +1,15 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import type {
   ExplanationResult,
   InterventionCandidate,
+  MapSelection,
+  MultiRegionMapFixture,
 } from "../domain/contracts";
+import { createMultiRegionMapFixture } from "../adapters/fixtures";
+import {
+  createFixtureMapAdapter,
+  type MapAdapter,
+} from "../adapters/maps";
 import {
   approveAndApplyDemo,
   consentStatusFor,
@@ -201,49 +208,158 @@ function AdminNavigation() {
   );
 }
 
-function RouteSchematic({ applied }: { applied: boolean }) {
+const mapSupportLabels = {
+  OPERATING: "운행 중",
+  SUPPORT_NEEDED: "지원 필요",
+  CONSENT_PENDING: "기사 검토",
+  APPROVAL_PENDING: "승인 대기",
+  APPLIED: "계획 적용",
+  OFFLINE: "오프라인",
+} as const;
+
+function MultiRegionControlMap({
+  applied,
+  fixture,
+  adapter,
+  selection,
+  onSelectionChange,
+}: {
+  applied: boolean;
+  fixture: MultiRegionMapFixture;
+  adapter: MapAdapter;
+  selection: MapSelection;
+  onSelectionChange: (selection: MapSelection) => void;
+}) {
+  const model = adapter.getModel(selection);
+  const selectedRegion = model.selection.regionId
+    ? fixture.regions.find((region) => region.regionId === model.selection.regionId)
+    : undefined;
+  const selectedCourier = model.selection.courierId
+    ? fixture.couriers.find(
+        (courier) => courier.courierId === model.selection.courierId,
+      )
+    : undefined;
+  const title = model.scope === "NATIONAL"
+    ? "3개 합성 권역의 지원 필요 상황"
+    : model.scope === "REGION"
+      ? `${selectedRegion?.label ?? "선택 권역"}의 기사와 경로`
+      : "선택한 지원 decision과 계획 경로";
+  const selectDecision = (decisionId: string) => {
+    onSelectionChange(adapter.selectionForDecision(decisionId));
+  };
+
   return (
     <section className="panel route-panel linked-decision" id="route-decision" tabIndex={-1} aria-labelledby="route-heading">
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">합성 관악 허브 · 우천 경사 권역</p>
-          <h2 id="route-heading">남은 배송계획과 예상 초과 지점</h2>
+          <p className="section-kicker">다지역 합성 운영 · 기사 24명 · 허브 6개</p>
+          <h2 id="route-heading">{title}</h2>
         </div>
         <div className="route-heading-meta">
-          <span className="fallback-map-badge">Fallback schematic map</span>
-          <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 조정 계획</span>
+          <span className="fallback-map-badge">Demo schematic map</span>
+          <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 적용 계획</span>
         </div>
       </div>
-      <div className="route-progress" aria-label="배송 진행 상태">
-        <span>현재 위치</span><strong>14번째 배송지 예정</strong><span aria-hidden="true">→</span><strong>{applied ? "휴식 후 조정 경로" : "17번째 배송지 전 지원"}</strong>
-      </div>
-      <div className="route-canvas" role="img" aria-label={applied
-        ? "8건 이관이 적용되어 원 기사 배송지가 9건으로 조정된 개략 경로"
-        : "17번째 배송지에서 52분 후 임계치 초과가 예상되는 개략 경로"}
-      >
-        <span className="map-road road-one" aria-hidden="true" />
-        <span className="map-road road-two" aria-hidden="true" />
-        <span className="map-road road-three" aria-hidden="true" />
-        <span className="map-road road-four" aria-hidden="true" />
-        <span className="map-block block-one" aria-hidden="true" />
-        <span className="map-block block-two" aria-hidden="true" />
-        <span className="map-block block-three" aria-hidden="true" />
-        <span className={`map-route route-a ${applied ? "is-applied" : ""}`} aria-hidden="true" />
-        <span className={`map-route route-b ${applied ? "is-applied" : ""}`} aria-hidden="true" />
-        <span className={`map-route route-c ${applied ? "is-applied" : ""}`} aria-hidden="true" />
-        {!applied && <span className="map-exposure" aria-hidden="true" />}
-        <span className="map-pin pin-depot">허브</span>
-        <span className="map-pin pin-current">14</span>
-        <span className="map-pin pin-rest">휴식</span>
-        <span className={`map-pin pin-breach ${applied ? "is-applied" : ""}`}>17</span>
-        <span className="map-label label-depot">관악 합성 허브</span>
-        <span className="map-label label-rest">10분 휴식 지점</span>
-        <span className="map-label label-breach">{applied ? "조정 후 안전범위" : "예상 초과 지점"}</span>
-        <div className="route-callout">
-          <strong>{applied ? "조정 계획 적용" : "약 52분 후"}</strong>
-          <span>{applied ? "원 기사 9건 · 수신 기사로 이관 · 8건" : "17번째 배송지 · 임계치 초과 예상"}</span>
+      <nav className="map-breadcrumb" aria-label="지도 탐색 위치">
+        <button
+          type="button"
+          className={model.scope === "NATIONAL" ? "is-current" : undefined}
+          aria-current={model.scope === "NATIONAL" ? "page" : undefined}
+          onClick={() => onSelectionChange(adapter.resetSelection())}
+        >
+          전체 권역
+        </button>
+        {selectedRegion && (
+          <>
+            <span aria-hidden="true">/</span>
+            <button
+              type="button"
+              className={model.scope === "REGION" ? "is-current" : undefined}
+              aria-current={model.scope === "REGION" ? "page" : undefined}
+              onClick={() => onSelectionChange({ regionId: selectedRegion.regionId })}
+            >
+              {selectedRegion.label}
+            </button>
+          </>
+        )}
+        {selectedCourier && (
+          <><span aria-hidden="true">/</span><strong>{selectedCourier.courierId.slice(-10)}</strong></>
+        )}
+        <button type="button" className="map-reset-camera" onClick={() => onSelectionChange(adapter.resetSelection())}>전체 보기</button>
+      </nav>
+      <div className={`control-map-canvas scope-${model.scope.toLowerCase()}`}>
+        <svg
+          className="control-map-svg"
+          viewBox="0 0 100 100"
+          role="img"
+          aria-label={model.scope === "NATIONAL"
+            ? "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도"
+            : `${selectedRegion?.label ?? "선택 권역"}의 합성 허브, 기사 위치 상태와 계획 경로 지도`}
+        >
+          <defs>
+            <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.25" />
+            </pattern>
+          </defs>
+          <rect width="100" height="100" className="map-grid-fill" />
+          {model.routes.map((route) => (
+            <polyline
+              key={route.routeId}
+              className={`svg-route ${route.selected ? "is-selected" : ""} ${applied && route.selected ? "is-applied" : ""}`}
+              points={route.points.map((point) => `${point.x},${point.y}`).join(" ")}
+            />
+          ))}
+          {model.hubs.map((hub) => (
+            <g key={hub.hubId} className="svg-hub" transform={`translate(${hub.point.x} ${hub.point.y})`}>
+              <rect x="-2.5" y="-2.5" width="5" height="5" rx="1" />
+              <text x="0" y="6.5" textAnchor="middle">{hub.courierCount}명</text>
+            </g>
+          ))}
+        </svg>
+        {model.scope === "NATIONAL" && model.regions.map((region) => (
+          <button
+            key={region.regionId}
+            type="button"
+            className="region-cluster"
+            style={{ left: `${region.point.x}%`, top: `${region.point.y}%` }}
+            aria-label={`${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`}
+            onClick={() => onSelectionChange({ regionId: region.regionId })}
+          >
+            <span>{region.supportDecisionCount}</span>
+            <strong>{region.label}</strong>
+            <small>기사 {region.courierCount} · stale/offline {region.staleOrOfflineCount}</small>
+          </button>
+        ))}
+        {model.scope !== "NATIONAL" && model.couriers.map((courier) => courier.point && (
+          <button
+            key={courier.courierId}
+            type="button"
+            className={`courier-marker status-${courier.supportStatus.toLowerCase()} ${courier.positionStatus === "STALE" ? "is-stale" : ""}`}
+            style={{ left: `${courier.point.x}%`, top: `${courier.point.y}%` }}
+            aria-label={`${courier.courierId.slice(-10)}, ${mapSupportLabels[courier.supportStatus]}, 위치 ${courier.positionStatus}`}
+            aria-pressed={model.selection.courierId === courier.courierId}
+            onClick={() => courier.decisionId
+              ? selectDecision(courier.decisionId)
+              : onSelectionChange({ regionId: courier.regionId, courierId: courier.courierId })}
+          >
+            <span aria-hidden="true">{courier.positionStatus === "STALE" ? "!" : courier.supportStatus === "OPERATING" ? "·" : "◆"}</span>
+          </button>
+        ))}
+        <div className="map-data-mode"><strong>Demo movement 아님</strong><span>결정론적 합성 위치 · Live 0명</span></div>
+        <div className={`map-active-decision ${applied ? "is-applied" : ""}`}>
+          <span>{applied ? "계획 적용 완료" : "현재 지원 큐 · 1건"}</span>
+          <strong>{applied ? "예상 초과 해소" : "약 52분 후 · 17번째 배송지"}</strong>
+          <small>{applied ? "원 기사 9건 · 수신 기사로 이관 8건" : "10분 휴식 + 8건 이관 검토"}</small>
+          <button type="button" onClick={() => selectDecision(fixture.decisions[0].decisionId)}>
+            지도에서 decision 보기
+          </button>
         </div>
-        <span className="map-provenance">Fallback schematic map</span>
+      </div>
+      <div className="map-status-strip" aria-label="선택 권역 위치 상태">
+        <span><i className="status-dot is-current" />현재 위치 {model.scope === "NATIONAL" ? 18 : model.couriers.filter((courier) => courier.positionStatus === "CURRENT").length}</span>
+        <span><i className="status-dot is-stale" />stale {model.scope === "NATIONAL" ? 3 : model.couriers.filter((courier) => courier.positionStatus === "STALE").length}</span>
+        <span><i className="status-dot is-offline" />offline {model.scope === "NATIONAL" ? 3 : fixture.couriers.filter((courier) => courier.regionId === model.selection.regionId && courier.position.status === "OFFLINE").length}</span>
+        <span className="map-privacy-note">저배율 개별 기사 위치 비공개</span>
       </div>
       <div className="timeline-summary">
         <div><span>현재 안전여유</span><strong>54.7</strong></div>
@@ -256,7 +372,15 @@ function RouteSchematic({ applied }: { applied: boolean }) {
   );
 }
 
-function InterventionQueue({ session, onOpenApproval }: { session: DemoSession; onOpenApproval: () => void }) {
+function InterventionQueue({
+  session,
+  onOpenApproval,
+  onMapSelect,
+}: {
+  session: DemoSession;
+  onOpenApproval: () => void;
+  onMapSelect: () => void;
+}) {
   const sourceStatus = consentStatusFor(session, demoSourceCourierId);
   const recipientStatus = consentStatusFor(session, demoRecipientCourierId);
   const approvalReady = session.decision.status === "ADMIN_APPROVAL_REQUIRED";
@@ -295,7 +419,7 @@ function InterventionQueue({ session, onOpenApproval }: { session: DemoSession; 
       {!approvalReady && !applied && (
         <p className="button-help">두 기사 모두 같은 조정안에 동의해야 승인할 수 있습니다.</p>
       )}
-      <a className="decision-link queue-map-link" href="#route-decision">지도에서 같은 결정 보기 <span aria-hidden="true">→</span></a>
+      <a className="decision-link queue-map-link" href="#route-decision" onClick={onMapSelect}>지도에서 같은 decision 보기 <span aria-hidden="true">→</span></a>
     </aside>
   );
 }
@@ -498,6 +622,24 @@ function AdminDashboard({
 }) {
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
   const currentWeather = demoWeatherRuntime.active.data[0];
+  const mapFixture = useMemo(
+    () => createMultiRegionMapFixture({ primaryDecisionId: session.decision.decisionId }),
+    [session.decision.decisionId],
+  );
+  const mapAdapter = useMemo(
+    () => createFixtureMapAdapter(mapFixture),
+    [mapFixture],
+  );
+  const [mapSelection, setMapSelection] = useState<MapSelection>({});
+
+  useEffect(() => {
+    setMapSelection(mapAdapter.resetSelection());
+  }, [mapAdapter]);
+
+  const selectPrimaryDecision = () => {
+    setMapSelection(mapAdapter.selectionForDecision(session.decision.decisionId));
+  };
+
   return (
     <div className="admin-layout" id="control-tower">
       <AdminNavigation />
@@ -514,8 +656,18 @@ function AdminDashboard({
           <div><span>승인 대기</span><strong>{session.decision.status === "ADMIN_APPROVAL_REQUIRED" ? "1건" : "0건"}</strong><small>{decisionStatusLabels[session.decision.status]}</small></div>
         </div>
         <div className="admin-grid">
-          <RouteSchematic applied={applied} />
-          <InterventionQueue session={session} onOpenApproval={onOpenApproval} />
+          <MultiRegionControlMap
+            applied={applied}
+            fixture={mapFixture}
+            adapter={mapAdapter}
+            selection={mapSelection}
+            onSelectionChange={setMapSelection}
+          />
+          <InterventionQueue
+            session={session}
+            onOpenApproval={onOpenApproval}
+            onMapSelect={selectPrimaryDecision}
+          />
         </div>
         <div className="admin-lower-grid">
           <ComparisonTable />

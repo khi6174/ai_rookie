@@ -1,6 +1,13 @@
 import { ScenarioFixtureSchema } from "../../domain/contracts";
 import { createScenarioFixture } from "./scenarioFactory";
 
+export {
+  createMultiRegionMapFixture,
+  multiRegionMapFixture,
+  summarizeMultiRegionMapFixture,
+  type RegionMapSummary,
+} from "./multiRegionMapFixture";
+
 export const rainyHillyLongShiftFixture = createScenarioFixture({
   fixtureId: "scenario-rain-hill-longshift-v1",
   evaluatedAt: "2026-07-14T00:00:00.000Z",

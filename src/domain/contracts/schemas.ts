@@ -211,6 +211,388 @@ export const CoarseLocationSchema = z
   })
   .strict();
 
+export const PositionObservationSchema = z
+  .object({
+    positionEventId: opaqueId,
+    courierId: opaqueId,
+    regionId: opaqueId,
+    hubId: opaqueId,
+    planId: opaqueId,
+    capturedAt: IsoDateTimeSchema,
+    receivedAt: IsoDateTimeSchema,
+    point: GeoPointSchema,
+    accuracyMeters: finiteNumber.positive(),
+    headingDegrees: finiteNumber.min(0).lt(360).optional(),
+    speedMetersPerSecond: nonNegativeNumber.optional(),
+    sourceMode: z.enum(["LIVE", "DEMO"]),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (toMillis(value.receivedAt) < toMillis(value.capturedAt)) {
+      context.addIssue({
+        code: "custom",
+        path: ["receivedAt"],
+        message: "Position cannot be received before it was captured",
+      });
+    }
+    const invalidProvenance = value.provenance.some((item) =>
+      value.sourceMode === "DEMO"
+        ? item.kind !== "MOCK" || !item.isDemo
+        : item.kind !== "LIVE" || item.isDemo,
+    );
+    if (invalidProvenance) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "Position source mode and provenance must agree",
+      });
+    }
+  });
+
+export const PositionAvailabilitySchema = z.discriminatedUnion("status", [
+  z
+    .object({
+      status: z.literal("CURRENT"),
+      observation: PositionObservationSchema,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("STALE"),
+      lastObservation: PositionObservationSchema,
+      staleSince: IsoDateTimeSchema,
+    })
+    .strict()
+    .superRefine((value, context) => {
+      if (toMillis(value.staleSince) <= toMillis(value.lastObservation.capturedAt)) {
+        context.addIssue({
+          code: "custom",
+          path: ["staleSince"],
+          message: "Stale time must follow the last observation",
+        });
+      }
+    }),
+  z
+    .object({
+      status: z.literal("OFFLINE"),
+      lastApprovedPlanId: opaqueId,
+      disconnectedAt: IsoDateTimeSchema,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("PERMISSION_DENIED"),
+      lastApprovedPlanId: opaqueId,
+    })
+    .strict(),
+  z
+    .object({
+      status: z.literal("UNAVAILABLE"),
+      reason: z.enum(["NOT_COLLECTED", "INVALID", "PROVIDER_ERROR"]),
+    })
+    .strict(),
+]);
+
+export const MapSelectionSchema = z
+  .object({
+    regionId: opaqueId.optional(),
+    hubId: opaqueId.optional(),
+    courierId: opaqueId.optional(),
+    planId: opaqueId.optional(),
+    decisionId: opaqueId.optional(),
+  })
+  .strict()
+  .refine((value) => Object.values(value).some(Boolean), {
+    message: "Map selection must identify at least one scope",
+  });
+
+export const MapRegionSchema = z
+  .object({
+    regionId: opaqueId,
+    label: z.string().min(1).max(100),
+    center: GeoPointSchema,
+    hubIds: z.array(opaqueId).min(1),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict();
+
+export const MapHubSchema = z
+  .object({
+    hubId: opaqueId,
+    regionId: opaqueId,
+    label: z.string().min(1).max(100),
+    center: GeoPointSchema,
+    courierIds: z.array(opaqueId).min(1),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict();
+
+export const MapRouteProjectionSchema = z
+  .object({
+    routeId: opaqueId,
+    courierId: opaqueId,
+    planId: opaqueId,
+    points: z.array(GeoPointSchema).min(2),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict();
+
+export const MapDecisionSummarySchema = z
+  .object({
+    decisionId: opaqueId,
+    courierId: opaqueId,
+    planId: opaqueId,
+    parentFixtureId: opaqueId,
+    status: z.enum([
+      "SUPPORT_NEEDED",
+      "CONSENT_PENDING",
+      "APPROVAL_PENDING",
+      "APPLIED",
+    ]),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict();
+
+export const MapCourierProjectionSchema = z
+  .object({
+    courierId: opaqueId,
+    regionId: opaqueId,
+    hubId: opaqueId,
+    planId: opaqueId,
+    routeId: opaqueId,
+    decisionId: opaqueId.optional(),
+    supportStatus: z.enum([
+      "OPERATING",
+      "SUPPORT_NEEDED",
+      "CONSENT_PENDING",
+      "APPROVAL_PENDING",
+      "APPLIED",
+      "OFFLINE",
+    ]),
+    safeUntilAt: IsoDateTimeSchema.optional(),
+    position: PositionAvailabilitySchema,
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict();
+
+const uniqueStrings = (values: string[]) => new Set(values).size === values.length;
+
+export const MultiRegionMapFixtureSchema = z
+  .object({
+    fixtureId: opaqueId,
+    fixtureVersion: z.string().min(1),
+    generatorVersion: z.string().min(1),
+    seed: nonNegativeInteger,
+    evaluatedAt: IsoDateTimeSchema,
+    timeZone: IanaTimeZoneSchema,
+    dataMode: z.literal("DEMO"),
+    parentScenarioIds: z.array(opaqueId).min(3),
+    regions: z.array(MapRegionSchema).min(3),
+    hubs: z.array(MapHubSchema).min(3),
+    couriers: z.array(MapCourierProjectionSchema).min(24),
+    routes: z.array(MapRouteProjectionSchema).min(24),
+    decisions: z.array(MapDecisionSummarySchema).min(3),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const idGroups = [
+      ["parentScenarioIds", value.parentScenarioIds],
+      ["regions", value.regions.map((item) => item.regionId)],
+      ["hubs", value.hubs.map((item) => item.hubId)],
+      ["couriers", value.couriers.map((item) => item.courierId)],
+      ["routes", value.routes.map((item) => item.routeId)],
+      ["decisions", value.decisions.map((item) => item.decisionId)],
+    ] as const;
+    for (const [path, ids] of idGroups) {
+      if (!uniqueStrings(ids)) {
+        context.addIssue({
+          code: "custom",
+          path: [path],
+          message: `${path} IDs must be unique`,
+        });
+      }
+    }
+
+    const regions = new Map(value.regions.map((item) => [item.regionId, item]));
+    const hubs = new Map(value.hubs.map((item) => [item.hubId, item]));
+    const couriers = new Map(value.couriers.map((item) => [item.courierId, item]));
+    const routes = new Map(value.routes.map((item) => [item.routeId, item]));
+    const decisions = new Map(value.decisions.map((item) => [item.decisionId, item]));
+    const parents = new Set(value.parentScenarioIds);
+
+    value.regions.forEach((region, index) => {
+      const actualHubIds = value.hubs
+        .filter((hub) => hub.regionId === region.regionId)
+        .map((hub) => hub.hubId);
+      if (
+        !uniqueStrings(region.hubIds) ||
+        region.hubIds.length !== actualHubIds.length ||
+        region.hubIds.some((id) => !actualHubIds.includes(id))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["regions", index, "hubIds"],
+          message: "Region hub IDs must exactly match referenced hubs",
+        });
+      }
+    });
+
+    value.hubs.forEach((hub, index) => {
+      const actualCourierIds = value.couriers
+        .filter((courier) => courier.hubId === hub.hubId)
+        .map((courier) => courier.courierId);
+      if (
+        !regions.has(hub.regionId) ||
+        !uniqueStrings(hub.courierIds) ||
+        hub.courierIds.length !== actualCourierIds.length ||
+        hub.courierIds.some((id) => !actualCourierIds.includes(id))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["hubs", index],
+          message: "Hub references must match their region and couriers",
+        });
+      }
+    });
+
+    value.couriers.forEach((courier, index) => {
+      const hub = hubs.get(courier.hubId);
+      const route = routes.get(courier.routeId);
+      const decision = courier.decisionId
+        ? decisions.get(courier.decisionId)
+        : undefined;
+      if (!hub || hub.regionId !== courier.regionId) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "hubId"],
+          message: "Courier hub and region must agree",
+        });
+      }
+      if (
+        !route ||
+        route.courierId !== courier.courierId ||
+        route.planId !== courier.planId
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "routeId"],
+          message: "Courier route must exist and share courier and plan IDs",
+        });
+      }
+      if (
+        courier.decisionId &&
+        (!decision ||
+          decision.courierId !== courier.courierId ||
+          decision.planId !== courier.planId ||
+          decision.status !== courier.supportStatus)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "decisionId"],
+          message: "Courier decision must exist and share status and plan",
+        });
+      }
+      if (
+        !courier.decisionId &&
+        !["OPERATING", "OFFLINE"].includes(courier.supportStatus)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "supportStatus"],
+          message: "Support state requires a decision",
+        });
+      }
+      const observation =
+        courier.position.status === "CURRENT"
+          ? courier.position.observation
+          : courier.position.status === "STALE"
+            ? courier.position.lastObservation
+            : undefined;
+      if (
+        observation &&
+        (observation.courierId !== courier.courierId ||
+          observation.regionId !== courier.regionId ||
+          observation.hubId !== courier.hubId ||
+          observation.planId !== courier.planId)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "position"],
+          message: "Position observation must match courier scope",
+        });
+      }
+      if (
+        observation &&
+        (toMillis(observation.capturedAt) > toMillis(value.evaluatedAt) ||
+          toMillis(observation.receivedAt) > toMillis(value.evaluatedAt))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "position"],
+          message: "Demo position cannot occur after fixture evaluation time",
+        });
+      }
+      if (
+        courier.position.status === "STALE" &&
+        toMillis(courier.position.staleSince) > toMillis(value.evaluatedAt)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "position", "staleSince"],
+          message: "Stale time cannot follow fixture evaluation time",
+        });
+      }
+      if (
+        courier.position.status === "OFFLINE" &&
+        toMillis(courier.position.disconnectedAt) > toMillis(value.evaluatedAt)
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["couriers", index, "position", "disconnectedAt"],
+          message: "Disconnect time cannot follow fixture evaluation time",
+        });
+      }
+    });
+
+    value.decisions.forEach((decision, index) => {
+      if (!couriers.has(decision.courierId) || !parents.has(decision.parentFixtureId)) {
+        context.addIssue({
+          code: "custom",
+          path: ["decisions", index],
+          message: "Decision must reference a courier and parent scenario",
+        });
+      }
+    });
+
+    const provenanceRecords: z.infer<typeof ProvenanceSchema>[] = [];
+    const visit = (candidate: unknown) => {
+      if (Array.isArray(candidate)) {
+        candidate.forEach(visit);
+        return;
+      }
+      if (!candidate || typeof candidate !== "object") return;
+      const record = candidate as Record<string, unknown>;
+      if ("kind" in record && "sourceId" in record && "isDemo" in record) {
+        provenanceRecords.push(record as z.infer<typeof ProvenanceSchema>);
+      }
+      Object.values(record).forEach(visit);
+    };
+    visit(value);
+    if (
+      provenanceRecords.some(
+        (item) => item.kind !== "MOCK" || item.isDemo !== true,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "G1 multi-region fixture must remain Demo MOCK only",
+      });
+    }
+  });
+
 export const TimeWindowSchema = z
   .object({
     startsAt: IsoDateTimeSchema,
@@ -2092,6 +2474,15 @@ export const ScenarioFixtureSchema = ScenarioFixtureBaseSchema.superRefine(
 );
 
 export type Provenance = z.infer<typeof ProvenanceSchema>;
+export type PositionObservation = z.infer<typeof PositionObservationSchema>;
+export type PositionAvailability = z.infer<typeof PositionAvailabilitySchema>;
+export type MapSelection = z.infer<typeof MapSelectionSchema>;
+export type MapRegion = z.infer<typeof MapRegionSchema>;
+export type MapHub = z.infer<typeof MapHubSchema>;
+export type MapRouteProjection = z.infer<typeof MapRouteProjectionSchema>;
+export type MapDecisionSummary = z.infer<typeof MapDecisionSummarySchema>;
+export type MapCourierProjection = z.infer<typeof MapCourierProjectionSchema>;
+export type MultiRegionMapFixture = z.infer<typeof MultiRegionMapFixtureSchema>;
 export type CourierState = z.infer<typeof CourierStateSchema>;
 export type WorkloadState = z.infer<typeof WorkloadStateSchema>;
 export type WeatherState = z.infer<typeof WeatherStateSchema>;

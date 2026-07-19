@@ -26,7 +26,9 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
   await expect(page.getByText("Demo fixture").first()).toBeVisible();
   await expect(page.getByText(expectedDecisionId).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeDisabled();
-  await expect(page.getByText("17번째 배송지 · 임계치 초과 예상")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toBeVisible();
+  await expect(page.getByText("약 52분 후 · 17번째 배송지")).toBeVisible();
   await expect(page.getByText("12건 이관은 실행할 수 없습니다.")).toBeVisible();
   await expect(page.getByText("휴식 · 물량이관 · 순서변경 · 안전경로 · Safe Delay")).toBeVisible();
 }
@@ -58,7 +60,7 @@ async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId)
   await expect(page.getByText("완료된 개입 · 1건")).toBeVisible();
   await expect(page.getByText("계획·안내 갱신 완료").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "계획 적용 완료" })).toBeDisabled();
-  await expect(page.getByRole("img", { name: "8건 이관이 적용되어 원 기사 배송지가 9건으로 조정된 개략 경로" })).toBeVisible();
+  await expect(page.locator("#route-decision").getByText("예상 초과 해소")).toBeVisible();
   await expect(page.getByText("승인된 계획과 ETA가 함께 적용되고 고객안내 미리보기가 기록되었습니다.").first()).toBeVisible();
 }
 
@@ -137,6 +139,22 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
   await expect(page.getByText("계획·안내 갱신 완료").first()).toBeVisible();
 });
 
+test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐와 동기화한다", async ({ page }) => {
+  await page.goto("/");
+  const northRegion = page.getByRole("button", {
+    name: "합성 북부권역, 기사 8명, 지원 decision 4건",
+  });
+  await northRegion.click();
+  await expect(page.getByRole("heading", { name: "합성 북부권역의 기사와 경로" })).toBeVisible();
+  await page.getByRole("button", { name: /courier-01, 지원 필요, 위치 CURRENT/ }).click();
+  await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
+  await expect(page.getByText(decisionId).first()).toBeVisible();
+  await page.getByRole("button", { name: "전체 보기" }).click();
+  await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
+  await page.getByRole("link", { name: "지도에서 같은 decision 보기" }).click();
+  await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
+});
+
 for (const viewport of [
   { name: "관리자 1440×900", width: 1440, height: 900 },
   { name: "관리자 1280×720", width: 1280, height: 720 },
@@ -144,7 +162,7 @@ for (const viewport of [
   test(`${viewport.name}에서 핵심 상태와 행동이 가로로 잘리지 않는다`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/");
-    await expect(page.getByRole("heading", { name: "남은 배송계획과 예상 초과 지점" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
     await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
   });
