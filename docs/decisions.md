@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-19
+- 최종 갱신: 2026-07-20
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -424,6 +424,16 @@
 - 기각한 대안: 외부 지도 SDK를 즉시 도입하는 방식, 무제한 pan으로 Demo 맥락을 잃는 방식, 마커 클릭과 drag를 같은 gesture로 처리하는 방식, mouse drag만 제공하는 방식, pan 위치를 실제 기사 이동으로 저장하는 방식.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `docs/design-system.md`, `docs/evals.md`, `artifacts/evals/accessibility-summary.json`, 지정 해상도 스크린샷
 
+### ADR-043 — 카카오 지도는 합성 위치를 표시하는 선택적 베이스 레이어로만 사용한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 사용자가 발급·등록한 Kakao Maps JavaScript 키와 공개 Demo 도메인 승인을 전제로 관리자 지도에 Kakao Maps JavaScript SDK의 2D 베이스 레이어를 추가한다. `MapAdapter`가 검증한 결정론적 합성 위도·경도, 지역 집계, 경로와 지원 상태만 `Polyline`·`CustomOverlay`로 표시한다. 전국 범위의 개별 기사 비노출, 지역·decision 가시 범위, 지도·지원 큐의 동일 selection은 그대로 유지한다. SDK·도메인·네트워크 오류 또는 키 미설정 시 기존 schematic 지도와 구조화 목록으로 자동 복귀한다. 브라우저에 노출되는 JavaScript 플랫폼 키는 `.env.local`의 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`로만 주입하고 Kakao 앱의 허용 도메인으로 제한한다. 자동 E2E에서는 외부 네트워크를 끄고 공급자 독립 Fallback을 재현한다.
+- 경계: 카카오는 생성형 AI나 Safety 데이터 공급자가 아니며 Safety Budget, Time-to-Breach, 추천, 동의·승인과 계획 적용을 계산하거나 변경하지 않는다. 이 단계는 실제 GPS·기사 위치 수집, 주소 검색·지오코딩, 길찾기·내비게이션, TMS, 이동 timeline, 3D, 유료 상품과 라이선스 계약을 추가하지 않는다. 공개 Demo의 모든 위치·경로는 계속 `Demo fixture`다.
+- 이유: 기존 schematic 지도의 결정론적·접근 가능한 Fallback을 보존하면서도 사용자가 요청한 일반 지도와 같은 드래그·휠 확대 탐색, 도로·지역 맥락과 다기사 공간 관계를 실제 베이스맵에서 확인하기 위해서다.
+- 기각한 대안: 지도 SDK가 실패하면 빈 상자를 보이는 방식, SDK 원시 응답을 UI·도메인 엔진이 직접 읽는 방식, 전국 화면에 개별 기사 마커를 표시하는 방식, 실제 위치 수집 계약 없이 합성 좌표를 Live로 표현하는 방식, 서버 비밀키를 브라우저에 배포하는 방식.
+- 영향 파일: `.env.example`, `src/adapters/maps/index.ts`, `src/adapters/maps/kakao.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/kakao-map.test.ts`, `scripts/run-playwright.ps1`, `scripts/run-domestic-track-audit.mjs`, 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
@@ -450,7 +460,7 @@
 
 ## 7. 미결사항
 
-- 실제 지도 공급자와 지도 스타일
+- Kakao Maps 공개 Demo 도메인·쿼터·스타일의 지속 운영 점검과 후속 3D 범위
 - 외부 TMS 연동 시 트랜잭션·롤백 계약
 - A.X·K-EXAONE 계정별 실제 활성 모델·쿼터·입력 보존 정책
 - SafeRoute P0에 필요한 VARCO 에셋 사용처와 제품 계약 존재 여부

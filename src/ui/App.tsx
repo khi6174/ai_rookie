@@ -14,7 +14,14 @@ import { createMultiRegionMapFixture } from "../adapters/fixtures";
 import {
   createFixtureMapAdapter,
   type MapAdapter,
+  type MapRenderModel,
 } from "../adapters/maps";
+import {
+  loadKakaoMapsSdk,
+  type KakaoMapInstance,
+  type KakaoMapOverlay,
+  type KakaoMapsNamespace,
+} from "../adapters/maps/kakao";
 import {
   clearCachedApprovedDemoPlan,
   createCachedApprovedDemoPlan,
@@ -236,6 +243,175 @@ function clampMapPan(value: number, axis: keyof typeof mapPanLimit) {
   return Math.max(-mapPanLimit[axis], Math.min(mapPanLimit[axis], value));
 }
 
+type KakaoMapStatus = "LOADING" | "READY" | "ERROR";
+
+function KakaoControlMap({
+  applied,
+  javaScriptKey,
+  model,
+  resetVersion,
+  onSelectionChange,
+  onSelectDecision,
+  onStatusChange,
+}: {
+  applied: boolean;
+  javaScriptKey: string;
+  model: MapRenderModel;
+  resetVersion: number;
+  onSelectionChange: (selection: MapSelection) => void;
+  onSelectDecision: (decisionId: string) => void;
+  onStatusChange: (status: KakaoMapStatus) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const mapRef = useRef<KakaoMapInstance | null>(null);
+  const mapsRef = useRef<KakaoMapsNamespace | null>(null);
+  const overlaysRef = useRef<KakaoMapOverlay[]>([]);
+  const [status, setStatus] = useState<KakaoMapStatus>("LOADING");
+
+  useEffect(() => {
+    let active = true;
+    setStatus("LOADING");
+    onStatusChange("LOADING");
+    loadKakaoMapsSdk(javaScriptKey)
+      .then((maps) => {
+        if (!active || !containerRef.current) return;
+        mapsRef.current = maps;
+        mapRef.current = new maps.Map(containerRef.current, {
+          center: new maps.LatLng(37.535, 126.96),
+          level: 8,
+        });
+        setStatus("READY");
+        onStatusChange("READY");
+      })
+      .catch(() => {
+        if (!active) return;
+        setStatus("ERROR");
+        onStatusChange("ERROR");
+      });
+    return () => {
+      active = false;
+      overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+      overlaysRef.current = [];
+      mapRef.current = null;
+      mapsRef.current = null;
+    };
+  }, [javaScriptKey, onStatusChange]);
+
+  useEffect(() => {
+    const map = mapRef.current;
+    const maps = mapsRef.current;
+    if (status !== "READY" || !map || !maps) return;
+    overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+    overlaysRef.current = [];
+    const bounds = new maps.LatLngBounds();
+    let pointCount = 0;
+    const toLatLng = (point: { latitude: number; longitude: number }) => {
+      const latLng = new maps.LatLng(point.latitude, point.longitude);
+      bounds.extend(latLng);
+      pointCount += 1;
+      return latLng;
+    };
+    const addOverlay = (overlay: KakaoMapOverlay) => {
+      overlaysRef.current.push(overlay);
+    };
+
+    model.routes.forEach((route) => {
+      addOverlay(new maps.Polyline({
+        map,
+        path: route.geographicPoints.map(toLatLng),
+        strokeWeight: route.selected ? 6 : 3,
+        strokeColor: applied && route.selected ? "#087334" : route.selected ? "#0628C7" : "#6680A6",
+        strokeOpacity: route.selected ? 0.95 : 0.62,
+        strokeStyle: "solid",
+        zIndex: route.selected ? 4 : 2,
+      }));
+    });
+
+    model.regions.forEach((region) => {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = "kakao-region-cluster";
+      button.setAttribute(
+        "aria-label",
+        `${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`,
+      );
+      const count = document.createElement("span");
+      count.textContent = String(region.supportDecisionCount);
+      const label = document.createElement("strong");
+      label.textContent = region.label;
+      const detail = document.createElement("small");
+      detail.textContent = `기사 ${region.courierCount} · stale/offline ${region.staleOrOfflineCount}`;
+      button.append(count, label, detail);
+      button.addEventListener("click", () => onSelectionChange({ regionId: region.regionId }));
+      addOverlay(new maps.CustomOverlay({
+        map,
+        position: toLatLng(region.geographicPoint),
+        content: button,
+        xAnchor: 0.5,
+        yAnchor: 0.5,
+        zIndex: 5,
+      }));
+    });
+
+    model.hubs.forEach((hub) => {
+      const node = document.createElement("div");
+      node.className = "kakao-hub-marker";
+      node.textContent = `${hub.courierCount}명`;
+      node.setAttribute("aria-label", `${hub.label}, 기사 ${hub.courierCount}명`);
+      addOverlay(new maps.CustomOverlay({
+        map,
+        position: toLatLng(hub.geographicPoint),
+        content: node,
+        xAnchor: 0.5,
+        yAnchor: 0.5,
+        zIndex: 3,
+      }));
+    });
+
+    model.couriers.forEach((courier) => {
+      if (!courier.geographicPoint) return;
+      const button = document.createElement("button");
+      button.type = "button";
+      button.className = `kakao-courier-marker status-${courier.supportStatus.toLowerCase()} ${courier.positionStatus === "STALE" ? "is-stale" : ""}`;
+      button.textContent = courier.positionStatus === "STALE"
+        ? "!"
+        : courier.supportStatus === "OPERATING" ? "·" : "◆";
+      button.setAttribute(
+        "aria-label",
+        `${courier.courierId.slice(-10)}, ${mapSupportLabels[courier.supportStatus]}, 위치 ${courier.positionStatus}`,
+      );
+      button.setAttribute("aria-pressed", String(model.selection.courierId === courier.courierId));
+      button.addEventListener("click", () => courier.decisionId
+        ? onSelectDecision(courier.decisionId)
+        : onSelectionChange({ regionId: courier.regionId, courierId: courier.courierId }));
+      addOverlay(new maps.CustomOverlay({
+        map,
+        position: toLatLng(courier.geographicPoint),
+        content: button,
+        xAnchor: 0.5,
+        yAnchor: 0.5,
+        zIndex: model.selection.courierId === courier.courierId ? 8 : 6,
+      }));
+    });
+
+    map.relayout();
+    if (pointCount > 0) map.setBounds(bounds, 70, 70, 70, 70);
+  }, [applied, model, onSelectDecision, onSelectionChange, resetVersion, status]);
+
+  return (
+    <>
+      <div
+        ref={containerRef}
+        className="kakao-map-layer"
+        data-kakao-map
+        role="group"
+        aria-label="카카오 지도 위에 표시한 결정론적 합성 기사와 경로"
+      />
+      {status === "LOADING" && <div className="kakao-map-loading" role="status">카카오 지도를 불러오는 중입니다.</div>}
+    </>
+  );
+}
+
 function MultiRegionControlMap({
   applied,
   fixture,
@@ -255,6 +431,12 @@ function MultiRegionControlMap({
 }) {
   const [mapPan, setMapPan] = useState({ x: 0, y: 0 });
   const [isMapPanning, setIsMapPanning] = useState(false);
+  const kakaoJavaScriptKey = import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
+  const kakaoRequested = Boolean(kakaoJavaScriptKey) && import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
+  const [kakaoMapStatus, setKakaoMapStatus] = useState<KakaoMapStatus>("LOADING");
+  const [kakaoResetVersion, setKakaoResetVersion] = useState(0);
+  const kakaoReady = kakaoRequested && kakaoMapStatus === "READY";
+  const kakaoFailed = kakaoRequested && kakaoMapStatus === "ERROR";
   const mapDrag = useRef<{
     pointerId: number;
     startX: number;
@@ -283,7 +465,7 @@ function MultiRegionControlMap({
   const handleMapPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
     if (event.button !== 0) return;
     const target = event.target as Element;
-    if (target.closest("button, a, summary, [data-map-overlay]")) return;
+    if (target.closest("button, a, summary, [data-map-overlay], [data-kakao-map]")) return;
     mapDrag.current = {
       pointerId: event.pointerId,
       startX: event.clientX,
@@ -397,7 +579,9 @@ function MultiRegionControlMap({
           <h2 id="route-heading">{title}</h2>
         </div>
         <div className="route-heading-meta">
-          <span className="fallback-map-badge">Demo schematic map</span>
+          <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
+            {kakaoReady ? "Kakao map · Demo overlay" : kakaoFailed ? "Kakao 오류 · Fallback map" : "Demo schematic map"}
+          </span>
           <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 적용 계획</span>
           <button
             type="button"
@@ -410,8 +594,11 @@ function MultiRegionControlMap({
           <button
             type="button"
             className="map-pan-reset"
-            disabled={mapPan.x === 0 && mapPan.y === 0}
-            onClick={resetMapPan}
+            disabled={!kakaoReady && mapPan.x === 0 && mapPan.y === 0}
+            onClick={() => {
+              if (kakaoReady) setKakaoResetVersion((version) => version + 1);
+              else resetMapPan();
+            }}
           >
             지도 중심 복원
           </button>
@@ -444,12 +631,13 @@ function MultiRegionControlMap({
         )}
         <button type="button" className="map-reset-camera" onClick={() => {
           resetMapPan();
+          setKakaoResetVersion((version) => version + 1);
           onSelectionChange(adapter.resetSelection());
         }}>전체 보기</button>
       </nav>
       <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 Fallback · ${title}`}</p>
       {mapAvailable ? <div
-        className={`control-map-canvas scope-${model.scope.toLowerCase()} ${isMapPanning ? "is-panning" : ""}`}
+        className={`control-map-canvas scope-${model.scope.toLowerCase()} ${isMapPanning ? "is-panning" : ""} ${kakaoReady ? "is-kakao" : ""}`}
         role="group"
         tabIndex={0}
         aria-label="합성 지도 이동 영역"
@@ -468,7 +656,18 @@ function MultiRegionControlMap({
         }}
         onKeyDown={handleMapKeyDown}
       >
-        <p id="map-pan-instructions" className="sr-only">빈 지도 영역을 드래그하거나 방향키로 이동합니다. Home 또는 숫자 0 키로 중심을 복원합니다.</p>
+        <p id="map-pan-instructions" className="sr-only">{kakaoReady ? "카카오 지도는 포인터로 이동·확대할 수 있습니다. 지도 없이 보기에서도 같은 decision을 선택할 수 있습니다." : "빈 지도 영역을 드래그하거나 방향키로 이동합니다. Home 또는 숫자 0 키로 중심을 복원합니다."}</p>
+        {kakaoRequested && kakaoMapStatus !== "ERROR" && (
+          <KakaoControlMap
+            applied={applied}
+            javaScriptKey={kakaoJavaScriptKey}
+            model={model}
+            resetVersion={kakaoResetVersion}
+            onSelectionChange={onSelectionChange}
+            onSelectDecision={selectDecision}
+            onStatusChange={setKakaoMapStatus}
+          />
+        )}
         <div
           className="control-map-pan-surface"
           data-pan-x={Math.round(mapPan.x)}
@@ -533,8 +732,8 @@ function MultiRegionControlMap({
             </button>
           ))}
         </div>
-        <div className="map-data-mode" data-map-overlay><strong>Demo movement 아님</strong><span>결정론적 합성 위치 · Live 0명</span></div>
-        <span className="map-pan-hint" data-map-overlay>드래그·방향키로 지도 이동</span>
+        <div className="map-data-mode" data-map-overlay><strong>{kakaoReady ? "Kakao base map · Demo overlay" : "Demo movement 아님"}</strong><span>결정론적 합성 위치 · Live 0명</span></div>
+        <span className="map-pan-hint" data-map-overlay>{kakaoReady ? "드래그·휠로 지도 이동" : "드래그·방향키로 지도 이동"}</span>
         <span className="sr-only" aria-live="polite">지도 이동 위치 가로 {Math.round(mapPan.x)}, 세로 {Math.round(mapPan.y)}</span>
         <div className={`map-active-decision ${applied ? "is-applied" : ""}`} data-map-overlay>
           <span>{applied ? "계획 적용 완료" : "현재 지원 큐 · 1건"}</span>

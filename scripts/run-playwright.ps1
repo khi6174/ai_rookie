@@ -9,6 +9,8 @@ $ViteStdout = Join-Path ([System.IO.Path]::GetTempPath()) "saferoute-vite-$PID.s
 $ViteStderr = Join-Path ([System.IO.Path]::GetTempPath()) "saferoute-vite-$PID.stderr.log"
 $Server = $null
 $ExitCode = 1
+$PreviousKakaoMapEnabled = $env:VITE_KAKAO_MAP_ENABLED
+$env:VITE_KAKAO_MAP_ENABLED = "false"
 
 try {
   $Server = Start-Process `
@@ -58,6 +60,11 @@ try {
     $Server.WaitForExit()
   }
   Remove-Item -LiteralPath $ViteStdout, $ViteStderr -Force -ErrorAction SilentlyContinue
+  if ($null -eq $PreviousKakaoMapEnabled) {
+    Remove-Item Env:VITE_KAKAO_MAP_ENABLED -ErrorAction SilentlyContinue
+  } else {
+    $env:VITE_KAKAO_MAP_ENABLED = $PreviousKakaoMapEnabled
+  }
 }
 
 exit $ExitCode

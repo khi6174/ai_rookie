@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G3-B
+- 상태: Approved through G3-B and Kakao presentation adapter
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-19
-- 계획 버전: `geospatial-pwa-plan-v1.4.0`
+- 최종 갱신: 2026-07-20
+- 계획 버전: `geospatial-pwa-plan-v1.5.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -13,7 +13,7 @@
 
 이 문서는 `design-v2.0.0`과 ADR-035에서 승인된 `다지역·다기사 지리공간 Control Tower + 현장형 기사 PWA`를 현재 검증된 SafeRoute 폐루프를 훼손하지 않고 구현하는 순서와 승인 Gate로 연결한다.
 
-현재 공개 Demo는 단일 합성 시나리오, schematic `Fallback map`과 설치 가능한 정적 PWA app shell이다. 실제 인증·실지도·실시간 위치·푸시·서버 동기화는 포함하지 않으며 이 경계를 화면과 평가에 명시한다.
+현재 공개 Demo는 단일 합성 시나리오, 선택적 Kakao Maps 2D 베이스 레이어, schematic `Fallback map`과 설치 가능한 정적 PWA app shell이다. Kakao 레이어에도 결정론적 합성 위치만 표시하며 실제 인증·실시간 위치·푸시·서버 동기화는 포함하지 않는다.
 
 ## 2. 작업 원칙
 
@@ -100,6 +100,7 @@ PWA 진입
 - `G2-B` 완료: 지도 오류를 명시적으로 재현·복구하고, 오류 시 같은 projection을 읽는 지역→기사→decision 목록과 배송순서 Fallback을 자동 제공한다. 평상시에도 키보드로 펼칠 수 있는 구조화 대안을 유지한다.
 - 지도→지원 큐→지도 왕복, 키보드 전용 목록 탐색, 1440×900·1280×720·390×844·360×800, 기존 두 기사 동의→관리자 승인 폐루프를 Playwright 12/12로 재검증했다.
 - G2 종료: 외부 지도 공급자와 Live 위치 없이 공급자 독립 2D 탐색·오류 복구·접근 가능한 의사결정 대안을 완성했다. 실제 지도 SDK와 성능 예산은 후속 공급자 승인 Gate로 남긴다.
+- 후속 표시 어댑터 완료: 사용자 승인과 도메인 제한 JavaScript 키를 전제로 Kakao Maps 2D 베이스 레이어를 선택적으로 추가했다. SDK는 기존 `MapRenderModel`의 합성 WGS84 좌표만 렌더링하며 실패 시 G2 schematic 지도·구조화 목록으로 자동 복귀한다. 실제 GPS·주소·길찾기·Live stream은 추가하지 않았다.
 
 작업:
 
@@ -363,7 +364,7 @@ UI는 공급자 객체나 원시 API 응답을 직접 읽지 않는다. 어댑�
 
 ## 13. 미결사항
 
-- 지도 공급자와 국내 지도 품질·3D·라이선스·공개 배포 조건
+- Kakao Maps 공개 Demo 도메인·쿼터·정책의 지속 운영 점검과 향후 3D 필요성
 - 설치형 PWA의 실제 인증 방식, 서버 동기화와 푸시 알림 범위
 - 위치 정확도 상한, 최신성 한도와 갱신주기
 - 정확 위치의 메모리 보존시간과 삭제 검증 방식

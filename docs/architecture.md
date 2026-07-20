@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-19
+- 최종 갱신: 2026-07-20
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -58,7 +58,7 @@
 
 관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. G3-B부터 기사 화면은 설치 가능한 PWA app shell을 제공하지만 독립 인증 세션·Live 위치·푸시 알림은 포함하지 않는다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
 
-이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도만 추가했다. G3-B에서는 정적 app shell service worker와 최소 승인 Demo 계획 캐시만 추가했으며 실제 지도 SDK, 위치 stream과 인증 세션은 도입하지 않는다.
+이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도를 추가했다. ADR-043에서는 이 projection 위에 선택적인 Kakao Maps 2D 베이스 레이어를 추가했지만 실제 위치 stream과 인증 세션은 도입하지 않는다. G3-B에서는 정적 app shell service worker와 최소 승인 Demo 계획 캐시만 추가했다.
 
 ### 4.2 공간운영 확장 계층
 
@@ -76,6 +76,8 @@
 G2-A의 `src/adapters/maps`는 `national`, `region`, `decision` 세 가시 범위를 강제한다. 전국 범위는 지역 집계만 반환하고, 지역 범위는 선택 지역의 허브·기사·경로만, decision 범위는 동일 `decisionId`의 기사·경로만 반환한다. React UI는 이 projection만 렌더링하므로 원본 fixture를 직접 순회해 저배율 개인정보 경계를 우회하지 않는다.
 
 G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과를 재계산하지 않는다. 정상 SVG 지도와 구조화 목록은 동일 `MapRenderModel`을 읽으며, 지도 가용성은 UI 표시 상태에만 영향을 준다. 오류 중에도 breadcrumb, 지역·기사·decision 선택과 배송순서 목록, 지원 큐 링크를 사용할 수 있고 복구 후 같은 selection을 유지한다.
+
+ADR-043의 `src/adapters/maps/kakao.ts`는 공식 HTTPS SDK 로딩과 provider 객체의 생명주기만 소유한다. React 지도 계층은 `MapRenderModel.geographicPoint(s)`를 Kakao `Polyline`과 `CustomOverlay`로 변환하고 SDK 원시 데이터나 주소·경로 API 응답을 읽지 않는다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 공급자 독립 schematic 지도를 사용한다. SDK 로드·도메인 인증·네트워크가 실패하면 `ERROR` 상태를 표시하고 같은 schematic 지도와 구조화 목록으로 자동 복귀한다. 지도 공급자 상태는 Safety·개입·결정 상태기계 입력이 아니다.
 
 G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경이다. 기사 모바일의 합성 위치·날씨·경로는 기존 Demo fixture와 Weather Fallback만 읽으며 브라우저 위치 API, service worker, 캐시, 설치 manifest, 실제 인증을 호출하지 않는다. 운행·안전지원·내 정보는 동일 `DemoSession`의 상태와 decision ID를 유지하므로 시각 순서 변경이 동의·승인 상태기계에 영향을 주지 않는다.
 
@@ -345,7 +347,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 ## 16. 미결사항
 
-- 실제 지도 공급자 또는 정적 데모 지도 구현 방식
+- Kakao Maps 공개 Demo 도메인·쿼터·정책의 지속 운영 점검과 후속 3D 범위
 - 위치 최신성·정확도·갱신주기와 메모리 보존시간
 - 기사 PWA 실제 인증·위치 권한·푸시 알림과 서버 동기화 계약
 - MVP 감사 스냅샷의 파일·브라우저 메모리 저장 선택

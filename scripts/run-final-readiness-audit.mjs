@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /15 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /16 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -231,7 +231,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 15,
+    e2eTests: 16,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -251,7 +251,7 @@ const result = {
   explicitLimitations: [
     "The public Finals Demo is not approval for production operation.",
     "No real courier or customer personal data is processed.",
-    "No real TMS, map provider, authentication, or customer message delivery is integrated.",
+    "Kakao Maps renders synthetic Demo coordinates only; no real courier location, TMS, authentication, or customer message delivery is integrated.",
     "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",
     "Synthetic simulation results are not evidence of real accident reduction.",
   ],
@@ -287,7 +287,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=15 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=16 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

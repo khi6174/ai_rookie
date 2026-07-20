@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-18
+- 최종 갱신: 2026-07-20
 - 기준: 대회 운영 가이드 5·7·8쪽, 국내 AI 기업별 활용 가이드, `docs/privacy-and-ai-policy.md`, ADR-021
 
 ## 1. 결정사항
@@ -35,7 +35,7 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 - `api.ax-k1.sktai.qa`
 - `api.friendli.ai` — 대회 제공 LG 활용 가이드의 K-EXAONE serving endpoint
 
-공공데이터 입력 host는 `apihub.kma.go.kr`이다. 모든 host는 코드 allowlist와 서버 전용 환경변수 계약으로 검사한다.
+공공데이터 입력 host는 `apihub.kma.go.kr`이다. 지도 표시 host `dapi.kakao.com`은 합성 좌표를 렌더링하는 비생성형 지도 SDK이며 국내 AI 모델·학습·추론 성과로 계산하지 않는다. 모든 host는 코드 allowlist로 검사하고, 생성형 AI와 공공데이터의 서버 비밀정보는 서버 전용 환경변수 계약으로 검사한다. Kakao Maps JavaScript 플랫폼 키는 브라우저 배포 특성상 별도 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`와 허용 도메인 제한을 사용한다.
 
 `download.pytorch.org`는 A100 실행환경의 PyTorch 설치 저장소로만 허용하며 생성형 AI 모델·추론 endpoint와 별도로 분류한다.
 

@@ -15,6 +15,7 @@ const allowedRuntimeHosts = [
   "api.friendli.ai",
   "api.upstage.ai",
   "apihub.kma.go.kr",
+  "dapi.kakao.com",
 ];
 const allowedDistributionHosts = ["download.pytorch.org"];
 const expectedDomesticModels = [

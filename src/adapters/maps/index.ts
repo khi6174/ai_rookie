@@ -7,11 +7,13 @@ import {
 import { summarizeMultiRegionMapFixture } from "../fixtures";
 
 export type ProjectedPoint = { x: number; y: number };
+export type GeographicPoint = { latitude: number; longitude: number };
 
 export type RegionMapNode = {
   regionId: string;
   label: string;
   point: ProjectedPoint;
+  geographicPoint: GeographicPoint;
   courierCount: number;
   supportDecisionCount: number;
   staleOrOfflineCount: number;
@@ -22,6 +24,7 @@ export type HubMapNode = {
   regionId: string;
   label: string;
   point: ProjectedPoint;
+  geographicPoint: GeographicPoint;
   courierCount: number;
 };
 
@@ -33,6 +36,7 @@ export type CourierMapNode = {
   supportStatus: MultiRegionMapFixture["couriers"][number]["supportStatus"];
   positionStatus: MultiRegionMapFixture["couriers"][number]["position"]["status"];
   point?: ProjectedPoint;
+  geographicPoint?: GeographicPoint;
 };
 
 export type RouteMapLine = {
@@ -40,6 +44,7 @@ export type RouteMapLine = {
   courierId: string;
   selected: boolean;
   points: ProjectedPoint[];
+  geographicPoints: GeographicPoint[];
 };
 
 export type MapRenderModel = {
@@ -184,6 +189,7 @@ export function createFixtureMapAdapter(
             regionId: region.regionId,
             label: region.label,
             point: project(region.center),
+            geographicPoint: region.center,
             courierCount: summary.courierCount,
             supportDecisionCount: summary.supportDecisionCount,
             staleOrOfflineCount:
@@ -195,6 +201,7 @@ export function createFixtureMapAdapter(
                 regionId: hub.regionId,
                 label: hub.label,
                 point: project(hub.center),
+                geographicPoint: hub.center,
                 courierCount: hub.courierIds.length,
               })),
         couriers: visibleCouriers.map((courier) => ({
@@ -207,12 +214,14 @@ export function createFixtureMapAdapter(
           point: pointForPosition(courier.position)
             ? project(pointForPosition(courier.position)!)
             : undefined,
+          geographicPoint: pointForPosition(courier.position),
         })),
         routes: visibleRoutes.map((route) => ({
             routeId: route.routeId,
             courierId: route.courierId,
             selected: route.courierId === selection.courierId,
             points: route.points.map(project),
+            geographicPoints: route.points,
           })),
       };
     },
