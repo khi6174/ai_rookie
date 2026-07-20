@@ -1,0 +1,43 @@
+{
+  "schemaVersion": "decision-workflow-boundary-summary-v1",
+  "capturedAt": "2026-07-20T11:16:56.292Z",
+  "generatorVersion": "decision-workflow-boundary-v1.0.0",
+  "dataMode": "MOCK",
+  "isDemo": true,
+  "caseCount": 30,
+  "categoryCounts": {
+    "TIME": 8,
+    "CONSENT": 12,
+    "VERSION": 10
+  },
+  "passedCount": 30,
+  "failedCount": 0,
+  "reasonCodeCounts": {
+    "DECISION_EVENT_TIME_REGRESSION": 1,
+    "CANDIDATES_GENERATED": 1,
+    "CONSENT_NOT_EXPIRED": 1,
+    "ADMIN_APPROVE": 1,
+    "CONSENT_EXPIRED": 3,
+    "REVALIDATION_PASSED": 1,
+    "DECISION_STATUS_NOT_ALLOWED": 2,
+    "COURIER_ACTOR_MISMATCH": 1,
+    "CONSENT_RESPONSE_NOT_PENDING": 2,
+    "COURIER_CONSENTED": 2,
+    "COURIER_MODIFICATION_REQUESTED": 1,
+    "COURIER_DECLINED": 1,
+    "PREVIOUS_CANDIDATE_REUSE_NOT_ALLOWED": 1,
+    "ADMIN_HOLD": 1,
+    "ADMIN_REVIEW_RESUMED": 1,
+    "STALE_PLAN_VERSION": 2,
+    "CONSENT_CONTEXT_CHANGED": 4,
+    "REVALIDATION_CANDIDATE_MISMATCH": 1,
+    "IMPORTANT_INPUT_CHANGED": 1,
+    "PROPOSED_PLAN_CONTEXT_MISMATCH": 1,
+    "PLAN_APPLY_IDEMPOTENT_REPLAY": 1
+  },
+  "allPassed": true,
+  "limitations": [
+    "Synthetic deterministic workflow evaluation; not evidence of field behavior.",
+    "Boundary cases validate the MVP in-memory decision state machine and plan store."
+  ]
+}

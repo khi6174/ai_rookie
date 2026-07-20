@@ -1,0 +1,54 @@
+{
+  "schemaVersion": "frozen-benchmark-v1",
+  "capturedAt": "2026-07-20T11:16:56.292Z",
+  "generatorVersion": "frozen-benchmark-v1.0.0",
+  "seedStart": 6174,
+  "split": "FROZEN_TEST",
+  "dataMode": "MOCK",
+  "isDemo": true,
+  "parentCount": 3,
+  "mutationCountPerParent": 10,
+  "variantCount": 30,
+  "comparisonCount": 90,
+  "strategies": [
+    {
+      "strategy": "FASTEST_ONLY",
+      "variantCount": 30,
+      "selectedCount": 30,
+      "noSafeOptionCount": 0,
+      "hardConstraintViolationCount": 17,
+      "breachAvoidedCount": 20,
+      "averageCandidateMinimumBudget": 37.152076,
+      "averageEtaDeltaMinutes": -9.333333,
+      "averageStopCountImbalance": 7.333333
+    },
+    {
+      "strategy": "BALANCED_ONLY",
+      "variantCount": 30,
+      "selectedCount": 30,
+      "noSafeOptionCount": 0,
+      "hardConstraintViolationCount": 11,
+      "breachAvoidedCount": 20,
+      "averageCandidateMinimumBudget": 35.168581,
+      "averageEtaDeltaMinutes": -5.333333,
+      "averageStopCountImbalance": 5.333333
+    },
+    {
+      "strategy": "SAFEROUTE",
+      "variantCount": 30,
+      "selectedCount": 30,
+      "noSafeOptionCount": 0,
+      "hardConstraintViolationCount": 0,
+      "breachAvoidedCount": 27,
+      "averageCandidateMinimumBudget": 38.672461,
+      "averageEtaDeltaMinutes": 1.933333,
+      "averageStopCountImbalance": 6.4
+    }
+  ],
+  "allSafeRouteSelectionsRespectHardConstraints": true,
+  "limitations": [
+    "Synthetic deterministic simulation; not evidence of real accident reduction.",
+    "Fastest-only and Balanced-only intentionally do not filter hard-constraint violations.",
+    "Optional self-check missingness does not add a confidence penalty in safety-config-v1.0.0."
+  ]
+}

@@ -1,0 +1,139 @@
+{
+  "schemaVersion": "unit-summary-v1",
+  "capturedAt": "2026-07-20T11:19:16.342Z",
+  "command": "pnpm exec vitest run --reporter=json",
+  "framework": "Vitest",
+  "testFileCount": 25,
+  "testCount": 228,
+  "passed": 228,
+  "failed": 0,
+  "pending": 0,
+  "success": true,
+  "files": [
+    {
+      "file": "approved-plan-cache.test.ts",
+      "status": "passed",
+      "assertionCount": 5
+    },
+    {
+      "file": "contracts.test.ts",
+      "status": "passed",
+      "assertionCount": 18
+    },
+    {
+      "file": "decision-workflow-boundaries.test.ts",
+      "status": "passed",
+      "assertionCount": 5
+    },
+    {
+      "file": "decision-workflow.test.ts",
+      "status": "passed",
+      "assertionCount": 12
+    },
+    {
+      "file": "domestic-ai-benchmark.test.ts",
+      "status": "passed",
+      "assertionCount": 9
+    },
+    {
+      "file": "frozen-benchmark.test.ts",
+      "status": "passed",
+      "assertionCount": 7
+    },
+    {
+      "file": "intervention-bundles.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "interventions.test.ts",
+      "status": "passed",
+      "assertionCount": 16
+    },
+    {
+      "file": "kakao-map.test.ts",
+      "status": "passed",
+      "assertionCount": 2
+    },
+    {
+      "file": "kma-weather-adapter.test.ts",
+      "status": "passed",
+      "assertionCount": 16
+    },
+    {
+      "file": "kma-weather-supplement.test.ts",
+      "status": "passed",
+      "assertionCount": 8
+    },
+    {
+      "file": "map-adapter.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "map-movement-timeline.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "map-performance-budget.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "multi-region-map-fixture.test.ts",
+      "status": "passed",
+      "assertionCount": 11
+    },
+    {
+      "file": "pwa-assets.test.ts",
+      "status": "passed",
+      "assertionCount": 2
+    },
+    {
+      "file": "remaining-interventions.test.ts",
+      "status": "passed",
+      "assertionCount": 16
+    },
+    {
+      "file": "risk-transfer-boundaries.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "safety-engine.test.ts",
+      "status": "passed",
+      "assertionCount": 19
+    },
+    {
+      "file": "spatial-scene.test.ts",
+      "status": "passed",
+      "assertionCount": 8
+    },
+    {
+      "file": "ui-demo-session.test.ts",
+      "status": "passed",
+      "assertionCount": 11
+    },
+    {
+      "file": "upstage-explanations.test.ts",
+      "status": "passed",
+      "assertionCount": 15
+    },
+    {
+      "file": "upstage-live-adapter.test.ts",
+      "status": "passed",
+      "assertionCount": 8
+    },
+    {
+      "file": "upstage-smoke.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "weather-runtime.test.ts",
+      "status": "passed",
+      "assertionCount": 4
+    }
+  ]
+}

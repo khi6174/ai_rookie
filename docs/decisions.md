@@ -464,6 +464,16 @@
 - 기각한 대안: 공개 기본값을 즉시 240명으로 바꾸는 방식, 전국에 모든 기사 마커를 표시하는 방식, 80개 경로를 동시에 그리는 방식, 실제 GPS 없이 Live 성능으로 표현하는 방식, 공급자 네트워크 측정 없이 Kakao 성능 통과를 주장하는 방식.
 - 영향 파일: `src/adapters/fixtures/multiRegionMapFixture.ts`, `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `tests/map-performance-budget.test.ts`, `e2e/map-performance.spec.ts`, `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, 관련 승인 문서
 
+### ADR-047 — G5-A는 활성 decision의 공급자 독립 Demo 2.5D로 제한한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 관리자 활성 지원 decision에서만 `입체 경사 보기 · Demo`를 사용자가 선택해 연다. 장면은 기존 네 route point와 같은 decision·plan·route, 결정론적 52분·17번째·29.9→47.2·10분 휴식·8건 이관을 사용하고 `Demo 2.5D`, `Live 0명`, `세로 1.5배 · 합성 고도`를 고정 표시한다. SVG·CSS로 지형 맥락을 표현하고 2D가 기본이며 키보드 `2D로 돌아가기`와 구조화 수치 대안을 항상 제공한다.
+- 경계: 기사 PWA, Safety Budget, Risk Transfer Guard, 추천·동의·승인, Kakao provider 계약은 변경하지 않는다. 실제 GPS·TMS·DEM·건물·도로·지형 타일, WebGL, 새 외부 의존성, 자동 카메라와 240명 3D 디지털 트윈을 추가하지 않는다. 높이를 위험점수로 표현하지 않으며 불일치·오류에서는 2D로 복귀한다.
+- 이유: 실제 데이터와 공급자 계약 없이 장식적 3D를 주장하지 않으면서도, 경사·휴식·예상 초과 지점이 하나의 결정에 어떻게 연결되는지 더 빠르게 설명하기 위해서다.
+- 기각한 대안: Kakao 지형 overlay를 3D로 표현하는 방식, MapLibre·DEM·건물 타일을 즉시 도입하는 방식, 전체 24·240명 지도를 입체화하는 방식, 기사 운행 화면에 3D 조작을 추가하는 방식, 생성형 AI가 고도·경사·Safety 수치를 만드는 방식.
+- 영향 파일: `src/domain/contracts/schemas.ts`, `src/adapters/maps/spatialScene.ts`, `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/spatial-scene.test.ts`, `e2e/spatial-scene.spec.ts`, 평가·설계·아키텍처 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

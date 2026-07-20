@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "map-performance-evidence-v1",
+  "capturedAt": "2026-07-20T11:17:59.258Z",
+  "status": "PASSED",
+  "dataMode": "DEMO",
+  "renderer": "FALLBACK_2D",
+  "environment": {
+    "platform": "win32",
+    "browser": "Chromium",
+    "browserVersion": "149.0.7827.55",
+    "viewport": {
+      "width": 1440,
+      "height": 900
+    },
+    "reducedMotion": false
+  },
+  "budget": {
+    "schemaVersion": "map-performance-budget-v1",
+    "loadProfiles": [
+      24,
+      96,
+      240
+    ],
+    "maxTotalCouriers": 240,
+    "maxVisibleRegionCouriers": 80,
+    "maxRenderedRegionRoutes": 24,
+    "minimumPositionIntervalSeconds": 5,
+    "maximumInitialMapReadyMs": 5000,
+    "maximumRegionDrilldownMs": 1000,
+    "maximumFrameUpdateMs": 1000,
+    "maximumPanResponseMs": 500,
+    "maximumP95FrameGapMs": 100,
+    "maximumFrameGapMs": 250
+  },
+  "profiles": [
+    {
+      "totalCouriers": 24,
+      "visibleRegionCouriers": 8,
+      "renderedRegionRoutes": 8,
+      "initialMapReadyMs": 854,
+      "regionDrilldownMs": 113,
+      "frameUpdateMs": 76,
+      "panResponseMs": 44,
+      "p95FrameGapMs": 16.7,
+      "maxFrameGapMs": 16.8,
+      "usedJsHeapMiB": 31.57,
+      "passed": true
+    },
+    {
+      "totalCouriers": 96,
+      "visibleRegionCouriers": 32,
+      "renderedRegionRoutes": 24,
+      "initialMapReadyMs": 552,
+      "regionDrilldownMs": 114,
+      "frameUpdateMs": 102,
+      "panResponseMs": 41,
+      "p95FrameGapMs": 16.7,
+      "maxFrameGapMs": 16.7,
+      "usedJsHeapMiB": 31.57,
+      "passed": true
+    },
+    {
+      "totalCouriers": 240,
+      "visibleRegionCouriers": 80,
+      "renderedRegionRoutes": 24,
+      "initialMapReadyMs": 591,
+      "regionDrilldownMs": 139,
+      "frameUpdateMs": 141,
+      "panResponseMs": 60,
+      "p95FrameGapMs": 16.7,
+      "maxFrameGapMs": 16.8,
+      "usedJsHeapMiB": 31.57,
+      "passed": true
+    }
+  ],
+  "limitations": [
+    "Local Windows headless Chromium baseline; not a claim for every presentation or field device.",
+    "Fallback schematic 2D only; Kakao SDK network, tile, quota, and provider latency are excluded.",
+    "Deterministic synthetic Demo positions only; no GPS, TMS, personal data, battery, or field network measurement.",
+    "usedJsHeapMiB is observational and is not a hard gate because browser support varies."
+  ]
+}

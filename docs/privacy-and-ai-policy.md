@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 정책 버전: `privacy-ai-v1.2.0`
+- 정책 버전: `privacy-ai-v1.3.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -28,6 +28,10 @@
 - Upstage Document Parse, Information Extract와 Solar
 - Near-miss 신고·검증·지역기억
 - 테스트, fixtures, 로그, 스크린샷, 보고서와 데모 영상
+
+### 2.1 G5-A 합성 공간정보 경계
+
+G5-A의 거리·고도·경사·경로점은 실제 기사 위치나 지형 관측이 아니라 `MOCK + isDemo` 합성 계약이다. 관리자 장면은 활성 decision의 설명에만 사용하고 원시 위치·정밀 궤적·주소·건물·생체정보를 추가 수집하거나 저장하지 않는다. A.X·K-EXAONE·Upstage를 포함한 생성형 AI는 이 수치와 geometry를 만들거나 변경하지 않는다. `Demo 2.5D`, `Live 0명`, 합성 고도 표시를 제거할 수 없고, 계약 불일치 시 Live로 승격하지 않고 2D Fallback으로 전환한다.
 
 이 문서는 제품 내부 가드레일이며 개인정보·노무·산업안전·AI 관련 법률 준수를 보증하는 법률문서가 아니다. 실제 기사·고객 데이터를 사용하는 파일럿 전에는 적용 지역과 운영형태에 맞는 별도 법률·노무·보안 검토가 필요하다.
 

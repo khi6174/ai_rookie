@@ -5,6 +5,7 @@ import type {
   PointerEvent as ReactPointerEvent,
 } from "react";
 import type {
+  DecisionSpatialScene,
   ExplanationResult,
   InterventionCandidate,
   MapSelection,
@@ -16,8 +17,10 @@ import {
   createMultiRegionMapFixture,
 } from "../adapters/fixtures";
 import {
+  createDecisionSpatialScene,
   createFixtureMapAdapter,
   createRiderCompactMapModel,
+  validateSpatialSceneAgainstMapModel,
   type MapAdapter,
   type MapRenderModel,
   type RiderCompactMapModel,
@@ -254,6 +257,115 @@ type KakaoMapStatus = "LOADING" | "READY" | "ERROR";
 const formatMovementTime = (seconds: number) =>
   `00:${String(seconds).padStart(2, "0")}`;
 
+function DecisionSpatialScenePanel({
+  applied,
+  scene,
+}: {
+  applied: boolean;
+  scene: DecisionSpatialScene;
+}) {
+  const elevations = scene.samples.map((sample) => sample.elevationMeters);
+  const minElevation = Math.min(...elevations);
+  const maxElevation = Math.max(...elevations);
+  const elevationSpan = Math.max(maxElevation - minElevation, 1);
+  const maxDistance = scene.samples.at(-1)?.distanceFromStartMeters ?? 1;
+  const points = scene.samples.map((sample) => ({
+    x: 58 + (sample.distanceFromStartMeters / maxDistance) * 604,
+    y:
+      238 -
+      ((sample.elevationMeters - minElevation) / elevationSpan) *
+        116 *
+        scene.verticalExaggeration,
+  }));
+  const terrainPoints = [
+    ...points.map((point) => `${point.x},${point.y + 18}`),
+    "662,278",
+    "58,278",
+  ].join(" ");
+  const routePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
+  const riskStart = points[2];
+  const riskEnd = points[3];
+  const facts = scene.decisionFacts;
+  const segmentLabels = ["현재", "휴식", "경사 노출", String(facts.breachStopOrdinal)];
+
+  return (
+    <div
+      className="spatial-scene-shell"
+      role="group"
+      aria-labelledby="spatial-scene-heading"
+      data-spatial-scene
+      data-decision-id={scene.decisionId}
+      data-plan-id={scene.planId}
+      data-route-id={scene.routeId}
+    >
+      <div className="spatial-scene-copy">
+        <div>
+          <p className="section-kicker">선택 decision · 공급자 독립 설명 장면</p>
+          <h3 id="spatial-scene-heading">경사 노출과 지원 지점을 함께 확인합니다</h3>
+        </div>
+        <div className="spatial-scene-badges" aria-label="공간 장면 데이터 상태">
+          <span>Demo 2.5D</span>
+          <span>Live 0명</span>
+          <span>세로 {scene.verticalExaggeration}배 · 합성 고도</span>
+        </div>
+      </div>
+      <div className="spatial-scene-grid">
+        <figure className="spatial-profile" aria-describedby="spatial-profile-caption">
+          <svg viewBox="0 0 720 300" aria-hidden="true" focusable="false">
+            <defs>
+              <linearGradient id="spatial-terrain-fill" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0" stopColor="#dfe9ff" />
+                <stop offset="1" stopColor="#f7f9ff" />
+              </linearGradient>
+              <pattern id="spatial-risk-pattern" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(35)">
+                <rect width="8" height="8" fill="#fff6dd" />
+                <rect width="3" height="8" fill="#f0a000" />
+              </pattern>
+            </defs>
+            <polygon points={terrainPoints} className="spatial-terrain" />
+            <polyline points={routePoints} className="spatial-route-shadow" />
+            <polyline points={routePoints} className="spatial-route-line" />
+            <line
+              x1={riskStart.x}
+              y1={riskStart.y}
+              x2={riskEnd.x}
+              y2={riskEnd.y}
+              className="spatial-risk-segment"
+            />
+            {points.map((point, index) => (
+              <g key={scene.samples[index].routePointId} className={`spatial-point is-${scene.samples[index].segmentKind.toLowerCase()}`}>
+                <circle cx={point.x} cy={point.y} r="13" />
+                <text x={point.x} y={point.y + 4} textAnchor="middle">{segmentLabels[index]}</text>
+                <text className="spatial-elevation-label" x={point.x} y={point.y - 22} textAnchor="middle">
+                  {scene.samples[index].elevationMeters}m · {scene.samples[index].slopePercent}%
+                </text>
+              </g>
+            ))}
+          </svg>
+          <figcaption id="spatial-profile-caption">
+            높이는 위험점수가 아닙니다. 빗길·경사·연속작업 노출 구간은 패턴과 텍스트로 구분합니다.
+          </figcaption>
+        </figure>
+        <div className="spatial-facts" aria-label="2.5D 장면의 구조화 수치 대안">
+          <div className="spatial-decision-question">
+            <span>예상 지원 지점</span>
+            <strong>{facts.timeToBreachMinutes}분 후 · {facts.breachStopOrdinal}번째 배송지 전</strong>
+            <small>위험 기여 · 강수 · 경사 · 연속작업</small>
+          </div>
+          <dl>
+            <div><dt>현재 계획 최소</dt><dd>{formatBudget(facts.baselineMinimumBudget)}</dd></div>
+            <div><dt>{applied ? "적용 계획 최소" : "추천안 적용 후"}</dt><dd>{formatBudget(facts.adjustedMinimumBudget)}</dd></div>
+            <div><dt>지원 조치</dt><dd>{facts.restMinutes}분 휴식 + {facts.transferStopCount}건 이관</dd></div>
+            <div><dt>ETA 변화</dt><dd>+{facts.etaChangeMinutes}분 · 안전 하드 제약 통과</dd></div>
+          </dl>
+          <code>Decision ID · {scene.decisionId}</code>
+          <p>같은 route point 4개와 결정론적 Safety 결과를 2D와 공유합니다.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function KakaoControlMap({
   applied,
   javaScriptKey,
@@ -430,6 +542,7 @@ function MultiRegionControlMap({
   onMapAvailabilityChange,
   onSelectionChange,
   movement,
+  spatialScene,
 }: {
   applied: boolean;
   fixture: MultiRegionMapFixture;
@@ -450,6 +563,7 @@ function MultiRegionControlMap({
     onNext: () => void;
     onReset: () => void;
   };
+  spatialScene: DecisionSpatialScene;
 }) {
   const [mapPan, setMapPan] = useState({ x: 0, y: 0 });
   const [isMapPanning, setIsMapPanning] = useState(false);
@@ -457,6 +571,7 @@ function MultiRegionControlMap({
   const kakaoRequested = Boolean(kakaoJavaScriptKey) && import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
   const [kakaoMapStatus, setKakaoMapStatus] = useState<KakaoMapStatus>("LOADING");
   const [kakaoResetVersion, setKakaoResetVersion] = useState(0);
+  const [spatialMode, setSpatialMode] = useState<"TWO_D" | "DEMO_TWO_POINT_FIVE_D">("TWO_D");
   const kakaoReady = kakaoRequested && kakaoMapStatus === "READY";
   const kakaoFailed = kakaoRequested && kakaoMapStatus === "ERROR";
   const mapDrag = useRef<{
@@ -467,6 +582,12 @@ function MultiRegionControlMap({
     originY: number;
   } | null>(null);
   const model = adapter.getModel(selection);
+  const spatialValidation = validateSpatialSceneAgainstMapModel(spatialScene, model);
+  const spatialAvailable = spatialValidation.valid;
+  const spatialActive = spatialMode === "DEMO_TWO_POINT_FIVE_D" && spatialAvailable;
+  useEffect(() => {
+    if (!mapAvailable || !spatialAvailable) setSpatialMode("TWO_D");
+  }, [mapAvailable, spatialAvailable]);
   const selectedRegion = model.selection.regionId
     ? fixture.regions.find((region) => region.regionId === model.selection.regionId)
     : undefined;
@@ -617,6 +738,17 @@ function MultiRegionControlMap({
           <h2 id="route-heading">{title}</h2>
         </div>
         <div className="route-heading-meta">
+          {model.scope === "DECISION" && (
+            <button
+              type="button"
+              className="spatial-mode-toggle"
+              aria-pressed={spatialActive}
+              disabled={!spatialAvailable}
+              onClick={() => setSpatialMode(spatialActive ? "TWO_D" : "DEMO_TWO_POINT_FIVE_D")}
+            >
+              {spatialActive ? "2D로 돌아가기" : spatialAvailable ? "입체 경사 보기 · Demo" : "2.5D 데이터 없음"}
+            </button>
+          )}
           <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
             {kakaoReady ? "Kakao map · Demo overlay" : kakaoFailed ? "Kakao 오류 · Fallback map" : "Demo schematic map"}
           </span>
@@ -625,14 +757,17 @@ function MultiRegionControlMap({
             type="button"
             className="map-error-toggle"
             aria-pressed={!mapAvailable}
-            onClick={() => onMapAvailabilityChange(!mapAvailable)}
+            onClick={() => {
+              setSpatialMode("TWO_D");
+              onMapAvailabilityChange(!mapAvailable);
+            }}
           >
             {mapAvailable ? "지도 오류 재현" : "지도 복구"}
           </button>
           <button
             type="button"
             className="map-pan-reset"
-            disabled={!kakaoReady && mapPan.x === 0 && mapPan.y === 0}
+            disabled={spatialActive || (!kakaoReady && mapPan.x === 0 && mapPan.y === 0)}
             onClick={() => {
               if (kakaoReady) setKakaoResetVersion((version) => version + 1);
               else resetMapPan();
@@ -712,7 +847,9 @@ function MultiRegionControlMap({
         }}>전체 보기</button>
       </nav>
       <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 Fallback · ${title}`}</p>
-      {mapAvailable ? <div
+      {mapAvailable && spatialActive ? (
+        <DecisionSpatialScenePanel applied={applied} scene={spatialScene} />
+      ) : mapAvailable ? <div
         className={`control-map-canvas scope-${model.scope.toLowerCase()} ${isMapPanning ? "is-panning" : ""} ${kakaoReady ? "is-kakao" : ""}`}
         role="group"
         tabIndex={0}
@@ -1116,6 +1253,10 @@ function AdminDashboard({
     }),
     [mapLoadCourierCount, session.decision.decisionId],
   );
+  const spatialScene = useMemo(
+    () => createDecisionSpatialScene(baseMapFixture, session.decision.decisionId),
+    [baseMapFixture, session.decision.decisionId],
+  );
   const movementTimeline = useMemo(
     () => createMapMovementTimeline(baseMapFixture),
     [baseMapFixture],
@@ -1210,6 +1351,7 @@ function AdminDashboard({
                 setMovementFrameIndex(0);
               },
             }}
+            spatialScene={spatialScene}
           />
           <InterventionQueue
             session={session}

@@ -6,6 +6,13 @@ import {
 } from "../../domain/contracts";
 import { summarizeMultiRegionMapFixture } from "../fixtures";
 
+export {
+  createDecisionSpatialScene,
+  spatialScenePerformanceBudget,
+  validateSpatialSceneAgainstMapModel,
+  type SpatialSceneModelValidation,
+} from "./spatialScene";
+
 export type ProjectedPoint = { x: number; y: number };
 export type GeographicPoint = { latitude: number; longitude: number };
 

@@ -1,0 +1,230 @@
+{
+  "schemaVersion": "final-readiness-audit-v1",
+  "capturedAt": "2026-07-20T11:17:49.061Z",
+  "status": "PASSED",
+  "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
+  "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
+  "commands": [
+    {
+      "id": "BUILD",
+      "command": "pnpm run build",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 1758,
+      "outputSha256": "fc8b1b0fefbf264b25bfb63df6481c9c27f222b3bcf3d7f5683327f3b07eebad",
+      "evidenceLine": "\u001b[32m✓ built in 238ms\u001b[39m"
+    },
+    {
+      "id": "PLAYWRIGHT_E2E",
+      "command": "pnpm run test:e2e",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 63346,
+      "outputSha256": "83cca3d93fe5f0c3777f76a6b10d2df2a2de710f782416c83769909e66ff71df",
+      "evidenceLine": "19 passed (1.0m)"
+    },
+    {
+      "id": "CLEAN_START_3X",
+      "command": "pnpm run test:e2e:clean-start",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 20865,
+      "outputSha256": "730f01f0c5792128710598222816e1c28f86f1729cb33a8eb99f56456af738a9",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=19.92"
+    },
+    {
+      "id": "DOMESTIC_TRACK_AUDIT",
+      "command": "pnpm run eval:domestic-track:audit",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 656,
+      "outputSha256": "f6e39bc706a48dd4a7e1afc41f332f65a833874c7033a5ca35d0a237baa8e4a8",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=6 sha256=071ebb2c1b09f94d2f7a67494701f769bfa5633082e8af21b24b83412775021e"
+    },
+    {
+      "id": "CORE_EVIDENCE",
+      "command": "pnpm run eval:core-artifacts",
+      "passed": true,
+      "exitCode": 0,
+      "signal": null,
+      "elapsedMs": 10951,
+      "outputSha256": "4121cb7df9ee4011370bc97c6bd10005141e500651e743d7abc014405ee3e3ea",
+      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=228 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=3 upstageTasks=12 artifacts=15"
+    }
+  ],
+  "documentStatuses": [
+    {
+      "file": "docs/product-spec.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/data-contracts.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/safety-model.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/intervention-policy.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/privacy-and-ai-policy.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/design-system.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/architecture.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/evals.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/demo-script.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/decisions.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/domestic-ai-track-compliance.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/submission-package.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/final-readiness.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/g5-spatial-visualization-design.md",
+      "status": "Approved — G5-A 공급자 독립 Demo 2.5D 구현 기준",
+      "approved": true
+    },
+    {
+      "file": "docs/geospatial-pwa-implementation-plan.md",
+      "status": "Approved through G5-A decision-scoped Demo 2.5D",
+      "approved": true
+    }
+  ],
+  "evidenceChecks": [
+    {
+      "id": "APPROVED_DOCUMENTS",
+      "passed": true,
+      "details": "15/15 approved"
+    },
+    {
+      "id": "UNIT_TESTS",
+      "passed": true,
+      "details": "228/228 passed"
+    },
+    {
+      "id": "ACCESSIBILITY_VIEWPORTS",
+      "passed": true,
+      "details": "6/6 checks passed"
+    },
+    {
+      "id": "FROZEN_STRATEGY_COMPARISON",
+      "passed": true,
+      "details": "90 comparisons, SafeRoute violations=0"
+    },
+    {
+      "id": "RISK_TRANSFER_BOUNDARIES",
+      "passed": true,
+      "details": "23/23 passed"
+    },
+    {
+      "id": "DECISION_WORKFLOW_BOUNDARIES",
+      "passed": true,
+      "details": "30/30 passed"
+    },
+    {
+      "id": "DOMESTIC_AI_TRACK",
+      "passed": true,
+      "details": "7/7 passed"
+    },
+    {
+      "id": "WEATHER_FALLBACK_INTEGRITY",
+      "passed": true,
+      "details": "Demo fixture · Weather Fallback, mixed=false"
+    },
+    {
+      "id": "CORE_MANIFEST",
+      "passed": true,
+      "details": "15 artifacts, credentialsStored=false"
+    },
+    {
+      "id": "MAP_PERFORMANCE_G4_B",
+      "passed": true,
+      "details": "3/3 profiles, max=240 couriers"
+    },
+    {
+      "id": "SPATIAL_SCENE_G5_A",
+      "passed": true,
+      "details": "renderer=PROVIDER_INDEPENDENT_SVG_2_5D, mismatch=0, dependencies=0, gzipDelta=3.5KiB"
+    },
+    {
+      "id": "PUBLIC_DEMO_BUILD",
+      "passed": true,
+      "details": "configured=true, worker=true, metadata=true"
+    }
+  ],
+  "summary": {
+    "unitTests": 228,
+    "e2eTests": 19,
+    "cleanStartRuns": 3,
+    "requiredViewports": 4,
+    "screenshotAndAccessibilityChecks": 6,
+    "frozenVariants": 30,
+    "strategyComparisons": 90,
+    "safeRouteHardConstraintViolations": 0,
+    "riskTransferBoundaries": 23,
+    "decisionWorkflowBoundaries": 30,
+    "domesticTrackChecks": 7,
+    "coreArtifacts": 15,
+    "publicDemoBuildReady": true,
+    "mapPerformanceProfiles": 3,
+    "maxEvaluatedMapCouriers": 240,
+    "spatialSceneRenderer": "PROVIDER_INDEPENDENT_SVG_2_5D",
+    "spatialSceneMismatchCount": 0
+  },
+  "explicitLimitations": [
+    "The public Finals Demo is not approval for production operation.",
+    "No real courier or customer personal data is processed.",
+    "Kakao Maps renders synthetic Demo coordinates only; no real courier location, TMS, authentication, or customer message delivery is integrated.",
+    "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",
+    "Synthetic simulation results are not evidence of real accident reduction."
+  ],
+  "remainingHumanChecks": [
+    "Run on the actual presentation PC at 1280x720 and browser zoom 100%.",
+    "Assign presenter and recovery operator roles.",
+    "Confirm the exact submission form, video filename, and organizer upload deadline.",
+    "Record the final GitHub commit SHA in the submitted materials."
+  ]
+}

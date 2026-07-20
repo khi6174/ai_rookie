@@ -418,18 +418,19 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | A.X 30과업 생성 강건성 v1.1 | 고정 revision·세 입력 변형·summary 직접 생성·독립 결과 검증 | 첫 시도 22/30, Fallback 8건, 평균 2,562.04ms·P95 3,503.12ms·최대 13,947.27MiB, unsafe 표시 0건 |
 | A.X 30과업 생성 강건성 v1.2 | 결정론적 사실 anchor·생성 설명 분리·독립 결과 검증 | 첫 시도 28/30, Fallback 2건, 평균 2,589.14ms·P95 3,442.77ms·최대 13,949.28MiB, unsafe 표시 0건 |
 | 지정 해상도·포인터 폐루프 | 인앱 브라우저 수동 QA | 4개 해상도, 두 기사 동의→승인→적용 통과 |
-| Playwright 폐루프·접근성·PWA E2E | `pnpm run test:e2e` | 17/17 통과, 기존 폐루프·reset·키보드·4개 해상도·지도 Fallback·bounded drag/keyboard pan·offline/PWA에 G4-B 3개 부하 profile 추가 |
+| Playwright 폐루프·접근성·PWA E2E | `pnpm run test:e2e` | 19/19 통과, 기존 폐루프·reset·키보드·4개 해상도·지도 Fallback·bounded drag/keyboard pan·offline/PWA·G4-B 부하에 G5-A 2.5D 전환·복귀·reduced-motion 추가 |
 | 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, G3-B 반영 후 최종 재실행 총 21.56초 |
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 24개 파일, 220/220 통과 |
+| 최신 전체 Vitest | `pnpm test` | 25개 파일, 228/228 통과 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |
 | G3-B 설치·오프라인 경계 | `pnpm test`, `pnpm run test:e2e` | manifest·아이콘·versioned app shell, 승인 Demo 계획 30분 TTL·정확 만료·손상 격리, 실제 offline reload와 읽기 전용 계획, 만료 최신 승격 0건, 오프라인 응답 성공 0건; 전체 Gate 안에서 회귀 검증 |
 | G4-A 결정론적 Demo 이동 | `pnpm test`, `pnpm run test:e2e` | 24명·7 frame·5초 cadence·고정 SHA-256, CURRENT만 이동, stale·offline 정지, 합성 연결 끊김·복구, Live 혼합 거부, 재생·일시정지·단계·초기화 |
 | G4-B Fallback 2D 부하 | `pnpm test`, `pnpm run test:e2e` | 24·96·240명 profile 3/3, 전국 기사 0명·권역 최대 80명·경로 24개, 첫 표시·drill-down·frame·pan·rAF 예산 통과; `map-performance-summary.json` 보존 |
+| G5-A 선택형 Demo 2.5D | `pnpm test`, `pnpm run test:e2e` | 같은 decision·plan·route·4 route point·표시 수치 불일치 0건, SHA-256 재현, Live 혼합·거리 역전·예상 초과 누락 거부, 1280×720 열기·키보드 2D 복귀·reduced-motion·지도 오류 Fallback과 성능 예산 통과; `spatial-scene-summary.json` 보존 |
 
 검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. 별도 결정 경계 30개는 9.999분 허용과 정확히 10분 차단, 양측 동의·대리응답·중복응답·수정·거절·보류, 계획·모델·설정·정책·후보·중요 입력 변경과 적용 경쟁을 직접 재현했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 6개와 무결성 manifest도 보존했다. 실제 화면 기준 상황보고형 리허설과 팀 승인은 완료했으며, 반복 Upstage 실행과 A.X API Live benchmark는 아직 통과로 기록하지 않는다.
 
@@ -485,6 +486,8 @@ artifacts/evals/
   kma-weather-coverage-latest.json    # 보완 전 3필드 차단 증거
   kma-weather-supplement-live-latest.json # 적설·공식 체감온도 준비, 2개 시간범위 차단
   weather-runtime-selection-latest.json   # 부분 Live 미사용·Demo-only Safety 입력 감사
+  map-performance-summary.json            # G4-B 24·96·240명 Fallback 2D 부하 Gate
+  spatial-scene-summary.json               # G5-A Demo 2.5D 전환·동등성·성능 Gate
   weather-runtime-runs/
     <timestamp>-fallback-selection/
       weather-runtime-selection.json
@@ -535,6 +538,8 @@ artifacts/evals/
       domestic-ai-smoke.csv
       upstage-roundtrip.csv
       accessibility-summary.json
+      map-performance-summary.json
+      spatial-scene-summary.json
   screenshots/
     admin-initial-1440x900.png
     admin-applied-1280x720.png

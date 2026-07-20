@@ -1,0 +1,175 @@
+{
+  "schemaVersion": "core-eval-run-manifest-v1",
+  "capturedAt": "2026-07-20T11:16:56.292Z",
+  "generator": "scripts/run-core-eval-artifacts.mjs",
+  "command": "pnpm run eval:core-artifacts",
+  "baseCommit": "1649852bb76449d42a5ef8f490f75224705be24a",
+  "workingTreeDirty": true,
+  "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
+  "credentialsStored": false,
+  "rawApiResponsesStored": false,
+  "selfHashExcluded": true,
+  "sourceHashes": [
+    {
+      "file": "scripts/run-core-eval-artifacts.mjs",
+      "sha256": "89768530e411f016c2788ed61d53b64e54417336072a2d4ac37b25fc8fb46b54"
+    },
+    {
+      "file": "scripts/run-domestic-track-audit.mjs",
+      "sha256": "5c1c37b4a843d960f5904e862d76dd6092542b4f3728f3ddf5c1161bf53537a9"
+    },
+    {
+      "file": "src/evals/frozenBenchmark.ts",
+      "sha256": "6803e433637fc628462eaea63a00c77f72ea80383be389c0bcca94e7095ca383"
+    },
+    {
+      "file": "tests/frozen-benchmark.test.ts",
+      "sha256": "80e2cb68737448517e040c57675b64aff44df8eb9a9f9054971b0d14cae5ce7a"
+    },
+    {
+      "file": "src/evals/riskTransferBoundaries.ts",
+      "sha256": "5841edefab6715b0b094c9bbc7c48e20067632da0dff29f734f1dd69fa7b8bd0"
+    },
+    {
+      "file": "tests/risk-transfer-boundaries.test.ts",
+      "sha256": "739f39d688356cd1cf22dabd230a9ccc27eefab05aaba17461357f5fc1e77caf"
+    },
+    {
+      "file": "src/evals/decisionWorkflowBoundaries.ts",
+      "sha256": "cec7b867ded54931c8edbfca734b1c5be859f5db8b103bd619c6bff61989d625"
+    },
+    {
+      "file": "tests/decision-workflow-boundaries.test.ts",
+      "sha256": "6111a36cb018c723d264727d71643a5d2f473a9c5ecd028d60508bb7d93f9efb"
+    },
+    {
+      "file": "src/domain/safety/config.ts",
+      "sha256": "4545e84ae794a04fc29857dbc1449f5e76ecb5846a858e2e9c8f8ab1bee00dcf"
+    },
+    {
+      "file": "src/domain/safety/engine.ts",
+      "sha256": "0f9c396eb34b5d6add2802eff1025806211c73777e8e88bbe4936694254b9bb7"
+    },
+    {
+      "file": "src/domain/interventions/config.ts",
+      "sha256": "61197bb9d22e2d0787b3aba43ca7f3447a505ebefdf3cbb8397570771964230a"
+    },
+    {
+      "file": "src/domain/interventions/engine.ts",
+      "sha256": "c03333e2a22e837b04ad4208a78415a737891e57c23b7717632e2a3993c6b1e7"
+    },
+    {
+      "file": "src/adapters/fixtures/index.ts",
+      "sha256": "24fc758ae27026ad007dd786edee687f048e6a081806d5aa35879f8355924759"
+    },
+    {
+      "file": "src/adapters/fixtures/multiRegionMapFixture.ts",
+      "sha256": "f1f0a448bb56f111375d31bcd4cab06ef559b53679c55615ed2dec0a7caa2660"
+    },
+    {
+      "file": "src/adapters/maps/index.ts",
+      "sha256": "17121558bb8515f50f42c3773681b56420a9f3d5415f865a74db0fe14f10b68c"
+    },
+    {
+      "file": "src/adapters/maps/spatialScene.ts",
+      "sha256": "4ad6e705c1f17fe1274d4409ad97fc1257c5f679055534e98036eaa683663a7b"
+    },
+    {
+      "file": "tests/map-performance-budget.test.ts",
+      "sha256": "d30c56586908c8955f855ef5aec1ad2a9d6b266b6c14eff04022cc0fd2c31ce2"
+    },
+    {
+      "file": "tests/spatial-scene.test.ts",
+      "sha256": "c98455b7b9df42eb450a95ff06e67e987c84972fff90658c18e64804ed57ab60"
+    },
+    {
+      "file": "e2e/map-performance.spec.ts",
+      "sha256": "622752b6132e74a437d52862f3bff38a7fb1a138eb3571a56f7c28161e62638a"
+    },
+    {
+      "file": "e2e/spatial-scene.spec.ts",
+      "sha256": "b37de62da2e2dac0dd60f17dcaad24dda9dde8a9fc3777200bee3008d50ea116"
+    },
+    {
+      "file": "e2e/saferoute-demo.spec.ts",
+      "sha256": "f61ffe78d73c0e3e360475362ba27f2c9296531b39a9c2598ecbafea61bb5831"
+    }
+  ],
+  "artifacts": [
+    {
+      "file": "unit-summary.json",
+      "bytes": 3011,
+      "sha256": "b870bfc60ae6a3dd6eb9f4cc8249ed85374c289f86231f48397261acfaf4e9c9"
+    },
+    {
+      "file": "scenario-results.csv",
+      "bytes": 667,
+      "sha256": "b38d012571afe0f6cb5140de07b89f3fa07d97e0cdf42b7f685391cc575c4ef3"
+    },
+    {
+      "file": "baseline-comparison.csv",
+      "bytes": 24680,
+      "sha256": "0ada81071c78abe28c530884946d58e1b40d014ea734a0d75ce025723acf8a41"
+    },
+    {
+      "file": "frozen-variant-results.csv",
+      "bytes": 8358,
+      "sha256": "c773b01937e418dfe60acc8549b11f6e3f66ee50eff6dc214ce02caeb90d6c09"
+    },
+    {
+      "file": "frozen-benchmark-summary.json",
+      "bytes": 1715,
+      "sha256": "f1c7ffb9b274872065fdefb4cf39c08153c9f91943088c5af1ca31f56350dedf"
+    },
+    {
+      "file": "risk-transfer-boundaries.csv",
+      "bytes": 3901,
+      "sha256": "ae07b23b3c53caf8ec7183a557a47f3a583422ae9b8b3f8d1ff551f9ac90c021"
+    },
+    {
+      "file": "risk-transfer-boundary-summary.json",
+      "bytes": 692,
+      "sha256": "c67a20e3c3344ca1c2ac109f3c6d0784ead5829c8a9883e3f1bc6971a16f2aba"
+    },
+    {
+      "file": "decision-workflow-boundaries.csv",
+      "bytes": 5245,
+      "sha256": "27c080a6b0ef2253151c731a9429b9f7ba28b4313d193a42dc177ea81e20cf99"
+    },
+    {
+      "file": "decision-workflow-boundary-summary.json",
+      "bytes": 1295,
+      "sha256": "9060c4984a85b88984e38ae242cf443cb867016cb0dfe00ddbdc8f78e3420c78"
+    },
+    {
+      "file": "domestic-track-compliance-latest.json",
+      "bytes": 4521,
+      "sha256": "a1b25dc6968e10c1656c29476689f945d81fa20433f26399ebc0dd60dd4bec92"
+    },
+    {
+      "file": "domestic-ai-smoke.csv",
+      "bytes": 501,
+      "sha256": "3670b68a61be2b776b250497d06e51763e84cfff32080e1b70320aa1c8532a7d"
+    },
+    {
+      "file": "upstage-roundtrip.csv",
+      "bytes": 1368,
+      "sha256": "7b90d84c4b9224067deea7684216be2f59a0fc59dbe87e39a6ab04035147f8d0"
+    },
+    {
+      "file": "accessibility-summary.json",
+      "bytes": 2568,
+      "sha256": "9a4206b10ae90bb34539fce9ebe327ea24129cd8ee178be56c4b3ea6e5a39c1f"
+    },
+    {
+      "file": "map-performance-summary.json",
+      "bytes": 2319,
+      "sha256": "330d86d738f872d39f6b1246ba8ce5b9af80e77e3bbe898be1b59979b0aad9cd"
+    },
+    {
+      "file": "spatial-scene-summary.json",
+      "bytes": 1192,
+      "sha256": "3f49abff76aa1d47993adaa20376871f710b97995492e9bc30ee370ace55aa0a"
+    }
+  ]
+}

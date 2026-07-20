@@ -29,6 +29,7 @@ const latestArtifactNames = [
   "upstage-roundtrip.csv",
   "accessibility-summary.json",
   "map-performance-summary.json",
+  "spatial-scene-summary.json",
 ];
 
 function sha256(bytes) {
@@ -330,6 +331,19 @@ async function generateManifest() {
   ) {
     throw new Error("G4-B map performance evidence did not pass its Demo Fallback gate");
   }
+  const spatialScene = await readJson("spatial-scene-summary.json");
+  if (
+    spatialScene.status !== "PASSED" ||
+    spatialScene.dataMode !== "DEMO" ||
+    spatialScene.renderer !== "PROVIDER_INDEPENDENT_SVG_2_5D" ||
+    spatialScene.metrics.identifierMismatchCount !== 0 ||
+    spatialScene.metrics.numericMismatchCount !== 0 ||
+    spatialScene.metrics.additionalRuntimeDependencyCount !== 0 ||
+    spatialScene.metrics.additionalGzipJsKiB >
+      spatialScene.budget.maximumAdditionalGzipJsKiB
+  ) {
+    throw new Error("G5-A spatial scene evidence did not pass its Demo contract gate");
+  }
   const artifacts = [];
   for (const file of latestArtifactNames) {
     const bytes = await readFile(resolve(outputDirectory, file));
@@ -351,8 +365,11 @@ async function generateManifest() {
     "src/adapters/fixtures/index.ts",
     "src/adapters/fixtures/multiRegionMapFixture.ts",
     "src/adapters/maps/index.ts",
+    "src/adapters/maps/spatialScene.ts",
     "tests/map-performance-budget.test.ts",
+    "tests/spatial-scene.test.ts",
     "e2e/map-performance.spec.ts",
+    "e2e/spatial-scene.spec.ts",
     "e2e/saferoute-demo.spec.ts",
   ];
   const sourceHashes = [];

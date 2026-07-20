@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G4-B deterministic Fallback 2D load budget
+- 상태: Approved through G5-A decision-scoped Demo 2.5D
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계획 버전: `geospatial-pwa-plan-v1.9.0`
+- 계획 버전: `geospatial-pwa-plan-v2.0.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -176,12 +176,14 @@ PWA 진입
 
 ### G5 — 조건부 2.5D·3D
 
-설계 상태:
+실행 상태:
 
-- `docs/g5-spatial-visualization-design.md`에 `Draft` 설계안을 작성했다.
-- 권고안은 관리자 `decision` scope의 선택형 `Demo 2.5D` 경사 맥락 보기이며 기본 Kakao/Fallback 2D와 기사 compact map은 변경하지 않는다.
-- Kakao 지형 overlay는 2D 맥락 후보일 뿐 3D로 표현하지 않는다. 실제 WebGL 3D는 새 렌더러·타일·DEM·라이선스 승인 전 구현하지 않는다.
-- 현재는 설계만 완료했으며 G5 기능 코드는 시작하지 않았다.
+- `G5-A` 완료: 관리자 활성 decision scope에서만 `입체 경사 보기 · Demo`를 열 수 있고 `2D로 돌아가기`로 즉시 복귀한다.
+- `DecisionSpatialSceneSchema`는 같은 decision·plan·route와 4개 route point 순서, 엄격히 증가하는 합성 거리, 단일 휴식·예상 초과 지점, `MOCK + isDemo` 출처를 강제한다.
+- 장면은 새 의존성·WebGL·외부 타일 없이 SVG로 지형 맥락만 표현한다. 위험은 높이가 아니라 패턴과 `강수·경사·연속작업` 텍스트로 전달한다.
+- 52분·17번째·29.9→47.2와 지원 조치는 기존 결정론적 Demo 값과 동일하며, 불일치·결측·지도 오류에서는 2.5D를 차단하고 기존 2D·구조화 대안을 유지한다.
+- 기사 compact map, Safety·개입·동의·승인 계산, Kakao provider 계약은 변경하지 않았다.
+- 실제 WebGL 3D, DEM·건물·실제 위치·240명 디지털 트윈은 G5-B 사람 이해 확인과 별도 P2 승인 전 구현하지 않는다.
 
 작업:
 

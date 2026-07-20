@@ -1,0 +1,41 @@
+{
+  "schemaVersion": "spatial-scene-evidence-v1",
+  "capturedAt": "2026-07-20T11:21:03.764Z",
+  "status": "PASSED",
+  "dataMode": "DEMO",
+  "renderer": "PROVIDER_INDEPENDENT_SVG_2_5D",
+  "environment": {
+    "platform": "win32",
+    "browser": "Chromium",
+    "browserVersion": "149.0.7827.55",
+    "viewport": {
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "budget": {
+    "schemaVersion": "spatial-scene-performance-budget-v1",
+    "maximumFirstDisplayMs": 1000,
+    "maximumModeSwitchMs": 300,
+    "maximumDecisionResponseMs": 300,
+    "maximumP95FrameGapMs": 100,
+    "maximumFrameGapMs": 250,
+    "maximumAdditionalGzipJsKiB": 50
+  },
+  "metrics": {
+    "firstDisplayMs": 79,
+    "returnTo2dMs": 21,
+    "p95FrameGapMs": 16.8,
+    "maxFrameGapMs": 16.8,
+    "identifierMismatchCount": 0,
+    "numericMismatchCount": 0,
+    "additionalRuntimeDependencyCount": 0,
+    "previousG4BGzipJsBytes": 127195,
+    "currentGzipJsBytes": 130778,
+    "additionalGzipJsKiB": 3.5
+  },
+  "limitations": [
+    "Deterministic synthetic elevation only; no live GPS, terrain, building, or TMS data.",
+    "2.5D is an explanatory SVG profile, not a true 3D map or measured field performance."
+  ]
+}

@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계약 버전: `contracts-v1.3.0`
+- 계약 버전: `contracts-v1.4.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -22,6 +22,12 @@
 - 잘못된 음수 작업량, 불가능한 시간, 무효한 이관을 시스템 경계에서 거부한다.
 
 이 문서의 TypeScript는 구현 계약을 설명하는 기준이며 아직 실제 코드가 아니다. 구현 시 Zod 스키마가 런타임 검증의 단일 소스가 되고 TypeScript 타입은 스키마에서 추론한다.
+
+### 1.1 G5-A decision 공간 장면
+
+`DecisionSpatialSceneSchema`는 관리자 활성 decision의 설명용 2.5D 장면만 표현한다. `decisionId`, `planId`, `routeId`와 네 route point의 좌표·순서는 `MapRenderModel`과 exact equality여야 한다. 각 `SpatialRouteSample`은 0에서 시작해 엄격히 증가하는 거리, 합성 고도·경사, `NORMAL | REST_POINT | SLOPE_EXPOSURE | BREACH_POINT`를 갖고 휴식과 예상 초과 지점은 각각 정확히 하나다.
+
+장면의 `dataMode`는 `DEMO`, renderer는 `DEMO_TWO_POINT_FIVE_D`, 모든 provenance는 `MOCK + isDemo=true`다. 고도·거리·경사와 52분·17번째·29.9→47.2·10분·8건·ETA +8분은 결정론적 코드가 소유하며 AI가 생성하거나 변경하지 않는다. Live 출처, 좌표·식별자 불일치, 거리 역전, 예상 초과 지점 누락, 조정 후 Budget 비개선은 경계에서 거부하고 2D를 유지한다.
 
 ## 2. 공통 표현 규칙
 

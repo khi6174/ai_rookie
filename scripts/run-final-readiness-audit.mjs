@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /17 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /19 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -92,6 +92,8 @@ const requiredApprovedDocuments = [
   "docs/domestic-ai-track-compliance.md",
   "docs/submission-package.md",
   "docs/final-readiness.md",
+  "docs/g5-spatial-visualization-design.md",
+  "docs/geospatial-pwa-implementation-plan.md",
 ];
 const documentStatuses = [];
 for (const file of requiredApprovedDocuments) {
@@ -111,6 +113,7 @@ const domesticTrack = await readJson("domestic-track-compliance-latest.json");
 const weather = await readJson("weather-runtime-selection-latest.json");
 const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
+const spatialScene = await readJson("spatial-scene-summary.json");
 let publicDemoBuild = {
   configured: false,
   workerPresent: false,
@@ -204,7 +207,7 @@ const evidenceChecks = [
   ),
   check(
     "CORE_MANIFEST",
-    coreManifest.artifacts.length === 14 &&
+    coreManifest.artifacts.length === 15 &&
       coreManifest.credentialsStored === false &&
       coreManifest.rawApiResponsesStored === false,
     `${coreManifest.artifacts.length} artifacts, credentialsStored=${coreManifest.credentialsStored}`,
@@ -220,6 +223,21 @@ const evidenceChecks = [
       mapPerformance.budget.maxVisibleRegionCouriers === 80 &&
       mapPerformance.budget.maxRenderedRegionRoutes === 24,
     `${mapPerformance.profiles.filter((profile) => profile.passed).length}/${mapPerformance.profiles.length} profiles, max=${mapPerformance.budget.maxTotalCouriers} couriers`,
+  ),
+  check(
+    "SPATIAL_SCENE_G5_A",
+    spatialScene.status === "PASSED" &&
+      spatialScene.dataMode === "DEMO" &&
+      spatialScene.renderer === "PROVIDER_INDEPENDENT_SVG_2_5D" &&
+      spatialScene.metrics.identifierMismatchCount === 0 &&
+      spatialScene.metrics.numericMismatchCount === 0 &&
+      spatialScene.metrics.additionalRuntimeDependencyCount === 0 &&
+      spatialScene.metrics.additionalGzipJsKiB <= spatialScene.budget.maximumAdditionalGzipJsKiB &&
+      spatialScene.metrics.firstDisplayMs <= spatialScene.budget.maximumFirstDisplayMs &&
+      spatialScene.metrics.returnTo2dMs <= spatialScene.budget.maximumModeSwitchMs &&
+      spatialScene.metrics.p95FrameGapMs <= spatialScene.budget.maximumP95FrameGapMs &&
+      spatialScene.metrics.maxFrameGapMs <= spatialScene.budget.maximumFrameGapMs,
+    `renderer=${spatialScene.renderer}, mismatch=${spatialScene.metrics.identifierMismatchCount + spatialScene.metrics.numericMismatchCount}, dependencies=${spatialScene.metrics.additionalRuntimeDependencyCount}, gzipDelta=${spatialScene.metrics.additionalGzipJsKiB}KiB`,
   ),
   check(
     "PUBLIC_DEMO_BUILD",
@@ -244,7 +262,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 17,
+    e2eTests: 19,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -262,6 +280,10 @@ const result = {
       publicDemoBuild.packagedMetadataMatches,
     mapPerformanceProfiles: mapPerformance.profiles.length,
     maxEvaluatedMapCouriers: mapPerformance.budget.maxTotalCouriers,
+    spatialSceneRenderer: spatialScene.renderer,
+    spatialSceneMismatchCount:
+      spatialScene.metrics.identifierMismatchCount +
+      spatialScene.metrics.numericMismatchCount,
   },
   explicitLimitations: [
     "The public Finals Demo is not approval for production operation.",
@@ -302,7 +324,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=17 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=19 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

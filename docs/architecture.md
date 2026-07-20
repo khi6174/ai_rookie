@@ -85,6 +85,8 @@ ADR-045의 `MapMovementTimelineSchema`와 `createMapMovementTimeline`은 24명 �
 
 ADR-046의 G4-B 부하 계층은 같은 생성기를 허브당 4·16·40명으로 확장해 총 24·96·240명 profile을 만든다. `MapAdapter`는 전국에서 개별 기사·경로를 반환하지 않고, 권역에서 최대 80명과 최대 24개 경로만 렌더 모델에 포함한다. 선택된 decision scope는 제한과 무관하게 해당 기사 경로 1개를 반환한다. 브라우저 성능 증거는 외부 네트워크를 끈 Fallback 2D에서 생성하며 Kakao 공급자 지연이나 실제 장치 성능으로 일반화하지 않는다.
 
+ADR-047의 G5-A는 `DecisionSpatialSceneSchema`와 `createDecisionSpatialScene`을 지도 표시 어댑터에 추가한다. 활성 지원 decision의 기존 네 route point에만 결정론적 합성 거리·고도·경사를 결합하고 `validateSpatialSceneAgainstMapModel`이 decision·plan·route·좌표 순서의 exact equality를 확인한 경우에만 React SVG 2.5D 장면을 연다. 장면은 Safety·개입·결정 상태를 계산하지 않으며 새 지도 공급자·WebGL·DEM·건물 타일·런타임 의존성을 사용하지 않는다. 불일치·지도 오류에서는 UI mode를 2D로 되돌리고 같은 구조화 목록을 유지한다.
+
 G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경이다. 기사 모바일의 합성 위치·날씨·경로는 기존 Demo fixture와 Weather Fallback만 읽으며 브라우저 위치 API, service worker, 캐시, 설치 manifest, 실제 인증을 호출하지 않는다. 운행·안전지원·내 정보는 동일 `DemoSession`의 상태와 decision ID를 유지하므로 시각 순서 변경이 동의·승인 상태기계에 영향을 주지 않는다.
 
 G3-B의 `public/sw.js`는 같은 origin의 정적 app shell만 버전된 Cache Storage에 저장한다. `src/pwa/approvedPlanCache.ts`는 `APPROVED + APPLIED`된 합성 계획의 decision·plan 버전과 기사별 남은 건수만 localStorage에 30분 TTL로 저장한다. 캐시는 Safety 계산·추천·동의·승인 상태를 만들거나 변경할 수 없고 오프라인에서는 모든 응답 행동을 비활성화한다. 만료·손상·저장소 차단은 각각 명시적 상태로 전환하며 최신 계획으로 승격하지 않는다.

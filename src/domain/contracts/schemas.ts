@@ -593,6 +593,119 @@ export const MultiRegionMapFixtureSchema = z
     }
   });
 
+export const SpatialRouteSampleSchema = z
+  .object({
+    routePointId: opaqueId,
+    point: GeoPointSchema,
+    distanceFromStartMeters: nonNegativeNumber,
+    elevationMeters: finiteNumber,
+    slopePercent: finiteNumber.min(-30).max(30),
+    segmentKind: z.enum([
+      "NORMAL",
+      "SLOPE_EXPOSURE",
+      "REST_POINT",
+      "BREACH_POINT",
+    ]),
+    provenance: ProvenanceSchema,
+  })
+  .strict();
+
+export const DecisionSpatialSceneSchema = z
+  .object({
+    schemaVersion: z.literal("decision-spatial-scene-v1"),
+    sceneId: opaqueId,
+    decisionId: opaqueId,
+    planId: opaqueId,
+    routeId: opaqueId,
+    dataMode: z.literal("DEMO"),
+    rendererMode: z.literal("DEMO_TWO_POINT_FIVE_D"),
+    verticalExaggeration: z.union([z.literal(1), z.literal(1.5)]),
+    samples: z.array(SpatialRouteSampleSchema).min(4),
+    decisionFacts: z
+      .object({
+        timeToBreachMinutes: nonNegativeInteger,
+        breachStopOrdinal: z.number().int().positive(),
+        baselineMinimumBudget: score,
+        adjustedMinimumBudget: score,
+        restMinutes: nonNegativeInteger,
+        transferStopCount: nonNegativeInteger,
+        etaChangeMinutes: nonNegativeInteger,
+        riskFactors: z
+          .array(z.enum(["RAIN", "SLOPE", "CONTINUOUS_WORK"]))
+          .min(1),
+      })
+      .strict(),
+    generatedAt: IsoDateTimeSchema,
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (!uniqueStrings(value.samples.map((sample) => sample.routePointId))) {
+      context.addIssue({
+        code: "custom",
+        path: ["samples"],
+        message: "Spatial route point IDs must be unique",
+      });
+    }
+    value.samples.forEach((sample, index) => {
+      if (
+        index > 0 &&
+        sample.distanceFromStartMeters <=
+          value.samples[index - 1].distanceFromStartMeters
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["samples", index, "distanceFromStartMeters"],
+          message: "Spatial route distances must strictly increase",
+        });
+      }
+    });
+    if (value.samples[0].distanceFromStartMeters !== 0) {
+      context.addIssue({
+        code: "custom",
+        path: ["samples", 0, "distanceFromStartMeters"],
+        message: "Spatial route must start at zero meters",
+      });
+    }
+    if (
+      value.samples.filter((sample) => sample.segmentKind === "REST_POINT")
+        .length !== 1 ||
+      value.samples.filter((sample) => sample.segmentKind === "BREACH_POINT")
+        .length !== 1
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["samples"],
+        message: "Demo spatial scene requires one rest and one breach point",
+      });
+    }
+    const provenance = [
+      ...value.provenance,
+      ...value.samples.map((sample) => sample.provenance),
+    ];
+    if (
+      provenance.some(
+        (record) => record.kind !== "MOCK" || record.isDemo !== true,
+      )
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "G5-A spatial scenes must remain Demo MOCK only",
+      });
+    }
+    if (
+      value.decisionFacts.adjustedMinimumBudget <=
+      value.decisionFacts.baselineMinimumBudget
+    ) {
+      context.addIssue({
+        code: "custom",
+        path: ["decisionFacts", "adjustedMinimumBudget"],
+        message: "Approved Demo intervention must improve the minimum budget",
+      });
+    }
+  });
+
 export const MapMovementFrameSchema = z
   .object({
     frameIndex: nonNegativeInteger,
@@ -2603,6 +2716,8 @@ export type MapRouteProjection = z.infer<typeof MapRouteProjectionSchema>;
 export type MapDecisionSummary = z.infer<typeof MapDecisionSummarySchema>;
 export type MapCourierProjection = z.infer<typeof MapCourierProjectionSchema>;
 export type MultiRegionMapFixture = z.infer<typeof MultiRegionMapFixtureSchema>;
+export type SpatialRouteSample = z.infer<typeof SpatialRouteSampleSchema>;
+export type DecisionSpatialScene = z.infer<typeof DecisionSpatialSceneSchema>;
 export type MapMovementFrame = z.infer<typeof MapMovementFrameSchema>;
 export type MapMovementTimeline = z.infer<typeof MapMovementTimelineSchema>;
 export type CourierState = z.infer<typeof CourierStateSchema>;
