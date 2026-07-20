@@ -474,6 +474,7 @@ function MultiRegionControlMap({
           data-pan-x={Math.round(mapPan.x)}
           data-pan-y={Math.round(mapPan.y)}
         >
+          <div className="control-map-pan-background" aria-hidden="true" />
           <svg
             className="control-map-svg"
             viewBox="0 0 100 100"

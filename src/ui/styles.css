@@ -3041,37 +3041,12 @@ summary {
   min-height: 410px;
   overflow: hidden;
   color: rgb(176 191 206 / 55%);
-  background:
-    radial-gradient(circle at 18% 20%, rgb(212 228 244 / 72%), transparent 24%),
-    radial-gradient(circle at 76% 72%, rgb(220 234 229 / 78%), transparent 28%),
-    linear-gradient(145deg, #edf3f6, #e9efed);
+  background: #e9efed;
 }
 
 .control-map-canvas::before,
 .control-map-canvas::after {
-  position: absolute;
-  z-index: 0;
-  border: 1px solid rgb(168 184 198 / 35%);
-  border-radius: 46% 54% 58% 42%;
-  background: rgb(255 255 255 / 26%);
-  content: "";
-  pointer-events: none;
-}
-
-.control-map-canvas::before {
-  top: 8%;
-  left: 8%;
-  width: 48%;
-  height: 55%;
-  transform: rotate(-7deg);
-}
-
-.control-map-canvas::after {
-  right: 8%;
-  bottom: 8%;
-  width: 46%;
-  height: 49%;
-  transform: rotate(8deg);
+  display: none;
 }
 
 .control-map-svg {
@@ -4028,6 +4003,43 @@ summary {
   transform: translate3d(var(--map-pan-x), var(--map-pan-y), 0);
   transition: transform 140ms ease-out;
   will-change: transform;
+}
+
+.control-map-pan-background {
+  position: absolute;
+  z-index: 0;
+  inset: -110px -160px;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 24% 28%, rgb(212 228 244 / 76%), transparent 22%),
+    radial-gradient(circle at 70% 68%, rgb(220 234 229 / 82%), transparent 25%),
+    linear-gradient(145deg, #edf3f6, #e9efed);
+  pointer-events: none;
+}
+
+.control-map-pan-background::before,
+.control-map-pan-background::after {
+  position: absolute;
+  border: 1px solid rgb(168 184 198 / 35%);
+  border-radius: 46% 54% 58% 42%;
+  background: rgb(255 255 255 / 26%);
+  content: "";
+}
+
+.control-map-pan-background::before {
+  top: 16%;
+  left: 15%;
+  width: 43%;
+  height: 52%;
+  transform: rotate(-7deg);
+}
+
+.control-map-pan-background::after {
+  right: 14%;
+  bottom: 14%;
+  width: 42%;
+  height: 47%;
+  transform: rotate(8deg);
 }
 
 .control-map-canvas.is-panning .control-map-pan-surface {

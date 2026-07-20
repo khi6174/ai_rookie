@@ -169,13 +169,16 @@ test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한�
   await page.goto("/");
   const map = page.getByRole("group", { name: "합성 지도 이동 영역" });
   const surface = page.locator(".control-map-pan-surface");
+  const background = page.locator(".control-map-pan-background");
   const reset = page.getByRole("button", { name: "지도 중심 복원" });
   await expect(surface).toHaveAttribute("data-pan-x", "0");
   await expect(surface).toHaveAttribute("data-pan-y", "0");
   await expect(reset).toBeDisabled();
 
   const box = await map.boundingBox();
+  const backgroundBeforeBox = await background.boundingBox();
   expect(box).not.toBeNull();
+  expect(backgroundBeforeBox).not.toBeNull();
   const startX = box!.x + box!.width * 0.48;
   const startY = box!.y + box!.height * 0.24;
   await page.mouse.move(startX, startY);
@@ -184,6 +187,10 @@ test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한�
   await page.mouse.up();
   await expect(surface).not.toHaveAttribute("data-pan-x", "0");
   await expect(surface).not.toHaveAttribute("data-pan-y", "0");
+  const backgroundAfterBox = await background.boundingBox();
+  expect(backgroundAfterBox).not.toBeNull();
+  expect(backgroundAfterBox!.x).not.toBe(backgroundBeforeBox!.x);
+  expect(backgroundAfterBox!.y).not.toBe(backgroundBeforeBox!.y);
   await expect(page.getByText(decisionId).first()).toBeVisible();
 
   await reset.click();
