@@ -4051,8 +4051,7 @@ summary {
 }
 
 .control-map-canvas.is-kakao .control-map-pan-surface {
-  opacity: 0;
-  pointer-events: none;
+  display: none;
 }
 
 .kakao-map-layer {
