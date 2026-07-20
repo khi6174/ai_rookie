@@ -54,8 +54,30 @@ export type MapRenderModel = {
   hubs: HubMapNode[];
   couriers: CourierMapNode[];
   routes: RouteMapLine[];
+  featureBudget: {
+    totalCouriers: number;
+    visibleCouriers: number;
+    totalRoutes: number;
+    renderedRoutes: number;
+    routesCapped: boolean;
+  };
   selectedDecision?: MapDecisionSummary;
 };
+
+export const mapPerformanceBudget = Object.freeze({
+  schemaVersion: "map-performance-budget-v1",
+  loadProfiles: [24, 96, 240] as const,
+  maxTotalCouriers: 240,
+  maxVisibleRegionCouriers: 80,
+  maxRenderedRegionRoutes: 24,
+  minimumPositionIntervalSeconds: 5,
+  maximumInitialMapReadyMs: 5_000,
+  maximumRegionDrilldownMs: 1_000,
+  maximumFrameUpdateMs: 1_000,
+  maximumPanResponseMs: 500,
+  maximumP95FrameGapMs: 100,
+  maximumFrameGapMs: 250,
+});
 
 export type MapAdapter = {
   getModel(selection?: MapSelection): MapRenderModel;
@@ -185,9 +207,12 @@ export function createFixtureMapAdapter(
       const visibleHubs = scope === "NATIONAL"
         ? []
         : fixture.hubs.filter((hub) => hub.regionId === selection.regionId);
-      const visibleRoutes = fixture.routes.filter((route) =>
+      const candidateRoutes = fixture.routes.filter((route) =>
         visibleCourierIds.has(route.courierId),
       );
+      const visibleRoutes = scope === "REGION" && candidateRoutes.length > mapPerformanceBudget.maxRenderedRegionRoutes
+        ? candidateRoutes.slice(0, mapPerformanceBudget.maxRenderedRegionRoutes)
+        : candidateRoutes;
       const projectionPoints = scope === "NATIONAL"
         ? fixture.regions.map((region) => region.center)
         : [
@@ -251,6 +276,13 @@ export function createFixtureMapAdapter(
             points: route.points.map(project),
             geographicPoints: route.points,
           })),
+        featureBudget: {
+          totalCouriers: fixture.couriers.length,
+          visibleCouriers: visibleCouriers.length,
+          totalRoutes: candidateRoutes.length,
+          renderedRoutes: visibleRoutes.length,
+          routesCapped: candidateRoutes.length > visibleRoutes.length,
+        },
       };
     },
     selectionForDecision(decisionId) {

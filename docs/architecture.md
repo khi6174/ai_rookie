@@ -83,6 +83,8 @@ ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderMode
 
 ADR-045의 `MapMovementTimelineSchema`와 `createMapMovementTimeline`은 24명 합성 fixture를 5초 간격·30초 horizon의 7개 frame으로 변환한다. `applyMapMovementFrame`은 선택 frame의 위치 가용성만 기존 fixture에 적용하고 전체 `MultiRegionMapFixtureSchema`를 다시 검증한다. UI 재생기는 1초마다 다음 수신 frame을 보여주는 가속 Demo일 뿐 중간 위치를 추론하지 않는다. stale은 고정되고 offline은 좌표가 없으며 복구 frame에 새 `CURRENT` 관측이 있을 때만 마커가 다시 나타난다.
 
+ADR-046의 G4-B 부하 계층은 같은 생성기를 허브당 4·16·40명으로 확장해 총 24·96·240명 profile을 만든다. `MapAdapter`는 전국에서 개별 기사·경로를 반환하지 않고, 권역에서 최대 80명과 최대 24개 경로만 렌더 모델에 포함한다. 선택된 decision scope는 제한과 무관하게 해당 기사 경로 1개를 반환한다. 브라우저 성능 증거는 외부 네트워크를 끈 Fallback 2D에서 생성하며 Kakao 공급자 지연이나 실제 장치 성능으로 일반화하지 않는다.
+
 G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경이다. 기사 모바일의 합성 위치·날씨·경로는 기존 Demo fixture와 Weather Fallback만 읽으며 브라우저 위치 API, service worker, 캐시, 설치 manifest, 실제 인증을 호출하지 않는다. 운행·안전지원·내 정보는 동일 `DemoSession`의 상태와 decision ID를 유지하므로 시각 순서 변경이 동의·승인 상태기계에 영향을 주지 않는다.
 
 G3-B의 `public/sw.js`는 같은 origin의 정적 app shell만 버전된 Cache Storage에 저장한다. `src/pwa/approvedPlanCache.ts`는 `APPROVED + APPLIED`된 합성 계획의 decision·plan 버전과 기사별 남은 건수만 localStorage에 30분 TTL로 저장한다. 캐시는 Safety 계산·추천·동의·승인 상태를 만들거나 변경할 수 없고 오프라인에서는 모든 응답 행동을 비활성화한다. 만료·손상·저장소 차단은 각각 명시적 상태로 전환하며 최신 계획으로 승격하지 않는다.

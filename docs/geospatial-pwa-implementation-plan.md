@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G4-A deterministic Demo movement
+- 상태: Approved through G4-B deterministic Fallback 2D load budget
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계획 버전: `geospatial-pwa-plan-v1.7.0`
+- 계획 버전: `geospatial-pwa-plan-v1.8.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -99,7 +99,7 @@ PWA 진입
 - 위치는 정지된 결정론적 `Demo fixture`이며 `Live 0명`, stale·offline 상태를 텍스트와 함께 표시한다. 실제 이동·지도 공급자·위치 스트림을 암시하지 않는다.
 - `G2-B` 완료: 지도 오류를 명시적으로 재현·복구하고, 오류 시 같은 projection을 읽는 지역→기사→decision 목록과 배송순서 Fallback을 자동 제공한다. 평상시에도 키보드로 펼칠 수 있는 구조화 대안을 유지한다.
 - 지도→지원 큐→지도 왕복, 키보드 전용 목록 탐색, 1440×900·1280×720·390×844·360×800, 기존 두 기사 동의→관리자 승인 폐루프를 Playwright 12/12로 재검증했다.
-- G2 종료: 외부 지도 공급자와 Live 위치 없이 공급자 독립 2D 탐색·오류 복구·접근 가능한 의사결정 대안을 완성했다. 실제 지도 SDK와 성능 예산은 후속 공급자 승인 Gate로 남긴다.
+- G2 종료: 외부 지도 공급자와 Live 위치 없이 공급자 독립 2D 탐색·오류 복구·접근 가능한 의사결정 대안을 완성했다. Fallback 2D 성능 예산은 G4-B에서 고정했고 실제 지도 SDK의 공급자별 성능은 별도 Gate로 남긴다.
 - 후속 표시 어댑터 완료: 사용자 승인과 도메인 제한 JavaScript 키를 전제로 Kakao Maps 2D 베이스 레이어를 선택적으로 추가했다. SDK는 기존 `MapRenderModel`의 합성 WGS84 좌표만 렌더링하며 실패 시 G2 schematic 지도·구조화 목록으로 자동 복귀한다. 실제 GPS·주소·길찾기·Live stream은 추가하지 않았다.
 
 작업:
@@ -156,7 +156,9 @@ PWA 진입
 - 현재 관측 기사만 새 Demo event에 따라 이동하고 stale 3명은 고정, offline 3명은 좌표 없이 유지한다. 북부권역 합성 기사 1명은 두 frame 연결 끊김 후 새 관측으로 복구한다.
 - 관리자는 재생·일시정지·다음 5초·처음으로를 사용할 수 있고 화면은 `Demo movement`와 `Live 0명`을 고정 표시한다.
 - 동일 입력 SHA-256, cadence·Demo/Live 혼합 거부, stale/offline 정지, 연결 복구와 기존 지도·폐루프 E2E를 검증한다.
-- `G4-B` 미완료: 확대 수준·viewport 기반 대규모 loading, 실제 장치 frame·메모리·상호작용 지연 예산은 후속 부하 평가에서 확정한다.
+- `G4-B` 완료: 24·96·240명 합성 fixture를 전국 집계와 권역 viewport에서 검증했다. 전국은 개별 기사 0명, 최대 부하는 권역 80명이며 권역 경로는 24개까지만 동시에 렌더링하고 기사 선택 시 해당 상세 경로를 제공한다.
+- 승인 예산은 5초 이상 위치 갱신, 첫 지도 준비 5,000ms, 권역 drill-down·frame 갱신 각 1,000ms, pan 500ms, requestAnimationFrame gap P95 100ms·최대 250ms다. Windows 로컬 headless Chromium 1440×900 Fallback 2D에서 세 profile이 모두 통과했다.
+- 이 결과는 합성 Fallback 2D 기준선이다. Kakao SDK의 네트워크·타일·쿼터 지연, 실제 발표 PC·배터리·현장망과 240명 초과 규모는 통과로 주장하지 않는다.
 
 작업:
 
@@ -319,7 +321,7 @@ UI는 공급자 객체나 원시 API 응답을 직접 읽지 않는다. 어댑�
 
 ### 8.4 성능
 
-성능 수치는 실제 지도 SDK 후보를 비교한 뒤 고정한다. 최소 측정 항목은 다음과 같다.
+Fallback 2D의 성능 수치는 G4-B에서 고정했다. 실제 지도 SDK의 네트워크·타일·쿼터 지연은 별도 공급자 평가 전까지 이 수치에 포함하지 않는다. 최소 측정 항목은 다음과 같다.
 
 - 총 기사·활성 기사·화면 내 feature 수
 - 위치 event 갱신주기와 지연
@@ -347,7 +349,7 @@ UI는 공급자 객체나 원시 API 응답을 직접 읽지 않는다. 어댑�
 | 4 | G1 다지역 합성 fixture 구현 | 계약 승인 후 진행 |
 | 5 | G2 공급자 독립 2D 지도 구현 | 의존성 추가 전 필요 |
 | 6 | G3 기사 PWA 구현 | G3-B app shell·Demo 캐시 완료; 실제 권한·인증은 후속 승인 |
-| 7 | G4 Demo 이동·부하 검증 | 성능 예산 승인 후 진행 |
+| 7 | G4 Demo 이동·부하 검증 | G4-A·G4-B 완료; 공급자별 성능은 별도 |
 | 8 | G5 조건부 3D | 2D 수용기준 통과 후 별도 필요 |
 | 9 | G6 Live 파일럿 | 법률·노무·보안 검토 없이는 금지 |
 
@@ -378,7 +380,7 @@ UI는 공급자 객체나 원시 API 응답을 직접 읽지 않는다. 어댑�
 - 위치 정확도 상한, 최신성 한도와 갱신주기
 - 정확 위치의 메모리 보존시간과 삭제 검증 방식
 - 저배율 군집의 최소 기사 수와 지도 정밀도
-- G4 성능 fixture의 기사 수와 목표 기기
+- 240명 초과 성능 fixture와 실제 발표·현장 목표 기기
 - G5에서 3D가 실제로 필요한 대표 장면
 - 시각 자산 제작 도구와 국내 AI 트랙 귀속
 - Live 파일럿의 법률·노무·보안 승인 주체

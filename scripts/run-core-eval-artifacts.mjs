@@ -28,6 +28,7 @@ const latestArtifactNames = [
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
   "accessibility-summary.json",
+  "map-performance-summary.json",
 ];
 
 function sha256(bytes) {
@@ -321,6 +322,14 @@ async function generateAiEvidence() {
 async function generateManifest() {
   const accessibility = await readJson("accessibility-summary.json");
   if (!accessibility.passed) throw new Error("Accessibility evidence did not pass");
+  const mapPerformance = await readJson("map-performance-summary.json");
+  if (
+    mapPerformance.status !== "PASSED" ||
+    mapPerformance.dataMode !== "DEMO" ||
+    mapPerformance.renderer !== "FALLBACK_2D"
+  ) {
+    throw new Error("G4-B map performance evidence did not pass its Demo Fallback gate");
+  }
   const artifacts = [];
   for (const file of latestArtifactNames) {
     const bytes = await readFile(resolve(outputDirectory, file));
@@ -340,6 +349,10 @@ async function generateManifest() {
     "src/domain/interventions/config.ts",
     "src/domain/interventions/engine.ts",
     "src/adapters/fixtures/index.ts",
+    "src/adapters/fixtures/multiRegionMapFixture.ts",
+    "src/adapters/maps/index.ts",
+    "tests/map-performance-budget.test.ts",
+    "e2e/map-performance.spec.ts",
     "e2e/saferoute-demo.spec.ts",
   ];
   const sourceHashes = [];

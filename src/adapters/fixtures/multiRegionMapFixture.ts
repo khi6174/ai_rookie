@@ -11,8 +11,10 @@ import {
   type Provenance,
 } from "../../domain/contracts";
 
-const GENERATOR_VERSION = "multi-region-map-generator-v1.0.0";
+const GENERATOR_VERSION = "multi-region-map-generator-v1.1.0";
 const DEFAULT_EVALUATED_AT = "2026-07-19T00:00:00.000Z";
+const DEFAULT_COURIERS_PER_HUB = 4;
+const MAX_COURIERS_PER_HUB = 40;
 
 const parentScenarioIds = [
   "scenario-rain-hill-longshift-v1",
@@ -107,10 +109,21 @@ export function createMultiRegionMapFixture(
     seed?: number;
     evaluatedAt?: string;
     primaryDecisionId?: string;
+    couriersPerHub?: number;
   } = {},
 ): MultiRegionMapFixture {
   const seed = options.seed ?? 6_174;
   const evaluatedAt = options.evaluatedAt ?? DEFAULT_EVALUATED_AT;
+  const couriersPerHub = options.couriersPerHub ?? DEFAULT_COURIERS_PER_HUB;
+  if (
+    !Number.isInteger(couriersPerHub) ||
+    couriersPerHub < DEFAULT_COURIERS_PER_HUB ||
+    couriersPerHub > MAX_COURIERS_PER_HUB
+  ) {
+    throw new Error(
+      `couriersPerHub must be an integer between ${DEFAULT_COURIERS_PER_HUB} and ${MAX_COURIERS_PER_HUB}`,
+    );
+  }
   const random = createPrng(seed);
   const provenance = createMockProvenance(evaluatedAt);
   const regions: MapRegion[] = [];
@@ -138,8 +151,9 @@ export function createMultiRegionMapFixture(
       };
       const courierIds: string[] = [];
 
-      for (let courierOffset = 0; courierOffset < 4; courierOffset += 1) {
-        const regionCourierIndex = hubIndex * 4 + courierOffset;
+      for (let courierOffset = 0; courierOffset < couriersPerHub; courierOffset += 1) {
+        const regionCourierIndex = hubIndex * couriersPerHub + courierOffset;
+        const regionCourierCount = couriersPerHub * regionHubIds.length;
         const courierId = `${regionConfig.regionId}-courier-${String(regionCourierIndex + 1).padStart(2, "0")}`;
         const planId = `${courierId}-plan`;
         const routeId = `${courierId}-route`;
@@ -151,7 +165,7 @@ export function createMultiRegionMapFixture(
           : undefined;
         const supportStatus = hasDecision
           ? decisionStatuses[regionCourierIndex]
-          : regionCourierIndex === 7
+          : regionCourierIndex === regionCourierCount - 1
             ? "OFFLINE"
             : "OPERATING";
         courierIds.push(courierId);
@@ -180,13 +194,13 @@ export function createMultiRegionMapFixture(
           provenance,
         });
         let position: PositionAvailability;
-        if (regionCourierIndex === 6) {
+        if (regionCourierIndex === regionCourierCount - 2) {
           position = {
             status: "STALE",
             lastObservation: observation,
             staleSince: atOffset(evaluatedAt, -10 * 60_000),
           };
-        } else if (regionCourierIndex === 7) {
+        } else if (regionCourierIndex === regionCourierCount - 1) {
           position = {
             status: "OFFLINE",
             lastApprovedPlanId: planId,
@@ -248,8 +262,10 @@ export function createMultiRegionMapFixture(
   });
 
   return MultiRegionMapFixtureSchema.parse({
-    fixtureId: "multi-region-map-demo-v1",
-    fixtureVersion: "1.0.0",
+    fixtureId: couriersPerHub === DEFAULT_COURIERS_PER_HUB
+      ? "multi-region-map-demo-v1"
+      : `multi-region-map-demo-${couriers.length}-v1`,
+    fixtureVersion: "1.1.0",
     generatorVersion: GENERATOR_VERSION,
     seed,
     evaluatedAt,

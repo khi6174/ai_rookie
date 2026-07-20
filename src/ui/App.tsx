@@ -602,10 +602,18 @@ function MultiRegionControlMap({
   );
 
   return (
-    <section className="panel route-panel linked-decision" id="route-decision" tabIndex={-1} aria-labelledby="route-heading">
+    <section
+      className="panel route-panel linked-decision"
+      id="route-decision"
+      tabIndex={-1}
+      aria-labelledby="route-heading"
+      data-map-total-couriers={model.featureBudget.totalCouriers}
+      data-map-visible-couriers={model.featureBudget.visibleCouriers}
+      data-map-rendered-routes={model.featureBudget.renderedRoutes}
+    >
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">다지역 합성 운영 · 기사 24명 · 허브 6개</p>
+          <p className="section-kicker">다지역 합성 운영 · 기사 {fixture.couriers.length}명 · 허브 6개</p>
           <h2 id="route-heading">{title}</h2>
         </div>
         <div className="route-heading-meta">
@@ -667,6 +675,11 @@ function MultiRegionControlMap({
           </button>
         </div>
       </div>
+      {model.featureBudget.routesCapped && (
+        <p className="map-feature-budget" role="status">
+          성능 보호 · 기사 {model.featureBudget.visibleCouriers}명 중 경로 {model.featureBudget.renderedRoutes}/{model.featureBudget.totalRoutes}개 표시 · 기사 선택 시 상세 경로 제공
+        </p>
+      )}
       <nav className="map-breadcrumb" aria-label="지도 탐색 위치">
         <button
           type="button"
@@ -1091,9 +1104,17 @@ function AdminDashboard({
 }) {
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
   const currentWeather = demoWeatherRuntime.active.data[0];
+  const mapLoadCourierCount = useMemo(() => {
+    if (typeof window === "undefined") return 24;
+    const requested = Number(new URLSearchParams(window.location.search).get("map-load-test"));
+    return requested === 96 || requested === 240 ? requested : 24;
+  }, []);
   const baseMapFixture = useMemo(
-    () => createMultiRegionMapFixture({ primaryDecisionId: session.decision.decisionId }),
-    [session.decision.decisionId],
+    () => createMultiRegionMapFixture({
+      primaryDecisionId: session.decision.decisionId,
+      couriersPerHub: mapLoadCourierCount / 6,
+    }),
+    [mapLoadCourierCount, session.decision.decisionId],
   );
   const movementTimeline = useMemo(
     () => createMapMovementTimeline(baseMapFixture),

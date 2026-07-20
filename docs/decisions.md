@@ -454,6 +454,16 @@
 - 기각한 대안: 임의 CSS 애니메이션으로 마커를 무한 이동시키는 방식, 실제 위치 권한을 먼저 요청하는 방식, stale·offline도 경로를 따라 움직이는 방식, 전국 화면에 24명 정밀 마커를 노출하는 방식, 타임라인을 장기 이동기록처럼 저장하는 방식.
 - 영향 파일: `src/domain/contracts/schemas.ts`, `src/adapters/fixtures/mapMovementTimeline.ts`, `src/adapters/fixtures/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-movement-timeline.test.ts`, `e2e/saferoute-demo.spec.ts`, 관련 승인 문서
 
+### ADR-046 — G4-B는 240명·권역 80명·경로 24개의 Fallback 2D 예산으로 제한한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 공개 Demo 기본 24명을 유지하고 부하 진단은 총 24·96·240명 합성 profile로 제한한다. 전국 scope는 개별 기사·경로를 0개 반환하고 최대 profile의 권역 scope는 기사 80명과 경로 24개까지만 동시에 렌더링한다. 기사 선택 시 해당 decision 경로 1개를 제한과 무관하게 제공한다. 최소 위치 갱신은 5초이며 Windows headless Chromium 1440×900 Fallback 2D에서 첫 지도 준비 5,000ms, drill-down·frame 1,000ms, pan 500ms, frame gap P95 100ms·최대 250ms를 Gate로 사용한다.
+- 경계: 이 결과는 합성 Demo와 Fallback schematic 2D의 로컬 기준선이다. Kakao SDK 네트워크·타일·쿼터, 실제 GPS·TMS·배터리·현장망·발표 PC와 240명 초과를 검증했다고 주장하지 않는다. 경로 표시 제한은 Safety 계산, 지원 decision, 기사 권리와 선택된 상세 경로를 변경하지 않는다.
+- 이유: 다기사 운영 장면을 확장하면서도 모든 경로 DOM을 무제한 생성하는 시각·성능 위험을 막고, 재현 가능한 최대 규모와 갱신주기를 코드·브라우저 증거로 함께 고정하기 위해서다.
+- 기각한 대안: 공개 기본값을 즉시 240명으로 바꾸는 방식, 전국에 모든 기사 마커를 표시하는 방식, 80개 경로를 동시에 그리는 방식, 실제 GPS 없이 Live 성능으로 표현하는 방식, 공급자 네트워크 측정 없이 Kakao 성능 통과를 주장하는 방식.
+- 영향 파일: `src/adapters/fixtures/multiRegionMapFixture.ts`, `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `tests/map-performance-budget.test.ts`, `e2e/map-performance.spec.ts`, `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

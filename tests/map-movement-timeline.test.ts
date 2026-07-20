@@ -34,7 +34,7 @@ describe("deterministic Demo map movement timeline", () => {
     const repeated = createMapMovementTimeline(createMultiRegionMapFixture());
     expect(repeated).toEqual(timeline);
     const hash = await sha256(JSON.stringify(timeline));
-    expect(hash).toBe("6462ada231de14671fd451fa59f25c2d07716501892735daba300696e893fd10");
+    expect(hash).toBe("de9cd43b46a26ddbda65df9c04c47ad3466666946bbbde612296afcf7e22c305");
   });
 
   it("moves only couriers with received current Demo observations", () => {

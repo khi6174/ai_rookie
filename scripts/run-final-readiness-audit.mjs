@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /16 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /17 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -110,6 +110,7 @@ const decisionWorkflow = await readJson(
 const domesticTrack = await readJson("domestic-track-compliance-latest.json");
 const weather = await readJson("weather-runtime-selection-latest.json");
 const coreManifest = await readJson("run-manifest.json");
+const mapPerformance = await readJson("map-performance-summary.json");
 let publicDemoBuild = {
   configured: false,
   workerPresent: false,
@@ -203,10 +204,22 @@ const evidenceChecks = [
   ),
   check(
     "CORE_MANIFEST",
-    coreManifest.artifacts.length === 13 &&
+    coreManifest.artifacts.length === 14 &&
       coreManifest.credentialsStored === false &&
       coreManifest.rawApiResponsesStored === false,
     `${coreManifest.artifacts.length} artifacts, credentialsStored=${coreManifest.credentialsStored}`,
+  ),
+  check(
+    "MAP_PERFORMANCE_G4_B",
+    mapPerformance.status === "PASSED" &&
+      mapPerformance.dataMode === "DEMO" &&
+      mapPerformance.renderer === "FALLBACK_2D" &&
+      mapPerformance.profiles.length === 3 &&
+      mapPerformance.profiles.every((profile) => profile.passed) &&
+      mapPerformance.budget.maxTotalCouriers === 240 &&
+      mapPerformance.budget.maxVisibleRegionCouriers === 80 &&
+      mapPerformance.budget.maxRenderedRegionRoutes === 24,
+    `${mapPerformance.profiles.filter((profile) => profile.passed).length}/${mapPerformance.profiles.length} profiles, max=${mapPerformance.budget.maxTotalCouriers} couriers`,
   ),
   check(
     "PUBLIC_DEMO_BUILD",
@@ -231,7 +244,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 16,
+    e2eTests: 17,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -247,6 +260,8 @@ const result = {
       publicDemoBuild.configured &&
       publicDemoBuild.workerPresent &&
       publicDemoBuild.packagedMetadataMatches,
+    mapPerformanceProfiles: mapPerformance.profiles.length,
+    maxEvaluatedMapCouriers: mapPerformance.budget.maxTotalCouriers,
   },
   explicitLimitations: [
     "The public Finals Demo is not approval for production operation.",
@@ -287,7 +302,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=16 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=17 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

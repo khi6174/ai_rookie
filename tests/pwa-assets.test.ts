@@ -16,7 +16,7 @@ describe("설치형 PWA 정적 계약", () => {
 
   it("service worker가 versioned shell만 캐시하고 외부 요청을 가로채지 않는다", async () => {
     const worker = await readFile(resolve("public/sw.js"), "utf8");
-    expect(worker).toContain('SHELL_VERSION = "saferoute-shell-v1.0.2"');
+    expect(worker).toContain('SHELL_VERSION = "saferoute-shell-v1.0.3"');
     expect(worker).toContain("url.origin !== self.location.origin");
     expect(worker).toContain('request.method !== "GET"');
     expect(worker).not.toMatch(/api[_-]?key|authKey|huggingface|openai/i);

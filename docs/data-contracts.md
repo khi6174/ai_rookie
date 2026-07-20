@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계약 버전: `contracts-v1.2.0`
+- 계약 버전: `contracts-v1.3.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -324,6 +324,16 @@ type MapSelection = {
 - 연결 복구는 새 `CURRENT` 관측이 포함된 frame 이후에만 표시한다.
 - 타임라인을 적용해도 courier·plan·decision membership, Safety 결과와 개입 상태는 바뀌지 않는다.
 - 타임라인은 메모리의 단기 Demo 재생에만 사용하며 저장된 개인 이동궤적이나 Live GPS로 표현하지 않는다.
+
+#### G4-B 합성 지도 부하 profile
+
+- 승인된 총 기사 profile은 24·96·240명이며 3개 권역·6개 허브에 균등 배치한다.
+- 운영 기본값은 24명이고 96·240명은 `map-load-test` 진단 입력에서만 생성한다.
+- 전국 scope는 기사 위치와 경로를 0개 반환하고 권역 집계만 반환한다.
+- 승인된 최대 profile에서 권역 viewport는 기사 80명을 포함하며 동시에 렌더링하는 경로는 24개로 제한한다.
+- 경로 제한은 decision을 제거하지 않는다. 사용자가 기사를 선택하면 해당 기사 1명의 상세 경로를 별도 decision scope에서 제공한다.
+- 240명 초과 또는 허브당 40명 초과 입력은 평가 범위 밖으로 거부한다.
+- 모든 profile은 `DEMO`, `MOCK`, `isDemo=true`이며 실제 기사·GPS·TMS·주소를 포함하지 않는다.
 
 ### 4.3 시간창
 
