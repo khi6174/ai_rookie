@@ -1,0 +1,131 @@
+{
+  "schemaVersion": "g5-spatial-comprehension-v1",
+  "studyId": "g5-b-decision-spatial-comprehension-001",
+  "dataMode": "DEMO",
+  "stimulusManifest": "artifacts/evals/g5-spatial-stimulus-manifest.json",
+  "reviewers": [
+    {
+      "reviewerId": "reviewer-01",
+      "trialOrder": ["TWO_D", "DEMO_TWO_POINT_FIVE_D"],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "SAME",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    },
+    {
+      "reviewerId": "reviewer-02",
+      "trialOrder": ["DEMO_TWO_POINT_FIVE_D", "TWO_D"],
+      "trials": [
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        },
+        {
+          "mode": "TWO_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "SAME",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    },
+    {
+      "reviewerId": "reviewer-03",
+      "trialOrder": ["TWO_D", "DEMO_TWO_POINT_FIVE_D"],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 0,
+          "confidence": 0,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 0,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 0,
+            "transferStopCount": 0,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "SAME",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    }
+  ]
+}

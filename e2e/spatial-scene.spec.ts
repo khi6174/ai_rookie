@@ -1,4 +1,5 @@
 import { mkdir, readFile, readdir, writeFile } from "node:fs/promises";
+import { createHash } from "node:crypto";
 import { resolve } from "node:path";
 import { gzipSync } from "node:zlib";
 import { expect, test } from "@playwright/test";
@@ -24,10 +25,34 @@ async function selectPrimaryDecision(page: import("@playwright/test").Page) {
   ).toBeVisible();
 }
 
+async function sha256(path: string) {
+  return createHash("sha256").update(await readFile(path)).digest("hex");
+}
+
+async function alignDecisionPanel(page: import("@playwright/test").Page) {
+  await page.locator("#route-decision").evaluate((element) => {
+    const top = element.getBoundingClientRect().top + window.scrollY;
+    window.scrollTo({ top: Math.max(0, top - 72), behavior: "instant" });
+  });
+}
+
 test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D로 복귀한다", async ({ browser, page }) => {
   await page.setViewportSize(viewport);
   await page.goto("/");
   await selectPrimaryDecision(page);
+
+  const screenshotDirectory = resolve("artifacts/evals/screenshots");
+  const twoDPath = resolve(
+    screenshotDirectory,
+    "g5-review-admin-decision-2d-1280x720.png",
+  );
+  const twoPointFiveDPath = resolve(
+    screenshotDirectory,
+    "g5-review-admin-decision-2-5d-1280x720.png",
+  );
+  await mkdir(screenshotDirectory, { recursive: true });
+  await alignDecisionPanel(page);
+  await page.screenshot({ path: twoDPath, animations: "disabled" });
 
   const toggle = page.getByRole("button", { name: "입체 경사 보기 · Demo" });
   const firstDisplayStartedAt = Date.now();
@@ -51,6 +76,36 @@ test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D�
   await expect(scene.getByText("29.9", { exact: true })).toBeVisible();
   await expect(scene.getByText("47.2", { exact: true })).toBeVisible();
   await expect(scene.getByText(`Decision ID · ${decisionId}`)).toBeVisible();
+  await alignDecisionPanel(page);
+  await page.screenshot({ path: twoPointFiveDPath, animations: "disabled" });
+  const stimulusManifest = {
+    schemaVersion: "g5-spatial-stimulus-manifest-v1",
+    studyId: "g5-b-decision-spatial-comprehension-001",
+    dataMode: "DEMO",
+    viewport,
+    decisionId,
+    stimuli: [
+      {
+        mode: "TWO_D",
+        path: "artifacts/evals/screenshots/g5-review-admin-decision-2d-1280x720.png",
+        sha256: await sha256(twoDPath),
+      },
+      {
+        mode: "DEMO_TWO_POINT_FIVE_D",
+        path: "artifacts/evals/screenshots/g5-review-admin-decision-2-5d-1280x720.png",
+        sha256: await sha256(twoPointFiveDPath),
+      },
+    ],
+    limitations: [
+      "Fixed Demo screenshots; no live GPS, terrain, TMS, or field-operation evidence.",
+      "Reviewers must not receive the answer key before completing both trials.",
+    ],
+  };
+  await writeFile(
+    resolve("artifacts/evals/g5-spatial-stimulus-manifest.json"),
+    `${JSON.stringify(stimulusManifest, null, 2)}\n`,
+    "utf8",
+  );
 
   const frameGaps = await page.evaluate(() => new Promise<number[]>((resolveFrames) => {
     const samples: number[] = [];
