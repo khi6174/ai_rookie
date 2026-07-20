@@ -1,0 +1,4 @@
+fixtureId,scenario,dataMode,isDemo,currentBudget,minimumForecastBudget,breachStatus,timeToBreachMinutes,breachStopId,confidenceScore,safetyModelVersion,safetyConfigVersion
+scenario-rain-hill-longshift-v1,RAINY_HILLY_LONG_SHIFT,MOCK,true,54.7,29.914456,PREDICTED,52,scenario-rain-hill-longshift-v1-stop-017,60,dse-v1.0.0,safety-config-v1.0.0
+scenario-heat-heavy-stairs-v1,HEAT_HEAVY_STAIRS,MOCK,true,41.95,29.9278,PREDICTED,30,scenario-heat-heavy-stairs-v1-stop-010,65,dse-v1.0.0,safety-config-v1.0.0
+scenario-night-novice-area-v1,NOVICE_NIGHT_UNFAMILIAR,MOCK,true,36.81,29.970894,PREDICTED,24,scenario-night-novice-area-v1-stop-008,65,dse-v1.0.0,safety-config-v1.0.0

@@ -12,13 +12,14 @@
 
 SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단계에 진입할 수 있다. 미래 임계치 초과 예측부터 양측 기사 동의, 관리자 승인, 최신 계획 재검증, 계획·ETA·고객안내와 감사기록 갱신까지 하나의 decision ID로 재현된다.
 
-이 판정은 합성 Demo의 기능·재현성 준비 완료를 뜻한다. 이후 G3-B의 설치 가능한 정적 app shell, 승인 Demo 계획 캐시와 ADR-043의 Kakao Maps 2D 표시 어댑터가 추가됐지만, 실제 사고감소, 현장 안전성, 실제 기사 데이터 처리, 실제 인증·위치·푸시·TMS와 운영 배포 준비 완료를 뜻하지 않는다.
+이 판정은 합성 Demo의 기능·재현성 준비 완료를 뜻한다. 이후 G3-B의 설치 가능한 정적 app shell, 승인 Demo 계획 캐시, ADR-043·044의 Kakao Maps 2D 표시 어댑터와 ADR-045의 결정론적 Demo 이동이 추가됐지만, 실제 사고감소, 현장 안전성, 실제 기사 데이터 처리, 실제 인증·위치·푸시·TMS와 운영 배포 준비 완료를 뜻하지 않는다.
 
 ## 2. 확정된 최종준비 범위
 
 - 신규 기능을 추가하지 않고 현재 폐루프를 동결한다.
 - 관리자 Calm Control Tower와 설치 가능한 합성 Demo 기사 PWA를 본선 화면으로 사용한다.
 - 관리자는 합성 좌표만 표시하는 Kakao Maps 2D 베이스 레이어를 사용하고, SDK 오류·키 미설정 시 명시적인 `Fallback schematic map`으로 전환한다.
+- 관리자는 24명 합성 위치의 30초 `Demo movement`를 재생할 수 있지만 `Live 0명`을 고정 표시하고 stale·offline을 움직이지 않는다.
 - 불완전한 Live 날씨는 Safety 계산에 섞지 않고 전체 Demo 날씨로 전환한다.
 - 국내 AI는 수치·추천·실행 가능성을 변경하지 않는 설명 Gate 뒤에서만 사용한다.
 - 실제 인증·Live 위치·푸시·서버 동기화, 주소·길찾기·3D와 추가 외부 의존성은 별도 승인 대상으로 유지한다.
@@ -27,9 +28,9 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 22개 파일, 207/207 통과 |
-| 브라우저 폐루프 | Playwright 16/16 통과, bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
-| 서버 clean start | 독립 서버·브라우저 3/3, G3-B 반영 후 21.56초 |
+| 단위·계약 | Vitest 23개 파일, 214/214 통과 |
+| 브라우저 폐루프 | Playwright 16/16 통과, Demo 이동·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
+| 서버 clean start | 독립 서버·브라우저 3/3 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |
 | Risk Transfer Guard | 직접 20개와 전체 계획 3개, 23/23 통과 |
@@ -43,7 +44,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 16개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 ADR-043 반영 Gate는 Vitest 207/207, Playwright 16/16, clean-start 3/3, 국내트랙 감사 7/7과 build를 통과했다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, Playwright 16개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 ADR-045 반영 Gate는 Vitest 214/214, Playwright 16/16, clean-start 3/3, 국내트랙 감사 7/7과 build를 통과했다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 

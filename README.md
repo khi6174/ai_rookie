@@ -2,7 +2,7 @@
 
 SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전 가능영역을 검증하고, 같은 결정 근거와 기사 동의·관리자 승인 아래 계획을 갱신하는 라스트마일 안전운영 코파일럿입니다.
 
-계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE Live 12과업도 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 207/207이다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 본선 P0 데모는 기능 동결 상태이며 남은 작업은 발표 PC·역할·제출물의 운영 점검과, A.X API 키 발급 시 기존 12과업 계약의 선택적 비교입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
+계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE Live 12과업도 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 214/214이다. 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 본선 P0 데모는 G4-A 반영 후 기능 동결 상태이며 남은 작업은 G4-B 부하 평가, 발표 PC·역할·제출물의 운영 점검과 A.X API 키 발급 시 기존 12과업 계약의 선택적 비교입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
@@ -32,10 +32,11 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - KMA 부분 Live를 감사 증거로만 보존하고 Demo 타임라인 전체를 선택하는 `Weather Fallback`, 필드 혼합 0건
 - Playwright 관리자–두 기사 폐루프·새 ID reset·키보드·지도 drag/keyboard pan·4개 해상도·스크린샷 16/16과 서버 clean start 3회 통과
 - 관리자·기사 PWA의 선택적 Kakao Maps 2D 베이스 레이어와 결정론적 합성 경로·마커, SDK 실패·오프라인 시 schematic map·구조화 목록 자동 Fallback
+- 24명 합성 기사 위치의 30초 `Demo movement` 재생·일시정지·단계 이동·초기화와 stale/offline 정지·복구 검증
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
-- Vitest 22개 파일·207/207 통과
+- Vitest 23개 파일·214/214 통과
 
 ## 실행
 

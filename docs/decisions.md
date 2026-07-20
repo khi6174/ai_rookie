@@ -444,6 +444,16 @@
 - 기각한 대안: 실제 GPS 권한을 즉시 요청하는 방식, 외부 길찾기 결과를 계획으로 사용하는 방식, 지도 실패 시 빈 상자를 보이는 방식, 기사 화면에 관리자용 다기사 전체 지도를 축소해 넣는 방식, 구조화 목록을 제거하는 방식.
 - 영향 파일: `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-adapter.test.ts`, `docs/design-system.md`, `docs/architecture.md`, `docs/privacy-and-ai-policy.md`, `docs/evals.md`, `docs/geospatial-pwa-implementation-plan.md`
 
+### ADR-045 — G4-A는 수신된 합성 frame만 재생하는 단기 Demo 이동으로 제한한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 기존 3지역·24기사 fixture에서 5초 간격·30초 horizon의 7개 `DEMO` frame을 결정론적으로 생성한다. UI는 1초마다 다음 수신 frame을 표시하는 가속 재생과 일시정지·한 단계·초기화를 제공한다. CURRENT 관측만 이동하고 stale은 정지, offline은 좌표가 없으며 연결 복구는 새 CURRENT 관측이 있는 frame 이후에만 표시한다. 전국 집계에서는 개별 위치를 숨기고 재생 시 선택 권역으로 좁힌다.
+- 경계: 실제 GPS·Geolocation·TMS·주소·장기 궤적·백그라운드 stream·Safety 입력을 추가하지 않는다. frame 사이의 미수신 위치를 예측하거나 Demo 이동을 Live로 표현하지 않는다. G4-B 대규모 viewport loading과 성능 예산, G5 3D는 아직 완료로 주장하지 않는다.
+- 이유: 여러 기사가 움직이는 운영 장면을 재현하면서도 사용자 요청의 시각적 완성도, 결정론적 검증, stale/offline 안전 경계와 개인정보 잠금을 함께 만족하기 위해서다.
+- 기각한 대안: 임의 CSS 애니메이션으로 마커를 무한 이동시키는 방식, 실제 위치 권한을 먼저 요청하는 방식, stale·offline도 경로를 따라 움직이는 방식, 전국 화면에 24명 정밀 마커를 노출하는 방식, 타임라인을 장기 이동기록처럼 저장하는 방식.
+- 영향 파일: `src/domain/contracts/schemas.ts`, `src/adapters/fixtures/mapMovementTimeline.ts`, `src/adapters/fixtures/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-movement-timeline.test.ts`, `e2e/saferoute-demo.spec.ts`, 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

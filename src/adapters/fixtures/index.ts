@@ -7,6 +7,11 @@ export {
   summarizeMultiRegionMapFixture,
   type RegionMapSummary,
 } from "./multiRegionMapFixture";
+export {
+  applyMapMovementFrame,
+  createMapMovementTimeline,
+  demoReconnectCourierId,
+} from "./mapMovementTimeline";
 
 export const rainyHillyLongShiftFixture = createScenarioFixture({
   fixtureId: "scenario-rain-hill-longshift-v1",

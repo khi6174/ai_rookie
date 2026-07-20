@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-19
-- 계약 버전: `contracts-v1.1.0`
+- 최종 갱신: 2026-07-20
+- 계약 버전: `contracts-v1.2.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -312,6 +312,18 @@ type MapSelection = {
 - stale·offline·permission denied는 이동 가능한 현재 위치로 표시할 수 없다.
 - 정확 좌표를 AI 입력·일반 로그·스크린샷·장기 감사기록에 넣지 않는다.
 - 다지역 fixture의 region·hub·courier·plan·decision 참조는 모두 존재하고 유일해야 한다.
+
+#### G4-A 결정론적 Demo 이동 타임라인
+
+`MapMovementTimeline`은 실제 위치 stream이 아니라 동일 다지역 fixture에서 생성한 30초짜리 합성 이벤트 묶음이다. `dataMode`는 항상 `DEMO`이고 모든 위치 관측은 `MOCK`, `isDemo=true` provenance를 가져야 한다.
+
+- 기본 타임라인은 5초 간격 7개 frame이며 모든 frame이 같은 24개 `courierId`를 포함한다.
+- `frameIndex`, `elapsedSeconds`, `evaluatedAt`은 선언된 간격과 정확히 일치해야 한다.
+- `CURRENT`만 새로 수신된 Demo 관측점으로 이동할 수 있다.
+- `STALE`은 마지막 검증 위치에서 정지하고 `OFFLINE`은 좌표를 제공하지 않는다.
+- 연결 복구는 새 `CURRENT` 관측이 포함된 frame 이후에만 표시한다.
+- 타임라인을 적용해도 courier·plan·decision membership, Safety 결과와 개입 상태는 바뀌지 않는다.
+- 타임라인은 메모리의 단기 Demo 재생에만 사용하며 저장된 개인 이동궤적이나 Live GPS로 표현하지 않는다.
 
 ### 4.3 시간창
 

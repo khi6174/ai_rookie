@@ -10,7 +10,11 @@ import type {
   MapSelection,
   MultiRegionMapFixture,
 } from "../domain/contracts";
-import { createMultiRegionMapFixture } from "../adapters/fixtures";
+import {
+  applyMapMovementFrame,
+  createMapMovementTimeline,
+  createMultiRegionMapFixture,
+} from "../adapters/fixtures";
 import {
   createFixtureMapAdapter,
   createRiderCompactMapModel,
@@ -247,6 +251,9 @@ function clampMapPan(value: number, axis: keyof typeof mapPanLimit) {
 
 type KakaoMapStatus = "LOADING" | "READY" | "ERROR";
 
+const formatMovementTime = (seconds: number) =>
+  `00:${String(seconds).padStart(2, "0")}`;
+
 function KakaoControlMap({
   applied,
   javaScriptKey,
@@ -422,6 +429,7 @@ function MultiRegionControlMap({
   mapAvailable,
   onMapAvailabilityChange,
   onSelectionChange,
+  movement,
 }: {
   applied: boolean;
   fixture: MultiRegionMapFixture;
@@ -430,6 +438,18 @@ function MultiRegionControlMap({
   mapAvailable: boolean;
   onMapAvailabilityChange: (available: boolean) => void;
   onSelectionChange: (selection: MapSelection) => void;
+  movement: {
+    frameIndex: number;
+    frameCount: number;
+    elapsedSeconds: number;
+    durationSeconds: number;
+    intervalSeconds: number;
+    playing: boolean;
+    connectionState: "NORMAL" | "DISCONNECTED" | "RECOVERED";
+    onToggle: () => void;
+    onNext: () => void;
+    onReset: () => void;
+  };
 }) {
   const [mapPan, setMapPan] = useState({ x: 0, y: 0 });
   const [isMapPanning, setIsMapPanning] = useState(false);
@@ -460,6 +480,14 @@ function MultiRegionControlMap({
     : model.scope === "REGION"
       ? `${selectedRegion?.label ?? "선택 권역"}의 기사와 경로`
       : "선택한 지원 decision과 계획 경로";
+  const movementAtEnd = movement.frameIndex === movement.frameCount - 1;
+  const movementStatus = movement.connectionState === "DISCONNECTED"
+    ? "합성 기사 1명 연결 끊김"
+    : movement.connectionState === "RECOVERED"
+      ? "합성 연결 복구"
+      : movement.frameIndex === 0
+        ? "재생 대기"
+        : "합성 위치 이벤트 수신";
   const selectDecision = (decisionId: string) => {
     onSelectionChange(adapter.selectionForDecision(decisionId));
   };
@@ -606,6 +634,39 @@ function MultiRegionControlMap({
           </button>
         </div>
       </div>
+      <div className="map-movement-toolbar" aria-label="결정론적 Demo 이동 타임라인">
+        <div className="map-movement-status">
+          <span className={`movement-state is-${movement.connectionState.toLowerCase()}`}>Demo movement</span>
+          <strong aria-live="polite">{formatMovementTime(movement.elapsedSeconds)} / {formatMovementTime(movement.durationSeconds)}</strong>
+          <small>{movementStatus} · Live 0명</small>
+        </div>
+        <progress
+          aria-label="Demo 이동 진행률"
+          max={movement.durationSeconds}
+          value={movement.elapsedSeconds}
+        />
+        <div className="map-movement-actions">
+          <button
+            type="button"
+            className="button button-primary"
+            aria-pressed={movement.playing}
+            onClick={() => {
+              if (!movement.playing && model.scope === "NATIONAL") {
+                onSelectionChange({ regionId: fixture.regions[0].regionId });
+              }
+              movement.onToggle();
+            }}
+          >
+            {movement.playing ? "Demo 이동 일시정지" : movementAtEnd ? "Demo 이동 다시 재생" : "Demo 이동 재생"}
+          </button>
+          <button type="button" className="button button-neutral" disabled={movementAtEnd} onClick={movement.onNext}>
+            다음 {movement.intervalSeconds}초
+          </button>
+          <button type="button" className="button button-neutral" disabled={movement.frameIndex === 0} onClick={movement.onReset}>
+            처음으로
+          </button>
+        </div>
+      </div>
       <nav className="map-breadcrumb" aria-label="지도 탐색 위치">
         <button
           type="button"
@@ -734,7 +795,7 @@ function MultiRegionControlMap({
             </button>
           ))}
         </div>
-        <div className="map-data-mode" data-map-overlay><strong>{kakaoReady ? "Kakao base map · Demo overlay" : "Demo movement 아님"}</strong><span>결정론적 합성 위치 · Live 0명</span></div>
+        <div className="map-data-mode" data-map-overlay><strong>Demo movement · {formatMovementTime(movement.elapsedSeconds)}</strong><span>{kakaoReady ? "Kakao base map · " : "Schematic · "}결정론적 합성 위치 · Live 0명</span></div>
         <span className="map-pan-hint" data-map-overlay>{kakaoReady ? "드래그·휠로 지도 이동" : "드래그·방향키로 지도 이동"}</span>
         <span className="sr-only" aria-live="polite">지도 이동 위치 가로 {Math.round(mapPan.x)}, 세로 {Math.round(mapPan.y)}</span>
         <div className={`map-active-decision ${applied ? "is-applied" : ""}`} data-map-overlay>
@@ -764,9 +825,9 @@ function MultiRegionControlMap({
         </details>
       )}
       <div className="map-status-strip" aria-label="선택 권역 위치 상태">
-        <span><i className="status-dot is-current" />현재 위치 {model.scope === "NATIONAL" ? 18 : model.couriers.filter((courier) => courier.positionStatus === "CURRENT").length}</span>
-        <span><i className="status-dot is-stale" />stale {model.scope === "NATIONAL" ? 3 : model.couriers.filter((courier) => courier.positionStatus === "STALE").length}</span>
-        <span><i className="status-dot is-offline" />offline {model.scope === "NATIONAL" ? 3 : fixture.couriers.filter((courier) => courier.regionId === model.selection.regionId && courier.position.status === "OFFLINE").length}</span>
+        <span><i className="status-dot is-current" />현재 위치 {model.scope === "NATIONAL" ? fixture.couriers.filter((courier) => courier.position.status === "CURRENT").length : model.couriers.filter((courier) => courier.positionStatus === "CURRENT").length}</span>
+        <span><i className="status-dot is-stale" />stale {model.scope === "NATIONAL" ? fixture.couriers.filter((courier) => courier.position.status === "STALE").length : model.couriers.filter((courier) => courier.positionStatus === "STALE").length}</span>
+        <span><i className="status-dot is-offline" />offline {model.scope === "NATIONAL" ? fixture.couriers.filter((courier) => courier.position.status === "OFFLINE").length : fixture.couriers.filter((courier) => courier.regionId === model.selection.regionId && courier.position.status === "OFFLINE").length}</span>
         <span className="map-privacy-note">저배율 개별 기사 위치 비공개</span>
       </div>
       <div className="timeline-summary">
@@ -1030,9 +1091,19 @@ function AdminDashboard({
 }) {
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
   const currentWeather = demoWeatherRuntime.active.data[0];
-  const mapFixture = useMemo(
+  const baseMapFixture = useMemo(
     () => createMultiRegionMapFixture({ primaryDecisionId: session.decision.decisionId }),
     [session.decision.decisionId],
+  );
+  const movementTimeline = useMemo(
+    () => createMapMovementTimeline(baseMapFixture),
+    [baseMapFixture],
+  );
+  const [movementFrameIndex, setMovementFrameIndex] = useState(0);
+  const [movementPlaying, setMovementPlaying] = useState(false);
+  const mapFixture = useMemo(
+    () => applyMapMovementFrame(baseMapFixture, movementTimeline, movementFrameIndex),
+    [baseMapFixture, movementFrameIndex, movementTimeline],
   );
   const mapAdapter = useMemo(
     () => createFixtureMapAdapter(mapFixture),
@@ -1042,9 +1113,26 @@ function AdminDashboard({
   const [mapAvailable, setMapAvailable] = useState(true);
 
   useEffect(() => {
-    setMapSelection(mapAdapter.resetSelection());
+    setMapSelection({});
     setMapAvailable(true);
-  }, [mapAdapter]);
+    setMovementFrameIndex(0);
+    setMovementPlaying(false);
+  }, [session.decision.decisionId]);
+
+  useEffect(() => {
+    if (!movementPlaying) return;
+    const timer = window.setInterval(() => {
+      setMovementFrameIndex((current) => {
+        const finalIndex = movementTimeline.frames.length - 1;
+        if (current >= finalIndex - 1) {
+          setMovementPlaying(false);
+          return finalIndex;
+        }
+        return current + 1;
+      });
+    }, 1_000);
+    return () => window.clearInterval(timer);
+  }, [movementPlaying, movementTimeline.frames.length]);
 
   const selectPrimaryDecision = () => {
     setMapSelection(mapAdapter.selectionForDecision(session.decision.decisionId));
@@ -1074,6 +1162,33 @@ function AdminDashboard({
             mapAvailable={mapAvailable}
             onMapAvailabilityChange={setMapAvailable}
             onSelectionChange={setMapSelection}
+            movement={{
+              frameIndex: movementFrameIndex,
+              frameCount: movementTimeline.frames.length,
+              elapsedSeconds: movementTimeline.frames[movementFrameIndex].elapsedSeconds,
+              durationSeconds: movementTimeline.durationSeconds,
+              intervalSeconds: movementTimeline.intervalSeconds,
+              playing: movementPlaying,
+              connectionState: movementFrameIndex === 3 || movementFrameIndex === 4
+                ? "DISCONNECTED"
+                : movementFrameIndex >= 5
+                  ? "RECOVERED"
+                  : "NORMAL",
+              onToggle: () => {
+                if (!movementPlaying && movementFrameIndex === movementTimeline.frames.length - 1) {
+                  setMovementFrameIndex(0);
+                }
+                setMovementPlaying((current) => !current);
+              },
+              onNext: () => {
+                setMovementPlaying(false);
+                setMovementFrameIndex((current) => Math.min(current + 1, movementTimeline.frames.length - 1));
+              },
+              onReset: () => {
+                setMovementPlaying(false);
+                setMovementFrameIndex(0);
+              },
+            }}
           />
           <InterventionQueue
             session={session}

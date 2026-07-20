@@ -156,7 +156,20 @@ test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐
   });
   await northRegion.click();
   await expect(page.getByRole("heading", { name: "합성 북부권역의 기사와 경로" })).toBeVisible();
-  await page.getByRole("button", { name: /courier-01, 지원 필요, 위치 CURRENT/ }).click();
+  const movingMarker = page.getByRole("button", { name: /courier-01, 지원 필요, 위치 CURRENT/ });
+  const staleMarker = page.getByRole("button", { name: /courier-07, 운행 중, 위치 STALE/ });
+  const movingStyleAtStart = await movingMarker.getAttribute("style");
+  const staleStyleAtStart = await staleMarker.getAttribute("style");
+  await page.getByRole("button", { name: "다음 5초" }).click();
+  await expect(page.getByText("00:05 / 00:30", { exact: true })).toBeVisible();
+  expect(await movingMarker.getAttribute("style")).not.toBe(movingStyleAtStart);
+  expect(await staleMarker.getAttribute("style")).toBe(staleStyleAtStart);
+  await page.getByRole("button", { name: "Demo 이동 재생" }).click();
+  await expect(page.getByText("00:10 / 00:30", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "Demo 이동 일시정지" }).click();
+  await page.getByRole("button", { name: "처음으로" }).click();
+  await expect(page.getByText("00:00 / 00:30", { exact: true })).toBeVisible();
+  await movingMarker.click();
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
   await expect(page.getByText(decisionId).first()).toBeVisible();
   await page.getByRole("button", { name: "전체 보기" }).click();
@@ -175,12 +188,13 @@ test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한�
   await expect(surface).toHaveAttribute("data-pan-y", "0");
   await expect(reset).toBeDisabled();
 
+  await map.scrollIntoViewIfNeeded();
   const box = await map.boundingBox();
   const backgroundBeforeBox = await background.boundingBox();
   expect(box).not.toBeNull();
   expect(backgroundBeforeBox).not.toBeNull();
-  const startX = box!.x + box!.width * 0.48;
-  const startY = box!.y + box!.height * 0.24;
+  const startX = box!.x + box!.width * 0.22;
+  const startY = box!.y + box!.height * 0.75;
   await page.mouse.move(startX, startY);
   await page.mouse.down();
   await page.mouse.move(startX + 72, startY + 46, { steps: 5 });

@@ -2,10 +2,10 @@
 
 ## 문서 상태
 
-- 상태: Approved through G3-B and Kakao presentation adapter
+- 상태: Approved through G4-A deterministic Demo movement
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계획 버전: `geospatial-pwa-plan-v1.6.0`
+- 계획 버전: `geospatial-pwa-plan-v1.7.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -149,6 +149,14 @@ PWA 진입
 - 캐시가 만료된 계획을 최신 계획처럼 표시한 건수 0건
 
 ### G4 — Demo 실시간 이동과 부하 검증
+
+실행 상태:
+
+- `G4-A` 완료: 24명 합성 fixture에서 5초 간격·30초 horizon·7개 frame의 결정론적 위치 event timeline을 생성한다.
+- 현재 관측 기사만 새 Demo event에 따라 이동하고 stale 3명은 고정, offline 3명은 좌표 없이 유지한다. 북부권역 합성 기사 1명은 두 frame 연결 끊김 후 새 관측으로 복구한다.
+- 관리자는 재생·일시정지·다음 5초·처음으로를 사용할 수 있고 화면은 `Demo movement`와 `Live 0명`을 고정 표시한다.
+- 동일 입력 SHA-256, cadence·Demo/Live 혼합 거부, stale/offline 정지, 연결 복구와 기존 지도·폐루프 E2E를 검증한다.
+- `G4-B` 미완료: 확대 수준·viewport 기반 대규모 loading, 실제 장치 frame·메모리·상호작용 지연 예산은 후속 부하 평가에서 확정한다.
 
 작업:
 

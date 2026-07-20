@@ -593,6 +593,126 @@ export const MultiRegionMapFixtureSchema = z
     }
   });
 
+export const MapMovementFrameSchema = z
+  .object({
+    frameIndex: nonNegativeInteger,
+    elapsedSeconds: nonNegativeInteger,
+    evaluatedAt: IsoDateTimeSchema,
+    courierPositions: z
+      .array(
+        z
+          .object({
+            courierId: opaqueId,
+            position: PositionAvailabilitySchema,
+          })
+          .strict(),
+      )
+      .min(24),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const courierIds = value.courierPositions.map((item) => item.courierId);
+    if (!uniqueStrings(courierIds)) {
+      context.addIssue({
+        code: "custom",
+        path: ["courierPositions"],
+        message: "Movement frame courier IDs must be unique",
+      });
+    }
+    value.courierPositions.forEach((item, index) => {
+      const observation = item.position.status === "CURRENT"
+        ? item.position.observation
+        : item.position.status === "STALE"
+          ? item.position.lastObservation
+          : undefined;
+      if (observation && observation.courierId !== item.courierId) {
+        context.addIssue({
+          code: "custom",
+          path: ["courierPositions", index, "position"],
+          message: "Movement position must match its courier",
+        });
+      }
+      if (observation?.sourceMode === "LIVE") {
+        context.addIssue({
+          code: "custom",
+          path: ["courierPositions", index, "position"],
+          message: "Demo movement cannot contain LIVE observations",
+        });
+      }
+      if (
+        observation &&
+        (toMillis(observation.capturedAt) > toMillis(value.evaluatedAt) ||
+          toMillis(observation.receivedAt) > toMillis(value.evaluatedAt))
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["courierPositions", index, "position"],
+          message: "Movement observation cannot occur after its frame",
+        });
+      }
+    });
+  });
+
+export const MapMovementTimelineSchema = z
+  .object({
+    schemaVersion: z.literal("map-movement-timeline-v1"),
+    timelineId: opaqueId,
+    baseFixtureId: opaqueId,
+    generatorVersion: z.string().min(1),
+    seed: nonNegativeInteger,
+    startedAt: IsoDateTimeSchema,
+    intervalSeconds: z.number().int().positive().max(60),
+    durationSeconds: z.number().int().positive().max(300),
+    dataMode: z.literal("DEMO"),
+    frames: z.array(MapMovementFrameSchema).min(2).max(61),
+    provenance: z.array(ProvenanceSchema).min(1),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    const firstCourierIds = value.frames[0].courierPositions
+      .map((item) => item.courierId)
+      .sort();
+    value.frames.forEach((frame, index) => {
+      const expectedElapsed = index * value.intervalSeconds;
+      const expectedAt = toMillis(value.startedAt) + expectedElapsed * 1_000;
+      if (
+        frame.frameIndex !== index ||
+        frame.elapsedSeconds !== expectedElapsed ||
+        toMillis(frame.evaluatedAt) !== expectedAt
+      ) {
+        context.addIssue({
+          code: "custom",
+          path: ["frames", index],
+          message: "Movement frames must follow the declared deterministic cadence",
+        });
+      }
+      const frameCourierIds = frame.courierPositions
+        .map((item) => item.courierId)
+        .sort();
+      if (JSON.stringify(frameCourierIds) !== JSON.stringify(firstCourierIds)) {
+        context.addIssue({
+          code: "custom",
+          path: ["frames", index, "courierPositions"],
+          message: "Every movement frame must contain the same couriers",
+        });
+      }
+    });
+    if (value.frames.at(-1)?.elapsedSeconds !== value.durationSeconds) {
+      context.addIssue({
+        code: "custom",
+        path: ["durationSeconds"],
+        message: "Movement duration must equal the final frame offset",
+      });
+    }
+    if (value.provenance.some((item) => item.kind !== "MOCK" || !item.isDemo)) {
+      context.addIssue({
+        code: "custom",
+        path: ["provenance"],
+        message: "Demo movement provenance must remain MOCK",
+      });
+    }
+  });
+
 export const TimeWindowSchema = z
   .object({
     startsAt: IsoDateTimeSchema,
@@ -2483,6 +2603,8 @@ export type MapRouteProjection = z.infer<typeof MapRouteProjectionSchema>;
 export type MapDecisionSummary = z.infer<typeof MapDecisionSummarySchema>;
 export type MapCourierProjection = z.infer<typeof MapCourierProjectionSchema>;
 export type MultiRegionMapFixture = z.infer<typeof MultiRegionMapFixtureSchema>;
+export type MapMovementFrame = z.infer<typeof MapMovementFrameSchema>;
+export type MapMovementTimeline = z.infer<typeof MapMovementTimelineSchema>;
 export type CourierState = z.infer<typeof CourierStateSchema>;
 export type WorkloadState = z.infer<typeof WorkloadStateSchema>;
 export type WeatherState = z.infer<typeof WeatherStateSchema>;
