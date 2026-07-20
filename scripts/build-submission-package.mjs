@@ -147,6 +147,7 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/g5-spatial-comprehension-summary.json",
   "artifacts/evals/g5-spatial-comprehension-evidence.json",
   "artifacts/evals/g5-spatial-stimulus-manifest.json",
+  "artifacts/evals/g5-spatial-round2-stimulus-manifest.json",
   "artifacts/evals/local-model-manifest.json",
   "artifacts/evals/map-performance-summary.json",
   "artifacts/evals/risk-transfer-boundaries.csv",

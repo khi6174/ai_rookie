@@ -29,11 +29,11 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 26개 파일, 232/232 통과 |
+| 단위·계약 | Vitest 26개 파일, 233/233 통과 |
 | 브라우저 폐루프 | Playwright 20/20 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
-| G5-B 사람 이해도 | Round 1 `DO_NOT_PROMOTE`: 3명·6 trial 중 핵심 의미 전체 정답 2/6, 2.5D 혼란 증가 2/3. 관리자 decision 정보위계 재설계·재검토 필요 |
+| G5-B 사람 이해도 | Round 1 `DO_NOT_PROMOTE`: 3명·6 trial 중 핵심 의미 전체 정답 2/6, 2.5D 혼란 증가 2/3. 질문·순서·양측 영향 중심 Round 2 화면·도구 준비, 독립 응답 대기 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |

@@ -11,17 +11,18 @@ if (!inputArgument) {
 }
 
 const inputPath = resolve(inputArgument);
-const outputPath = resolve(
-  "artifacts/evals/g5-spatial-comprehension-summary.json",
-);
 const vite = await createServer({ server: { middlewareMode: true }, appType: "custom" });
 
 try {
   const { evaluateSpatialComprehension } = await vite.ssrLoadModule(
     "/src/evals/spatialComprehension.ts",
   );
-  const result = evaluateSpatialComprehension(
-    JSON.parse(await readFile(inputPath, "utf8")),
+  const input = JSON.parse(await readFile(inputPath, "utf8"));
+  const result = evaluateSpatialComprehension(input);
+  const outputPath = resolve(
+    input.schemaVersion === "g5-spatial-comprehension-v2"
+      ? "artifacts/evals/g5-spatial-comprehension-round2-summary.json"
+      : "artifacts/evals/g5-spatial-comprehension-summary.json",
   );
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   console.log(

@@ -9,7 +9,7 @@
       "height": 900,
       "role": "ADMIN",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "55a4783e20dd0dee7f4a8be3cf6f82d760349c45b5eaf8e9a924e9879e197442"
+      "sha256": "c4d209a77227e1324a7097582286958e195056849a9fba559e6aff7243a77ff0"
     },
     {
       "file": "admin-applied-1280x720.png",
@@ -17,7 +17,7 @@
       "height": 720,
       "role": "ADMIN",
       "state": "NOTICE_RECORDED",
-      "sha256": "937ba5b1d861f3211effde2fbc0c70bc4c4dd5770d2cc27badbae20646c4e9e4"
+      "sha256": "66ca8c4668ddba87ad204fd287e32b0b34cc06dca22221695eda86f0ec9704e2"
     },
     {
       "file": "rider-login-390x844.png",

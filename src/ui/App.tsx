@@ -283,8 +283,10 @@ function DecisionSpatialScenePanel({
     "58,278",
   ].join(" ");
   const routePoints = points.map((point) => `${point.x},${point.y}`).join(" ");
-  const riskStart = points[2];
-  const riskEnd = points[3];
+  const riskRoutePoints = points
+    .slice(1)
+    .map((point) => `${point.x},${point.y}`)
+    .join(" ");
   const facts = scene.decisionFacts;
   const segmentLabels = ["현재", "휴식", "경사 노출", String(facts.breachStopOrdinal)];
 
@@ -300,8 +302,8 @@ function DecisionSpatialScenePanel({
     >
       <div className="spatial-scene-copy">
         <div>
-          <p className="section-kicker">선택 decision · 공급자 독립 설명 장면</p>
-          <h3 id="spatial-scene-heading">경사 노출과 지원 지점을 함께 확인합니다</h3>
+          <p className="section-kicker">왜 이 조치인가 · 보조 상세</p>
+          <h3 id="spatial-scene-heading">휴식 뒤 경사 구간을 지나기 전에 지원합니다</h3>
         </div>
         <div className="spatial-scene-badges" aria-label="공간 장면 데이터 상태">
           <span>Demo 2.5D</span>
@@ -325,11 +327,8 @@ function DecisionSpatialScenePanel({
             <polygon points={terrainPoints} className="spatial-terrain" />
             <polyline points={routePoints} className="spatial-route-shadow" />
             <polyline points={routePoints} className="spatial-route-line" />
-            <line
-              x1={riskStart.x}
-              y1={riskStart.y}
-              x2={riskEnd.x}
-              y2={riskEnd.y}
+            <polyline
+              points={riskRoutePoints}
               className="spatial-risk-segment"
             />
             {points.map((point, index) => (
@@ -343,14 +342,14 @@ function DecisionSpatialScenePanel({
             ))}
           </svg>
           <figcaption id="spatial-profile-caption">
-            높이는 위험점수가 아닙니다. 빗길·경사·연속작업 노출 구간은 패턴과 텍스트로 구분합니다.
+            순서: 현재 → 10분 휴식 → 경사 노출 구간 → 17번째 배송지 전 지원. 높이는 위험점수가 아닙니다.
           </figcaption>
         </figure>
         <div className="spatial-facts" aria-label="2.5D 장면의 구조화 수치 대안">
           <div className="spatial-decision-question">
             <span>예상 지원 지점</span>
             <strong>{facts.timeToBreachMinutes}분 후 · {facts.breachStopOrdinal}번째 배송지 전</strong>
-            <small>위험 기여 · 강수 · 경사 · 연속작업</small>
+            <small>휴식 뒤 경사 노출 구간 · 강수 · 연속작업</small>
           </div>
           <dl>
             <div><dt>현재 계획 최소</dt><dd>{formatBudget(facts.baselineMinimumBudget)}</dd></div>
@@ -746,7 +745,7 @@ function MultiRegionControlMap({
               disabled={!spatialAvailable}
               onClick={() => setSpatialMode(spatialActive ? "TWO_D" : "DEMO_TWO_POINT_FIVE_D")}
             >
-              {spatialActive ? "2D로 돌아가기" : spatialAvailable ? "입체 경사 보기 · Demo" : "2.5D 데이터 없음"}
+              {spatialActive ? "2D로 돌아가기" : spatialAvailable ? "경사 근거 자세히 보기 · Demo 2.5D" : "2.5D 데이터 없음"}
             </button>
           )}
           <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
@@ -1004,28 +1003,58 @@ function InterventionQueue({
   const recipientStatus = consentStatusFor(session, demoRecipientCourierId);
   const approvalReady = session.decision.status === "ADMIN_APPROVAL_REQUIRED";
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status);
+  const sourceImpact = demoRecommendedEvaluation.courierImpacts.find(
+    (impact) => impact.role === "SOURCE",
+  )!;
+  const recipientImpact = demoRecommendedEvaluation.courierImpacts.find(
+    (impact) => impact.role === "RECIPIENT",
+  )!;
+  const sourceStopsBefore = demoFixture.workloads.find(
+    (workload) => workload.courierId === demoSourceCourierId,
+  )!.remainingStopIds.length;
+  const sourceStopsAfter = sourceStopsBefore + sourceImpact.stopCountDelta;
   return (
     <aside className="panel intervention-queue linked-decision" id="support-queue" tabIndex={-1} aria-labelledby="queue-heading">
       <div className="panel-heading compact">
         <div>
-          <p className="section-kicker">{applied ? "완료된 개입 · 1건" : "개입 큐 · 1건"}</p>
-          <h2 id="queue-heading">{applied ? "적용된 지원 조치" : "지금 확인할 지원 상황"}</h2>
+          <p className="section-kicker">{applied ? "결정 완료 · 1건" : "결정 요청 · 1건"}</p>
+          <h2 id="queue-heading">{applied ? "적용된 지원 계획" : "지금 필요한 결정"}</h2>
         </div>
         <StatusPill session={session} />
       </div>
       <article className={`support-card ${applied ? "is-applied" : ""}`}>
-        <div className="support-urgency"><span aria-hidden="true">{applied ? "✓" : "◷"}</span> {applied ? "계획 적용 완료" : "60분 안에 지원 필요"}</div>
-        <h3>{applied ? "예상 초과를 해소하는 조정 계획이 적용되었습니다." : "현재 계획을 유지하면 안전여유가 임계치 아래로 내려갑니다."}</h3>
-        <p>{applied ? "원 기사 9건, 수신 기사 추가 8건과 조정된 ETA를 같은 계획 버전에 반영했습니다." : "연속작업, 남은 물량, 강수·경사 노출이 함께 증가합니다."}</p>
-        <dl className="support-facts">
-          <div><dt>{applied ? "예상 초과" : "예상 시점"}</dt><dd>{applied ? "해소" : "약 52분 후"}</dd></div>
-          <div><dt>{applied ? "적용 결과" : "예상 위치"}</dt><dd>{applied ? "원 기사 9건" : "17번째 배송지"}</dd></div>
-          <div><dt>{applied ? "적용 조치" : "추천 조치"}</dt><dd>10분 휴식 + 8건 이관</dd></div>
-        </dl>
+        <div className="support-urgency">{applied ? "계획 적용 완료" : "60분 안에 결정 필요"}</div>
+        <h3>{applied ? "10분 휴식과 배송 8건 이관을 적용했습니다." : "원 기사에게 10분 휴식과 배송 8건 이관을 진행할까요?"}</h3>
+        <p>{applied ? "17번째 배송지 전에 안전여유를 회복하도록 같은 계획 버전에 반영했습니다." : "17번째 배송지 전에 안전여유를 회복하는 조정입니다."}</p>
+        <ol className="decision-sequence" aria-label="현재부터 지원 완료까지의 순서">
+          <li><span>현재</span><strong>14번째 배송지 운행</strong></li>
+          <li><span>먼저</span><strong>10분 휴식</strong></li>
+          <li><span>다음</span><strong>휴식 뒤 경사 노출 구간</strong></li>
+          <li><span>그 전에</span><strong>약 52분 후 · 17번째 배송지 전 지원</strong></li>
+        </ol>
       </article>
+      <section className="decision-impact" aria-labelledby="decision-impact-heading">
+        <div className="decision-impact-heading">
+          <h3 id="decision-impact-heading">조정하면 무엇이 바뀌나요?</h3>
+          <span>양쪽 기사 모두 안전 기준 확인</span>
+        </div>
+        <div className="decision-impact-grid">
+          <article>
+            <span>원 기사 · 작업이 줄어드는 기사</span>
+            <strong>배송 {sourceStopsBefore} → {sourceStopsAfter}건</strong>
+            <small>안전여유 {formatBudget(sourceImpact.baselineMinimumBudget)} → {formatBudget(sourceImpact.candidateMinimumBudget)}</small>
+          </article>
+          <article>
+            <span>수신 기사 · 배송을 받는 기사</span>
+            <strong>배송 {recipientImpact.stopCountDelta > 0 ? "+" : ""}{recipientImpact.stopCountDelta}건</strong>
+            <small>안전여유 {formatBudget(recipientImpact.baselineMinimumBudget)} → {formatBudget(recipientImpact.candidateMinimumBudget)} · 기준 45 통과</small>
+          </article>
+        </div>
+        <p className="decision-rationale"><strong>왜 이 조치인가?</strong> 연속작업·비·경사 노출을 줄이고, 12건 이관처럼 수신 기사 기준을 넘는 대안은 제외했습니다.</p>
+      </section>
       <div className="consent-grid" aria-label="기사별 동의 상태">
-        <div><span>원 기사</span><strong>{consentLabel(sourceStatus)}</strong></div>
-        <div><span>수신 기사</span><strong>{consentLabel(recipientStatus)}</strong></div>
+        <div><span>원 기사 · 작업 8건 감소</span><strong>{consentLabel(sourceStatus)}</strong></div>
+        <div><span>수신 기사 · 배송 8건 추가</span><strong>{consentLabel(recipientStatus)}</strong></div>
       </div>
       <button
         type="button"

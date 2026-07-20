@@ -119,8 +119,8 @@ describe("shared admin and courier Demo session", () => {
     const markup = renderToStaticMarkup(
       createElement(App, { initialSession: applied }),
     );
-    expect(markup).toContain("완료된 개입 · 1건");
-    expect(markup).toContain("예상 초과를 해소하는 조정 계획이 적용되었습니다");
+    expect(markup).toContain("결정 완료 · 1건");
+    expect(markup).toContain("10분 휴식과 배송 8건 이관을 적용했습니다");
     expect(markup).toContain("예상 초과 해소");
     expect(markup).toContain("수신 기사로 이관");
     expect(markup).not.toContain("현재 계획을 유지하면");

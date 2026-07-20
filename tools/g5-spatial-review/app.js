@@ -5,15 +5,15 @@ const orders = [
   ["TWO_D", "DEMO_TWO_POINT_FIVE_D"],
 ];
 const stimulus = {
-  TWO_D: "/artifacts/evals/screenshots/g5-review-admin-decision-2d-1280x720.png",
+  TWO_D: "/artifacts/evals/screenshots/g5-round2-admin-decision-2d-1280x720.png",
   DEMO_TWO_POINT_FIVE_D:
-    "/artifacts/evals/screenshots/g5-review-admin-decision-2-5d-1280x720.png",
+    "/artifacts/evals/screenshots/g5-round2-admin-decision-2-5d-1280x720.png",
 };
 const study = {
-  schemaVersion: "g5-spatial-comprehension-v1",
-  studyId: "g5-b-decision-spatial-comprehension-001",
+  schemaVersion: "g5-spatial-comprehension-v2",
+  studyId: "g5-b-decision-spatial-comprehension-round2-001",
   dataMode: "DEMO",
-  stimulusManifest: "artifacts/evals/g5-spatial-stimulus-manifest.json",
+  stimulusManifest: "artifacts/evals/g5-spatial-round2-stimulus-manifest.json",
   reviewers: [],
 };
 let reviewerIndex = 0;
@@ -142,7 +142,7 @@ function renderComplete() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = "g5-spatial-comprehension-results.json";
+    link.download = "g5-spatial-comprehension-round2-results.json";
     link.click();
     URL.revokeObjectURL(url);
   });

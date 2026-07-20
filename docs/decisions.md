@@ -474,6 +474,15 @@
 - 기각한 대안: Kakao 지형 overlay를 3D로 표현하는 방식, MapLibre·DEM·건물 타일을 즉시 도입하는 방식, 전체 24·240명 지도를 입체화하는 방식, 기사 운행 화면에 3D 조작을 추가하는 방식, 생성형 AI가 고도·경사·Safety 수치를 만드는 방식.
 - 영향 파일: `src/domain/contracts/schemas.ts`, `src/adapters/maps/spatialScene.ts`, `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/spatial-scene.test.ts`, `e2e/spatial-scene.spec.ts`, 평가·설계·아키텍처 문서
 
+### ADR-048 — G5-B 실패 후 관리자 첫 화면을 결정 질문과 순서 중심으로 단순화한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: G5-B Round 1의 `DO_NOT_PROMOTE`를 사람 이해도 실패로 수용하고, Safety 계산·추천·동의·승인 상태기계는 바꾸지 않은 채 관리자 활성 decision 면의 순서를 `지금 답할 질문 → 현재·휴식·경사·지원 완료 순서 → 원·수신 기사 영향 → 조치 이유 → 동의·승인 상태`로 바꾼다. `원 기사`와 `수신 기사`는 작업 감소·배송 수신 역할을 같은 카드에서 풀어 쓰며, 2.5D는 `경사 근거 자세히 보기 · Demo 2.5D` 보조 상세로 낮춘다. Round 1 파일은 불변 증거로 보존하고 Round 2 자극·응답·요약을 별도 버전으로 기록한다.
+- 이유: 3명·6 trial에서 핵심 의미 전체 정답 2/6, 경사 구간 정답 0/6, 혼란 증가 2/3이었고, 정성 응답은 화면이 무엇을 묻고 어떤 판단을 요구하는지 불명확하다고 일치했다. 이는 시각 입체감보다 결정 정보위계가 먼저 해결되어야 함을 보여준다.
+- 기각한 대안: 2.5D를 기본 화면으로 전환, 3D 효과·지도 레이어 추가, 설명 문단만 늘리기, Round 1 결과 덮어쓰기, 이해도 실패를 기술 Gate 통과로 상쇄하기.
+- 영향 파일: `docs/design-system.md`, `docs/g5-spatial-comprehension-test.md`, `docs/g5-spatial-visualization-design.md`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals/spatialComprehension.ts`, `tools/g5-spatial-review`, `e2e`, `tests`, `artifacts/evals`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -28,7 +28,7 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
   await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeDisabled();
   await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
   await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toBeVisible();
-  await expect(page.getByText("약 52분 후 · 17번째 배송지")).toBeVisible();
+  await expect(page.getByText("약 52분 후 · 17번째 배송지", { exact: true })).toBeVisible();
   await expect(page.getByText("12건 이관은 실행할 수 없습니다.")).toBeVisible();
   await expect(page.getByText("휴식 · 물량이관 · 순서변경 · 안전경로 · Safe Delay")).toBeVisible();
 }
@@ -58,7 +58,7 @@ async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId)
   await expect(dialog.getByText(`Decision ID · ${expectedDecisionId}`)).toBeVisible();
   await dialog.getByRole("button", { name: "승인 및 계획 적용" }).click();
 
-  await expect(page.getByText("완료된 개입 · 1건")).toBeVisible();
+  await expect(page.getByText("결정 완료 · 1건")).toBeVisible();
   await expect(page.getByText("계획·안내 갱신 완료").first()).toBeVisible();
   await expect(page.getByRole("button", { name: "계획 적용 완료" })).toBeDisabled();
   await expect(page.locator("#route-decision").getByText("예상 초과 해소")).toBeVisible();
@@ -230,7 +230,7 @@ test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순
   await expect(routeOrder.getByText(`Decision ID · ${decisionId}`)).toBeVisible();
   await expect(page.getByText("기사 동의와 관리자 승인 전에는 변경 없음")).toBeVisible();
   await page.getByRole("link", { name: "같은 결정을 지원 큐에서 보기" }).click();
-  await expect(page.getByRole("heading", { name: "지금 확인할 지원 상황" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "지금 필요한 결정" })).toBeVisible();
   await page.getByRole("link", { name: "지도에서 같은 decision 보기" }).click();
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
   await page.getByRole("button", { name: "지도 복구" }).click();

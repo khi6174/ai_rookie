@@ -63,7 +63,7 @@
 pnpm run review:g5
 ```
 
-브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-results.json`에 복사한다.
+브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 현재 도구는 Round 2 고정 화면을 사용하며 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-round2-results.json`에 복사한다. Round 1 원본은 `g5-spatial-comprehension-results.json`에서 변경하지 않는다.
 
 이 로컬 도구는 응답을 서버나 외부 서비스로 보내지 않고 새로고침 전 브라우저 메모리에만 둔다. 앞 사람의 응답을 다음 사람에게 보여주지 않으며 정답도 표시하지 않는다.
 
@@ -104,3 +104,21 @@ pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-resul
 수치인 52분·17번째 배송지·10분 휴식·8건 이관은 읽을 수 있었지만, 경사 구간, 원·수신 기사 영향, 휴식과 예상 초과 지점의 순서가 화면만으로 전달되지 않았다. 정성 응답도 무엇을 보고 어떤 판단을 해야 하는지 불명확하고 오른쪽 텍스트에 의존해야 했다고 보고했다.
 
 따라서 Demo 2.5D는 기본 기능으로 승격하지 않는다. 현재 기술 Gate 통과와 사람 이해도 실패를 구분하며, 다음 반복은 3D 표현을 늘리는 작업이 아니라 관리자 첫 결정면의 질문·조치·근거 순서를 단순화하는 정보위계 재설계부터 시작한다. 재설계 전 Round 1 결과를 삭제하거나 PASS로 덮어쓰지 않는다.
+
+## 9. Round 2 재설계와 실행 상태
+
+- 상태: 화면·평가 도구 준비 완료, 독립 검토 응답 대기
+- 자극 manifest: `artifacts/evals/g5-spatial-round2-stimulus-manifest.json`
+- 2D 화면: `artifacts/evals/screenshots/g5-round2-admin-decision-2d-1280x720.png`
+- 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round2-admin-decision-2-5d-1280x720.png`
+- 예정 결과: `artifacts/evals/g5-spatial-comprehension-round2-results.json`
+- 예정 요약: `artifacts/evals/g5-spatial-comprehension-round2-summary.json`
+
+Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 정보위계만 수정했다.
+
+1. `지금 필요한 결정` 아래에 관리자가 답해야 할 조치를 질문형 한 문장으로 표시한다.
+2. `현재 → 10분 휴식 → 휴식 뒤 경사 노출 → 17번째 배송지 전 지원` 순서를 연결된 진행선으로 표시한다.
+3. 원 기사는 배송 17→9건·안전여유 29.9→47.2, 수신 기사는 배송 +8건·안전여유 52.5→45.0과 기준 45 통과를 나란히 표시한다.
+4. 12건 이관 차단 이유를 짧게 제공하고 2.5D를 보조 근거로 낮춘다.
+
+Round 2 결과가 없으므로 현재 공식 판정은 여전히 Round 1의 `DO_NOT_PROMOTE`다. 기술 회귀 통과만으로 사람 이해도 개선을 주장하지 않는다.

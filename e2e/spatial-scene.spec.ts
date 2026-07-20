@@ -36,7 +36,7 @@ async function alignDecisionPanel(page: import("@playwright/test").Page) {
   });
 }
 
-test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D로 복귀한다", async ({ browser, page }) => {
+test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극을 고정한다", async ({ browser, page }) => {
   await page.setViewportSize(viewport);
   await page.goto("/");
   await selectPrimaryDecision(page);
@@ -44,17 +44,23 @@ test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D�
   const screenshotDirectory = resolve("artifacts/evals/screenshots");
   const twoDPath = resolve(
     screenshotDirectory,
-    "g5-review-admin-decision-2d-1280x720.png",
+    "g5-round2-admin-decision-2d-1280x720.png",
   );
   const twoPointFiveDPath = resolve(
     screenshotDirectory,
-    "g5-review-admin-decision-2-5d-1280x720.png",
+    "g5-round2-admin-decision-2-5d-1280x720.png",
   );
   await mkdir(screenshotDirectory, { recursive: true });
   await alignDecisionPanel(page);
   await page.screenshot({ path: twoDPath, animations: "disabled" });
 
-  const toggle = page.getByRole("button", { name: "입체 경사 보기 · Demo" });
+  await expect(page.getByRole("heading", { name: "지금 필요한 결정" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "원 기사에게 10분 휴식과 배송 8건 이관을 진행할까요?" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "현재부터 지원 완료까지의 순서" })).toBeVisible();
+  await expect(page.getByText("배송 17 → 9건")).toBeVisible();
+  await expect(page.getByText("배송 +8건")).toBeVisible();
+
+  const toggle = page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" });
   const firstDisplayStartedAt = Date.now();
   await toggle.click();
   const scene = page.locator("[data-spatial-scene]");
@@ -79,20 +85,20 @@ test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D�
   await alignDecisionPanel(page);
   await page.screenshot({ path: twoPointFiveDPath, animations: "disabled" });
   const stimulusManifest = {
-    schemaVersion: "g5-spatial-stimulus-manifest-v1",
-    studyId: "g5-b-decision-spatial-comprehension-001",
+    schemaVersion: "g5-spatial-stimulus-manifest-v2",
+    studyId: "g5-b-decision-spatial-comprehension-round2-001",
     dataMode: "DEMO",
     viewport,
     decisionId,
     stimuli: [
       {
         mode: "TWO_D",
-        path: "artifacts/evals/screenshots/g5-review-admin-decision-2d-1280x720.png",
+        path: "artifacts/evals/screenshots/g5-round2-admin-decision-2d-1280x720.png",
         sha256: await sha256(twoDPath),
       },
       {
         mode: "DEMO_TWO_POINT_FIVE_D",
-        path: "artifacts/evals/screenshots/g5-review-admin-decision-2-5d-1280x720.png",
+        path: "artifacts/evals/screenshots/g5-round2-admin-decision-2-5d-1280x720.png",
         sha256: await sha256(twoPointFiveDPath),
       },
     ],
@@ -102,7 +108,7 @@ test("G5-A는 같은 decision의 Demo 2.5D를 성능 예산 안에서 열고 2D�
     ],
   };
   await writeFile(
-    resolve("artifacts/evals/g5-spatial-stimulus-manifest.json"),
+    resolve("artifacts/evals/g5-spatial-round2-stimulus-manifest.json"),
     `${JSON.stringify(stimulusManifest, null, 2)}\n`,
     "utf8",
   );
@@ -206,7 +212,7 @@ test("G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D �
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
   await selectPrimaryDecision(page);
-  await page.getByRole("button", { name: "입체 경사 보기 · Demo" }).click();
+  await page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" }).click();
   const scene = page.locator("[data-spatial-scene]");
   await expect(scene).toBeVisible();
   const motion = await scene.evaluate((element) => {
@@ -229,7 +235,7 @@ test("G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D �
   ).toBeVisible();
   await page.getByRole("button", { name: "지도 복구" }).click();
   await expect(
-    page.getByRole("button", { name: "입체 경사 보기 · Demo" }),
+    page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" }),
   ).toBeVisible();
   await expect.poll(() => page.evaluate(
     () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,

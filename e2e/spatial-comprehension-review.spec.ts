@@ -26,7 +26,7 @@ async function completeTrial(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "답변 확정" }).click();
 }
 
-test("G5-B 로컬 평가 화면은 3명의 동의·순서 균형·익명 JSON을 완성한다", async ({
+test("G5-B Round 2 로컬 평가 화면은 3명의 동의·순서 균형·익명 JSON을 완성한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -80,6 +80,6 @@ test("G5-B 로컬 평가 화면은 3명의 동의·순서 균형·익명 JSON을
   await page.getByRole("button", { name: "결과 JSON 다운로드" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe(
-    "g5-spatial-comprehension-results.json",
+    "g5-spatial-comprehension-round2-results.json",
   );
 });

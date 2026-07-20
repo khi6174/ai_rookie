@@ -2296,7 +2296,11 @@ summary {
   display: none;
 }
 
-.admin-grid,
+.admin-grid {
+  grid-template-columns: minmax(0, 1.35fr) minmax(410px, 0.82fr);
+  gap: 14px;
+}
+
 .admin-lower-grid {
   grid-template-columns: minmax(0, 1.7fr) minmax(330px, 0.58fr);
   gap: 14px;
@@ -2812,7 +2816,7 @@ summary {
   .admin-nav .nav-item > span:last-child,
   .admin-nav .nav-simulation { display: none; }
   .admin-nav .nav-item { justify-content: center; padding: 8px; }
-  .admin-grid,
+  .admin-grid { grid-template-columns: minmax(0, 1.25fr) minmax(390px, 0.82fr); }
   .admin-lower-grid { grid-template-columns: minmax(0, 1.5fr) minmax(315px, 0.72fr); }
 }
 
@@ -3936,6 +3940,26 @@ summary {
   box-shadow: 0 1px 2px rgb(16 28 44 / 5%);
 }
 
+.intervention-queue .support-card {
+  padding: 15px;
+  border-color: #cfd8ef;
+  background:
+    radial-gradient(circle at 100% 0%, rgb(6 40 199 / 6%), transparent 34%),
+    var(--color-surface);
+}
+
+.intervention-queue .support-card h3 {
+  max-width: 34ch;
+  margin: 12px 0 6px;
+  font-size: 1.05rem;
+  line-height: 1.38;
+  letter-spacing: -0.025em;
+}
+
+.intervention-queue .support-card > p {
+  font-size: 0.72rem;
+}
+
 .support-urgency {
   display: inline-flex;
   min-height: 28px;
@@ -3949,6 +3973,131 @@ summary {
 .support-card.is-applied .support-urgency {
   border-color: #86f5ad;
   background: var(--color-green-100);
+}
+
+.decision-sequence {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0;
+  margin: 15px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.decision-sequence li {
+  position: relative;
+  display: grid;
+  align-content: start;
+  gap: 5px;
+  min-width: 0;
+  padding: 18px 7px 0 0;
+  border-top: 2px solid #c9d4f5;
+}
+
+.decision-sequence li::before {
+  position: absolute;
+  top: -6px;
+  left: 0;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--color-surface);
+  border-radius: 50%;
+  background: #0628c7;
+  box-shadow: 0 0 0 1px #0628c7;
+  content: "";
+}
+
+.decision-sequence li:last-child::before {
+  background: var(--color-amber-600);
+  box-shadow: 0 0 0 1px var(--color-amber-700);
+}
+
+.decision-sequence span {
+  color: var(--color-blue-700);
+  font-size: 0.56rem;
+  font-weight: 850;
+}
+
+.decision-sequence strong {
+  color: var(--color-navy-900);
+  font-size: 0.62rem;
+  line-height: 1.35;
+}
+
+.decision-impact {
+  display: grid;
+  gap: 9px;
+  margin: 12px 16px 0;
+}
+
+.decision-impact-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.decision-impact-heading h3 {
+  margin: 0;
+  color: var(--color-navy-900);
+  font-size: 0.78rem;
+}
+
+.decision-impact-heading span {
+  color: var(--color-green-800);
+  font-size: 0.56rem;
+  font-weight: 800;
+  text-align: right;
+}
+
+.decision-impact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+
+.decision-impact-grid article {
+  display: grid;
+  gap: 5px;
+  padding: 11px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface-subtle);
+}
+
+.decision-impact-grid span,
+.decision-impact-grid small {
+  color: var(--color-text-muted);
+  font-size: 0.56rem;
+  line-height: 1.4;
+}
+
+.decision-impact-grid strong {
+  color: var(--color-navy-900);
+  font-size: 0.76rem;
+}
+
+.decision-rationale {
+  margin: 0;
+  padding: 9px 11px;
+  border-radius: 10px;
+  color: var(--color-text-muted);
+  background: #f5f7fc;
+  font-size: 0.59rem;
+  line-height: 1.48;
+}
+
+.decision-rationale strong {
+  color: var(--color-navy-900);
+}
+
+.intervention-queue .consent-grid > div {
+  padding: 9px 10px;
+  background: var(--color-surface);
+}
+
+.intervention-queue .consent-grid span {
+  line-height: 1.35;
 }
 
 .map-active-decision {
@@ -4394,11 +4543,11 @@ summary {
 .route-heading-meta .spatial-mode-toggle {
   min-height: 44px;
   padding: 0 14px;
-  border: 1px solid #0628c7;
+  border: 1px solid #aebce4;
   border-radius: 10px;
-  color: #fff;
-  background: #0628c7;
-  box-shadow: 0 8px 18px rgb(6 40 199 / 16%);
+  color: #0628c7;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(16 28 44 / 6%);
   font: inherit;
   font-size: 0.64rem;
   font-weight: 850;
@@ -4407,7 +4556,8 @@ summary {
 
 .route-heading-meta .spatial-mode-toggle:hover,
 .route-heading-meta .spatial-mode-toggle:focus-visible {
-  background: #173fd2;
+  border-color: #0628c7;
+  background: #eef2ff;
 }
 
 .route-heading-meta .spatial-mode-toggle[aria-pressed="true"] {
@@ -4525,8 +4675,10 @@ summary {
 }
 
 .spatial-risk-segment {
+  fill: none;
   stroke: url(#spatial-risk-pattern);
   stroke-dasharray: 10 6;
+  stroke-linejoin: round;
   stroke-linecap: round;
   stroke-width: 12;
 }
