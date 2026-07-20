@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /19 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /20 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -93,6 +93,7 @@ const requiredApprovedDocuments = [
   "docs/submission-package.md",
   "docs/final-readiness.md",
   "docs/g5-spatial-visualization-design.md",
+  "docs/g5-spatial-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
 ];
 const documentStatuses = [];
@@ -262,7 +263,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 19,
+    e2eTests: 20,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -324,7 +325,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=19 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=20 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

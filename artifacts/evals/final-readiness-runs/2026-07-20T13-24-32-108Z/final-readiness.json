@@ -1,7 +1,7 @@
 {
   "schemaVersion": "final-readiness-audit-v1",
-  "capturedAt": "2026-07-20T13:30:20.571Z",
-  "status": "PASSED",
+  "capturedAt": "2026-07-20T13:24:32.108Z",
+  "status": "FAILED",
   "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
   "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
   "commands": [
@@ -11,19 +11,19 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 1840,
-      "outputSha256": "c532ac7131fac9b3c17c5e8d5257fdf0de987e37944fa448d199a77c6ce1c418",
-      "evidenceLine": "\u001b[32m✓ built in 255ms\u001b[39m"
+      "elapsedMs": 1807,
+      "outputSha256": "f8cad1522e2f2e39f02abb06ae7ae3e5cc73b87be595abccb5170592042f4f46",
+      "evidenceLine": "\u001b[32m✓ built in 281ms\u001b[39m"
     },
     {
       "id": "PLAYWRIGHT_E2E",
       "command": "pnpm run test:e2e",
-      "passed": true,
+      "passed": false,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 70814,
-      "outputSha256": "87a53c4a39bc35be06f4e428b674093fce49c4244e9fc9a4a1cfc0573bc8eb4e",
-      "evidenceLine": "20 passed (1.1m)"
+      "elapsedMs": 71687,
+      "outputSha256": "ff031776fa3d99e95e69827c738821a2f146e9408ca68a8ab824b2156d8cb925",
+      "evidenceLine": null
     },
     {
       "id": "CLEAN_START_3X",
@@ -31,9 +31,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 21693,
-      "outputSha256": "11b348c8d185e5f729af05249b65ab3a04a888f382ce184278cf1fcf156235a7",
-      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=20.88"
+      "elapsedMs": 22334,
+      "outputSha256": "eacf2bba68a65c9f53221d69bf079b515bddd9a38e8b3834287f45debfc75063",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=21.49"
     },
     {
       "id": "DOMESTIC_TRACK_AUDIT",
@@ -41,9 +41,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 705,
-      "outputSha256": "e8e64e40e7164605f7f8fba6aac2b64750a5822102e9063304c670f88dce4e15",
-      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=6 sha256=8a7df4cd21b6c9f9f2cc7b4983638343bbe4904f1b0f28dc457c96fba7ae0bd5"
+      "elapsedMs": 711,
+      "outputSha256": "43d9b9ce7c1283fcce6eccfdc5994d54a0cac9bcf96463d86fba40bce5895408",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=6 sha256=79f63b53608f0dc8e65d44141aeb68df47fca178fb618253d01153e2978a26f3"
     },
     {
       "id": "CORE_EVIDENCE",
@@ -51,7 +51,7 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 12394,
+      "elapsedMs": 12511,
       "outputSha256": "915d624dd7975389f891d751a891b9c6e13351a75446baeed0aef306f1b4d715",
       "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=232 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=3 upstageTasks=12 artifacts=15"
     }
@@ -128,11 +128,6 @@
       "approved": true
     },
     {
-      "file": "docs/g5-spatial-comprehension-test.md",
-      "status": "Approved — G5-B 실행 절차",
-      "approved": true
-    },
-    {
       "file": "docs/geospatial-pwa-implementation-plan.md",
       "status": "Approved through G5-A decision-scoped Demo 2.5D",
       "approved": true
@@ -142,7 +137,7 @@
     {
       "id": "APPROVED_DOCUMENTS",
       "passed": true,
-      "details": "16/16 approved"
+      "details": "15/15 approved"
     },
     {
       "id": "UNIT_TESTS",
@@ -202,7 +197,7 @@
   ],
   "summary": {
     "unitTests": 232,
-    "e2eTests": 20,
+    "e2eTests": 19,
     "cleanStartRuns": 3,
     "requiredViewports": 4,
     "screenshotAndAccessibilityChecks": 6,

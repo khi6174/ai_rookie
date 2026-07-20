@@ -29,8 +29,8 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 25개 파일, 228/228 통과 |
-| 브라우저 폐루프 | Playwright 19/19 통과, Demo 이동·G4-B 부하·G5-A 2.5D·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
+| 단위·계약 | Vitest 26개 파일, 232/232 통과 |
+| 브라우저 폐루프 | Playwright 20/20 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
@@ -47,7 +47,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 19개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 ADR-047 반영 Gate는 Vitest 228/228, Playwright 19/19, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, Playwright 20개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 G5-B 로컬 검토 도구 반영 Gate는 Vitest 232/232, Playwright 20/20, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 

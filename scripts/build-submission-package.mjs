@@ -121,6 +121,7 @@ const approvedDocuments = new Set([
   "docs/evals.md",
   "docs/final-readiness.md",
   "docs/g5-spatial-visualization-design.md",
+  "docs/g5-spatial-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
   "docs/intervention-policy.md",
   "docs/privacy-and-ai-policy.md",
@@ -141,6 +142,8 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/final-readiness-latest.json",
   "artifacts/evals/frozen-benchmark-summary.json",
   "artifacts/evals/frozen-variant-results.csv",
+  "artifacts/evals/g5-spatial-comprehension-input.template.json",
+  "artifacts/evals/g5-spatial-stimulus-manifest.json",
   "artifacts/evals/local-model-manifest.json",
   "artifacts/evals/map-performance-summary.json",
   "artifacts/evals/risk-transfer-boundaries.csv",
@@ -154,7 +157,7 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/upstage-smoke-latest.json",
   "artifacts/evals/weather-runtime-selection-latest.json",
 ]);
-const sourcePrefixes = ["e2e/", "fixtures/", "scripts/", "src/", "tests/"];
+const sourcePrefixes = ["e2e/", "fixtures/", "scripts/", "src/", "tests/", "tools/"];
 const screenshotPrefix = "artifacts/evals/screenshots/";
 const scannableExtensions = new Set([
   "",

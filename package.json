@@ -29,7 +29,8 @@
     "eval:kma-weather:supplement:diagnose": "node scripts/run-kma-supplement-diagnostic.mjs",
     "eval:kma-weather:supplement:live": "node scripts/run-kma-supplement-smoke.mjs",
     "eval:kma-weather:runtime": "node scripts/run-weather-runtime-audit.mjs",
-    "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs"
+    "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
+    "review:g5": "vite --host 127.0.0.1 --port 4174 --strictPort"
   },
   "dependencies": {
     "react": "^19.2.7",

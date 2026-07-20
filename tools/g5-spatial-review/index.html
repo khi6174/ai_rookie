@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>SafeRoute G5-B 익명 화면 검토</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="app-header">
+      <div class="brand-mark" aria-hidden="true">SR</div>
+      <div>
+        <strong>SafeRoute G5-B</strong>
+        <span>익명 공간 이해도 검토 · 합성 Demo</span>
+      </div>
+      <span class="demo-badge">연구용 · Live 아님</span>
+    </header>
+
+    <main id="app" class="app-shell" aria-live="polite"></main>
+
+    <template id="intro-template">
+      <section class="intro-card">
+        <p class="eyebrow">독립 검토 <span data-reviewer-number></span>/3</p>
+        <h1>두 화면을 보고 배송 안전지원 정보를 찾아주세요.</h1>
+        <p>각 화면은 한 번씩만 답합니다. 정답은 검토가 끝날 때까지 표시하지 않습니다.</p>
+        <div class="notice-grid">
+          <article><strong>수집하지 않음</strong><span>실명, 연락처, 소속, 실제 기사·위치 정보</span></article>
+          <article><strong>기록함</strong><span>익명 답변, 화면별 완료시간, 이해 확신</span></article>
+          <article><strong>자료 성격</strong><span>결정론적 합성 Demo이며 실제 운영 성과가 아님</span></article>
+        </div>
+        <label class="consent-row">
+          <input type="checkbox" data-consent />
+          <span>위 내용을 이해했으며 익명 응답을 평가 증거로 보존하는 데 동의합니다.</span>
+        </label>
+        <p class="privacy-note">이 화면에는 이름이나 연락처를 입력하지 마세요.</p>
+        <button type="button" class="primary-button" data-start disabled>검토 시작</button>
+      </section>
+    </template>
+
+    <template id="trial-template">
+      <section class="trial-layout">
+        <div class="trial-heading">
+          <div>
+            <p class="eyebrow">익명 검토 <span data-reviewer-label></span> · 화면 <span data-trial-label></span>/2</p>
+            <h1>화면에서 확인한 내용만 답해주세요.</h1>
+          </div>
+          <span class="timer-state" data-timer-state>화면 준비 중</span>
+        </div>
+        <figure class="stimulus-card">
+          <img data-stimulus alt="합성 배송 안전지원 decision 화면" />
+          <figcaption>고정 합성 Demo 화면 · 실제 지도·GPS·운영 데이터 아님</figcaption>
+        </figure>
+        <form class="question-card" data-trial-form>
+          <fieldset>
+            <legend>1. 예상 임계치 초과는 언제, 어디에서 발생하나요?</legend>
+            <div class="number-pair">
+              <label><span>몇 분 후</span><input required name="timeToBreachMinutes" type="number" min="0" inputmode="numeric" /></label>
+              <label><span>몇 번째 배송지</span><input required name="breachStopOrdinal" type="number" min="1" inputmode="numeric" /></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>2. 경사 노출이 집중되는 구간은 어디인가요?</legend>
+            <div class="choice-grid">
+              <label><input required type="radio" name="slopeExposureSegment" value="CURRENT_TO_REST" />현재–휴식</label>
+              <label><input type="radio" name="slopeExposureSegment" value="REST_TO_BREACH" />휴식–예상 초과</label>
+              <label><input type="radio" name="slopeExposureSegment" value="BREACH_AND_AFTER" />예상 초과 이후</label>
+              <label><input type="radio" name="slopeExposureSegment" value="UNKNOWN" />화면에서 알 수 없음</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>3. 추천 조치는 무엇인가요?</legend>
+            <div class="number-pair">
+              <label><span>휴식 시간(분)</span><input required name="restMinutes" type="number" min="0" inputmode="numeric" /></label>
+              <label><span>이관 배송 건수</span><input required name="transferStopCount" type="number" min="0" inputmode="numeric" /></label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>4. 두 기사에게 미치는 영향은 무엇인가요?</legend>
+            <label class="select-label"><span>원 기사</span><select required name="sourceImpact"><option value="">선택</option><option value="WORKLOAD_REDUCED_AND_BUDGET_RECOVERS">작업량이 줄고 안전여유가 회복됨</option><option value="WORKLOAD_INCREASES">작업량이 늘어남</option><option value="NO_CHANGE">변화 없음</option><option value="UNKNOWN">화면에서 알 수 없음</option></select></label>
+            <label class="select-label"><span>수신 기사</span><select required name="recipientImpact"><option value="">선택</option><option value="TRANSFER_WITHIN_SAFETY_LIMIT">안전한계 안에서 물량을 받음</option><option value="TRANSFER_EXCEEDS_SAFETY_LIMIT">안전한계를 넘으며 물량을 받음</option><option value="NO_TRANSFER">물량을 받지 않음</option><option value="UNKNOWN">화면에서 알 수 없음</option></select></label>
+          </fieldset>
+          <fieldset>
+            <legend>5. 경로에서 어느 지점이 먼저인가요?</legend>
+            <div class="choice-grid">
+              <label><input required type="radio" name="routePriority" value="REST_BEFORE_BREACH" />휴식 지점이 먼저</label>
+              <label><input type="radio" name="routePriority" value="BREACH_BEFORE_REST" />예상 초과 지점이 먼저</label>
+              <label><input type="radio" name="routePriority" value="UNKNOWN" />화면에서 알 수 없음</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>6. 이 화면만 보고 이해한 확신은 어느 정도인가요?</legend>
+            <div class="confidence-row">
+              <label><input required type="radio" name="confidence" value="1" />1</label>
+              <label><input type="radio" name="confidence" value="2" />2</label>
+              <label><input type="radio" name="confidence" value="3" />3</label>
+              <label><input type="radio" name="confidence" value="4" />4</label>
+              <label><input type="radio" name="confidence" value="5" />5</label>
+            </div>
+          </fieldset>
+          <button class="primary-button" type="submit">답변 확정</button>
+        </form>
+      </section>
+    </template>
+
+    <template id="comparison-template">
+      <section class="intro-card comparison-card">
+        <p class="eyebrow">익명 검토 <span data-comparison-reviewer></span> · 마지막 질문</p>
+        <h1>두 화면의 이해 경험을 비교해주세요.</h1>
+        <form data-comparison-form>
+          <fieldset>
+            <legend>어느 화면이 더 빠르고 명료하게 이해되었나요?</legend>
+            <div class="choice-grid">
+              <label><input required type="radio" name="clearerMode" value="TWO_D" />기본 2D</label>
+              <label><input type="radio" name="clearerMode" value="DEMO_TWO_POINT_FIVE_D" />Demo 2.5D</label>
+              <label><input type="radio" name="clearerMode" value="SAME" />비슷함</label>
+            </div>
+          </fieldset>
+          <fieldset>
+            <legend>Demo 2.5D가 경로 순서나 지원 우선순위에 혼란을 더했나요?</legend>
+            <div class="choice-grid">
+              <label><input required type="radio" name="twoPointFiveDAddedConfusion" value="false" />아니요</label>
+              <label><input type="radio" name="twoPointFiveDAddedConfusion" value="true" />예</label>
+            </div>
+          </fieldset>
+          <label class="comment-label"><span>이유 또는 혼란 지점(선택, 500자 이내)</span><textarea name="comment" maxlength="500" rows="4" placeholder="실명·연락처·소속은 입력하지 마세요."></textarea></label>
+          <button class="primary-button" type="submit">익명 검토 저장</button>
+        </form>
+      </section>
+    </template>
+
+    <template id="handoff-template">
+      <section class="intro-card handoff-card">
+        <p class="eyebrow">응답 저장 완료</p>
+        <h1>다음 검토자에게 화면을 넘겨주세요.</h1>
+        <p>이전 응답은 표시하지 않습니다. 다음 검토자는 다른 순서로 두 화면을 봅니다.</p>
+        <button type="button" class="primary-button" data-next-reviewer>다음 익명 검토 시작</button>
+      </section>
+    </template>
+
+    <template id="complete-template">
+      <section class="intro-card complete-card">
+        <p class="eyebrow">3명 검토 완료</p>
+        <h1>기계 검증용 익명 결과가 준비되었습니다.</h1>
+        <p>결과 파일에는 익명 ID, 구조화 답변과 완료시간만 포함됩니다.</p>
+        <div class="complete-actions">
+          <button type="button" class="primary-button" data-download>결과 JSON 다운로드</button>
+          <button type="button" class="secondary-button" data-reset>모든 로컬 응답 지우기</button>
+        </div>
+        <details><summary>결과 구조 확인</summary><pre data-result-json></pre></details>
+      </section>
+    </template>
+
+    <script type="module" src="./app.js"></script>
+  </body>
+</html>

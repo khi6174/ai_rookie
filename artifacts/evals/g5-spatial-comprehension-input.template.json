@@ -6,6 +6,7 @@
   "reviewers": [
     {
       "reviewerId": "reviewer-01",
+      "consentConfirmed": true,
       "trialOrder": ["TWO_D", "DEMO_TWO_POINT_FIVE_D"],
       "trials": [
         {
@@ -47,6 +48,7 @@
     },
     {
       "reviewerId": "reviewer-02",
+      "consentConfirmed": true,
       "trialOrder": ["DEMO_TWO_POINT_FIVE_D", "TWO_D"],
       "trials": [
         {
@@ -88,6 +90,7 @@
     },
     {
       "reviewerId": "reviewer-03",
+      "consentConfirmed": true,
       "trialOrder": ["TWO_D", "DEMO_TWO_POINT_FIVE_D"],
       "trials": [
         {

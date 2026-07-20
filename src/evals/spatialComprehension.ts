@@ -1,10 +1,12 @@
 import { z } from "zod";
 
 const ViewModeSchema = z.enum(["TWO_D", "DEMO_TWO_POINT_FIVE_D"]);
+const directIdentifierPattern =
+  /(?:\b[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}\b|\b01[016789][-\s]?\d{3,4}[-\s]?\d{4}\b)/i;
 
 const TrialSchema = z.object({
   mode: ViewModeSchema,
-  durationMs: z.number().int().positive().max(600_000),
+  durationMs: z.number().int().positive(),
   confidence: z.number().int().min(1).max(5),
   answers: z.object({
     timeToBreachMinutes: z.number().int().nonnegative(),
@@ -39,12 +41,16 @@ const TrialSchema = z.object({
 
 const ReviewerSchema = z.object({
   reviewerId: z.string().regex(/^reviewer-[0-9]{2}$/),
+  consentConfirmed: z.literal(true),
   trialOrder: z.tuple([ViewModeSchema, ViewModeSchema]),
   trials: z.array(TrialSchema).length(2),
   comparison: z.object({
     clearerMode: z.enum(["TWO_D", "DEMO_TWO_POINT_FIVE_D", "SAME"]),
     twoPointFiveDAddedConfusion: z.boolean(),
-    comment: z.string().trim().max(500),
+    comment: z.string().trim().max(500).refine(
+      (value) => !directIdentifierPattern.test(value),
+      "comment must not contain an email address or mobile phone number",
+    ),
   }).strict(),
 }).strict().superRefine((reviewer, context) => {
   if (new Set(reviewer.trialOrder).size !== 2) {

@@ -55,6 +55,18 @@
 
 `artifacts/evals/g5-spatial-comprehension-input.template.json`을 복사해 3명 이상의 응답을 입력한다. 템플릿 자체는 결과가 아니며 사람 응답 없이 채우거나 통과 증거로 사용하지 않는다.
 
+### 5.1 권장 로컬 평가 화면
+
+수기 JSON 대신 저장소 루트의 PowerShell에서 다음 명령을 실행할 수 있다.
+
+```powershell
+pnpm run review:g5
+```
+
+브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-results.json`에 복사한다.
+
+이 로컬 도구는 응답을 서버나 외부 서비스로 보내지 않고 새로고침 전 브라우저 메모리에만 둔다. 앞 사람의 응답을 다음 사람에게 보여주지 않으며 정답도 표시하지 않는다.
+
 ## 6. 자동 판정
 
 ```powershell

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-20T13:31:56.330Z",
+  "capturedAt": "2026-07-20T13:26:09.370Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
   "baseCommit": "b51b93db718b4057b8f4b60fe9adbec20c14cedb",
@@ -99,7 +99,7 @@
     {
       "file": "unit-summary.json",
       "bytes": 3123,
-      "sha256": "f829018821841e1b275e3530c89f07b8f5c02d3a64c87264e921a292c19330b4"
+      "sha256": "9c5355cceb9e7da1a55194f24f606f60783dadd7e08e08f94469f1c30e886841"
     },
     {
       "file": "scenario-results.csv",
@@ -119,7 +119,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "fd7548e3c26d09a4456b8dfd74c1a298dabc5b246c70e0d1dd06bc0c74c1e32b"
+      "sha256": "b5a025427fa90b66dd1f5f15301d44bbfd837d2ca2511c9718dad91e6e0cc3c1"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -129,7 +129,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "c4a3a0571d3310a3ff58303941b6321cc1d6f06352b7535eb8b9a477cc1fbd52"
+      "sha256": "bae3ba228c3c12e55356983a42415d3c19dc31558d69e02de6fcab745d5b0fc8"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -139,12 +139,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "d70fec4c83c08dff3478f1951a490d4d262d0dbdd692cd385fce9c5974e536dc"
+      "sha256": "ec181533faee332390d2eb4f9721963533927708226826f3b875354274847fd2"
     },
     {
       "file": "domestic-track-compliance-latest.json",
       "bytes": 4521,
-      "sha256": "d6206df2110d61301ab980dbb0b3f9a0df7a74a11a9c1d69d582c989425b18c5"
+      "sha256": "f100d541ea057db08bf0647199bf6b7c73597c88663378cd1ca3bc11937121f9"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -159,17 +159,17 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 2568,
-      "sha256": "5de234534655f77a1d9df1963d38426526297d549914ac999dad3c15a1bca941"
+      "sha256": "a611ca466e199cc1130d53ccf38097d15ff12e7e14b21915bc188b3aa6796426"
     },
     {
       "file": "map-performance-summary.json",
       "bytes": 2319,
-      "sha256": "cb40e83ec6bae6442667b163d9ae0a4db595e1d8854af190bed24f9e7b95bc96"
+      "sha256": "2521b172567936887b63e4b55f3a9dd795636dfa2f933826d337ad28ad4ad659"
     },
     {
       "file": "spatial-scene-summary.json",
       "bytes": 1192,
-      "sha256": "25fda4a00a2cc0d9c6556d2128a112d85c8605855f6b9492d919e1251f4baecd"
+      "sha256": "fb524a275f853f7c8af97649a5577dd786464257cf63dc040805dec9aefd5439"
     }
   ]
 }

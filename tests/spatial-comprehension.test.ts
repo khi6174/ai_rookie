@@ -35,18 +35,21 @@ function study() {
     reviewers: [
       {
         reviewerId: "reviewer-01",
+        consentConfirmed: true as const,
         trialOrder: ["TWO_D", "DEMO_TWO_POINT_FIVE_D"] as const,
         trials: [trial("TWO_D", 42_000), trial("DEMO_TWO_POINT_FIVE_D", 27_000)],
         comparison: { clearerMode: "DEMO_TWO_POINT_FIVE_D" as const, twoPointFiveDAddedConfusion: false, comment: "경사 구간이 더 빨리 보임" },
       },
       {
         reviewerId: "reviewer-02",
+        consentConfirmed: true as const,
         trialOrder: ["DEMO_TWO_POINT_FIVE_D", "TWO_D"] as const,
         trials: [trial("DEMO_TWO_POINT_FIVE_D", 31_000), trial("TWO_D", 44_000)],
         comparison: { clearerMode: "DEMO_TWO_POINT_FIVE_D" as const, twoPointFiveDAddedConfusion: false, comment: "" },
       },
       {
         reviewerId: "reviewer-03",
+        consentConfirmed: true as const,
         trialOrder: ["TWO_D", "DEMO_TWO_POINT_FIVE_D"] as const,
         trials: [trial("TWO_D", 39_000), trial("DEMO_TWO_POINT_FIVE_D", 30_000)],
         comparison: { clearerMode: "SAME" as const, twoPointFiveDAddedConfusion: false, comment: "" },
@@ -107,5 +110,11 @@ describe("G5-B 공간 이해도 평가", () => {
       ),
     };
     expect(() => SpatialComprehensionStudySchema.parse(withPii)).toThrow();
+
+    const withContact = study();
+    withContact.reviewers[0].comparison.comment = "reviewer@example.com";
+    expect(() => SpatialComprehensionStudySchema.parse(withContact)).toThrow(
+      /email address or mobile phone number/,
+    );
   });
 });
