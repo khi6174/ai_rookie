@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import { multiRegionMapFixture } from "../src/adapters/fixtures";
-import { createFixtureMapAdapter } from "../src/adapters/maps";
+import {
+  createFixtureMapAdapter,
+  createRiderCompactMapModel,
+} from "../src/adapters/maps";
 
 describe("provider-independent fixture map adapter", () => {
   const adapter = createFixtureMapAdapter(multiRegionMapFixture);
@@ -69,5 +72,21 @@ describe("provider-independent fixture map adapter", () => {
         (point) => point.x >= 8 && point.x <= 92 && point.y >= 8 && point.y <= 92,
       ),
     ).toBe(true);
+  });
+
+  it("derives a compact rider route from the same decision-scoped fixture", () => {
+    const decision = multiRegionMapFixture.decisions[0];
+    const compact = createRiderCompactMapModel(adapter, decision.decisionId);
+    const decisionModel = adapter.getModel(
+      adapter.selectionForDecision(decision.decisionId),
+    );
+    expect(compact.decisionId).toBe(decision.decisionId);
+    expect(compact.current).toEqual(decisionModel.couriers[0].geographicPoint);
+    expect(compact.path).toHaveLength(
+      decisionModel.routes[0].geographicPoints.length + 1,
+    );
+    expect(compact.next).toEqual(
+      decisionModel.routes[0].geographicPoints.at(-1),
+    );
   });
 });

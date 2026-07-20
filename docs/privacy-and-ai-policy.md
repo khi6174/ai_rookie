@@ -288,11 +288,11 @@ G1 위치 projection은 모두 결정론적 `MOCK`, `isDemo=true`다. 실제 기
 
 ### 8.2.3 Kakao Maps Demo 표시 경계
 
-- Kakao Maps JavaScript SDK에는 `MapAdapter`가 검증한 결정론적 합성 위도·경도와 합성 경로만 전달한다.
+- 관리자와 기사 Kakao Maps JavaScript SDK에는 `MapAdapter`가 검증한 결정론적 합성 위도·경도와 합성 경로만 전달한다. 기사 compact map도 같은 decision에서 파생한 합성 세 지점만 사용한다.
 - 실제 기사·고객 식별자, 배송주소, 전화번호, 생체정보, Live GPS와 장기 이동궤적은 전달하지 않는다.
 - 브라우저용 JavaScript 플랫폼 키는 공개 클라이언트 식별자이므로 서버 비밀키처럼 취급하지 않지만, 저장소에 커밋하지 않고 Kakao 앱의 허용 도메인으로 제한한다.
 - 지도 SDK 요청과 렌더링 상태를 국내 AI 모델 입력, 일반 로그, Safety 계산이나 감사 결과로 재사용하지 않는다.
-- SDK 오류·차단·키 미설정은 기사 권리나 지원 decision을 막지 않으며 같은 합성 데이터의 schematic 지도와 구조화 목록으로 전환한다.
+- SDK 오류·차단·키 미설정·오프라인은 기사 권리나 지원 decision을 막지 않으며 같은 합성 데이터의 schematic 지도와 구조화 목록으로 전환한다.
 - 이 승인은 실제 위치 수집·브라우저 위치 권한·주소 검색·길찾기·TMS 연동 또는 유료 지도 계약 승인이 아니다.
 
 ### 8.3 Near-miss

@@ -1,4 +1,4 @@
-const SHELL_VERSION = "saferoute-shell-v1.0.0";
+const SHELL_VERSION = "saferoute-shell-v1.0.1";
 const SHELL_URLS = [
   "/",
   "/manifest.webmanifest",

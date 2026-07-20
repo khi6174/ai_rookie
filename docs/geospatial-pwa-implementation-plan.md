@@ -5,7 +5,7 @@
 - 상태: Approved through G3-B and Kakao presentation adapter
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계획 버전: `geospatial-pwa-plan-v1.5.0`
+- 계획 버전: `geospatial-pwa-plan-v1.6.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -128,6 +128,7 @@ PWA 진입
 - 외부 이미지·아이콘·지도 SDK·비국내 AI 생성 에셋은 추가하지 않았다. 기능 목적의 CSS schematic route와 한국어 구조화 목록으로 같은 과업을 완료한다.
 - `G3-B` 완료: manifest·192/512 아이콘·install prompt 상태·버전된 정적 app shell service worker를 구현했다. 마지막 `APPROVED + APPLIED` 합성 계획은 식별자·버전·남은 건수만 30분 TTL로 저장하며 오프라인에서 읽기 전용으로 제공한다.
 - 실제 offline reload에서 app shell과 마지막 승인 계획을 표시하고, 만료·빈·손상 캐시는 최신 계획으로 사용하지 않는다. 오프라인 동의·수정·거절·승인·적용은 성공으로 기록하지 않는다.
+- 기사 지도 표시 어댑터 완료: 온라인 공개 Demo는 같은 decision의 합성 현재 위치·휴식 지점·다음 배송지를 Kakao 2D compact map으로 표시한다. 오프라인·SDK 오류·키 미설정에서는 기존 schematic과 구조화 경로 목록으로 복귀하며 실제 GPS·위치 권한·주소·길찾기는 사용하지 않는다.
 - 실제 위치 권한·푸시·독립 인증·서버 동기화는 G3-B 범위 밖이며 별도 사용자 승인 Gate를 유지한다.
 
 작업:

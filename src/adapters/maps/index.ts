@@ -63,6 +63,34 @@ export type MapAdapter = {
   resetSelection(): MapSelection;
 };
 
+export type RiderCompactMapModel = {
+  decisionId: string;
+  current: GeographicPoint;
+  rest: GeographicPoint;
+  next: GeographicPoint;
+  path: GeographicPoint[];
+};
+
+export function createRiderCompactMapModel(
+  adapter: MapAdapter,
+  decisionId: string,
+): RiderCompactMapModel {
+  const model = adapter.getModel(adapter.selectionForDecision(decisionId));
+  const courier = model.couriers[0];
+  const route = model.routes.find((item) => item.selected) ?? model.routes[0];
+  if (!courier?.geographicPoint || !route?.geographicPoints.length) {
+    throw new Error(`Rider compact map has no current position or route: ${decisionId}`);
+  }
+  const routePoints = route.geographicPoints;
+  return {
+    decisionId,
+    current: courier.geographicPoint,
+    rest: routePoints[Math.min(1, routePoints.length - 1)],
+    next: routePoints[routePoints.length - 1],
+    path: [courier.geographicPoint, ...routePoints],
+  };
+}
+
 function pointForPosition(
   position: MultiRegionMapFixture["couriers"][number]["position"],
 ) {

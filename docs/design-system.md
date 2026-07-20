@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 디자인 버전: `design-v2.2.0`
+- 디자인 버전: `design-v2.3.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 디자인 목표
@@ -154,7 +154,7 @@ G3-B에서 기사 화면을 설치 가능한 PWA app shell로 확장했다. 온�
 
 국내 AI 트랙 범위와 라이선스 근거가 없는 외부 이미지·아이콘은 넣지 않았다. PWA 아이콘은 저장소의 결정론적 로컬 스크립트로 생성한 기하학적 route mark이며 외부 AI·에셋을 사용하지 않는다. 실제 지도·Live 위치·인증처럼 표현하지 않는다.
 
-관리자 지도는 `design-v2.0.0`의 G2 범위와 bounded pointer·keyboard pan에 더해 ADR-043의 선택적 Kakao Maps 2D 베이스 레이어를 반영한다. 실제 지도 위에는 결정론적 합성 지역·경로·지원 마커만 표시하고 `Kakao map · Demo overlay`를 고정 표기한다. SDK·도메인·네트워크 실패 시 기존 schematic 지도와 구조화 목록으로 자동 복귀하며 `Kakao 오류 · Fallback map`을 표시한다. 기사 화면은 G3-A 시각 구조와 G3-B 설치·오프라인 경계를 유지하고 compact map은 계속 `Fallback map`이다. 실제 Live 위치·인증·푸시·서버 동기화는 미구현이다.
+관리자 지도는 `design-v2.0.0`의 G2 범위와 bounded pointer·keyboard pan에 더해 ADR-043의 선택적 Kakao Maps 2D 베이스 레이어를 반영한다. 실제 지도 위에는 결정론적 합성 지역·경로·지원 마커만 표시하고 `Kakao map · Demo overlay`를 고정 표기한다. SDK·도메인·네트워크 실패 시 기존 schematic 지도와 구조화 목록으로 자동 복귀하며 `Kakao 오류 · Fallback map`을 표시한다. 기사 화면은 ADR-044에 따라 같은 decision의 합성 현재 위치·휴식 지점·다음 배송지를 작은 Kakao 2D 지도에 표시하고 `Kakao map · Demo route`를 고정 표기한다. 오프라인·SDK 오류·키 미설정에서는 기존 compact schematic과 구조화 경로 목록으로 자동 복귀한다. 실제 Live 위치·인증·푸시·서버 동기화는 미구현이다.
 
 실제 E2E 캡처:
 
@@ -492,7 +492,7 @@ KPI는 기사를 순위화하지 않고 클릭 시 해당 상황으로 필터링
 5. 적용된 다음 계획 또는 검토할 지원안
 6. 안전지원 검토 버튼
 
-실지도 연결 전 compact route는 `Fallback map`을 항상 표시한다. 실지도 연결 후에도 공급자·위치 오류나 오프라인에서는 마지막 승인 계획의 최신시각과 schematic fallback을 함께 제공한다. 운전 중 복잡한 전체 지도나 긴 입력을 요구하지 않는다.
+온라인이며 Kakao SDK가 정상인 Demo에서는 compact route에 `Kakao map · Demo route`를 표시한다. 좌표는 현재 decision에서 파생한 결정론적 합성 데이터이며 실제 GPS가 아니다. 공급자 오류·키 미설정·오프라인에서는 `Fallback map`과 동일한 구조화 경로 목록을 제공한다. 운전 중 복잡한 전체 지도나 긴 입력을 요구하지 않는다.
 
 ### 7.2 안전지원
 

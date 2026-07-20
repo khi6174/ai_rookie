@@ -260,6 +260,7 @@ for (const viewport of [
     await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "17번째 배송지 전에 지원을 확인해 주세요" })).toBeVisible();
     await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
+    await expect(page.getByText("Fallback map", { exact: true })).toBeVisible();
     await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
     await expect(page.getByText("14번째 · 약 6분", { exact: true })).toBeVisible();
     await expectAboveMobileTabBar(page, page.getByRole("button", { name: "안전지원 검토" }));

@@ -318,7 +318,7 @@ G2-A는 전국→지역→기사 drill-down, 전국 개별 기사 비노출, 선
 
 ADR-043의 Kakao 베이스 레이어는 SDK URL이 공식 HTTPS host·path와 `autoload=false`만 사용하는지, 빈 값·공백 키를 거부하는지 단위 테스트한다. `MapAdapter`의 합성 좌표·가시 범위·동일 decision 계약은 기존 테스트가 계속 소유한다. Playwright와 clean-start에서는 `VITE_KAKAO_MAP_ENABLED=false`를 강제해 외부 네트워크·도메인 설정과 무관하게 schematic 지도, 구조화 목록, 오류 복구와 폐루프를 결정론적으로 검증한다. 공개 Demo의 실제 SDK는 별도 브라우저 확인 대상으로 두며 실패해도 자동 Fallback과 `Kakao 오류` 상태가 보여야 한다.
 
-G3-A는 390×844·360×800에서 합성 현재 위치, 다음 배송, Safe-until, compact Fallback map과 주요 안전지원 행동이 하단 탭 위 첫 화면에 보이는지 검증한다. 안전지원은 조정 전후·작업 변화·동의 행동이 첫 화면에 있고 동의·수정·거절 터치 높이와 비징벌 문구가 유지돼야 한다.
+G3-A는 390×844·360×800에서 합성 현재 위치, 다음 배송, Safe-until, compact route와 주요 안전지원 행동이 하단 탭 위 첫 화면에 보이는지 검증한다. 자동 E2E는 외부 네트워크를 끄고 `Fallback map`을 검증하며, 공개 Demo 점검에서는 Kakao 타일·합성 3지점·`Kakao map · Demo route`와 schematic 비노출을 확인한다. 안전지원은 조정 전후·작업 변화·동의 행동이 첫 화면에 있고 동의·수정·거절 터치 높이와 비징벌 문구가 유지돼야 한다.
 
 G3-B는 manifest·192/512 아이콘·버전된 same-origin app shell, 승인·적용 Demo 계획 strict schema와 30분 TTL, malformed·storage unavailable, 정확 만료 경계를 단위 계약으로 검증한다. Playwright는 실제 service worker 제어 후 네트워크를 차단해 오프라인 reload, 마지막 승인 계획·저장시각·읽기 전용 표시와 응답 버튼 차단을 확인한다. 만료 fixture는 `최신 계획 아님`으로 표시하고 적용된 계획 UI로 승격하지 않는다. 설치 화면은 실제 인증·위치·푸시 미포함을 명시한다.
 

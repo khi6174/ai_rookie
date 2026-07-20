@@ -13,8 +13,10 @@ import type {
 import { createMultiRegionMapFixture } from "../adapters/fixtures";
 import {
   createFixtureMapAdapter,
+  createRiderCompactMapModel,
   type MapAdapter,
   type MapRenderModel,
+  type RiderCompactMapModel,
 } from "../adapters/maps";
 import {
   loadKakaoMapsSdk,
@@ -1096,15 +1098,125 @@ function AdminDashboard({
   );
 }
 
-function RiderCompactRoute({ applied }: { applied: boolean }) {
+function KakaoRiderRouteMap({
+  applied,
+  javaScriptKey,
+  model,
+  onStatusChange,
+}: {
+  applied: boolean;
+  javaScriptKey: string;
+  model: RiderCompactMapModel;
+  onStatusChange: (status: KakaoMapStatus) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const overlaysRef = useRef<KakaoMapOverlay[]>([]);
+
+  useEffect(() => {
+    let active = true;
+    onStatusChange("LOADING");
+    loadKakaoMapsSdk(javaScriptKey)
+      .then((maps) => {
+        if (!active || !containerRef.current) return;
+        const map = new maps.Map(containerRef.current, {
+          center: new maps.LatLng(model.current.latitude, model.current.longitude),
+          level: 5,
+        });
+        const bounds = new maps.LatLngBounds();
+        const toLatLng = (point: { latitude: number; longitude: number }) => {
+          const latLng = new maps.LatLng(point.latitude, point.longitude);
+          bounds.extend(latLng);
+          return latLng;
+        };
+        const path = model.path.map(toLatLng);
+        overlaysRef.current.push(new maps.Polyline({
+          map,
+          path,
+          strokeWeight: 5,
+          strokeColor: applied ? "#087334" : "#0628C7",
+          strokeOpacity: 0.92,
+          strokeStyle: "solid",
+          zIndex: 3,
+        }));
+        const stops = [
+          { className: "is-current", label: "현재", point: model.current },
+          { className: "is-rest", label: "휴식", point: model.rest },
+          { className: "is-next", label: "17", point: model.next },
+        ];
+        stops.forEach((stop) => {
+          const node = document.createElement("div");
+          node.className = `rider-kakao-stop ${stop.className}`;
+          node.textContent = stop.label;
+          node.setAttribute("aria-hidden", "true");
+          overlaysRef.current.push(new maps.CustomOverlay({
+            map,
+            position: toLatLng(stop.point),
+            content: node,
+            xAnchor: 0.5,
+            yAnchor: 0.5,
+            zIndex: 6,
+          }));
+        });
+        map.relayout();
+        map.setBounds(bounds, 42, 30, 30, 30);
+        onStatusChange("READY");
+      })
+      .catch(() => {
+        if (active) onStatusChange("ERROR");
+      });
+    return () => {
+      active = false;
+      overlaysRef.current.forEach((overlay) => overlay.setMap(null));
+      overlaysRef.current = [];
+    };
+  }, [applied, javaScriptKey, model, onStatusChange]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="rider-kakao-map-layer"
+      data-rider-kakao-map
+      role="group"
+      aria-label="카카오 지도 위에 표시한 결정론적 합성 현재 위치, 휴식 지점과 다음 배송지"
+    />
+  );
+}
+
+function RiderCompactRoute({
+  applied,
+  mapModel,
+  online,
+}: {
+  applied: boolean;
+  mapModel: RiderCompactMapModel;
+  online: boolean;
+}) {
   const currentWeather = demoWeatherRuntime.active.data[0];
+  const kakaoJavaScriptKey = import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
+  const kakaoRequested = online && Boolean(kakaoJavaScriptKey) && import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
+  const [kakaoMapStatus, setKakaoMapStatus] = useState<KakaoMapStatus>("LOADING");
+  const kakaoReady = kakaoRequested && kakaoMapStatus === "READY";
+  const kakaoFailed = kakaoRequested && kakaoMapStatus === "ERROR";
   return (
     <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약">
       <div className="compact-map-heading">
         <div><span>현재 운행 경로</span><strong>{applied ? "휴식 후 조정 순서" : "17번째 배송지 전 지원"}</strong></div>
-        <span className="fallback-map-badge">Fallback map</span>
+        <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
+          {kakaoReady ? "Kakao map · Demo route" : kakaoFailed ? "Kakao 오류 · Fallback map" : "Fallback map"}
+        </span>
       </div>
-      <div className="compact-map-stage">
+      <div className={`compact-map-stage ${kakaoReady ? "is-kakao" : ""}`}>
+        {kakaoRequested && kakaoMapStatus !== "ERROR" && (
+          <KakaoRiderRouteMap
+            applied={applied}
+            javaScriptKey={kakaoJavaScriptKey}
+            model={mapModel}
+            onStatusChange={setKakaoMapStatus}
+          />
+        )}
+        {kakaoRequested && kakaoMapStatus === "LOADING" && (
+          <div className="rider-kakao-map-loading" role="status">경로 지도를 불러오는 중입니다.</div>
+        )}
         <div className="compact-map-context" aria-label="합성 위치와 날씨 상태">
           <span><i aria-hidden="true">⌖</i> 합성 현재 위치</span>
           <span><i aria-hidden="true">☂</i> 강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</span>
@@ -1223,6 +1335,7 @@ function RiderView({
   isRecipient,
   onResponse,
   pwa,
+  mapModel,
 }: {
   session: DemoSession;
   courierId: string;
@@ -1235,6 +1348,7 @@ function RiderView({
     requestInstall: () => Promise<"accepted" | "dismissed" | "UNAVAILABLE">;
     cacheState: CachedApprovedDemoPlanState;
   };
+  mapModel: RiderCompactMapModel;
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
   const consentStatus = consentStatusFor(session, courierId);
@@ -1299,7 +1413,7 @@ function RiderView({
               <div><span>배송 진행</span><strong>14 / 31</strong><small>{remainingStopCount}건 남음</small></div>
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
             </section>
-            <RiderCompactRoute applied={applied} />
+            <RiderCompactRoute applied={applied} mapModel={mapModel} online={pwa.online} />
             <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
             <section className="rider-next-plan">
               <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>
@@ -1515,6 +1629,11 @@ export function App({ initialSession, initialExplanation }: AppProps) {
   const [cachedPlanState, setCachedPlanState] = useState<CachedApprovedDemoPlanState>(
     () => readCachedApprovedDemoPlan(),
   );
+  const riderMapModel = useMemo(() => {
+    const fixture = createMultiRegionMapFixture({ primaryDecisionId: session.decision.decisionId });
+    const adapter = createFixtureMapAdapter(fixture);
+    return createRiderCompactMapModel(adapter, session.decision.decisionId);
+  }, [session.decision.decisionId]);
 
   useEffect(() => {
     const planVersion = session.store.appliedDecisionVersions[session.decision.decisionId];
@@ -1590,6 +1709,7 @@ export function App({ initialSession, initialExplanation }: AppProps) {
           isRecipient={role === "RECIPIENT"}
           onResponse={(response) => respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
           pwa={{ ...pwaRuntime, cacheState: cachedPlanState }}
+          mapModel={riderMapModel}
         />
       ) : (
         <RiderLogin

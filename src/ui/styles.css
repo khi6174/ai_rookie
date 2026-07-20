@@ -4174,6 +4174,65 @@ summary {
   background: var(--color-blue-100);
 }
 
+.compact-map-stage.is-kakao::before,
+.compact-map-stage.is-kakao::after,
+.compact-map-stage.is-kakao .compact-route-line {
+  display: none;
+}
+
+.rider-kakao-map-layer {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  overflow: hidden;
+  background: var(--color-surface-subtle);
+}
+
+.rider-kakao-map-loading {
+  position: absolute;
+  z-index: 5;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--color-blue-800);
+  background: rgb(245 247 251 / 88%);
+  font-size: 0.65rem;
+  font-weight: 850;
+  pointer-events: none;
+}
+
+.rider-kakao-stop {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border: 3px solid var(--color-surface);
+  border-radius: 50%;
+  color: var(--color-surface);
+  background: var(--color-navy-900);
+  box-shadow: 0 0 0 2px var(--color-navy-900), 0 5px 14px rgb(16 28 44 / 24%);
+  font-size: 0.66rem;
+  font-weight: 900;
+}
+
+.rider-kakao-stop.is-rest {
+  background: var(--color-blue-700);
+  box-shadow: 0 0 0 2px var(--color-blue-700), 0 5px 14px rgb(16 28 44 / 24%);
+}
+
+.rider-kakao-stop.is-next {
+  color: var(--color-amber-800);
+  background: var(--color-amber-100);
+  box-shadow: 0 0 0 2px var(--color-amber-600), 0 5px 14px rgb(16 28 44 / 24%);
+}
+
+.rider-compact-map.is-applied .rider-kakao-stop.is-rest,
+.rider-compact-map.is-applied .rider-kakao-stop.is-next {
+  color: var(--color-green-700);
+  background: var(--color-green-100);
+  box-shadow: 0 0 0 2px var(--color-green-700), 0 5px 14px rgb(16 28 44 / 24%);
+}
+
 .map-pan-hint {
   position: absolute;
   z-index: 8;

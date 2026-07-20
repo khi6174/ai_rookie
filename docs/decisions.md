@@ -434,6 +434,16 @@
 - 기각한 대안: 지도 SDK가 실패하면 빈 상자를 보이는 방식, SDK 원시 응답을 UI·도메인 엔진이 직접 읽는 방식, 전국 화면에 개별 기사 마커를 표시하는 방식, 실제 위치 수집 계약 없이 합성 좌표를 Live로 표현하는 방식, 서버 비밀키를 브라우저에 배포하는 방식.
 - 영향 파일: `.env.example`, `src/adapters/maps/index.ts`, `src/adapters/maps/kakao.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/kakao-map.test.ts`, `scripts/run-playwright.ps1`, `scripts/run-domestic-track-audit.mjs`, 관련 승인 문서
 
+### ADR-044 — 기사 compact map은 같은 합성 decision route를 Kakao 2D로 표시한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 기사 `운행` 탭은 온라인이고 Kakao SDK가 정상일 때 관리자와 같은 `decisionId`의 `MapRenderModel`에서 파생한 합성 현재 위치·휴식 지점·다음 배송지와 경로를 작은 Kakao 2D 지도에 표시한다. `Kakao map · Demo route`와 `합성 현재 위치`를 함께 표기하고, 지도 아래 구조화 경로 목록을 항상 유지한다. 오프라인·SDK·도메인·키 오류에서는 기존 schematic `Fallback map`으로 자동 복귀한다.
+- 경계: 브라우저 Geolocation API, 실제 GPS·주소·기사 식별자·길찾기·내비게이션·위치 저장을 추가하지 않는다. 지도 상태와 상호작용은 Safety Budget, 추천, 기사 동의·거절, 관리자 승인과 계획 적용을 계산하거나 변경하지 않는다.
+- 이유: Field-first 기사 화면에서 현재 구간과 지원 지점을 도로 맥락 안에서 빠르게 이해하게 하면서도 관리자·기사 간 decision 근거 일치, 오프라인 사용성, 개인정보 잠금과 결정론적 재현성을 보존하기 위해서다.
+- 기각한 대안: 실제 GPS 권한을 즉시 요청하는 방식, 외부 길찾기 결과를 계획으로 사용하는 방식, 지도 실패 시 빈 상자를 보이는 방식, 기사 화면에 관리자용 다기사 전체 지도를 축소해 넣는 방식, 구조화 목록을 제거하는 방식.
+- 영향 파일: `src/adapters/maps/index.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/map-adapter.test.ts`, `docs/design-system.md`, `docs/architecture.md`, `docs/privacy-and-ai-policy.md`, `docs/evals.md`, `docs/geospatial-pwa-implementation-plan.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
