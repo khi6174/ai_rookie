@@ -5,7 +5,7 @@
 - 상태: Approved through G4-B deterministic Fallback 2D load budget
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-20
-- 계획 버전: `geospatial-pwa-plan-v1.8.0`
+- 계획 버전: `geospatial-pwa-plan-v1.9.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/decisions.md`
 - 관련 승인 문서: `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`
 
@@ -175,6 +175,13 @@ PWA 진입
 - 합의된 기사 수·갱신주기·프레임·상호작용 지연 예산 통과
 
 ### G5 — 조건부 2.5D·3D
+
+설계 상태:
+
+- `docs/g5-spatial-visualization-design.md`에 `Draft` 설계안을 작성했다.
+- 권고안은 관리자 `decision` scope의 선택형 `Demo 2.5D` 경사 맥락 보기이며 기본 Kakao/Fallback 2D와 기사 compact map은 변경하지 않는다.
+- Kakao 지형 overlay는 2D 맥락 후보일 뿐 3D로 표현하지 않는다. 실제 WebGL 3D는 새 렌더러·타일·DEM·라이선스 승인 전 구현하지 않는다.
+- 현재는 설계만 완료했으며 G5 기능 코드는 시작하지 않았다.
 
 작업:
 
