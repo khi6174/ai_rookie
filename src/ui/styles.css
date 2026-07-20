@@ -4074,6 +4074,171 @@ summary {
   cursor: default;
 }
 
+.rider-route-hero {
+  padding: 18px;
+}
+
+.rider-plan-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rider-plan-status {
+  display: inline-flex;
+  min-height: 28px;
+  align-items: center;
+  padding: 0 9px;
+  border: 1px solid #e7c985;
+  border-radius: 10px;
+  color: var(--color-amber-800);
+  background: var(--color-amber-100);
+  font-size: 0.62rem;
+  font-weight: 850;
+}
+
+.rider-route-hero.is-applied .rider-plan-status {
+  border-color: #86f5ad;
+  color: var(--color-green-700);
+  background: var(--color-green-100);
+}
+
+.rider-safe-window {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  align-items: center;
+  gap: 15px;
+  margin-top: 14px;
+}
+
+.rider-safe-clock {
+  display: grid;
+  min-height: 106px;
+  align-content: center;
+  gap: 2px;
+  padding: 12px;
+  border: 1px solid var(--color-blue-200);
+  border-radius: 14px;
+  color: var(--color-blue-800);
+  background: linear-gradient(150deg, var(--color-blue-100), #f8faff);
+}
+
+.rider-safe-clock span,
+.rider-safe-clock small {
+  color: var(--color-text-muted);
+  font-size: 0.58rem;
+}
+
+.rider-safe-clock strong {
+  color: var(--color-blue-800);
+  font-size: 1.42rem;
+  line-height: 1.15;
+  letter-spacing: -0.035em;
+}
+
+.rider-route-hero.is-applied .rider-safe-clock {
+  border-color: #86f5ad;
+  background: var(--color-surface);
+}
+
+.rider-route-hero.is-applied .rider-safe-clock strong {
+  color: var(--color-green-700);
+}
+
+.rider-safe-copy h1,
+.rider-route-hero h1 {
+  margin: 0 0 7px;
+  font-size: 1.18rem;
+  line-height: 1.32;
+  letter-spacing: -0.035em;
+  overflow-wrap: break-word;
+  word-break: keep-all;
+}
+
+.rider-safe-copy p,
+.rider-route-hero p,
+.rider-route-hero.is-applied p {
+  margin: 0;
+  font-size: 0.72rem;
+  line-height: 1.55;
+}
+
+.rider-plan-steps {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 14px;
+  overflow: hidden;
+  border: 1px solid var(--color-border);
+  border-radius: 13px;
+  background: rgb(255 255 255 / 82%);
+}
+
+.rider-plan-steps::before {
+  position: absolute;
+  top: 17px;
+  right: 16.5%;
+  left: 16.5%;
+  height: 2px;
+  background: var(--color-blue-200);
+  content: "";
+}
+
+.rider-plan-steps > div {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  min-width: 0;
+  justify-items: center;
+  gap: 2px;
+  padding: 28px 6px 9px;
+  text-align: center;
+}
+
+.rider-plan-steps > div::before {
+  position: absolute;
+  top: 11px;
+  width: 11px;
+  height: 11px;
+  border: 3px solid var(--color-surface);
+  border-radius: 50%;
+  background: var(--color-blue-200);
+  box-shadow: 0 0 0 1px var(--color-blue-200);
+  content: "";
+}
+
+.rider-plan-steps > div.is-current::before {
+  background: var(--color-blue-700);
+  box-shadow: 0 0 0 1px var(--color-blue-700);
+}
+
+.rider-plan-steps > div:last-child::before {
+  background: var(--color-amber-100);
+  box-shadow: 0 0 0 2px var(--color-amber-600);
+}
+
+.rider-route-hero.is-applied .rider-plan-steps::before,
+.rider-route-hero.is-applied .rider-plan-steps > div::before {
+  background: var(--color-green-500);
+}
+
+.rider-route-hero.is-applied .rider-plan-steps > div::before {
+  box-shadow: 0 0 0 1px var(--color-green-700);
+}
+
+.rider-plan-steps span {
+  color: var(--color-text-muted);
+  font-size: 0.54rem;
+}
+
+.rider-plan-steps strong {
+  overflow-wrap: anywhere;
+  color: var(--color-navy-900);
+  font-size: 0.65rem;
+  line-height: 1.3;
+}
+
 @media (max-width: 430px) {
   .mode-badge,
   .stopped-badge,
@@ -4085,5 +4250,58 @@ summary {
     min-height: 26px;
     padding-right: 8px;
     padding-left: 8px;
+  }
+
+  .rider-route-hero {
+    padding: 11px;
+  }
+
+  .rider-safe-window {
+    grid-template-columns: 90px minmax(0, 1fr);
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .rider-safe-clock {
+    min-height: 88px;
+    padding: 8px;
+  }
+
+  .rider-safe-clock strong {
+    font-size: 1.25rem;
+  }
+
+  .rider-safe-copy h1,
+  .rider-route-hero h1 {
+    margin-bottom: 4px;
+    font-size: 1rem;
+    line-height: 1.25;
+  }
+
+  .rider-safe-copy p,
+  .rider-route-hero p,
+  .rider-route-hero.is-applied p {
+    display: -webkit-box;
+    overflow: hidden;
+    font-size: 0.66rem;
+    line-height: 1.4;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+  }
+
+  .rider-plan-steps {
+    margin-top: 8px;
+  }
+
+  .rider-plan-steps::before {
+    top: 12px;
+  }
+
+  .rider-plan-steps > div {
+    padding: 22px 4px 6px;
+  }
+
+  .rider-plan-steps > div::before {
+    top: 7px;
   }
 }

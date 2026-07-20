@@ -1071,15 +1071,28 @@ function RiderView({
         {tab === "ROUTE" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-route-tab">
             <p className="rider-overline">오늘의 안전배송 · {isRecipient ? "수신 기사" : "원 기사"}</p>
-            <section className={`rider-hero-card ${applied ? "is-applied" : ""}`}>
-              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : "지원 계획이 도착했어요"}</span>
-              <h1>{applied ? "조정된 계획으로 운행합니다" : "약 16:20, 17번째 배송지 전까지 안전한 범위입니다"}</h1>
-              <p>{applied
-                ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
-                : "약 16:20까지 안전한 범위입니다. 비와 경사 구간, 남은 작업량이 겹쳐 정차 후 지원 계획을 확인해 주세요."}</p>
-              <div className="rider-hero-metrics" aria-label="현재 운행 핵심 상태">
-                <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong></div>
-                <div><span>다음 배송</span><strong>14번째 · 약 6분</strong></div>
+            <section className={`rider-hero-card rider-route-hero ${applied ? "is-applied" : ""}`}>
+              <div className="rider-plan-heading">
+                <span className="rider-hero-label">지원 계획</span>
+                <span className="rider-plan-status">{applied ? "적용 완료" : "정차 후 검토"}</span>
+              </div>
+              <div className="rider-safe-window">
+                <div className="rider-safe-clock" aria-label={applied ? "예상 임계치 초과 해소" : "오후 4시 20분까지 약 52분 남음"}>
+                  <span>Safe-until</span>
+                  <strong>{applied ? "해소" : "16:20"}</strong>
+                  <small>{applied ? "조정 계획 기준" : "약 52분 남음"}</small>
+                </div>
+                <div className="rider-safe-copy">
+                  <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 지원을 확인해 주세요"}</h1>
+                  <p>{applied
+                    ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
+                    : "비와 경사 구간, 남은 작업량이 겹칩니다. 정차한 상태에서 계획을 검토해 주세요."}</p>
+                </div>
+              </div>
+              <div className="rider-plan-steps" aria-label={applied ? "적용된 운행 계획" : "지원 계획 진행 순서"}>
+                <div className="is-current"><span>현재</span><strong>14번째 · 약 6분</strong></div>
+                <div><span>{applied ? "적용 조치" : "다음 조치"}</span><strong>{applied ? "10분 휴식" : "정차·검토"}</strong></div>
+                <div><span>{applied ? "결과" : "지원 시점"}</span><strong>{applied ? "예상 초과 해소" : "17번째 전"}</strong></div>
               </div>
             </section>
             <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
