@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-19
-- 디자인 버전: `design-v2.0.0`
+- 최종 갱신: 2026-07-20
+- 디자인 버전: `design-v2.1.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 디자인 목표
@@ -80,6 +80,15 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 | 1 | [Mobile UI Screens for Driver App](https://dribbble.com/shots/25669008-Mobile-UI-Screens-for-Driver-App) | 현재 운행 상태 우선, 다음 업무와 경로의 한눈 요약, 큰 주요 행동 | `운행` 탭의 Safe-until, 배송 진행, compact route와 검토 버튼 |
 | 2 | [Field Service Dispatch Mobile App](https://dribbble.com/shots/26302643-Field-Service-Dispatch-Mobile-App) | 현장 작업 카드, 짧은 상태 흐름, 고정된 소수의 앱 내비게이션 | `운행 / 안전지원 / 내 정보` 3탭과 검토·응답 상태 전이 |
 | 3 | [Drileaf — Fresh Produce Delivery Driver App Concept](https://dribbble.com/shots/26340526-Drileaf-Fresh-Produce-Delivery-Driver-App-Concept) | 브랜드 진입면, 배정 정보 확인, 명확한 시작 행동 | Demo fixture 로그인 화면에만 사용 |
+
+#### 공통 카드와 상태 컴포넌트
+
+| 레퍼런스 | 확인 노드 | 가져올 패턴 | SafeRoute 적용 경계 |
+|---|---|---|---|
+| [100 card design templates UI kit — Community](https://www.figma.com/design/92BlPHdkKlsMiqt29MCRpZ/100-card-design-templates-UI-kit--Community-?node-id=416-1265&m=dev) | `416:1265`과 카드 예시 `418:1543` | 흰 작업면, 얇은 경계, 16px 안팎 모서리, 제목·근거·행동의 짧은 계층, 절제된 2단 그림자 | 기존 지도·표·폐루프 정보구조를 유지한 채 KPI, 지원 큐, 비교·기사 카드의 시각 문법에만 적용. 텍스트 카드 옆의 별도 색상 막대는 사용하지 않음 |
+| [Material X design system — Community](https://www.figma.com/design/QVEOugTH7EqU3EJvujJmaq/Material-X-design-system--Community-?node-id=0-1&m=dev) | UI Kit `0:1`, Segments `687:125` | 28~40px 높이의 compact capsule, 연한 상태면, 선택 항목의 흰 면과 얕은 그림자, 텍스트로 구분되는 상태 | Segments를 그대로 사용하지 않고 상태 badge의 모서리·간격·경계·상태 대비만 전환 |
+
+Figma 레퍼런스의 React·Tailwind 예제, 원본 로고·아이콘·이미지와 컴포넌트 파일은 복사하지 않는다. 기존 React·TypeScript와 CSS custom property 구조로 재작성하며 외부 런타임 에셋이나 새 UI 의존성을 추가하지 않는다.
 
 3순위 레퍼런스는 실제 인증 기능의 근거가 아니다. 로그인 화면은 합성 기사 ID, 허브와 차량을 확인하는 데모 진입면이며 `실제 개인정보나 로그인 정보를 사용하지 않음`을 표시한다.
 
@@ -201,41 +210,43 @@ G3-B에서 기사 화면을 설치 가능한 PWA app shell로 확장했다. 온�
 
 | 토큰 | 값 | 용도 |
 |---|---|---|
-| `--color-canvas` | `#F6F7F4` | 전체 배경 |
+| `--color-canvas` | `#F5F7FB` | 전체 배경 |
 | `--color-surface` | `#FFFFFF` | 카드·패널 |
-| `--color-surface-subtle` | `#F0F3F5` | 보조 행·비활성 영역 |
+| `--color-surface-subtle` | `#F1F4FA` | 보조 행·비활성 영역 |
 | `--color-navy-950` | `#101C2C` | 관리자 내비게이션 |
 | `--color-navy-900` | `#16263B` | 구조적 헤더 |
 | `--color-text` | `#172033` | 기본 본문 |
 | `--color-text-muted` | `#5C6878` | 보조정보 |
 | `--color-text-disabled` | `#8B95A3` | 비활성 텍스트 |
-| `--color-border` | `#D8DEE6` | 기본 경계 |
-| `--color-border-strong` | `#B7C0CC` | 강조 경계 |
+| `--color-border` | `#D7DEEF` | 기본 경계 |
+| `--color-border-strong` | `#AAB7D4` | 강조 경계 |
 
 #### 행동·상태색
 
 | 토큰 | 값 | 용도 |
 |---|---|---|
-| `--color-teal-700` | `#08786E` | 기본 행동·안정 텍스트 |
-| `--color-teal-800` | `#05645C` | hover·강조 |
-| `--color-teal-100` | `#DDF3EF` | 안정 배경 |
-| `--color-blue-800` | `#1D57A9` | hover·강조 |
-| `--color-blue-700` | `#246BCE` | 기본 운영 행동·링크·정보 |
-| `--color-blue-100` | `#E9F2FF` | 선택·정보 배경 |
+| `--color-teal-700` | `#0B8F43` | 안정 상태·경로 텍스트 |
+| `--color-teal-800` | `#087334` | 안정 상태 hover·강조 |
+| `--color-teal-100` | `#E7FFEF` | 안정 배경 |
+| `--color-blue-800` | `#041C91` | hover·고대비 정보 텍스트 |
+| `--color-blue-700` | `#0628C7` | 기본 운영 행동·링크·선택 |
+| `--color-blue-200` | `#C6D0FF` | 정보 badge·선택 경계 |
+| `--color-blue-100` | `#E9EDFF` | 선택·정보 배경 |
 | `--color-amber-800` | `#7A4300` | 주의·지원 필요 텍스트 |
 | `--color-amber-600` | `#B76A00` | 강조선·아이콘 |
 | `--color-amber-100` | `#FFF1D2` | 주의 배경 |
 | `--color-red-700` | `#B42318` | 임계치 초과·차단 |
 | `--color-red-100` | `#FDE9E7` | 초과 배경 |
-| `--color-green-700` | `#287A4B` | 적용 완료 |
-| `--color-green-100` | `#E4F3E9` | 완료 배경 |
+| `--color-green-500` | `#0FE75A` | 동의·승인·계획 적용 완료의 점·강조선만 사용 |
+| `--color-green-700` | `#087A36` | 완료 상태의 접근 가능한 텍스트 |
+| `--color-green-100` | `#E6FFEF` | 완료 배경 |
 
 #### 데이터 모드색
 
 | 상태 | 배경 | 텍스트 | 아이콘·문구 |
 |---|---|---|---|
-| Live | `#E4F3E9` | `#287A4B` | 원형 체크 + `Live` |
-| Demo | `#E8F0FA` | `#315E9E` | 플라스크 + `Demo fixture` |
+| Live | `#E6FFEF` | `#087A36` | 원형 체크 + `Live` |
+| Demo | `#E9EDFF` | `#041C91` | 플라스크 + `Demo fixture` |
 | Fallback | `#FFF1D2` | `#7A4300` | 전환 화살표 + `Fallback` |
 | Error | `#FDE9E7` | `#B42318` | 경고 삼각형 + `연결 오류` |
 | Stale | `#F0F3F5` | `#5C6878` | 시계 + `업데이트 필요` |
@@ -315,24 +326,35 @@ font-family:
 |---|---:|---|
 | `radius-sm` | 6px | 작은 태그·입력 |
 | `radius-md` | 10px | 버튼·기본 카드 |
-| `radius-lg` | 14px | 주요 패널·모달 |
+| `radius-lg` | 14px | 지도 내부·모달 |
+| `radius-card` | 16px | 관리자·기사 주요 카드 |
 | `radius-full` | 999px | 상태 pill |
 
 - 기본 경계: 1px solid border
 - 선택·포커스: 2px
-- 중요한 상태는 색상 배경보다 좌측 3px 상태선과 텍스트를 함께 사용한다.
+- 중요한 상태는 카드 측면의 색상 막대가 아니라 상태 badge·아이콘·명시적 텍스트를 함께 사용한다.
 
 ### 4.6 그림자
 
 ```text
 shadow-sm: 0 1px 2px rgba(16, 28, 44, 0.06)
-shadow-md: 0 8px 24px rgba(16, 28, 44, 0.10)
+shadow-card: 0 1px 2px rgba(6, 40, 199, 0.07), 0 10px 28px rgba(16, 28, 44, 0.07)
+shadow-md: 0 8px 24px rgba(6, 40, 199, 0.10)
 shadow-modal: 0 20px 60px rgba(16, 28, 44, 0.18)
 ```
 
 운영 패널은 경계 중심으로 구분하고 그림자를 남용하지 않는다.
 
-### 4.7 아이콘
+### 4.7 상태 badge
+
+- 기본 높이 28px, 모바일 밀집 영역은 최소 26px, 좌우 여백 8~10px, 모서리 12px를 사용한다.
+- 상태명과 함께 7px 상태점을 제공해 색만으로 구분하지 않는다.
+- `#0628C7` 계열은 선택·정보·운영 행동, `#0FE75A`는 동의·승인·적용 완료의 작은 점과 강조선에만 사용한다.
+- 밝은 `#0FE75A` 위에 본문을 직접 올리지 않고 완료 텍스트는 `#087A36`을 사용한다.
+- 대기·주의는 앰버, 실제 임계치 초과·실행 차단만 빨강, 수정·거절은 중립색을 사용한다.
+- 텍스트 카드의 좌·우 측면에 상태색 띠를 붙이지 않는다. 카드 구조는 중립 경계로 유지하고 상태는 badge 안에서 표현한다.
+
+### 4.8 아이콘
 
 - 하나의 선형 아이콘 시스템을 사용한다.
 - 기본 20px, 작은 상태 16px, 기사 주요 행동 24px

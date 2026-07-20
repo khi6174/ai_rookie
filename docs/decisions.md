@@ -404,6 +404,16 @@
 - 기각한 대안: 전체 Demo session을 무기한 캐시하는 방식, 오프라인 응답 큐를 서버 계약 없이 구현하는 방식, 실제 인증처럼 보이는 계정 지속, 외부 PWA 플러그인·아이콘·비국내 AI 생성 에셋 추가, 만료 캐시를 마지막 최신 계획으로 계속 표시하는 방식.
 - 영향 파일: `public/manifest.webmanifest`, `public/sw.js`, `public/icons/`, `src/pwa/`, `src/main.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/approved-plan-cache.test.ts`, `tests/pwa-assets.test.ts`, `e2e/saferoute-demo.spec.ts`, 관련 승인 문서
 
+### ADR-041 — 카드와 상태 언어를 승인된 Figma 패턴과 블루·그린 조합으로 통일한다
+
+- 날짜: 2026-07-20
+- 상태: Approved for implementation, visual confirmation pending
+- 결정: SafeRoute의 카드 시각 문법은 100 card design templates UI kit의 흰 작업면, 얇은 경계, 짧은 정보계층과 절제된 그림자 패턴을 참고하고, 상태 badge는 Material X의 Segments에서 확인한 compact capsule, 상태면과 선택 대비를 badge 문맥으로 전환한다. 텍스트 카드 옆의 별도 상태색 막대는 제거하고 상태는 badge·아이콘·문구로 전달한다. 기사 핵심 카드는 진한 파랑 면 대신 밝은 흰색·soft blue 작업면을 사용하며 진한 파랑은 헤더와 주요 행동에 집중한다. 주요 운영 행동·선택은 `#0628C7`, 동의·승인·계획 적용 완료의 작은 강조는 `#0FE75A`로 통일한다. 밝은 초록 위 본문은 금지하고 `#087A36`을 완료 텍스트로 사용한다. 대기·주의·차단·비징벌적 거절의 기존 의미는 유지한다.
+- 경계: Figma 원본 컴포넌트, React·Tailwind 예제, 로고·아이콘·이미지와 외부 런타임 에셋을 복사하거나 새 UI 의존성을 추가하지 않는다. Safety 계산, Risk Transfer Guard, 동의·승인 상태기계, 지도 projection과 PWA 계약은 변경하지 않는다.
+- 이유: 기존 화면은 폐루프와 정보구조는 명확하지만 카드 모서리·경계·그림자와 상태 pill의 높이·상태 신호가 화면별로 달라 완성도가 분산되어 있었다. 공통 토큰과 상태점을 사용하면 관리자와 기사가 같은 결정을 같은 시각 언어로 읽으면서도 색에만 의존하지 않는다.
+- 기각한 대안: Figma 코드를 그대로 복사해 Tailwind를 추가하는 방식, 밝은 초록을 본문·일반 행동에 광범위하게 사용하는 방식, 보라색·네온 중심 팔레트, 모든 카드를 강한 그림자로 띄우는 방식, 거절을 빨강으로 표시하는 방식.
+- 영향 파일: `docs/design-system.md`, `docs/decisions.md`, `src/ui/styles.css`, 지정 해상도 E2E 캡처
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
