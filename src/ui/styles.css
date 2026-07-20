@@ -4106,15 +4106,21 @@ summary {
 
 .rider-safe-window {
   display: grid;
+  grid-template-areas:
+    "title title"
+    "clock copy";
   grid-template-columns: 104px minmax(0, 1fr);
   align-items: center;
-  gap: 15px;
+  gap: 8px 15px;
   margin-top: 14px;
 }
 
+.rider-safe-window > h1 { grid-area: title; }
+
 .rider-safe-clock {
+  grid-area: clock;
   display: grid;
-  min-height: 106px;
+  min-height: 76px;
   align-content: center;
   gap: 2px;
   padding: 12px;
@@ -4135,6 +4141,13 @@ summary {
   font-size: 1.42rem;
   line-height: 1.15;
   letter-spacing: -0.035em;
+}
+
+.rider-safe-copy {
+  display: grid;
+  min-width: 0;
+  grid-area: copy;
+  align-content: center;
 }
 
 .rider-route-hero.is-applied .rider-safe-clock {
@@ -4258,12 +4271,12 @@ summary {
 
   .rider-safe-window {
     grid-template-columns: 90px minmax(0, 1fr);
-    gap: 10px;
+    gap: 6px 10px;
     margin-top: 8px;
   }
 
   .rider-safe-clock {
-    min-height: 88px;
+    min-height: 64px;
     padding: 8px;
   }
 
@@ -4303,5 +4316,16 @@ summary {
 
   .rider-plan-steps > div::before {
     top: 7px;
+  }
+}
+
+@media (max-width: 370px) {
+  .rider-route-hero {
+    padding: 9px;
+  }
+
+  .rider-compact-map {
+    margin-top: 8px;
+    margin-bottom: 3px;
   }
 }

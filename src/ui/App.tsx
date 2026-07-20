@@ -1077,13 +1077,13 @@ function RiderView({
                 <span className="rider-plan-status">{applied ? "적용 완료" : "정차 후 검토"}</span>
               </div>
               <div className="rider-safe-window">
+                <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 지원을 확인해 주세요"}</h1>
                 <div className="rider-safe-clock" aria-label={applied ? "예상 임계치 초과 해소" : "오후 4시 20분까지 약 52분 남음"}>
                   <span>Safe-until</span>
                   <strong>{applied ? "해소" : "16:20"}</strong>
                   <small>{applied ? "조정 계획 기준" : "약 52분 남음"}</small>
                 </div>
                 <div className="rider-safe-copy">
-                  <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 지원을 확인해 주세요"}</h1>
                   <p>{applied
                     ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
                     : "비와 경사 구간, 남은 작업량이 겹칩니다. 정차한 상태에서 계획을 검토해 주세요."}</p>
