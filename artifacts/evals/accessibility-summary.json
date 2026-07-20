@@ -1,6 +1,6 @@
 {
   "schemaVersion": "accessibility-summary-v1",
-  "capturedAt": "2026-07-20T05:42:31.198Z",
+  "capturedAt": "2026-07-20T06:30:02.227Z",
   "dataMode": "Demo fixture",
   "browser": "Chromium 149.0.7827.55",
   "scope": [
@@ -9,6 +9,7 @@
     "visible Demo fixture provenance label",
     "map error fallback with structured region, courier, decision and delivery-order navigation",
     "keyboard-only structured map alternative navigation",
+    "pointer-drag and keyboard map panning with bounded position and center reset",
     "rider current-position context, next delivery and primary support action above the mobile tab bar",
     "rider decision summary and consent action above the mobile tab bar"
   ],

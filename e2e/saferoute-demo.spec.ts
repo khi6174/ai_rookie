@@ -164,6 +164,37 @@ test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
 });
 
+test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한다", async ({ page }) => {
+  await page.goto("/");
+  const map = page.getByRole("group", { name: "합성 지도 이동 영역" });
+  const surface = page.locator(".control-map-pan-surface");
+  const reset = page.getByRole("button", { name: "지도 중심 복원" });
+  await expect(surface).toHaveAttribute("data-pan-x", "0");
+  await expect(surface).toHaveAttribute("data-pan-y", "0");
+  await expect(reset).toBeDisabled();
+
+  const box = await map.boundingBox();
+  expect(box).not.toBeNull();
+  const startX = box!.x + box!.width * 0.48;
+  const startY = box!.y + box!.height * 0.24;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + 72, startY + 46, { steps: 5 });
+  await page.mouse.up();
+  await expect(surface).not.toHaveAttribute("data-pan-x", "0");
+  await expect(surface).not.toHaveAttribute("data-pan-y", "0");
+  await expect(page.getByText(decisionId).first()).toBeVisible();
+
+  await reset.click();
+  await expect(surface).toHaveAttribute("data-pan-x", "0");
+  await expect(surface).toHaveAttribute("data-pan-y", "0");
+  await map.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(surface).toHaveAttribute("data-pan-x", "24");
+  await page.keyboard.press("Home");
+  await expect(surface).toHaveAttribute("data-pan-x", "0");
+});
+
 test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순서를 확인하고 복구한다", async ({ page }) => {
   await page.goto("/");
   await page.getByRole("button", { name: "지도 오류 재현" }).click();
@@ -217,6 +248,8 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/");
     await enterRider(page, "원 기사");
+    await expect(page.locator(".stopped-badge")).toHaveText("정차 확인");
+    await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "약 16:20, 17번째 배송지 전까지 안전한 범위입니다" })).toBeVisible();
     await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
     await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
@@ -478,6 +511,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
         "visible Demo fixture provenance label",
         "map error fallback with structured region, courier, decision and delivery-order navigation",
         "keyboard-only structured map alternative navigation",
+        "pointer-drag and keyboard map panning with bounded position and center reset",
         "rider current-position context, next delivery and primary support action above the mobile tab bar",
         "rider decision summary and consent action above the mobile tab bar",
       ],

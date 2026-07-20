@@ -3786,7 +3786,6 @@ summary {
 }
 
 .status-pill::before,
-.stopped-badge::before,
 .mini-badge::before,
 .band-label::before,
 .fixture-pill::before {
@@ -3801,7 +3800,6 @@ summary {
 }
 
 .status-success::before,
-.stopped-badge::before,
 .support-card.is-applied .support-urgency::before,
 .rider-hero-card.is-applied .rider-hero-label::before {
   border-color: var(--color-green-700);
@@ -4011,6 +4009,69 @@ summary {
 .rider-decision-brief .decision-brief-work {
   border-color: var(--color-blue-200);
   background: var(--color-blue-100);
+}
+
+.control-map-canvas {
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+}
+
+.control-map-canvas.is-panning {
+  cursor: grabbing;
+}
+
+.control-map-pan-surface {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  transform: translate3d(var(--map-pan-x), var(--map-pan-y), 0);
+  transition: transform 140ms ease-out;
+  will-change: transform;
+}
+
+.control-map-canvas.is-panning .control-map-pan-surface {
+  transition: none;
+}
+
+.map-pan-hint {
+  position: absolute;
+  z-index: 8;
+  top: 48px;
+  left: 12px;
+  display: inline-flex;
+  min-height: 26px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid rgb(206 216 226 / 90%);
+  border-radius: 8px;
+  color: var(--color-text-muted);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 4px 12px rgb(16 28 44 / 8%);
+  cursor: default;
+  pointer-events: none;
+  font-size: 0.55rem;
+  font-weight: 750;
+}
+
+.route-heading-meta .map-pan-reset {
+  min-height: 32px;
+  padding: 0 10px;
+  border: 1px solid var(--color-blue-200);
+  border-radius: 7px;
+  color: var(--color-blue-800);
+  background: var(--color-blue-100);
+  font: inherit;
+  font-size: 0.6rem;
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.route-heading-meta .map-pan-reset:disabled {
+  color: var(--color-text-disabled);
+  border-color: var(--color-border);
+  background: var(--color-surface-subtle);
+  cursor: default;
 }
 
 @media (max-width: 430px) {

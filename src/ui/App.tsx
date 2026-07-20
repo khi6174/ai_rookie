@@ -1,5 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type {
+  CSSProperties,
+  KeyboardEvent as ReactKeyboardEvent,
+  PointerEvent as ReactPointerEvent,
+} from "react";
+import type {
   ExplanationResult,
   InterventionCandidate,
   MapSelection,
@@ -225,6 +230,12 @@ const mapSupportLabels = {
   OFFLINE: "오프라인",
 } as const;
 
+const mapPanLimit = { x: 160, y: 110 } as const;
+
+function clampMapPan(value: number, axis: keyof typeof mapPanLimit) {
+  return Math.max(-mapPanLimit[axis], Math.min(mapPanLimit[axis], value));
+}
+
 function MultiRegionControlMap({
   applied,
   fixture,
@@ -242,6 +253,15 @@ function MultiRegionControlMap({
   onMapAvailabilityChange: (available: boolean) => void;
   onSelectionChange: (selection: MapSelection) => void;
 }) {
+  const [mapPan, setMapPan] = useState({ x: 0, y: 0 });
+  const [isMapPanning, setIsMapPanning] = useState(false);
+  const mapDrag = useRef<{
+    pointerId: number;
+    startX: number;
+    startY: number;
+    originX: number;
+    originY: number;
+  } | null>(null);
   const model = adapter.getModel(selection);
   const selectedRegion = model.selection.regionId
     ? fixture.regions.find((region) => region.regionId === model.selection.regionId)
@@ -258,6 +278,61 @@ function MultiRegionControlMap({
       : "선택한 지원 decision과 계획 경로";
   const selectDecision = (decisionId: string) => {
     onSelectionChange(adapter.selectionForDecision(decisionId));
+  };
+  const resetMapPan = () => setMapPan({ x: 0, y: 0 });
+  const handleMapPointerDown = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (event.button !== 0) return;
+    const target = event.target as Element;
+    if (target.closest("button, a, summary, [data-map-overlay]")) return;
+    mapDrag.current = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      originX: mapPan.x,
+      originY: mapPan.y,
+    };
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setIsMapPanning(true);
+  };
+  const handleMapPointerMove = (event: ReactPointerEvent<HTMLDivElement>) => {
+    const drag = mapDrag.current;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+    setMapPan({
+      x: clampMapPan(drag.originX + event.clientX - drag.startX, "x"),
+      y: clampMapPan(drag.originY + event.clientY - drag.startY, "y"),
+    });
+  };
+  const stopMapPointer = (event: ReactPointerEvent<HTMLDivElement>) => {
+    if (mapDrag.current?.pointerId !== event.pointerId) return;
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+      event.currentTarget.releasePointerCapture(event.pointerId);
+    }
+    mapDrag.current = null;
+    setIsMapPanning(false);
+  };
+  const handleMapKeyDown = (event: ReactKeyboardEvent<HTMLDivElement>) => {
+    if (event.target !== event.currentTarget) return;
+    const movement = 24;
+    if (event.key === "Home" || event.key === "0") {
+      event.preventDefault();
+      resetMapPan();
+      return;
+    }
+    const delta = event.key === "ArrowLeft"
+      ? { x: -movement, y: 0 }
+      : event.key === "ArrowRight"
+        ? { x: movement, y: 0 }
+        : event.key === "ArrowUp"
+          ? { x: 0, y: -movement }
+          : event.key === "ArrowDown"
+            ? { x: 0, y: movement }
+            : null;
+    if (!delta) return;
+    event.preventDefault();
+    setMapPan((current) => ({
+      x: clampMapPan(current.x + delta.x, "x"),
+      y: clampMapPan(current.y + delta.y, "y"),
+    }));
   };
   const structuredAlternative = (
     <div className="map-structured-content">
@@ -332,6 +407,14 @@ function MultiRegionControlMap({
           >
             {mapAvailable ? "지도 오류 재현" : "지도 복구"}
           </button>
+          <button
+            type="button"
+            className="map-pan-reset"
+            disabled={mapPan.x === 0 && mapPan.y === 0}
+            onClick={resetMapPan}
+          >
+            지도 중심 복원
+          </button>
         </div>
       </div>
       <nav className="map-breadcrumb" aria-label="지도 탐색 위치">
@@ -359,69 +442,100 @@ function MultiRegionControlMap({
         {selectedCourier && (
           <><span aria-hidden="true">/</span><strong>{selectedCourier.courierId.slice(-10)}</strong></>
         )}
-        <button type="button" className="map-reset-camera" onClick={() => onSelectionChange(adapter.resetSelection())}>전체 보기</button>
+        <button type="button" className="map-reset-camera" onClick={() => {
+          resetMapPan();
+          onSelectionChange(adapter.resetSelection());
+        }}>전체 보기</button>
       </nav>
       <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 Fallback · ${title}`}</p>
-      {mapAvailable ? <div className={`control-map-canvas scope-${model.scope.toLowerCase()}`}>
-        <svg
-          className="control-map-svg"
-          viewBox="0 0 100 100"
-          role="img"
-          aria-label={model.scope === "NATIONAL"
-            ? "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도"
-            : `${selectedRegion?.label ?? "선택 권역"}의 합성 허브, 기사 위치 상태와 계획 경로 지도`}
+      {mapAvailable ? <div
+        className={`control-map-canvas scope-${model.scope.toLowerCase()} ${isMapPanning ? "is-panning" : ""}`}
+        role="group"
+        tabIndex={0}
+        aria-label="합성 지도 이동 영역"
+        aria-describedby="map-pan-instructions"
+        style={{
+          "--map-pan-x": `${mapPan.x}px`,
+          "--map-pan-y": `${mapPan.y}px`,
+        } as CSSProperties}
+        onPointerDown={handleMapPointerDown}
+        onPointerMove={handleMapPointerMove}
+        onPointerUp={stopMapPointer}
+        onPointerCancel={stopMapPointer}
+        onLostPointerCapture={() => {
+          mapDrag.current = null;
+          setIsMapPanning(false);
+        }}
+        onKeyDown={handleMapKeyDown}
+      >
+        <p id="map-pan-instructions" className="sr-only">빈 지도 영역을 드래그하거나 방향키로 이동합니다. Home 또는 숫자 0 키로 중심을 복원합니다.</p>
+        <div
+          className="control-map-pan-surface"
+          data-pan-x={Math.round(mapPan.x)}
+          data-pan-y={Math.round(mapPan.y)}
         >
-          <defs>
-            <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
-              <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.25" />
-            </pattern>
-          </defs>
-          <rect width="100" height="100" className="map-grid-fill" />
-          {model.routes.map((route) => (
-            <polyline
-              key={route.routeId}
-              className={`svg-route ${route.selected ? "is-selected" : ""} ${applied && route.selected ? "is-applied" : ""}`}
-              points={route.points.map((point) => `${point.x},${point.y}`).join(" ")}
-            />
-          ))}
-          {model.hubs.map((hub) => (
-            <g key={hub.hubId} className="svg-hub" transform={`translate(${hub.point.x} ${hub.point.y})`}>
-              <rect x="-2.5" y="-2.5" width="5" height="5" rx="1" />
-              <text x="0" y="6.5" textAnchor="middle">{hub.courierCount}명</text>
-            </g>
-          ))}
-        </svg>
-        {model.scope === "NATIONAL" && model.regions.map((region) => (
-          <button
-            key={region.regionId}
-            type="button"
-            className="region-cluster"
-            style={{ left: `${region.point.x}%`, top: `${region.point.y}%` }}
-            aria-label={`${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`}
-            onClick={() => onSelectionChange({ regionId: region.regionId })}
+          <svg
+            className="control-map-svg"
+            viewBox="0 0 100 100"
+            role="img"
+            aria-label={model.scope === "NATIONAL"
+              ? "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도"
+              : `${selectedRegion?.label ?? "선택 권역"}의 합성 허브, 기사 위치 상태와 계획 경로 지도`}
           >
-            <span>{region.supportDecisionCount}</span>
-            <strong>{region.label}</strong>
-            <small>기사 {region.courierCount} · stale/offline {region.staleOrOfflineCount}</small>
-          </button>
-        ))}
-        {model.scope !== "NATIONAL" && model.couriers.map((courier) => courier.point && (
-          <button
-            key={courier.courierId}
-            type="button"
-            className={`courier-marker status-${courier.supportStatus.toLowerCase()} ${courier.positionStatus === "STALE" ? "is-stale" : ""}`}
-            style={{ left: `${courier.point.x}%`, top: `${courier.point.y}%` }}
-            aria-label={`${courier.courierId.slice(-10)}, ${mapSupportLabels[courier.supportStatus]}, 위치 ${courier.positionStatus}`}
-            aria-pressed={model.selection.courierId === courier.courierId}
-            onClick={() => courier.decisionId
-              ? selectDecision(courier.decisionId)
-              : onSelectionChange({ regionId: courier.regionId, courierId: courier.courierId })}
-          >
-            <span aria-hidden="true">{courier.positionStatus === "STALE" ? "!" : courier.supportStatus === "OPERATING" ? "·" : "◆"}</span>
-          </button>
-        ))}
-        <div className="map-data-mode"><strong>Demo movement 아님</strong><span>결정론적 합성 위치 · Live 0명</span></div>
-        <div className={`map-active-decision ${applied ? "is-applied" : ""}`}>
+            <defs>
+              <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
+                <path d="M 10 0 L 0 0 0 10" fill="none" stroke="currentColor" strokeWidth="0.25" />
+              </pattern>
+            </defs>
+            <rect width="100" height="100" className="map-grid-fill" />
+            {model.routes.map((route) => (
+              <polyline
+                key={route.routeId}
+                className={`svg-route ${route.selected ? "is-selected" : ""} ${applied && route.selected ? "is-applied" : ""}`}
+                points={route.points.map((point) => `${point.x},${point.y}`).join(" ")}
+              />
+            ))}
+            {model.hubs.map((hub) => (
+              <g key={hub.hubId} className="svg-hub" transform={`translate(${hub.point.x} ${hub.point.y})`}>
+                <rect x="-2.5" y="-2.5" width="5" height="5" rx="1" />
+                <text x="0" y="6.5" textAnchor="middle">{hub.courierCount}명</text>
+              </g>
+            ))}
+          </svg>
+          {model.scope === "NATIONAL" && model.regions.map((region) => (
+            <button
+              key={region.regionId}
+              type="button"
+              className="region-cluster"
+              style={{ left: `${region.point.x}%`, top: `${region.point.y}%` }}
+              aria-label={`${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`}
+              onClick={() => onSelectionChange({ regionId: region.regionId })}
+            >
+              <span>{region.supportDecisionCount}</span>
+              <strong>{region.label}</strong>
+              <small>기사 {region.courierCount} · stale/offline {region.staleOrOfflineCount}</small>
+            </button>
+          ))}
+          {model.scope !== "NATIONAL" && model.couriers.map((courier) => courier.point && (
+            <button
+              key={courier.courierId}
+              type="button"
+              className={`courier-marker status-${courier.supportStatus.toLowerCase()} ${courier.positionStatus === "STALE" ? "is-stale" : ""}`}
+              style={{ left: `${courier.point.x}%`, top: `${courier.point.y}%` }}
+              aria-label={`${courier.courierId.slice(-10)}, ${mapSupportLabels[courier.supportStatus]}, 위치 ${courier.positionStatus}`}
+              aria-pressed={model.selection.courierId === courier.courierId}
+              onClick={() => courier.decisionId
+                ? selectDecision(courier.decisionId)
+                : onSelectionChange({ regionId: courier.regionId, courierId: courier.courierId })}
+            >
+              <span aria-hidden="true">{courier.positionStatus === "STALE" ? "!" : courier.supportStatus === "OPERATING" ? "·" : "◆"}</span>
+            </button>
+          ))}
+        </div>
+        <div className="map-data-mode" data-map-overlay><strong>Demo movement 아님</strong><span>결정론적 합성 위치 · Live 0명</span></div>
+        <span className="map-pan-hint" data-map-overlay>드래그·방향키로 지도 이동</span>
+        <span className="sr-only" aria-live="polite">지도 이동 위치 가로 {Math.round(mapPan.x)}, 세로 {Math.round(mapPan.y)}</span>
+        <div className={`map-active-decision ${applied ? "is-applied" : ""}`} data-map-overlay>
           <span>{applied ? "계획 적용 완료" : "현재 지원 큐 · 1건"}</span>
           <strong>{applied ? "예상 초과 해소" : "약 52분 후 · 17번째 배송지"}</strong>
           <small>{applied ? "원 기사 9건 · 수신 기사로 이관 8건" : "10분 휴식 + 8건 이관 검토"}</small>
@@ -944,7 +1058,7 @@ function RiderView({
       <div className="rider-phone">
         <div className="rider-topline">
           <span className="mode-badge"><span aria-hidden="true">◇</span> {demoWeatherRuntime.displayLabel}</span>
-          <span className="stopped-badge"><span aria-hidden="true">✓</span> 정차 확인</span>
+          <span className="stopped-badge">정차 확인</span>
         </div>
         <div className="rider-route-bar">
           <div><span>관악 합성 권역</span><strong>{tab === "ROUTE" ? "오늘의 운행" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>

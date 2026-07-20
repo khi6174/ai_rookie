@@ -28,7 +28,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 영역 | 최종 확인 결과 |
 |---|---|
 | 단위·계약 | Vitest 21개 파일, 205/205 통과 |
-| 브라우저 폐루프 | Playwright 15/15 통과, 실제 offline reload·캐시 만료 포함 |
+| 브라우저 폐루프 | Playwright 16/16 통과, bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 서버 clean start | 독립 서버·브라우저 3/3, G3-B 반영 후 21.56초 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |
@@ -43,7 +43,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 15개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-19 G3-B 개별 Gate는 Vitest 205/205, Playwright 15/15, clean-start 3/3, 국내트랙 감사 7/7과 build를 통과했다. 이어 전체 묶음도 명령 5/5·증거 10/10으로 `PASSED`했으며 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, Playwright 16개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 G2-C 개별 Gate는 Vitest 205/205, Playwright 16/16, clean-start 3/3, 국내트랙 감사 7/7과 build를 통과했다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 

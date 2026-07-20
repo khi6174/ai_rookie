@@ -414,6 +414,16 @@
 - 기각한 대안: Figma 코드를 그대로 복사해 Tailwind를 추가하는 방식, 밝은 초록을 본문·일반 행동에 광범위하게 사용하는 방식, 보라색·네온 중심 팔레트, 모든 카드를 강한 그림자로 띄우는 방식, 거절을 빨강으로 표시하는 방식.
 - 영향 파일: `docs/design-system.md`, `docs/decisions.md`, `src/ui/styles.css`, 지정 해상도 E2E 캡처
 
+### ADR-042 — 공급자 독립 합성 지도는 bounded pointer·keyboard pan을 제공한다
+
+- 날짜: 2026-07-20
+- 상태: Approved
+- 결정: 관리자 합성 지도는 빈 지도 영역의 pointer drag와 방향키 이동을 지원한다. 이동은 가로 ±160px·세로 ±110px로 제한하고 `Home`, `0`, `지도 중심 복원`, `전체 보기`로 중심을 복원한다. 지도 feature만 하나의 transform surface에서 이동하며 데이터 모드·조작 안내·선택 decision은 고정 overlay로 유지한다. 마커와 decision 버튼의 클릭은 drag 시작에서 제외한다.
+- 경계: 이 pan은 공급자 독립 Demo UI의 로컬 표시 상태만 바꾸며 좌표, MapAdapter projection, Safety 계산, 추천, decision 선택, Live 위치나 감사기록을 변경하지 않는다. 확대·축소·회전·실제 지도 타일·외부 SDK는 추가하지 않는다.
+- 이유: 정적인 지도는 여러 기사와 경로를 탐색하는 Control Tower의 공간적 조작감을 충분히 전달하지 못한다. pointer와 keyboard를 함께 제공하면 일반 지도와 유사한 탐색성을 주면서도 외부 공급자·정밀 위치 계약을 임의 확정하지 않는다.
+- 기각한 대안: 외부 지도 SDK를 즉시 도입하는 방식, 무제한 pan으로 Demo 맥락을 잃는 방식, 마커 클릭과 drag를 같은 gesture로 처리하는 방식, mouse drag만 제공하는 방식, pan 위치를 실제 기사 이동으로 저장하는 방식.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `e2e/saferoute-demo.spec.ts`, `docs/design-system.md`, `docs/evals.md`, `artifacts/evals/accessibility-summary.json`, 지정 해상도 스크린샷
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

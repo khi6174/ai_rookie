@@ -30,7 +30,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 기상청 1.3 현재 체감온도·시정과 4.3 향후 120분 적설 Live 보완 검증, 3시간 적설 무단 환산·현재값 미래복제 차단
 - 4.3 `TMP·REH·WSD`와 기상청 공식 계절별 식으로 미래 체감온도 3시점 결정론적 산출
 - KMA 부분 Live를 감사 증거로만 보존하고 Demo 타임라인 전체를 선택하는 `Weather Fallback`, 필드 혼합 0건
-- Playwright 관리자–두 기사 폐루프·새 ID reset·키보드·4개 해상도·스크린샷 9/9과 서버 clean start 3회 통과
+- Playwright 관리자–두 기사 폐루프·새 ID reset·키보드·지도 drag/keyboard pan·4개 해상도·스크린샷 16/16과 서버 clean start 3회 통과
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
@@ -75,7 +75,7 @@ pnpm run eval:kma-weather:runtime
 
 `eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개, 국내트랙 자동 감사와 해당 SHA-256 요약도 포함된다.
 
-`verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 9개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
+`verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 16개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
 `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사 결과가 모두 `PASSED`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다.
 
