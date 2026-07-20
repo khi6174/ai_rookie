@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "g5-spatial-comprehension-summary-v1",
+  "studyId": "g5-b-decision-spatial-comprehension-001",
+  "dataMode": "DEMO",
+  "status": "DO_NOT_PROMOTE",
+  "reviewerCount": 3,
+  "totalTrials": 6,
+  "correctTrials": 2,
+  "correctTrialsByMode": {
+    "TWO_D": 2,
+    "DEMO_TWO_POINT_FIVE_D": 0
+  },
+  "answerAccuracy": 0.3333333333333333,
+  "criticalMisinterpretationCount": 4,
+  "slopeCorrectByMode": {
+    "TWO_D": 0,
+    "DEMO_TWO_POINT_FIVE_D": 0
+  },
+  "confusionCount": 2,
+  "prefers2point5dCount": 0,
+  "medianDurationMs": {
+    "twoD": 377042,
+    "demoTwoPointFiveD": 978984
+  },
+  "durationRatioTwoPointFiveDToTwoD": 2.5964852721977922,
+  "meanConfidenceByMode": {
+    "twoD": 2.3333333333333335,
+    "demoTwoPointFiveD": 2.3333333333333335
+  },
+  "unknownAnswerCountByMode": {
+    "TWO_D": 4,
+    "DEMO_TWO_POINT_FIVE_D": 8
+  },
+  "comprehensionPassed": false,
+  "twoPointFiveDSlopePassed": false,
+  "defaultPromotionEligible": false,
+  "note": "Independent human observations only; this result is not field-performance or accident-reduction evidence."
+}

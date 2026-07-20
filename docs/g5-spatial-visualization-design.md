@@ -4,7 +4,7 @@
 
 - 상태: Approved — G5-A 공급자 독립 Demo 2.5D 구현 기준
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-21
 - 설계 버전: `g5-spatial-design-v1.0.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/evals.md`
 - 승인 범위: 관리자 활성 decision의 선택형 SVG 2.5D, 기본 2D·기사 PWA 유지
@@ -198,7 +198,7 @@ G4-B의 2D Gate는 어떤 경우에도 약화하지 않는다. 2.5D는 lazy rend
 1. **G5-A 구현 완료:** 활성 지원 decision에만 `입체 경사 보기 · Demo`를 제공한다.
 2. **자동 Gate 편입:** 계약·SHA-256 재현·2D 의미 일치·성능·키보드·reduced-motion·Fallback을 전체 릴리스 Gate에서 검증한다.
 3. **공개 Demo 반영:** 사용자가 승인한 기존 공개 범위에서 기본 2D를 유지하고 선택형 2.5D만 추가한다.
-4. **사람 이해 확인:** `docs/g5-spatial-comprehension-test.md`의 고정 자극·익명 계약·자동 판정 하네스를 준비했다. 최소 3명의 실제 독립 검토 결과는 아직 대기 중이며 G5-B로 별도 보존한다.
+4. **사람 이해 확인:** G5-B Round 1은 독립 검토자 3명·6 trial에서 핵심 의미 전체 정답 2/6, 경사 구간 정답 0/6, 혼란 증가 2/3으로 `DO_NOT_PROMOTE` 판정을 받았다. 2.5D는 기본 기능으로 승격하지 않으며 관리자 decision 정보위계 재설계 후 재검토한다.
 5. **P2 재검토:** 선택지 B 지형 overlay 또는 선택지 C 실제 WebGL 3D는 별도 재승인 전 구현하지 않는다.
 
 ## 10. 승인되어 구현된 항목

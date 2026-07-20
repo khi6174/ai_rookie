@@ -66,9 +66,11 @@ describe("G5-B 공간 이해도 평가", () => {
       reviewerCount: 3,
       totalTrials: 6,
       correctTrials: 6,
+      correctTrialsByMode: { TWO_D: 3, DEMO_TWO_POINT_FIVE_D: 3 },
       answerAccuracy: 1,
       criticalMisinterpretationCount: 0,
       defaultPromotionEligible: true,
+      unknownAnswerCountByMode: { TWO_D: 0, DEMO_TWO_POINT_FIVE_D: 0 },
     });
   });
 

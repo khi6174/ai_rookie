@@ -33,6 +33,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 브라우저 폐루프 | Playwright 20/20 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
+| G5-B 사람 이해도 | Round 1 `DO_NOT_PROMOTE`: 3명·6 trial 중 핵심 의미 전체 정답 2/6, 2.5D 혼란 증가 2/3. 관리자 decision 정보위계 재설계·재검토 필요 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |
@@ -120,4 +121,4 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - A.X API 계정의 활성 모델·quota·입력 보존 정책
 - 실제 운영 파일럿을 위한 데이터 계약·권한·보존·법률·노무 검토
 - 사용자 평가 모집과 역할별 이해도 결과
-- G5-B 2D·Demo 2.5D 독립 검토 3명 결과(고정 화면·익명 계약·자동 판정 하네스는 준비 완료)
+- G5-B Round 1 `DO_NOT_PROMOTE`에 따른 관리자 decision 정보위계 재설계와 독립 검토 재실행

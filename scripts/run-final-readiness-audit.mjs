@@ -115,6 +115,19 @@ const weather = await readJson("weather-runtime-selection-latest.json");
 const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
 const spatialScene = await readJson("spatial-scene-summary.json");
+let spatialComprehension = {
+  status: "NOT_RUN",
+  reviewerCount: 0,
+  answerAccuracy: null,
+  defaultPromotionEligible: false,
+};
+try {
+  spatialComprehension = await readJson(
+    "g5-spatial-comprehension-summary.json",
+  );
+} catch {
+  // G5-B remains a separate human gate until a valid result is preserved.
+}
 let publicDemoBuild = {
   configured: false,
   workerPresent: false,
@@ -285,6 +298,11 @@ const result = {
     spatialSceneMismatchCount:
       spatialScene.metrics.identifierMismatchCount +
       spatialScene.metrics.numericMismatchCount,
+    g5HumanComprehensionStatus: spatialComprehension.status,
+    g5HumanReviewerCount: spatialComprehension.reviewerCount,
+    g5HumanAnswerAccuracy: spatialComprehension.answerAccuracy,
+    g5DefaultPromotionEligible:
+      spatialComprehension.defaultPromotionEligible,
   },
   explicitLimitations: [
     "The public Finals Demo is not approval for production operation.",
@@ -292,12 +310,18 @@ const result = {
     "Kakao Maps renders synthetic Demo coordinates only; no real courier location, TMS, authentication, or customer message delivery is integrated.",
     "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",
     "Synthetic simulation results are not evidence of real accident reduction.",
+    spatialComprehension.status === "DO_NOT_PROMOTE"
+      ? "G5-B Round 1 human review found low dashboard comprehension; 2.5D must not be promoted and the decision view requires redesign and retest."
+      : "G5-B human comprehension evidence does not authorize automatic 2.5D default promotion.",
   ],
   remainingHumanChecks: [
     "Run on the actual presentation PC at 1280x720 and browser zoom 100%.",
     "Assign presenter and recovery operator roles.",
     "Confirm the exact submission form, video filename, and organizer upload deadline.",
     "Record the final GitHub commit SHA in the submitted materials.",
+    ...(spatialComprehension.status === "DO_NOT_PROMOTE"
+      ? ["Redesign the dashboard decision hierarchy and repeat G5-B with independent reviewers."]
+      : []),
   ],
 };
 

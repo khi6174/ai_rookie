@@ -2,7 +2,7 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { createServer } from "vite";
 
-const inputArgument = process.argv[2];
+const inputArgument = process.argv.slice(2).find((argument) => argument !== "--");
 if (!inputArgument) {
   console.error(
     "Usage: pnpm run eval:g5:comprehension -- <completed-results.json>",

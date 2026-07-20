@@ -130,6 +130,18 @@ export function evaluateSpatialComprehension(input: unknown) {
   let totalTrials = 0;
   let correctTrials = 0;
   let criticalMisinterpretationCount = 0;
+  const correctTrialsByMode: Record<Mode, number> = {
+    TWO_D: 0,
+    DEMO_TWO_POINT_FIVE_D: 0,
+  };
+  const confidenceByMode: Record<Mode, number[]> = {
+    TWO_D: [],
+    DEMO_TWO_POINT_FIVE_D: [],
+  };
+  const unknownAnswerCountByMode: Record<Mode, number> = {
+    TWO_D: 0,
+    DEMO_TWO_POINT_FIVE_D: 0,
+  };
   const slopeCorrectByMode: Record<Mode, number> = {
     TWO_D: 0,
     DEMO_TWO_POINT_FIVE_D: 0,
@@ -139,10 +151,17 @@ export function evaluateSpatialComprehension(input: unknown) {
     for (const trial of reviewer.trials) {
       totalTrials += 1;
       modeDurations[trial.mode].push(trial.durationMs);
+      confidenceByMode[trial.mode].push(trial.confidence);
+      unknownAnswerCountByMode[trial.mode] += Object.values(trial.answers).filter(
+        (value) => value === "UNKNOWN",
+      ).length;
       const isCorrect = Object.entries(expectedAnswers).every(
         ([key, value]) => trial.answers[key as keyof typeof trial.answers] === value,
       );
-      if (isCorrect) correctTrials += 1;
+      if (isCorrect) {
+        correctTrials += 1;
+        correctTrialsByMode[trial.mode] += 1;
+      }
       else criticalMisinterpretationCount += 1;
       if (trial.answers.slopeExposureSegment === "REST_TO_BREACH") {
         slopeCorrectByMode[trial.mode] += 1;
@@ -182,6 +201,7 @@ export function evaluateSpatialComprehension(input: unknown) {
     reviewerCount: study.reviewers.length,
     totalTrials,
     correctTrials,
+    correctTrialsByMode,
     answerAccuracy: correctTrials / totalTrials,
     criticalMisinterpretationCount,
     slopeCorrectByMode,
@@ -191,6 +211,18 @@ export function evaluateSpatialComprehension(input: unknown) {
       twoD: median2dMs,
       demoTwoPointFiveD: median2point5dMs,
     },
+    durationRatioTwoPointFiveDToTwoD: median2point5dMs / median2dMs,
+    meanConfidenceByMode: {
+      twoD:
+        confidenceByMode.TWO_D.reduce((sum, value) => sum + value, 0) /
+        confidenceByMode.TWO_D.length,
+      demoTwoPointFiveD:
+        confidenceByMode.DEMO_TWO_POINT_FIVE_D.reduce(
+          (sum, value) => sum + value,
+          0,
+        ) / confidenceByMode.DEMO_TWO_POINT_FIVE_D.length,
+    },
+    unknownAnswerCountByMode,
     comprehensionPassed,
     twoPointFiveDSlopePassed,
     defaultPromotionEligible,

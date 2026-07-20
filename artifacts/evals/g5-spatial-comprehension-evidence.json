@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "g5-spatial-comprehension-evidence-v1",
+  "studyId": "g5-b-decision-spatial-comprehension-001",
+  "receivedAt": "2026-07-20T15:21:28.5854533Z",
+  "dataMode": "DEMO",
+  "participantData": "anonymous independent reviewer responses; no name, contact, organization, real courier, or precise location",
+  "files": [
+    {
+      "path": "artifacts/evals/g5-spatial-comprehension-results.json",
+      "sha256": "f7c967ee5032959f513a9a4c9166f5527f6c2c53420f981dec8c6fe2b467b3bd"
+    },
+    {
+      "path": "artifacts/evals/g5-spatial-comprehension-summary.json",
+      "sha256": "3c13ee1ed689235245d33053ee188b710197dd387627774993ba46651f53582b"
+    },
+    {
+      "path": "artifacts/evals/g5-spatial-stimulus-manifest.json",
+      "sha256": "316dc0da4b96c90be28673729631d9a31906f42cf9f5c37689f9ba82ff4811ad"
+    }
+  ],
+  "result": "DO_NOT_PROMOTE",
+  "limitations": [
+    "Three-person formative review; not a statistically representative usability study.",
+    "Results measure comprehension of fixed Demo screenshots, not field operation or accident reduction."
+  ]
+}
