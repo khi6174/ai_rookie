@@ -455,7 +455,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 28개 파일, 241/241 통과 |
+| 최신 전체 Vitest | `pnpm test` | 29개 파일, 245/245 통과 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |

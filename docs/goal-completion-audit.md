@@ -28,7 +28,7 @@ pnpm run audit:goal:require-ready
 
 첫 명령은 현재 상태를 정직하게 기록하고 사람 Gate가 대기 중이어도 보고서 생성 자체는 성공한다. 두 번째 명령은 최종 제출 자동화용이며 `READY_FOR_FINAL_SUBMISSION`이 아니면 실패한다.
 
-결과는 `artifacts/evals/goal-completion-latest.json`에 저장한다. 각 기준은 판정, 원자 check, 근거 경로, 구체 수치와 blocker를 포함한다. 입력 증거와 승인 문서에는 바이트 수와 SHA-256을 기록한다.
+결과는 `artifacts/evals/goal-completion-latest.json`에 저장한다. 각 기준은 판정, 원자 check, 근거 경로, 구체 수치와 blocker를 포함한다. 입력 증거·승인 문서·감사기와 사람 Gate 계약 테스트에는 바이트 수와 SHA-256을 기록한다.
 
 ## 3. 여섯 기준의 권위 증거
 
@@ -36,7 +36,7 @@ pnpm run audit:goal:require-ready
 |---|---|
 | 창의성 | ADR-051의 레퍼런스 경계, 30개 변형·90회 전략 비교, SafeRoute 하드 제약 위반 0 |
 | 혁신성 | Risk Transfer Guard 23/23, 시간·동의·버전 경계 30/30, 국내 AI·Upstage strict 증거 계층 |
-| 추진성 | 최종 기술 Gate, Vitest 241, Playwright 21, clean-start 3, 공개 Demo 빌드 |
+| 추진성 | 최종 기술 Gate, Vitest 245, Playwright 21, clean-start 3, 공개 Demo 빌드 |
 | 성장성 | 24·96·240명 합성 부하, 권역 80명·경로 24개 제한, 불완전 Live 날씨의 Demo 격리 |
 | 실효성 | 기술 폐루프와 G5-B Round 2 최소 3인 이해도, 기사 경로·제품 경계 최소 5인 이해도 |
 | 가치성 | 개인정보·원문 비저장, 기사 권리 승인 문서, SafeRoute 위반 0과 Risk Transfer Guard |
@@ -70,6 +70,7 @@ pnpm run package:submission -- --allow-dirty --diagnostic
 
 - 심사기준은 정확히 6개이며 이름·판정·원자 check와 blocker가 있다.
 - 근거 파일과 승인 문서의 SHA-256이 기록된다.
+- 감사기·사람 summary 계약·단위 테스트의 SHA-256이 기록된다.
 - G5-B는 유효한 Round 2만 실효성 통과에 사용한다.
 - 기사 사람 Gate는 5명·중대 오인 0 계약을 유지한다.
 - 사람 Gate 대기 중에는 최종 제출 패키지가 생성되지 않는다.

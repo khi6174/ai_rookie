@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { createServer } from "vite";
 
 const root = resolve(".");
 const outputPath = resolve(
@@ -43,6 +44,15 @@ async function readApprovedDocument(path) {
     bytes: bytes.byteLength,
     sha256: sha256(bytes),
     text,
+  };
+}
+
+async function readSource(path) {
+  const bytes = await readFile(resolve(root, path));
+  return {
+    path,
+    bytes: bytes.byteLength,
+    sha256: sha256(bytes),
   };
 }
 
@@ -103,6 +113,25 @@ const g5 = g5Round2 ?? g5Round1;
 const rider = await readOptionalEvidence(
   "artifacts/evals/rider-reference-comprehension-summary.json",
 );
+const vite = await createServer({
+  server: { middlewareMode: true },
+  appType: "custom",
+});
+let evaluateGoalCompletionStatus;
+let humanEvidence;
+try {
+  const goalCompletionModule = await vite.ssrLoadModule(
+    "/src/evals/goalCompletion.ts",
+  );
+  evaluateGoalCompletionStatus =
+    goalCompletionModule.evaluateGoalCompletionStatus;
+  humanEvidence = goalCompletionModule.evaluateHumanGoalEvidence({
+    ...(g5Round2 ? { g5Round2: g5Round2.json } : {}),
+    ...(rider ? { riderReference: rider.json } : {}),
+  });
+} finally {
+  await vite.close();
+}
 
 const documents = {
   product: await readApprovedDocument("docs/product-spec.md"),
@@ -112,6 +141,11 @@ const documents = {
   evaluations: await readApprovedDocument("docs/evals.md"),
   domestic: await readApprovedDocument("docs/domestic-ai-track-compliance.md"),
 };
+const evaluatorSources = await Promise.all([
+  readSource("scripts/run-goal-completion-audit.mjs"),
+  readSource("src/evals/goalCompletion.ts"),
+  readSource("tests/goal-completion.test.ts"),
+]);
 
 const final = evidence.finalReadiness.json;
 const frozen = evidence.frozen.json;
@@ -125,23 +159,8 @@ const mapPerformance = evidence.mapPerformance.json;
 const upstageDocuments = evidence.upstageDocuments.json;
 const provenance = evidence.provenance.json;
 
-const g5Round2Passed =
-  g5Round2?.json.schemaVersion === "g5-spatial-comprehension-summary-v2" &&
-  g5Round2.json.studyId ===
-    "g5-b-decision-spatial-comprehension-round2-001" &&
-  g5Round2.json.reviewerCount >= 3 &&
-  g5Round2.json.comprehensionPassed === true &&
-  ["KEEP_OPTIONAL", "DEFAULT_PROMOTION_CANDIDATE"].includes(
-    g5Round2.json.status,
-  );
-const riderPassed =
-  rider?.json.schemaVersion ===
-    "rider-reference-comprehension-summary-v1" &&
-  rider.json.studyId === "rider-route-product-boundary-001" &&
-  rider.json.reviewerCount >= 5 &&
-  rider.json.status === "READY_TO_PROMOTE" &&
-  rider.json.comprehensionPassed === true &&
-  rider.json.criticalMisconceptionCount === 0;
+const g5Round2Passed = humanEvidence.g5Passed;
+const riderPassed = humanEvidence.riderPassed;
 
 const criteria = [
   criterion(
@@ -215,7 +234,7 @@ const criteria = [
       ),
       check(
         "REPRODUCIBLE_TEST_COUNTS",
-        final.summary?.unitTests >= 241 &&
+        final.summary?.unitTests >= 245 &&
           final.summary?.e2eTests >= 21 &&
           final.summary?.cleanStartRuns === 3 &&
           final.summary?.publicDemoBuildReady === true,
@@ -329,11 +348,9 @@ const failedCriteria = criteria.filter(({ status }) => status === "FAILED");
 const pendingCriteria = criteria.filter(
   ({ status }) => status === "HUMAN_VALIDATION_REQUIRED",
 );
-const status = failedCriteria.length > 0
-  ? "FAILED"
-  : pendingCriteria.length > 0
-    ? "HUMAN_VALIDATION_REQUIRED"
-    : "READY_FOR_FINAL_SUBMISSION";
+const status = evaluateGoalCompletionStatus(
+  criteria.map(({ status: criterionStatus }) => criterionStatus),
+);
 
 const allEvidence = [
   ...Object.values(evidence),
@@ -359,14 +376,7 @@ const result = {
     g5Status: g5?.json.status ?? "NOT_RUN",
     riderStatus: rider?.json.status ?? "NOT_RUN",
   },
-  requiredNextEvidence: [
-    ...(!g5Round2Passed
-      ? ["artifacts/evals/g5-spatial-comprehension-round2-summary.json"]
-      : []),
-    ...(!riderPassed
-      ? ["artifacts/evals/rider-reference-comprehension-summary.json"]
-      : []),
-  ],
+  requiredNextEvidence: humanEvidence.requiredNextEvidence,
   evidenceManifest: allEvidence.map(({ path, bytes, sha256: hash }) => ({
     path,
     bytes,
@@ -381,6 +391,7 @@ const result = {
       sha256: hash,
     }),
   ),
+  evaluatorManifest: evaluatorSources,
   explicitLimitations: [
     "Synthetic Demo, Mock, public-weather adapter, and redacted API evidence are not field accident-reduction evidence.",
     "No live GPS, turn-by-turn navigation, dispatch brokerage, sensor, accident detection, automatic rescue, authentication, TMS, or customer delivery is claimed.",
