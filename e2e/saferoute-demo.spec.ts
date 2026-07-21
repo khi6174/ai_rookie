@@ -277,6 +277,13 @@ for (const viewport of [
     await expect(page.getByText("Fallback map", { exact: true })).toBeVisible();
     await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
     await expect(page.getByText("14번째 · 약 6분", { exact: true })).toBeVisible();
+    const structuredRoute = page.getByLabel("구조화된 다음 경로");
+    await expect(structuredRoute).toContainText("14번째 배송지 구간");
+    await expect(structuredRoute).toContainText("10분 휴식 지점");
+    await expect(structuredRoute).toContainText("약 52분 · 17번째 전");
+    await expect(page.getByText("실시간 길안내", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("운전점수", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("자동 구조", { exact: true })).toHaveCount(0);
     await expectAboveMobileTabBar(page, page.getByRole("button", { name: "안전지원 검토" }));
     for (const tabName of ["운행", "안전지원", "내 정보"]) {
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));

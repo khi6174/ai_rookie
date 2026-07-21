@@ -81,6 +81,10 @@ ADR-043의 `src/adapters/maps/kakao.ts`는 공식 HTTPS SDK 로딩과 provider �
 
 ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderModel`에서 현재 위치, 휴식 지점, 다음 배송지와 경로만 축소해 기사 프레젠테이션 모델로 만든다. 기사 Kakao 계층은 온라인에서만 이 모델을 렌더링하며 오프라인·SDK 오류·키 미설정 시 기존 CSS schematic과 항상 남아 있는 구조화 목록을 사용한다. 브라우저 Geolocation API, 주소·길찾기 API와 위치 저장은 호출하지 않는다.
 
+아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 화물차 높이·중량·통행제한, 실시간 교통, 오더 배차, 실제 길찾기와 턴바이턴 안내를 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
+
+KBS 모빌리티 AI 영상과 Riderlog 계열 공개 사례는 예방적 안전 신호의 문제·데이터 경계만 참고한다. 현재 런타임은 모션 센서, 사고 감지, 자동 구조 요청과 운전점수를 수집하거나 제공하지 않는다. 향후 선택형 운전행동 이벤트를 도입하려면 기사 동의, 목적·보존기간, 재확인 상태와 출처를 승인된 데이터 계약에 먼저 추가하고, 검증된 파생 신호만 Safety 입력 후보로 평가한다. 원시 센서와 개인 점수는 관리자 UI, 국내 AI 입력과 기사 평가에 전달하지 않는다.
+
 ADR-045의 `MapMovementTimelineSchema`와 `createMapMovementTimeline`은 24명 합성 fixture를 5초 간격·30초 horizon의 7개 frame으로 변환한다. `applyMapMovementFrame`은 선택 frame의 위치 가용성만 기존 fixture에 적용하고 전체 `MultiRegionMapFixtureSchema`를 다시 검증한다. UI 재생기는 1초마다 다음 수신 frame을 보여주는 가속 Demo일 뿐 중간 위치를 추론하지 않는다. stale은 고정되고 offline은 좌표가 없으며 복구 frame에 새 `CURRENT` 관측이 있을 때만 마커가 다시 나타난다.
 
 ADR-046의 G4-B 부하 계층은 같은 생성기를 허브당 4·16·40명으로 확장해 총 24·96·240명 profile을 만든다. `MapAdapter`는 전국에서 개별 기사·경로를 반환하지 않고, 권역에서 최대 80명과 최대 24개 경로만 렌더 모델에 포함한다. 선택된 decision scope는 제한과 무관하게 해당 기사 경로 1개를 반환한다. 브라우저 성능 증거는 외부 네트워크를 끈 Fallback 2D에서 생성하며 Kakao 공급자 지연이나 실제 장치 성능으로 일반화하지 않는다.

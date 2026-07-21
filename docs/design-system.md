@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
-- 디자인 버전: `design-v2.7.0`
+- 최종 갱신: 2026-07-21
+- 디자인 버전: `design-v2.8.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 디자인 목표
@@ -80,6 +80,15 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 | 1 | [Mobile UI Screens for Driver App](https://dribbble.com/shots/25669008-Mobile-UI-Screens-for-Driver-App) | 현재 운행 상태 우선, 다음 업무와 경로의 한눈 요약, 큰 주요 행동 | `운행` 탭의 Safe-until, 배송 진행, compact route와 검토 버튼 |
 | 2 | [Field Service Dispatch Mobile App](https://dribbble.com/shots/26302643-Field-Service-Dispatch-Mobile-App) | 현장 작업 카드, 짧은 상태 흐름, 고정된 소수의 앱 내비게이션 | `운행 / 안전지원 / 내 정보` 3탭과 검토·응답 상태 전이 |
 | 3 | [Drileaf — Fresh Produce Delivery Driver App Concept](https://dribbble.com/shots/26340526-Drileaf-Fresh-Produce-Delivery-Driver-App-Concept) | 브랜드 진입면, 배정 정보 확인, 명확한 시작 행동 | Demo fixture 로그인 화면에만 사용 |
+
+#### 운영 제품 레퍼런스
+
+| 레퍼런스 | 가져올 패턴 | 적용 화면 | 금지 경계 |
+|---|---|---|---|
+| [아틀란 트럭](https://play.google.com/store/apps/details?hl=ko&id=kr.mappers.atlantruck) | 지도 안에서 현재 위치·다음 지점·남은 순서와 경로 변화를 빠르게 읽는 현장형 정보구조 | 기사 `운행`의 compact map, 배송 진행, Safe-until과 다음 안전 거점 | 원본 화면·아이콘 복제, 실제 턴바이턴·교통·오더 배차·운임 기능 암시, 운전점수·기사 평가 |
+| [KBS 모빌리티 AI 영상](https://www.youtube.com/watch?v=NsgIRYv0c6I&t=243s) | 예방적 안전 신호와 맞춤 피드백을 기사·관리자 행동으로 연결하는 문제 프레이밍 | 안전지원 이유, 신뢰도·결측·출처, Near-miss와 향후 선택형 신호 상태 | 자동 사고 확정·구조 요청, 상시 감시, 센서·행동 점수를 성과지표처럼 표시 |
+
+아틀란 트럭은 기사 UX 레퍼런스이고 KBS 영상은 문제·데이터 활용 레퍼런스다. 두 레퍼런스 모두 Safety Budget 계산, 추천 순위, 동의·승인 상태기계의 근거가 아니며 외부 제품명·로고를 실제 제품 화면에 노출하지 않는다.
 
 #### 공통 카드와 상태 컴포넌트
 
