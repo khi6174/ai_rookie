@@ -29,11 +29,12 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 27개 파일, 237/237 통과 |
-| 브라우저 폐루프 | Playwright 20/20 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
+| 단위·계약 | Vitest 28개 파일, 241/241 통과 |
+| 브라우저 폐루프 | Playwright 21/21 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
 | G5-B 사람 이해도 | Round 1 `DO_NOT_PROMOTE`: 3명·6 trial 중 핵심 의미 전체 정답 2/6, 2.5D 혼란 증가 2/3. 질문·순서·양측 영향 중심 Round 2 화면·도구 준비, 독립 응답 대기 |
+| 기사 경로·제품 경계 이해도 | 390×844 고정 자극·5인 익명 검토 도구·strict 판정 계약 준비, 실제 독립 응답과 공식 판정 대기 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |
@@ -49,7 +50,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 20개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-20 G5-B 로컬 검토 도구 반영 Gate는 Vitest 232/232, Playwright 20/20, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-21 기사 제품 경계 검토 도구 반영 Gate는 Vitest 241/241, Playwright 21/21, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 ## 4. 문서 게이트
 
@@ -65,6 +66,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 - `docs/evals.md`
 - `docs/demo-script.md`
 - `docs/domestic-ai-track-compliance.md`
+- `docs/rider-reference-comprehension-test.md`
 - `docs/decisions.md`
 
 ### 의도적으로 Draft 유지
@@ -93,6 +95,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - `pnpm run eval:domestic-track:audit` 통과와 활용명세·제출 제외 항목 확인
 - `artifacts/evals/final-readiness-latest.json`의 `PASSED`와 사람 확인 항목 기록
 - `pnpm run package:submission`으로 allowlist ZIP과 SHA-256 manifest 생성
+- 기사 경로·제품 경계 익명 검토자 5명 응답과 기계 판정을 완료하거나, 미완료 상태를 제출물에 명시
 - 공개 URL에서도 `Demo fixture`, `Fallback map`과 비운영 한계 표시 확인
 - A.X Hosted API는 `EXTERNAL_AUTH_PENDING`으로 보류하고 운영팀 확인 후 기존 12과업 계약만 별도 실행하며 데모 폐루프에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기

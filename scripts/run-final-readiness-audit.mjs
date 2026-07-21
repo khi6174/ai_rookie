@@ -60,7 +60,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /20 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /21 passed/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -94,6 +94,7 @@ const requiredApprovedDocuments = [
   "docs/final-readiness.md",
   "docs/g5-spatial-visualization-design.md",
   "docs/g5-spatial-comprehension-test.md",
+  "docs/rider-reference-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
 ];
 const documentStatuses = [];
@@ -127,6 +128,21 @@ try {
   );
 } catch {
   // G5-B remains a separate human gate until a valid result is preserved.
+}
+let riderReferenceComprehension = {
+  status: "NOT_RUN",
+  reviewerCount: 0,
+  taskAccuracy: null,
+  fullyCorrectReviewerRate: null,
+  criticalMisconceptionCount: null,
+  comprehensionPassed: false,
+};
+try {
+  riderReferenceComprehension = await readJson(
+    "rider-reference-comprehension-summary.json",
+  );
+} catch {
+  // Rider reference comprehension remains a human gate until five valid responses exist.
 }
 let publicDemoBuild = {
   configured: false,
@@ -302,7 +318,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 20,
+    e2eTests: 21,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -329,6 +345,13 @@ const result = {
     g5HumanAnswerAccuracy: spatialComprehension.answerAccuracy,
     g5DefaultPromotionEligible:
       spatialComprehension.defaultPromotionEligible,
+    riderReferenceComprehensionStatus: riderReferenceComprehension.status,
+    riderReferenceReviewerCount: riderReferenceComprehension.reviewerCount,
+    riderReferenceTaskAccuracy: riderReferenceComprehension.taskAccuracy,
+    riderReferenceFullyCorrectReviewerRate:
+      riderReferenceComprehension.fullyCorrectReviewerRate,
+    riderReferenceCriticalMisconceptionCount:
+      riderReferenceComprehension.criticalMisconceptionCount,
   },
   explicitLimitations: [
     "The public Finals Demo is not approval for production operation.",
@@ -339,6 +362,9 @@ const result = {
     spatialComprehension.status === "DO_NOT_PROMOTE"
       ? "G5-B Round 1 human review found low dashboard comprehension; 2.5D must not be promoted and the decision view requires redesign and retest."
       : "G5-B human comprehension evidence does not authorize automatic 2.5D default promotion.",
+    riderReferenceComprehension.status === "READY_TO_PROMOTE"
+      ? "Rider reference comprehension evidence does not authorize live GPS, navigation, sensor, or field-performance claims."
+      : "Rider route and product-boundary comprehension has not passed five-person independent review.",
   ],
   remainingHumanChecks: [
     "Run on the actual presentation PC at 1280x720 and browser zoom 100%.",
@@ -347,6 +373,9 @@ const result = {
     "Record the final GitHub commit SHA in the submitted materials.",
     ...(spatialComprehension.status === "DO_NOT_PROMOTE"
       ? ["Redesign the dashboard decision hierarchy and repeat G5-B with independent reviewers."]
+      : []),
+    ...(riderReferenceComprehension.status !== "READY_TO_PROMOTE"
+      ? ["Complete the five-person rider route and product-boundary comprehension review."]
       : []),
   ],
 };
@@ -375,7 +404,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=20 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=21 cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

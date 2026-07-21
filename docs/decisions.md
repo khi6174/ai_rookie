@@ -510,6 +510,15 @@
 - 기각한 대안: 아틀란 트럭 UI 복제, 자체 내비게이션·오더 중개 구현, KBS 영상의 운전점수·자동 구조 기능까지 P0로 확대, 제품 이름만 발표에 나열하고 화면·평가 경계를 두지 않는 방식.
 - 영향 파일: `docs/product-spec.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/evals.md`, `docs/demo-script.md`, `e2e/saferoute-demo.spec.ts`
 
+### ADR-052 — 기사 경로·제품 경계 이해도는 별도 익명 사람 평가로 증명한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: 체크인된 390×844 기사 운행 화면을 SHA-256 고정 자극으로 사용하고, 독립 검토자 최소 5명이 현재 구간·다음 안전 거점·지원 기준·SafeRoute 역할·사람 승인 규칙·Demo/Live 경계를 답하는 별도 평가를 수행한다. 전체 정확도 80%, 전 문항 정답 참여자 70%, 제품 역할·승인·Demo 경계 중대 오인 0명을 모두 통과해야 `READY_TO_PROMOTE`로 판정한다. 자동 E2E 정답 입력은 도구 검증일 뿐 사람 이해도 성과로 세지 않는다.
+- 이유: 아틀란 트럭과 KBS 영상의 특성을 문서에 적는 것만으로는 심사 실효성이나 사용자 이해도 향상을 증명할 수 없고, 기존 G5 관리자 공간 평가는 기사 운행 화면과 제품 오인을 측정하지 않기 때문이다.
+- 기각한 대안: G5 2D·2.5D 결과에 기사 질문을 섞는 방식, 팀원이 대신 답한 자동 결과를 사람 증거로 사용하는 방식, 실제 응답 없이 레퍼런스 적용을 사용성 개선으로 주장하는 방식, 외부 설문 서비스에 화면·응답을 전송하는 방식.
+- 영향 파일: `docs/rider-reference-comprehension-test.md`, `docs/evals.md`, `docs/final-readiness.md`, `src/evals/riderReferenceComprehension.ts`, `tools/rider-reference-review`, `scripts`, `tests`, `e2e`, `artifacts/evals`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

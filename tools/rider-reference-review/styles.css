@@ -1,0 +1,32 @@
+@import url("../g5-spatial-review/styles.css");
+
+.rider-review-layout {
+  grid-template-columns: minmax(320px, 440px) minmax(520px, 1fr);
+}
+
+.rider-stimulus-card {
+  align-self: start;
+}
+
+.rider-stimulus-card img {
+  display: block;
+  width: min(100%, 390px);
+  max-height: 720px;
+  margin: 0 auto;
+  object-fit: contain;
+  object-position: top center;
+}
+
+.single-column {
+  grid-template-columns: 1fr;
+}
+
+@media (max-width: 940px) {
+  .rider-review-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .rider-stimulus-card img {
+    max-height: none;
+  }
+}
