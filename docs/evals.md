@@ -250,7 +250,7 @@ K-EXAONE만 등록한 뒤 2026-07-17 첫 Live 12과업을 실행했다. readines
 
 timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 0건으로 통과했다. 이어 같은 계약으로 전체 12과업을 중첩 없이 순차 실행해 12/12, Fallback 0건, unsafe 표시 0건을 통과했다. 평균 지연은 22,124ms, P95는 35,805ms였고 입력 8,684·완료 30,855·합계 39,539 tokens를 기록했다. JSON·CSV 과업 수와 집계, 상태, 비밀정보·프롬프트·원문 응답 비포함을 독립 확인해 `EXAONE_12_TASK_VERIFY_PASS`를 반환했다. 결과는 `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/`에 불변 보존한다. A.X API는 키 발급 전까지 실행 대상에서 제외한다.
 
-2026-07-21 A.X 공식 계약으로 readiness를 다시 통과시킨 뒤 합성 과업 1건을 실행했다. 이전 QA host의 `NETWORK_ERROR`와 달리 공개 gateway가 155ms에 응답했으나 `401 UNAUTHORIZED`로 안전 Fallback되어 생성 출력과 토큰 사용량은 없었다. 키는 공식 `awf_` prefix이고 따옴표·외곽 공백이 없는 형식까지 비밀값 노출 없이 확인했다. 이는 네트워크·모델 품질 실패가 아니라 계정의 키 활성·유효성 확인이 필요한 인증 실패이며 `artifacts/evals/domestic-ai-api-runs/2026-07-21T11-39-19-949Z-live-ax/`에 불변 보존한다.
+2026-07-21 A.X 공식 계약으로 readiness를 다시 통과시킨 뒤 합성 과업 1건을 실행했다. 이전 QA host의 `NETWORK_ERROR`와 달리 공개 gateway가 155ms에 응답했으나 `401 UNAUTHORIZED`로 안전 Fallback되어 생성 출력과 토큰 사용량은 없었다. 공식 `awf_` 형식, 따옴표·외곽 공백·제어문자 부재를 비밀값 노출 없이 확인했고 키를 재발급·교체한 뒤 3분 이상 지난 시점에도 137ms `401`이 반복됐다. 따라서 네트워크·모델 품질 실패로 집계하지 않고 gateway의 팀 권한 또는 키 동기화에 대한 운영팀 확인 대상으로 판정했다. 최종 재시도는 `artifacts/evals/domestic-ai-api-runs/2026-07-21T12-00-06-856Z-live-ax/`에 불변 보존한다.
 
 현재 Upstage 설명 계층에는 관리자·원 기사·수신 기사·고객·보고서 역할, 불가능 이관, 결측·신뢰도, 적용 완료, 문서 내 지시문, 무인용, 소수 표시값과 Fallback 경계를 포함한 12개 합성 과업이 있다. `pnpm run eval:upstage:smoke:mock`은 같은 harness로 Mock 기준선을 생성하고, `pnpm run eval:upstage:smoke`는 서버 환경변수가 모두 있을 때만 Live를 순차 실행한다. 저장 결과에는 생성문·프롬프트·API 키를 포함하지 않고 과업 ID, 상태, 지연, fact·citation 수와 실패 코드만 남긴다. A.X 오프라인 비교용 `scripts/local-model-benchmark.py`도 같은 12개 역할·실패경계를 고정 계약으로 구성했다. A100 순차 실행은 첫 시도 12/12, Fallback 0건, unsafe 표시 0건이었고, 회수한 원본을 `scripts/verify-local-model-benchmark.py`가 raw output hash·고정 계약·CSV·요약 집계까지 독립 검증했다.
 
@@ -422,7 +422,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | K-EXAONE Live 단일 진단 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE --task-limit=1` | 1/1, 26,800ms, Fallback 0건, unsafe 표시 0건 |
 | K-EXAONE Live 12과업 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE` | 12/12, 평균 22,124ms·P95 35,805ms·총 39,539 tokens, Fallback·unsafe 표시 0건, 독립 집계 검증 통과 |
 | A.X 공식 계약 readiness | `pnpm run eval:domestic-ai:check -- --providers=AX` | `A.X-K1`·공식 gateway exact 계약 통과, API 요청·키 출력 0건 |
-| A.X Live 단일 인증 진단 | `pnpm run eval:domestic-ai:smoke -- --providers=AX --task-limit=1` | 공개 gateway 응답 155ms, 0/1·`UNAUTHORIZED` 안전 Fallback, 생성 출력·토큰·unsafe 표시 0건 |
+| A.X Live 단일 인증 진단 | `pnpm run eval:domestic-ai:smoke -- --providers=AX --task-limit=1` | 키 재발급·교체·3분 후에도 공개 gateway 응답 137ms, 0/1·`UNAUTHORIZED` 안전 Fallback, 생성 출력·토큰·unsafe 표시 0건 |
 | A100 환경 사전점검 | 원격 읽기 전용 점검 | A100-SXM4 80GB 1장·가용 VRAM 81,050MiB 확인, 연결 식별정보 미저장 |
 | A100 CUDA runtime smoke | 원격 격리 Python 환경 | PyTorch 2.5.1+cu121·BF16 행렬곱 통과, 206.73ms·24.12MiB |
 | A.X 고정 snapshot | 로컬 공식 Hugging Face 다운로드·SHA-256 검증 | revision 고정, 16개·14,532,308,097바이트 전부 통과 |
@@ -609,7 +609,7 @@ artifacts/evals/
 
 - 시나리오별 정확한 기여도·개입 후 기대값
 - property test 도구와 허용 수치 오차
-- A.X API Key 활성·유효성 확인과 401 해소
+- A.X 운영팀의 gateway 팀 권한·키 동기화 확인과 401 해소
 - A.X 가이드의 RPS 3 표기와 제약사항 표 내부 6 요청 설명 불일치 확인
 - A.X Live 12과업 결과와 K-EXAONE 반복 실행 분산
 - SafeRoute P0에 필요한 VARCO 에셋 사용처와 별도 평가 계약
