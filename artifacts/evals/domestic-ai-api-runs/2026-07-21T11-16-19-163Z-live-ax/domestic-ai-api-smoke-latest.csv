@@ -1,2 +1,2 @@
 providerId,providerMode,protocol,model,taskId,role,status,passed,latencyMs,promptTokens,completionTokens,totalTokens,fallbackCode
-AX,LIVE,OPENAI_CHAT_COMPLETIONS,A.X-K1,domestic-ai-admin-plan-001,ADMIN,FALLBACK,false,155,,,,UNAUTHORIZED
+AX,LIVE,OPENAI_CHAT_COMPLETIONS,skt/A.X-K1,domestic-ai-admin-plan-001,ADMIN,FALLBACK,false,10682,,,,NETWORK_ERROR

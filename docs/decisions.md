@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-21
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -482,6 +482,15 @@
 - 이유: 3명·6 trial에서 핵심 의미 전체 정답 2/6, 경사 구간 정답 0/6, 혼란 증가 2/3이었고, 정성 응답은 화면이 무엇을 묻고 어떤 판단을 요구하는지 불명확하다고 일치했다. 이는 시각 입체감보다 결정 정보위계가 먼저 해결되어야 함을 보여준다.
 - 기각한 대안: 2.5D를 기본 화면으로 전환, 3D 효과·지도 레이어 추가, 설명 문단만 늘리기, Round 1 결과 덮어쓰기, 이해도 실패를 기술 Gate 통과로 상쇄하기.
 - 영향 파일: `docs/design-system.md`, `docs/g5-spatial-comprehension-test.md`, `docs/g5-spatial-visualization-design.md`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals/spatialComprehension.ts`, `tools/g5-spatial-review`, `e2e`, `tests`, `artifacts/evals`
+
+### ADR-049 — A.X K1 API 계약은 AI One Portal v1.3 공개 gateway에 고정한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: SKT A.X 공통 텍스트 평가는 모델 `A.X-K1`, endpoint `https://awf-gw.adot.ai/v1/chat/completions`, Bearer 인증을 exact 계약으로 사용한다. API 키는 서버 전용 환경변수로만 읽고 합성 `ExplanationInput`만 전송한다. 401·429·timeout·malformed 응답은 생성문을 표시하지 않고 기존 결정론적 Fallback으로 전환한다.
+- 이유: 공식 A.X K1 API 가이드 v1.3이 이전 활용자료의 QA host와 다른 공개 gateway·모델 식별자를 명시한다. 구형 QA host는 사설 IP로 해석돼 네트워크 실패했고, 공개 gateway 전환 후 인증 응답까지 도달했다.
+- 기각한 대안: 구형 QA endpoint 유지, 문서 근거 없이 VPN·IP 허용목록을 추가, 브라우저에 키를 포함, 인증 실패를 Live 모델 품질 결과로 집계하는 방식.
+- 영향 파일: `.env.example`, `src/evals/domesticAiProvider.ts`, `tests/domestic-ai-benchmark.test.ts`, `scripts/run-domestic-track-audit.mjs`, `docs/architecture.md`, `docs/evals.md`, `docs/privacy-and-ai-policy.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 4. 심사기준 연결
 

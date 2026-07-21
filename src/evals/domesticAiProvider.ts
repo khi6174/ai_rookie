@@ -13,10 +13,10 @@ export const competitionDocumentedDomesticAiEndpoints: Record<
   { allowedHost: string; chatCompletionsUrl: string; documentedModel: string }
 > = {
   AX: {
-    allowedHost: "api.ax-k1.sktai.qa",
+    allowedHost: "awf-gw.adot.ai",
     chatCompletionsUrl:
-      "https://api.ax-k1.sktai.qa/v1/chat/completions",
-    documentedModel: "skt/A.X-K1",
+      "https://awf-gw.adot.ai/v1/chat/completions",
+    documentedModel: "A.X-K1",
   },
   EXAONE: {
     allowedHost: "api.friendli.ai",
@@ -116,6 +116,11 @@ export function validateDomesticAiLiveConfig(
   const documentedEndpoint = competitionDocumentedDomesticAiEndpoints[
     config.providerId
   ];
+  if (config.model.trim() !== documentedEndpoint.documentedModel) {
+    throw new Error(
+      `${config.providerId}_MODEL must match the competition-provided model contract`,
+    );
+  }
   if (
     endpoint.protocol !== "https:" ||
     endpoint.username ||

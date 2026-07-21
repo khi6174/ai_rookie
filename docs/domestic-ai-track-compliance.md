@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-21
 - 기준: 대회 운영 가이드 5·7·8쪽, 국내 AI 기업별 활용 가이드, `docs/privacy-and-ai-policy.md`, ADR-021
 
 ## 1. 결정사항
@@ -18,7 +18,7 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 | 기업·모델 | SafeRoute 역할 | 실제 상태 | 안전 경계 | 핵심 증거 |
 |---|---|---|---|---|
 | Upstage `solar-pro3` | 검증된 JSON과 인용 기반 역할별 설명 | Live 12과업 중 11건 첫 시도 통과, 1건 안전 Fallback | 수치·추천·실행 가능성 변경 금지 | `artifacts/evals/upstage-smoke-latest.json` |
-| SKT `skt/A.X-K1` | K-EXAONE과 같은 12과업 API 계약 | exact endpoint 계약 검증, API 키 미준비로 Live 미실행 | 설명 Gate 뒤에서만 사용 | `tests/domestic-ai-benchmark.test.ts` |
+| SKT `A.X-K1` | K-EXAONE과 같은 12과업 API 계약 | AI One Portal v1.3 exact 계약·readiness 통과, Live 1과업은 401 안전 Fallback | 설명 Gate 뒤에서만 사용 | `artifacts/evals/domestic-ai-api-runs/2026-07-21T11-39-19-949Z-live-ax/` |
 | SKT `skt/A.X-4.0-Light` | A100 고정 revision 오프라인 생성 기준선 | 12/12 배치 통과, 강건성 28/30·2건 안전 Fallback | 안전 수치·추천 정답 생성 금지 | `artifacts/evals/local-model-runs/` |
 | LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-smoke-latest.json` |
 | NC VARCO | 후속 3D·이미지·음성·번역 에셋 후보 | P0 미연동 | 텍스트 LLM으로 추정하지 않음 | ADR-021과 `docs/synthetic-data-plan.md` |
@@ -32,7 +32,7 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 현재 허용된 생성형 AI host는 다음뿐이다.
 
 - `api.upstage.ai`
-- `api.ax-k1.sktai.qa`
+- `awf-gw.adot.ai`
 - `api.friendli.ai` — 대회 제공 LG 활용 가이드의 K-EXAONE serving endpoint
 
 공공데이터 입력 host는 `apihub.kma.go.kr`이다. 지도 표시 host `dapi.kakao.com`은 합성 좌표를 렌더링하는 비생성형 지도 SDK이며 국내 AI 모델·학습·추론 성과로 계산하지 않는다. 모든 host는 코드 allowlist로 검사하고, 생성형 AI와 공공데이터의 서버 비밀정보는 서버 전용 환경변수 계약으로 검사한다. Kakao Maps JavaScript 플랫폼 키는 브라우저 배포 특성상 별도 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`와 허용 도메인 제한을 사용한다.
@@ -80,7 +80,7 @@ pnpm run eval:domestic-track:audit
 - 국내 AI별 역할·모델·상태·증거가 활용명세에서 추적된다.
 - `OpenAI-compatible`을 OpenAI 모델 사용으로 오해하지 않도록 설명한다.
 - 격리형 디자인 참고물과 제품 런타임을 제출 범위에서 분리한다.
-- 실제 실행하지 않은 VARCO·A.X K1 API Live 결과를 사용 성과로 주장하지 않는다.
+- 실제 실행하지 않은 VARCO와 아직 인증되지 않은 A.X K1 API 출력을 사용 성과로 주장하지 않는다.
 
 ## 8. 비목표
 
@@ -91,5 +91,6 @@ pnpm run eval:domestic-track:audit
 
 ## 9. 미결사항
 
-- A.X 계정의 활성 모델·quota·입력 보존 정책 최종 확인
+- A.X API Key의 활성 상태 확인과 401 해소 후 Live 12과업 실행
+- A.X 가이드의 RPS 3 표기와 제약사항 표의 "팀 합산 6 요청" 설명 불일치 확인
 - 운영사무국이 개발 보조 AI 공개를 별도 양식으로 요구하는지 확인

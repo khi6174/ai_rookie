@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-21
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -265,7 +265,7 @@ BASELINE_EVALUATED
 
 Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다.
 
-현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint만 허용하고 API 키·모델·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. A.X·K-EXAONE 공통 서버 어댑터는 대회 문서 endpoint를 exact allowlist로 고정했고 Mock 24과업 계약을 통과했지만, 두 API의 Live 모델 결과는 아직 실행 증거로 기록하지 않는다. Mock을 Live로 표시하지 않는다.
+현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했으며 K-EXAONE은 Live 12/12를 통과했다. A.X는 AI One Portal 가이드 v1.3의 `A.X-K1`·`https://awf-gw.adot.ai/v1/chat/completions`로 이전해 공개 서버 도달을 확인했지만 최초 1과업은 401 안전 Fallback이므로 출력 품질 증거로 사용하지 않는다. Mock을 Live로 표시하지 않는다.
 
 ### 8.3 연구인프라 활용
 

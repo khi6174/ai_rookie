@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
-- 정책 버전: `privacy-ai-v1.3.0`
+- 최종 갱신: 2026-07-21
+- 정책 버전: `privacy-ai-v1.3.1`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -642,12 +642,14 @@ Fallback은 다음을 만족한다.
 ## 17. API와 비밀정보
 
 - Upstage API 키는 서버 환경에서만 사용한다.
+- A.X·K-EXAONE API 키도 같은 서버 전용 경계를 적용하며 브라우저·PWA에 포함하지 않는다.
 - 클라이언트 번들, 브라우저 저장소, URL, 스크린샷, 로그에 키를 포함하지 않는다.
 - 서버 함수는 허용된 요청 스키마와 최대 크기를 검증한다.
 - 요청별 correlation ID는 비식별 값으로 사용한다.
 - 공급자 오류 본문을 사용자에게 그대로 반환하지 않는다.
 - 재시도는 멱등 요청에만 제한적으로 적용한다.
 - 공급자 처리·보존·학습 사용 설정은 실데이터 파일럿 전에 별도 확인한다.
+- A.X K1 가이드 v1.3은 동의 시 Prompt·Response·메타데이터를 성능 개선과 내부 연구에 활용하고 목적 달성 후 최대 1년 보관할 수 있다고 명시한다. SafeRoute 본선 평가에는 실제 기사·고객·정확 위치를 보내지 않고 승인된 합성 `ExplanationInput`만 전송한다.
 
 ## 18. 로그와 감사기록
 

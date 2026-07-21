@@ -3,8 +3,8 @@
   "message": "Domestic AI Live configuration matches the competition-provided endpoint contracts. No API request was sent.",
   "providers": [
     {
-      "providerId": "EXAONE",
-      "model": "LGAI-EXAONE/K-EXAONE-236B-A23B",
+      "providerId": "AX",
+      "model": "A.X-K1",
       "protocol": "OPENAI_CHAT_COMPLETIONS",
       "endpointContractVerified": true
     }

@@ -29,10 +29,10 @@ function liveConfig(
   return {
     providerId: "AX",
     apiKey,
-    model: "provider-issued-model-id",
+    model: "A.X-K1",
     chatCompletionsUrl:
-      "https://api.ax-k1.sktai.qa/v1/chat/completions",
-    allowedHost: "api.ax-k1.sktai.qa",
+      "https://awf-gw.adot.ai/v1/chat/completions",
+    allowedHost: "awf-gw.adot.ai",
     timeoutMs: 5_000,
     maxPromptBytes: 32_000,
     maxResponseBytes: 64_000,
@@ -85,11 +85,12 @@ describe("domestic AI benchmark configuration", () => {
 
   it("rejects guessed HTTP, host-mismatched, and non-chat endpoints", () => {
     for (const config of [
-      liveConfig({ chatCompletionsUrl: "http://api.ax-k1.sktai.qa/v1/chat/completions" }),
+      liveConfig({ chatCompletionsUrl: "http://awf-gw.adot.ai/v1/chat/completions" }),
       liveConfig({ allowedHost: "other.example" }),
       liveConfig({
-        chatCompletionsUrl: "https://api.ax-k1.sktai.qa/v2/generate",
+        chatCompletionsUrl: "https://awf-gw.adot.ai/v2/generate",
       }),
+      liveConfig({ model: "skt/A.X-K1" }),
     ]) {
       expect(() => validateDomesticAiLiveConfig(config)).toThrow();
     }
@@ -100,7 +101,7 @@ describe("domestic AI benchmark configuration", () => {
     const config = readDomesticAiLiveConfig(
       {
         EXAONE_API_KEY: apiKey,
-        EXAONE_MODEL: "provider-issued-model-id",
+        EXAONE_MODEL: "LGAI-EXAONE/K-EXAONE-236B-A23B",
         EXAONE_CHAT_COMPLETIONS_URL:
           "https://api.friendli.ai/serverless/v1/chat/completions",
         EXAONE_ALLOWED_HOST: "api.friendli.ai",
@@ -111,17 +112,17 @@ describe("domestic AI benchmark configuration", () => {
       "EXAONE",
     );
     expect(config.providerId).toBe("EXAONE");
-    expect(config.model).toBe("provider-issued-model-id");
+    expect(config.model).toBe("LGAI-EXAONE/K-EXAONE-236B-A23B");
   });
 
   it("checks both provider contracts without exposing keys or sending requests", () => {
     const result = checkDomesticAiLiveConfiguration(
       {
         AX_API_KEY: apiKey,
-        AX_MODEL: "skt/A.X-K1",
+        AX_MODEL: "A.X-K1",
         AX_CHAT_COMPLETIONS_URL:
-          "https://api.ax-k1.sktai.qa/v1/chat/completions",
-        AX_ALLOWED_HOST: "api.ax-k1.sktai.qa",
+          "https://awf-gw.adot.ai/v1/chat/completions",
+        AX_ALLOWED_HOST: "awf-gw.adot.ai",
         EXAONE_API_KEY: `${apiKey}_exaone`,
         EXAONE_MODEL: "LGAI-EXAONE/K-EXAONE-236B-A23B",
         EXAONE_CHAT_COMPLETIONS_URL:
@@ -163,7 +164,7 @@ describe("domestic AI OpenAI-compatible HTTP adapter", () => {
 
     expect(authorization).toBe(`Bearer ${apiKey}`);
     expect(requestBody).not.toContain(apiKey);
-    expect(requestBody).toContain("provider-issued-model-id");
+    expect(requestBody).toContain("A.X-K1");
     expect(generation.usage).toEqual({
       promptTokens: 120,
       completionTokens: 80,

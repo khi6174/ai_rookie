@@ -11,7 +11,7 @@ const outputPath = resolve(
 const capturedAt = new Date().toISOString();
 
 const allowedRuntimeHosts = [
-  "api.ax-k1.sktai.qa",
+  "awf-gw.adot.ai",
   "api.friendli.ai",
   "api.upstage.ai",
   "apihub.kma.go.kr",
@@ -19,7 +19,7 @@ const allowedRuntimeHosts = [
 ];
 const allowedDistributionHosts = ["download.pytorch.org"];
 const expectedDomesticModels = [
-  "skt/A.X-K1",
+  "A.X-K1",
   "skt/A.X-4.0-Light",
   "LGAI-EXAONE/K-EXAONE-236B-A23B",
   "solar-pro3",
@@ -179,7 +179,7 @@ const missingDomesticModels = expectedDomesticModels.filter(
 );
 const providerRegistryExact =
   providerSource.includes('domesticAiProviderIds = ["AX", "EXAONE"]') &&
-  providerSource.includes("api.ax-k1.sktai.qa") &&
+  providerSource.includes("awf-gw.adot.ai") &&
   providerSource.includes("api.friendli.ai");
 const upstageExact = upstageSource.includes(
   "https://api.upstage.ai/v1/chat/completions",
@@ -283,7 +283,7 @@ const result = {
     },
     {
       provider: "SKT",
-      models: ["skt/A.X-K1", "skt/A.X-4.0-Light"],
+      models: ["A.X-K1", "skt/A.X-4.0-Light"],
       role: "common text benchmark and fixed-revision offline generation evaluation",
     },
     {

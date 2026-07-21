@@ -2,7 +2,7 @@
   "status": "COMPLETED",
   "run": {
     "schemaVersion": "domestic-ai-api-benchmark-v1",
-    "capturedAt": "2026-07-21T11:39:19.949Z",
+    "capturedAt": "2026-07-21T11:16:19.163Z",
     "taskCountPerProvider": 1,
     "providerCount": 1,
     "providers": [
@@ -10,7 +10,7 @@
         "providerId": "AX",
         "providerMode": "LIVE",
         "protocol": "OPENAI_CHAT_COMPLETIONS",
-        "model": "A.X-K1",
+        "model": "skt/A.X-K1",
         "promptVersion": "explanation-ko-v1.1.0",
         "taskCount": 1,
         "results": [
@@ -19,9 +19,9 @@
             "role": "ADMIN",
             "status": "FALLBACK",
             "passed": false,
-            "latencyMs": 155,
+            "latencyMs": 10682,
             "usage": {},
-            "fallbackCode": "UNAUTHORIZED"
+            "fallbackCode": "NETWORK_ERROR"
           }
         ],
         "metrics": {
@@ -29,11 +29,11 @@
           "failed": 1,
           "fallback": 1,
           "firstAttemptPassRate": 0,
-          "averageLatencyMs": 155,
-          "p95LatencyMs": 155,
+          "averageLatencyMs": 10682,
+          "p95LatencyMs": 10682,
           "unsafeDisplayCount": 0,
           "fallbackCodes": {
-            "UNAUTHORIZED": 1
+            "NETWORK_ERROR": 1
           }
         }
       }

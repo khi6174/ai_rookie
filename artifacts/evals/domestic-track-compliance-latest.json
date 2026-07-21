@@ -1,6 +1,6 @@
 {
   "schemaVersion": "domestic-track-compliance-v1",
-  "capturedAt": "2026-07-20T15:50:49.468Z",
+  "capturedAt": "2026-07-21T11:41:23.638Z",
   "status": "PASSED",
   "scope": {
     "competitionTrack": "DOMESTIC_AI",
@@ -27,7 +27,7 @@
     {
       "provider": "SKT",
       "models": [
-        "skt/A.X-K1",
+        "A.X-K1",
         "skt/A.X-4.0-Light"
       ],
       "role": "common text benchmark and fixed-revision offline generation evaluation"
@@ -48,7 +48,7 @@
     "role": "public weather evidence; not a generative AI provider"
   },
   "allowedRuntimeHosts": [
-    "api.ax-k1.sktai.qa",
+    "awf-gw.adot.ai",
     "api.friendli.ai",
     "api.upstage.ai",
     "apihub.kma.go.kr",
@@ -58,10 +58,10 @@
     "download.pytorch.org"
   ],
   "observedRuntimeHosts": [
-    "api.ax-k1.sktai.qa",
     "api.friendli.ai",
     "api.upstage.ai",
     "apihub.kma.go.kr",
+    "awf-gw.adot.ai",
     "dapi.kakao.com",
     "download.pytorch.org"
   ],
@@ -74,7 +74,7 @@
     {
       "id": "RUNTIME_HOST_ALLOWLIST",
       "passed": true,
-      "details": "AI, public-data, and distribution HTTPS hosts are classified: api.ax-k1.sktai.qa, api.friendli.ai, api.upstage.ai, apihub.kma.go.kr, dapi.kakao.com, download.pytorch.org"
+      "details": "AI, public-data, and distribution HTTPS hosts are classified: api.friendli.ai, api.upstage.ai, apihub.kma.go.kr, awf-gw.adot.ai, dapi.kakao.com, download.pytorch.org"
     },
     {
       "id": "DOMESTIC_PROVIDER_REGISTRY",
@@ -89,7 +89,7 @@
     {
       "id": "DOMESTIC_MODEL_EVIDENCE",
       "passed": true,
-      "details": "Expected domestic model identifiers are evidenced: skt/A.X-K1, skt/A.X-4.0-Light, LGAI-EXAONE/K-EXAONE-236B-A23B, solar-pro3"
+      "details": "Expected domestic model identifiers are evidenced: A.X-K1, skt/A.X-4.0-Light, LGAI-EXAONE/K-EXAONE-236B-A23B, solar-pro3"
     },
     {
       "id": "NON_DOMESTIC_AI_SDKS",
