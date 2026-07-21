@@ -126,6 +126,7 @@ const approvedDocuments = new Set([
   "docs/intervention-policy.md",
   "docs/privacy-and-ai-policy.md",
   "docs/product-spec.md",
+  "docs/rider-reference-comprehension-test.md",
   "docs/safety-model.md",
   "docs/submission-package.md",
 ]);
@@ -156,6 +157,8 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/map-performance-summary.json",
   "artifacts/evals/risk-transfer-boundaries.csv",
   "artifacts/evals/risk-transfer-boundary-summary.json",
+  "artifacts/evals/rider-reference-comprehension-summary.json",
+  "artifacts/evals/rider-reference-stimulus-manifest.json",
   "artifacts/evals/run-manifest.json",
   "artifacts/evals/scenario-results.csv",
   "artifacts/evals/spatial-scene-summary.json",

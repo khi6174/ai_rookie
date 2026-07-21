@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-18
+- 최종 갱신: 2026-07-21
 - 기준: `docs/final-readiness.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 1. 결정사항
@@ -36,10 +36,12 @@ pnpm run package:submission
 - React·TypeScript 소스와 결정론 도메인 엔진
 - 테스트·E2E·평가·검증 스크립트
 - `.env.example`과 재현 가능한 패키지 lock
-- Approved 핵심 문서 13개
-- 최신 평가 요약과 스크린샷 6개
+- Approved 핵심 문서 17개
+- 최신 평가 요약, 기사 제품 경계 고정 자극 manifest와 체크인된 스크린샷
 - 최신 core evidence run과 final readiness run
 - 같은 commit에서 생성한 `demo-dist/`
+
+기사 경로·제품 경계 평가는 `rider-reference-stimulus-manifest.json`과 평가 계약을 항상 포함한다. 실제 독립 검토가 완료된 경우에만 익명 집계 `rider-reference-comprehension-summary.json`을 추가하며, 원응답이나 연락처는 제출 패키지에 넣지 않는다. 요약이 없으면 사람 평가를 `NOT_RUN`으로 명시하고 자동 Gate 통과로 대체하지 않는다.
 
 ## 4. 명시적 제외
 

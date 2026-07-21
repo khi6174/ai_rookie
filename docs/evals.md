@@ -421,7 +421,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 전체 Vitest | `pnpm test` | 17개 파일, 182개 테스트 통과 |
 | 30개 frozen 변형·3전략 비교 | `pnpm run eval:core-artifacts` | 같은 후보 집합으로 90회 비교: Fastest-only 하드 제약 위반 17건, Balanced-only 11건, SafeRoute 0건; SafeRoute 30/30 실행 가능한 후보 선택 |
 | Risk Transfer Guard 경계 suite | `pnpm run eval:core-artifacts` | 직접 숫자·breach 경계 20/20, 4·8·12건 전체 계획 재계산 3/3 통과; Budget 45·감소 15 허용, 0.01 경계와 수신 기사 breach 차단 |
-| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 241/241 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 23개·결정 경계 30개 재계산, 국내 AI 공급자/모드 4개·Upstage 설명 12과업·문서 Mock 60쌍, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
+| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 전체 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 23개·결정 경계 30개 재계산, 국내 AI 공급자/모드 4개·Upstage 설명 12과업·문서 Mock 60쌍, 접근성·기사 제품 경계 고정 자극과 SHA-256 manifest·불변 run 생성 |
 | 기상청 DS-001 계약 어댑터 | `pnpm test` | API허브 4.1·4.2 exact endpoint·`authKey` 비노출·실황 최신성·예보 6시간·결측·혼합 격자·중복·범위·provider 오류·401·429·timeout·Mock 라벨·Safety 차단 통과 |
 | 기상청 DS-005·006 보완 계약 | `pnpm test` | 1개 파일, 8개 테스트 통과: EUC-KR 필드 순서·km→m·3시간 적설 보존·SNO 정확/구간·공식 계절별 체감온도·120분·exact endpoint·secret/좌표 비저장·부분 Gate |
 | 기상청 Mock 계약 smoke | `pnpm run eval:kma-weather:mock` | 실황·예보 응답 계약 통과, API 요청 0건, public-derived 주장 0건, Safety 입력 승인 0건, JSON·불변 run 생성 |

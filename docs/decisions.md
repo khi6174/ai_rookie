@@ -519,6 +519,15 @@
 - 기각한 대안: G5 2D·2.5D 결과에 기사 질문을 섞는 방식, 팀원이 대신 답한 자동 결과를 사람 증거로 사용하는 방식, 실제 응답 없이 레퍼런스 적용을 사용성 개선으로 주장하는 방식, 외부 설문 서비스에 화면·응답을 전송하는 방식.
 - 영향 파일: `docs/rider-reference-comprehension-test.md`, `docs/evals.md`, `docs/final-readiness.md`, `src/evals/riderReferenceComprehension.ts`, `tools/rider-reference-review`, `scripts`, `tests`, `e2e`, `artifacts/evals`
 
+### ADR-053 — 기사 제품 경계 고정 자극은 핵심·제출 증거에 포함하고 원응답은 제외한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: 390×844 기사 운행 화면의 경로·크기·SHA-256·6개 질문을 기록한 `rider-reference-stimulus-manifest.json`을 18번째 필수 핵심 평가 산출물과 제출 allowlist에 포함한다. 최종 Gate는 manifest와 실제 PNG 해시를 다시 검증한다. 독립 5인 검토가 완료된 경우에만 strict validator가 만든 익명 집계 summary를 제출 후보로 포함하고, 원응답·연락처·자동 E2E 입력은 제출 성과 증거에서 제외한다.
+- 이유: 코드와 평가 계약이 있어도 최종 ZIP에서 자극 무결성과 `NOT_RUN` 상태가 빠지면 심사 자료가 사용성 주장을 재현할 수 없고, 반대로 원응답을 포함하면 최소수집 원칙을 위반할 수 있기 때문이다.
+- 기각한 대안: 사람 응답 전까지 자극도 제출하지 않는 방식, 자동 E2E 결과를 사람 이해도 PASS로 기록하는 방식, 원응답 전체를 ZIP에 포함하는 방식, 최신 스크린샷을 해시 없이 임의 교체하는 방식.
+- 영향 파일: `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, `scripts/build-submission-package.mjs`, `tests/rider-reference-comprehension.test.ts`, `docs/submission-package.md`, `docs/final-readiness.md`, `docs/evals.md`, `artifacts/evals/rider-reference-stimulus-manifest.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

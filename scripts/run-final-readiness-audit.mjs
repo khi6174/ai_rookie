@@ -116,6 +116,12 @@ const weather = await readJson("weather-runtime-selection-latest.json");
 const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
 const spatialScene = await readJson("spatial-scene-summary.json");
+const riderReferenceStimulus = await readJson(
+  "rider-reference-stimulus-manifest.json",
+);
+const riderReferenceStimulusImage = await readFile(
+  resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
+);
 let spatialComprehension = {
   status: "NOT_RUN",
   reviewerCount: 0,
@@ -206,6 +212,7 @@ const requiredCoreArtifactFiles = [
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
+  "rider-reference-stimulus-manifest.json",
 ];
 const coreArtifactFiles = new Set(
   coreManifest.artifacts.map((artifact) => artifact.file),
@@ -267,6 +274,20 @@ const evidenceChecks = [
       coreManifest.credentialsStored === false &&
       coreManifest.rawApiResponsesStored === false,
     `${coreManifest.artifacts.length}/${requiredCoreArtifactFiles.length} artifacts, missing=${missingCoreArtifactFiles.length}, credentialsStored=${coreManifest.credentialsStored}`,
+  ),
+  check(
+    "RIDER_REFERENCE_STIMULUS",
+    riderReferenceStimulus.schemaVersion ===
+      "rider-reference-stimulus-manifest-v1" &&
+      riderReferenceStimulus.studyId ===
+        "rider-route-product-boundary-001" &&
+      riderReferenceStimulus.dataMode === "DEMO" &&
+      riderReferenceStimulus.stimulus?.width === 390 &&
+      riderReferenceStimulus.stimulus?.height === 844 &&
+      riderReferenceStimulus.questions?.length === 6 &&
+      sha256(riderReferenceStimulusImage) ===
+        riderReferenceStimulus.stimulus?.sha256,
+    `size=${riderReferenceStimulus.stimulus?.width}x${riderReferenceStimulus.stimulus?.height}, questions=${riderReferenceStimulus.questions?.length}, dataMode=${riderReferenceStimulus.dataMode}`,
   ),
   check(
     "MAP_PERFORMANCE_G4_B",

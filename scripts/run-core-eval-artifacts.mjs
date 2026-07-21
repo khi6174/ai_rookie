@@ -32,6 +32,7 @@ const latestArtifactNames = [
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
+  "rider-reference-stimulus-manifest.json",
 ];
 
 function sha256(bytes) {
@@ -347,6 +348,27 @@ async function generateManifest() {
   ) {
     throw new Error("G5-A spatial scene evidence did not pass its Demo contract gate");
   }
+  const riderReferenceStimulus = await readJson(
+    "rider-reference-stimulus-manifest.json",
+  );
+  const riderReferenceImage = await readFile(
+    resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
+  );
+  if (
+    riderReferenceStimulus.schemaVersion !==
+      "rider-reference-stimulus-manifest-v1" ||
+    riderReferenceStimulus.studyId !==
+      "rider-route-product-boundary-001" ||
+    riderReferenceStimulus.dataMode !== "DEMO" ||
+    riderReferenceStimulus.stimulus?.width !== 390 ||
+    riderReferenceStimulus.stimulus?.height !== 844 ||
+    riderReferenceStimulus.questions?.length !== 6 ||
+    sha256(riderReferenceImage) !== riderReferenceStimulus.stimulus.sha256
+  ) {
+    throw new Error(
+      "Rider reference stimulus did not pass its fixed Demo integrity gate",
+    );
+  }
   const artifacts = [];
   for (const file of latestArtifactNames) {
     const bytes = await readFile(resolve(outputDirectory, file));
@@ -374,6 +396,11 @@ async function generateManifest() {
     "e2e/map-performance.spec.ts",
     "e2e/spatial-scene.spec.ts",
     "e2e/saferoute-demo.spec.ts",
+    "scripts/build-rider-reference-stimulus.mjs",
+    "scripts/run-rider-reference-comprehension.mjs",
+    "src/evals/riderReferenceComprehension.ts",
+    "tests/rider-reference-comprehension.test.ts",
+    "e2e/rider-reference-review.spec.ts",
   ];
   const sourceHashes = [];
   for (const file of sourceFiles) {
