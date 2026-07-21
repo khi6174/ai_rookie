@@ -449,6 +449,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | A.X 30과업 생성 강건성 v1.1 | 고정 revision·세 입력 변형·summary 직접 생성·독립 결과 검증 | 첫 시도 22/30, Fallback 8건, 평균 2,562.04ms·P95 3,503.12ms·최대 13,947.27MiB, unsafe 표시 0건 |
 | A.X 30과업 생성 강건성 v1.2 | 결정론적 사실 anchor·생성 설명 분리·독립 결과 검증 | 첫 시도 28/30, Fallback 2건, 평균 2,589.14ms·P95 3,442.77ms·최대 13,949.28MiB, unsafe 표시 0건 |
 | 지정 해상도·포인터 폐루프 | 인앱 브라우저 수동 QA | 4개 해상도, 두 기사 동의→승인→적용 통과 |
+| 여섯 심사기준 최종 GOAL 감사 | `pnpm run audit:goal` | 창의성·혁신성·추진성·성장성·실효성·가치성의 원자 check·근거 SHA-256·사람 blocker 판정; 실제 두 사람 Gate 전에는 `HUMAN_VALIDATION_REQUIRED` |
 | Playwright 폐루프·접근성·PWA E2E | `pnpm run test:e2e` | 21/21 통과, 기존 폐루프·reset·키보드·4개 해상도·지도 Fallback·bounded drag/keyboard pan·offline/PWA·G4-B 부하·G5-A 2.5D 전환·복귀·reduced-motion, G5-B와 기사 제품 경계 익명 검토 도구 추가 |
 | 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, 기사 제품 경계 도구 반영 후 최종 재실행 총 20.1초 |
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |

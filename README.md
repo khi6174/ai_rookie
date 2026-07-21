@@ -49,6 +49,8 @@ pnpm run test:e2e
 pnpm run test:e2e:clean-start
 # 외부 API 호출 없이 최종 빌드·E2E·평가·국내트랙 게이트를 한 번에 검증
 pnpm run verify:final
+# 여섯 심사기준과 두 사람 이해도 Gate를 포함한 최종 GOAL 상태 판정
+pnpm run audit:goal
 # clean commit에서 국내트랙 제출용 allowlist ZIP과 SHA-256 manifest 생성
 pnpm run package:submission
 pnpm run typecheck
@@ -92,7 +94,7 @@ pnpm run eval:kma-weather:runtime
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
-`package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사 결과가 모두 `PASSED`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다.
+`audit:goal`은 여섯 심사기준과 G5-B Round 2·기사 제품 경계 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
 
 ## 핵심 문서
 
@@ -106,6 +108,7 @@ pnpm run eval:kma-weather:runtime
 - `docs/demo-script.md`: 3분 폐루프 시연
 - `docs/midpoint-review.md`: 본선 MVP와 본선 이후 궁극적 목표 중간점검
 - `docs/final-readiness.md`: 본선 최종준비 증거·동결 범위·발표 전 체크
+- `docs/goal-completion-audit.md`: 여섯 심사기준·사람 Gate·최종 제출 가능 여부 판정
 - `docs/gpu-benchmark-runbook.md`: A100 사전점검과 로컬 기준선 실행 경계
 
 ## 표현 경계

@@ -537,6 +537,15 @@
 - 기각한 대안: Round 1 summary를 수동 교체, Round 2가 있으면 검증 없이 우선, Round 2 완료 시 Round 1 삭제, 최종 보고서에서만 사람이 round를 선택하는 방식.
 - 영향 파일: `scripts/run-final-readiness-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/g5-spatial-comprehension-test.md`, `docs/submission-package.md`, `docs/final-readiness.md`
 
+### ADR-055 — 기술 readiness와 여섯 심사기준 최종 GOAL 완료를 분리한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: `verify:final`의 기술 `PASSED`와 별도로 `audit:goal`이 정확히 여섯 심사기준을 권위 증거·SHA-256·사람 Gate에 연결한다. 기술 근거가 통과해도 G5-B Round 2와 기사 5인 제품 경계 검토가 없으면 `HUMAN_VALIDATION_REQUIRED`다. 기본 제출 패키지는 `READY_FOR_FINAL_SUBMISSION`에서만 만들고, 불완전 상태의 allowlist 검사는 `--diagnostic` 파일명과 `diagnosticOnly=true`로 분리한다.
+- 이유: 녹색 자동 테스트가 사람 이해도와 전체 심사기준 완료를 대신하는 과대 주장을 막고, 실제 최종 GOAL의 남은 조건과 근거를 한 파일에서 재현하기 위해서다.
+- 기각한 대안: 기술 readiness를 전체 완료로 간주, 사람 결과 없이 실효성 통과, 문서 표만으로 여섯 기준 완료 주장, `--allow-dirty`만으로 최종 이름의 ZIP 생성.
+- 영향 파일: `scripts/run-goal-completion-audit.mjs`, `scripts/build-submission-package.mjs`, `package.json`, `docs/goal-completion-audit.md`, `docs/submission-package.md`, `docs/final-readiness.md`, `docs/evals.md`, `README.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

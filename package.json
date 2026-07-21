@@ -14,6 +14,8 @@
     "test:e2e:headed": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 --headed",
     "test:e2e:clean-start": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-clean-start-rehearsal.ps1",
     "verify:final": "node scripts/run-final-readiness-audit.mjs",
+    "audit:goal": "node scripts/run-goal-completion-audit.mjs",
+    "audit:goal:require-ready": "node scripts/run-goal-completion-audit.mjs --require-ready",
     "package:submission": "node scripts/build-submission-package.mjs",
     "eval:core-artifacts": "node scripts/run-core-eval-artifacts.mjs",
     "eval:upstage:smoke": "node scripts/run-upstage-smoke.mjs",

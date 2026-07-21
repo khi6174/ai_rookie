@@ -22,6 +22,7 @@ pnpm run package:submission
 - 추적된 working tree가 clean이다.
 - `artifacts/evals/final-readiness-latest.json`이 `PASSED`다.
 - `artifacts/evals/domestic-track-compliance-latest.json`이 `PASSED`다.
+- `artifacts/evals/goal-completion-latest.json`이 `READY_FOR_FINAL_SUBMISSION`이다.
 - 최신 핵심·최종 불변 run이 Git에 추적되어 있다.
 
 명령은 현재 commit에서 프로덕션 빌드를 다시 만들고 다음 파일을 생성한다.
@@ -31,12 +32,14 @@ pnpm run package:submission
 
 압축 내부에는 `SUBMISSION_README.md`, `submission-manifest.json`과 각 파일의 SHA-256이 포함된다.
 
+사람 Gate가 남은 개발 중 allowlist·비밀정보 스캔만 확인하려면 `pnpm run package:submission -- --allow-dirty --diagnostic`을 사용한다. 결과는 `saferoute-ai-diagnostic-<sha>.zip`, `diagnosticOnly=true`로 고정되며 최종 제출본이 아니다.
+
 ## 3. 포함 범위
 
 - React·TypeScript 소스와 결정론 도메인 엔진
 - 테스트·E2E·평가·검증 스크립트
 - `.env.example`과 재현 가능한 패키지 lock
-- Approved 핵심 문서 17개
+- Approved 핵심 문서 18개
 - 최신 평가 요약, 기사 제품 경계 고정 자극 manifest와 체크인된 스크린샷
 - 최신 core evidence run과 final readiness run
 - 같은 commit에서 생성한 `demo-dist/`
@@ -70,6 +73,7 @@ G5-B 공간 이해도는 Round 1 실패 원본·요약을 보존하고, 독립 R
 - 비밀정보·실제 개인정보·로컬 경로가 없다.
 - 격리형 프로토타입과 비승인 외부 산출물이 없다.
 - 최종 readiness와 국내트랙 감사가 모두 `PASSED`다.
+- 최종 GOAL 감사가 `READY_FOR_FINAL_SUBMISSION`이고 진단 패키지가 아니다.
 - 정적 빌드가 패키지의 commit에서 재생성된다.
 
 ## 7. 비목표

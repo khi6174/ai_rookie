@@ -17,6 +17,7 @@ const outputDirectory = resolve(root, "artifacts/submission");
 const stagingDirectory = resolve(root, "tmp/submission-package");
 const pnpmEntry = process.env.npm_execpath;
 const allowDirty = process.argv.includes("--allow-dirty");
+const diagnostic = process.argv.includes("--diagnostic");
 
 if (!pnpmEntry) throw new Error("pnpm entry point is not available");
 
@@ -78,6 +79,12 @@ const shortHead = git(["rev-parse", "--short=7", "HEAD"]);
 const trackedFiles = git(["ls-files", "-z"])
   .split("\0")
   .filter(Boolean);
+const goalCompletionPath = "artifacts/evals/goal-completion-latest.json";
+if (!trackedFiles.includes(goalCompletionPath) && !diagnostic) {
+  throw new Error(
+    "Final goal-completion evidence must be tracked before building a submission package.",
+  );
+}
 
 const finalReadiness = JSON.parse(
   await readFile(
@@ -91,11 +98,25 @@ const domesticTrack = JSON.parse(
     "utf8",
   ),
 );
+const goalCompletion = JSON.parse(
+  await readFile(
+    resolve(root, "artifacts/evals/goal-completion-latest.json"),
+    "utf8",
+  ),
+);
 if (finalReadiness.status !== "PASSED") {
   throw new Error("Final readiness evidence is not PASSED");
 }
 if (domesticTrack.status !== "PASSED") {
   throw new Error("Domestic AI track evidence is not PASSED");
+}
+if (
+  goalCompletion.status !== "READY_FOR_FINAL_SUBMISSION" &&
+  !diagnostic
+) {
+  throw new Error(
+    `Goal completion is ${goalCompletion.status}. Complete the required human evidence or use --diagnostic for a clearly labeled non-submission archive.`,
+  );
 }
 
 const rootFiles = new Set([
@@ -123,6 +144,7 @@ const approvedDocuments = new Set([
   "docs/g5-spatial-visualization-design.md",
   "docs/g5-spatial-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
+  "docs/goal-completion-audit.md",
   "docs/intervention-policy.md",
   "docs/privacy-and-ai-policy.md",
   "docs/product-spec.md",
@@ -147,6 +169,7 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/final-readiness-latest.json",
   "artifacts/evals/frozen-benchmark-summary.json",
   "artifacts/evals/frozen-variant-results.csv",
+  "artifacts/evals/goal-completion-latest.json",
   "artifacts/evals/g5-spatial-comprehension-input.template.json",
   "artifacts/evals/g5-spatial-comprehension-results.json",
   "artifacts/evals/g5-spatial-comprehension-summary.json",
@@ -222,6 +245,9 @@ const includedFiles = trackedFiles.filter(
     file.startsWith(latestCoreRunPrefix) ||
     file.startsWith(latestFinalRunPrefix),
 );
+if (diagnostic && !includedFiles.includes(goalCompletionPath)) {
+  includedFiles.push(goalCompletionPath);
+}
 
 const explicitExclusions = [
   "SafeRoute_AI_Final_Strategy_Design_Manual_KR.pdf",
@@ -308,6 +334,8 @@ const packageReadme = `# SafeRoute AI 국내 AI 트랙 제출 패키지
 - Git commit: ${head}
 - 최종 릴리스 게이트: ${finalReadiness.status}
 - 국내 AI 트랙 감사: ${domesticTrack.status}
+- 최종 GOAL 감사: ${goalCompletion.status}
+- 패키지 구분: ${diagnostic ? "DIAGNOSTIC_ONLY" : "FINAL_SUBMISSION_CANDIDATE"}
 - 데이터: 합성 Demo fixture, 공개 날씨 증거, 비식별 AI 평가 요약
 
 ## 실행
@@ -351,6 +379,8 @@ const submissionManifest = {
   gitCommit: head,
   finalReadinessStatus: finalReadiness.status,
   domesticTrackStatus: domesticTrack.status,
+  goalCompletionStatus: goalCompletion.status,
+  diagnosticOnly: diagnostic,
   includedFileCount: manifestEntries.length,
   includedBytes: manifestEntries.reduce((total, item) => total + item.bytes, 0),
   latestCoreRun: latestCoreRunPrefix.slice(0, -1),
@@ -368,7 +398,9 @@ await writeFile(
 );
 
 await mkdir(outputDirectory, { recursive: true });
-const archiveName = `saferoute-ai-domestic-track-${shortHead}.zip`;
+const archiveName = diagnostic
+  ? `saferoute-ai-diagnostic-${shortHead}.zip`
+  : `saferoute-ai-domestic-track-${shortHead}.zip`;
 const archivePath = resolve(outputDirectory, archiveName);
 await rm(archivePath, { force: true });
 const powershellScript = [
@@ -397,6 +429,8 @@ const archiveSummary = {
   includedFileCount: submissionManifest.includedFileCount + 1,
   finalReadinessStatus: finalReadiness.status,
   domesticTrackStatus: domesticTrack.status,
+  goalCompletionStatus: goalCompletion.status,
+  diagnosticOnly: diagnostic,
   explicitExclusions,
   secretAndIdentityScanPassed: true,
 };
@@ -408,7 +442,7 @@ await writeFile(
 
 const archiveStats = await stat(archivePath);
 console.log(
-  `SUBMISSION_PACKAGE_PASS commit=${shortHead} files=${archiveSummary.includedFileCount} ` +
+  `${diagnostic ? "SUBMISSION_DIAGNOSTIC_PASS" : "SUBMISSION_PACKAGE_PASS"} commit=${shortHead} files=${archiveSummary.includedFileCount} ` +
     `bytes=${archiveStats.size} sha256=${archiveSummary.sha256}`,
 );
 console.log(`archive=${archivePath}`);

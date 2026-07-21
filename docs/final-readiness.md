@@ -52,6 +52,8 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 `pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-21 기사 제품 경계 검토 도구 반영 Gate는 Vitest 241/241, Playwright 21/21, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
+이 기술 `PASSED`는 전체 GOAL 완료 판정이 아니다. `pnpm run audit:goal`이 여섯 심사기준과 두 사람 이해도 Gate를 별도로 판정하며 `READY_FOR_FINAL_SUBMISSION` 이전에는 기본 제출 ZIP 생성을 차단한다.
+
 G5-B 사람 이해도는 유효한 Round 2 summary가 존재하면 이를 우선하고, 없으면 Round 1 실패 증거를 유지한다. 최종 readiness의 `g5HumanEvidenceRound`와 `g5HumanComprehensionStudyId`가 실제 사용한 round를 명시하며 잘못된 summary는 Gate를 실패시킨다.
 
 ## 4. 문서 게이트
@@ -69,6 +71,7 @@ G5-B 사람 이해도는 유효한 Round 2 summary가 존재하면 이를 우선
 - `docs/demo-script.md`
 - `docs/domestic-ai-track-compliance.md`
 - `docs/rider-reference-comprehension-test.md`
+- `docs/goal-completion-audit.md`
 - `docs/decisions.md`
 
 ### 의도적으로 Draft 유지

@@ -105,6 +105,7 @@ const requiredApprovedDocuments = [
   "docs/g5-spatial-comprehension-test.md",
   "docs/rider-reference-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
+  "docs/goal-completion-audit.md",
 ];
 const documentStatuses = [];
 for (const file of requiredApprovedDocuments) {
