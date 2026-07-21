@@ -215,6 +215,10 @@
 
 ## 11. Upstage·책임 있는 AI 검증
 
+ADR-050에 따라 A.X Hosted API 인증 해결을 기다리지 않고 Upstage 문서 왕복을 다음 핵심 평가로 진행한다. 먼저 개인정보가 없는 결정론적 합성 문서 60쌍과 strict 기대 규칙을 고정해 Mock·계약 Gate를 통과시킨다. Document Parse·Information Extract의 유료 Live 호출은 endpoint·요금·보존조건과 사용자 승인을 확인한 뒤 별도 불변 run으로 실행하며, Mock 결과를 Live 정확도로 주장하지 않는다.
+
+`pnpm run eval:upstage:documents:mock`은 `upstage-document-roundtrip-v1.0.0`의 6개 위험 유형×10개 변형, 5개 문서 유형을 합친 정확히 60쌍을 실행했다. 60/60이 strict `ExtractedSafetyRule`·원문 excerpt·정확 사실 일치를 통과했고, 비신뢰 지시 18건을 포함해 Fallback·unsafe 표시·raw 문서·raw 출력 저장은 모두 0건이었다. 60개 source SHA-256은 모두 고유하다. 이는 Live 모델 성능이 아닌 결정론적 계약·평가 기반의 통과다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존
@@ -404,7 +408,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 전체 Vitest | `pnpm test` | 17개 파일, 182개 테스트 통과 |
 | 30개 frozen 변형·3전략 비교 | `pnpm run eval:core-artifacts` | 같은 후보 집합으로 90회 비교: Fastest-only 하드 제약 위반 17건, Balanced-only 11건, SafeRoute 0건; SafeRoute 30/30 실행 가능한 후보 선택 |
 | Risk Transfer Guard 경계 suite | `pnpm run eval:core-artifacts` | 직접 숫자·breach 경계 20/20, 4·8·12건 전체 계획 재계산 3/3 통과; Budget 45·감소 15 허용, 0.01 경계와 수신 기사 breach 차단 |
-| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 233/233 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 23개·결정 경계 30개 재계산, 국내 AI 공급자/모드 3개·Upstage 12과업 요약, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
+| 핵심 평가 증거 bundle | `pnpm run eval:core-artifacts` | Vitest 237/237 재실행, 대표 fixture 3개·frozen 변형 30개·전략 비교 90개·이관 경계 23개·결정 경계 30개 재계산, 국내 AI 공급자/모드 4개·Upstage 설명 12과업·문서 Mock 60쌍, 접근성 결과와 SHA-256 manifest·불변 run 생성 |
 | 기상청 DS-001 계약 어댑터 | `pnpm test` | API허브 4.1·4.2 exact endpoint·`authKey` 비노출·실황 최신성·예보 6시간·결측·혼합 격자·중복·범위·provider 오류·401·429·timeout·Mock 라벨·Safety 차단 통과 |
 | 기상청 DS-005·006 보완 계약 | `pnpm test` | 1개 파일, 8개 테스트 통과: EUC-KR 필드 순서·km→m·3시간 적설 보존·SNO 정확/구간·공식 계절별 체감온도·120분·exact endpoint·secret/좌표 비저장·부분 Gate |
 | 기상청 Mock 계약 smoke | `pnpm run eval:kma-weather:mock` | 실황·예보 응답 계약 통과, API 요청 0건, public-derived 주장 0건, Safety 입력 승인 0건, JSON·불변 run 생성 |
@@ -437,7 +441,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 26개 파일, 233/233 통과 |
+| 최신 전체 Vitest | `pnpm test` | 27개 파일, 237/237 통과 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |

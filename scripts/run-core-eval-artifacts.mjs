@@ -27,6 +27,8 @@ const latestArtifactNames = [
   "domestic-track-compliance-latest.json",
   "domestic-ai-smoke.csv",
   "upstage-roundtrip.csv",
+  "upstage-document-roundtrip-mock-latest.json",
+  "upstage-document-roundtrip-mock-latest.csv",
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
@@ -265,6 +267,7 @@ async function generateDomainArtifacts() {
 async function generateAiEvidence() {
   const domesticFiles = [
     "domestic-ai-api-smoke-mock-latest.json",
+    "domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/domestic-ai-api-smoke-latest.json",
     "domestic-ai-api-smoke-latest.json",
   ];
   const domesticRows = [];

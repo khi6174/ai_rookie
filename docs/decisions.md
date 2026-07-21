@@ -492,6 +492,15 @@
 - 기각한 대안: 구형 QA endpoint 유지, 문서 근거 없이 VPN·IP 허용목록을 추가, 브라우저에 키를 포함, 인증 실패를 Live 모델 품질 결과로 집계하는 방식.
 - 영향 파일: `.env.example`, `src/evals/domesticAiProvider.ts`, `tests/domestic-ai-benchmark.test.ts`, `scripts/run-domestic-track-audit.mjs`, `docs/architecture.md`, `docs/evals.md`, `docs/privacy-and-ai-policy.md`, `docs/domestic-ai-track-compliance.md`
 
+### ADR-050 — A.X Hosted API는 외부 인증 대기로 보류하고 Upstage 문서 왕복을 다음 핵심 단계로 둔다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: 재발급 후에도 반복된 A.X Hosted API 401은 공급자 확인 전까지 `EXTERNAL_AUTH_PENDING`으로 동결하고 P0·최종 Demo·제출 Gate의 의존성에서 제외한다. 기존 A.X 오프라인 고정 revision 결과와 실패 증거는 그대로 보존한다. 다음 국내 AI 구현은 Upstage가 합성 문서를 Parse·Extract 가능한 입력으로 만들고, strict schema·원본 사실·인용을 검증한 뒤 역할별 설명으로 연결하는 60쌍 왕복 평가 기반을 우선한다.
+- 이유: SafeRoute의 제품 핵심은 A.X 연결 여부가 아니라 결정론적 안전 폐루프와 Upstage의 근거 기반 설명이다. 외부 인증 장애를 기다리며 개발을 멈추지 않고, 현재 12행 설명 비교에 머문 Upstage 증거를 본래 문서 처리 역할까지 확장하는 편이 최종 목표와 심사기준에 직접 기여한다.
+- 기각한 대안: A.X 401이 해소될 때까지 전체 작업 중단, A.X를 Demo 필수 의존성으로 유지, Upstage가 Safety Budget·추천·실행 가능성을 계산하도록 권한 확대, 승인 없이 유료 Document Parse·Information Extract를 대량 호출하는 방식.
+- 영향 파일: `docs/final-readiness.md`, `docs/synthetic-data-plan.md`, `docs/evals.md`, `src/evals/`, `scripts/`, `tests/`, `artifacts/evals/`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

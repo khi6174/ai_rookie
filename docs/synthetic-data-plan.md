@@ -4,9 +4,9 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-17
-- 계획 버전: `synthetic-data-v1.1.0`
-- 목표 환경: NVIDIA A100 GPU, SKT A.X API, LG K-EXAONE API, Upstage API, 필요성 승인 후 NC VARCO 에셋 API
+- 최종 갱신: 2026-07-21
+- 계획 버전: `synthetic-data-v1.2.0`
+- 목표 환경: NVIDIA A100 GPU, LG K-EXAONE API, Upstage API, 외부 인증 대기 중인 SKT A.X Hosted API, 필요성 승인 후 NC VARCO 에셋 API
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/intervention-policy.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 목적
@@ -513,6 +513,8 @@ A.X가 seed spec과 skeleton을 받아 일반 운영 입력을 채운다. 결과
 
 ## 13. Upstage 왕복 평가
 
+2026-07-21 `upstage-document-roundtrip-v1.0.0`은 6개 위험 유형과 5개 문서 유형을 교차한 결정론적 합성 Markdown 60쌍을 고정했다. Mock 계약 기준선은 60/60, 원문 근거 확인 60/60, 고유 source SHA-256 60개, 비신뢰 문서 지시 18건, raw 문서·raw 출력 저장 0건과 unsafe 표시 0건을 통과했다. 이 결과는 Live Document Parse·Information Extract 정확도가 아니라 유료 호출 전에 입력·기대 규칙·스키마·실패코드·비밀정보 비저장 경계를 검증한 기반이다.
+
 ### 13.1 평가 단위
 
 ```text
@@ -689,10 +691,10 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ### Phase 3 — 배치 생성
 
-- A.X structured operations
+- 결정론적 skeleton 기반 structured operations; A.X Hosted API는 `EXTERNAL_AUTH_PENDING` 동안 필수 의존성에서 제외
 - EXAONE challenge mutations
 - 규칙·수작업·검증된 텍스트 모델 기반 documents
-- Upstage round-trip
+- Upstage 문서 왕복 60쌍 기반; 유료 Parse·Extract Live 호출은 별도 승인 후 실행
 - P0 관련 에셋 요구가 승인된 경우에만 VARCO 별도 평가
 
 ### Phase 4 — A100 실험
@@ -802,7 +804,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 26. 미결사항
 
-- A.X 계정에서 실제 활성화된 모델·쿼터
+- A.X Hosted API의 gateway 팀 권한·키 동기화와 실제 활성 모델·쿼터
 - K-EXAONE 계정에서 실제 활성화된 모델·쿼터
 - SafeRoute P0에 필요한 VARCO 에셋 사용처와 해당 제품·쿼터
 - Upstage 제품별 정확한 버전·쿼터

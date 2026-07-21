@@ -18,6 +18,7 @@
     "eval:core-artifacts": "node scripts/run-core-eval-artifacts.mjs",
     "eval:upstage:smoke": "node scripts/run-upstage-smoke.mjs",
     "eval:upstage:smoke:mock": "node scripts/run-upstage-smoke.mjs --mock",
+    "eval:upstage:documents:mock": "node scripts/run-upstage-document-roundtrip.mjs --mock",
     "eval:domestic-ai:smoke": "node scripts/run-domestic-ai-smoke.mjs",
     "eval:domestic-ai:smoke:mock": "node scripts/run-domestic-ai-smoke.mjs --mock",
     "eval:domestic-ai:check": "node scripts/run-domestic-ai-smoke.mjs --check",

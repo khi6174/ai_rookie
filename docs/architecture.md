@@ -265,7 +265,7 @@ BASELINE_EVALUATED
 
 Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다.
 
-현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했으며 K-EXAONE은 Live 12/12를 통과했다. A.X는 AI One Portal 가이드 v1.3의 `A.X-K1`·`https://awf-gw.adot.ai/v1/chat/completions`로 이전해 공개 서버 도달을 확인했지만 최초 1과업은 401 안전 Fallback이므로 출력 품질 증거로 사용하지 않는다. Mock을 Live로 표시하지 않는다.
+현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. 추가한 문서 왕복 기반은 합성 Markdown 60쌍의 strict 기대 규칙·원문 근거·비신뢰 지시·비저장 경계를 Mock 60/60으로 검증했으며 아직 Live Parse·Extract 결과로 주장하지 않는다. K-EXAONE은 Live 12/12를 통과했다. A.X는 AI One Portal 가이드 v1.3의 공개 gateway에 도달했지만 재발급 후에도 401 안전 Fallback이므로 `EXTERNAL_AUTH_PENDING`으로 보류한다. Mock을 Live로 표시하지 않는다.
 
 ### 8.3 연구인프라 활용
 

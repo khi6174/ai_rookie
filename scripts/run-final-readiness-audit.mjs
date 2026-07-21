@@ -172,6 +172,31 @@ try {
 const safeRouteStrategy = frozen.strategies.find(
   (strategy) => strategy.strategy === "SAFEROUTE",
 );
+const requiredCoreArtifactFiles = [
+  "unit-summary.json",
+  "scenario-results.csv",
+  "baseline-comparison.csv",
+  "frozen-variant-results.csv",
+  "frozen-benchmark-summary.json",
+  "risk-transfer-boundaries.csv",
+  "risk-transfer-boundary-summary.json",
+  "decision-workflow-boundaries.csv",
+  "decision-workflow-boundary-summary.json",
+  "domestic-track-compliance-latest.json",
+  "domestic-ai-smoke.csv",
+  "upstage-roundtrip.csv",
+  "upstage-document-roundtrip-mock-latest.json",
+  "upstage-document-roundtrip-mock-latest.csv",
+  "accessibility-summary.json",
+  "map-performance-summary.json",
+  "spatial-scene-summary.json",
+];
+const coreArtifactFiles = new Set(
+  coreManifest.artifacts.map((artifact) => artifact.file),
+);
+const missingCoreArtifactFiles = requiredCoreArtifactFiles.filter(
+  (file) => !coreArtifactFiles.has(file),
+);
 
 const evidenceChecks = [
   check(
@@ -221,10 +246,11 @@ const evidenceChecks = [
   ),
   check(
     "CORE_MANIFEST",
-    coreManifest.artifacts.length === 15 &&
+    coreManifest.artifacts.length === requiredCoreArtifactFiles.length &&
+      missingCoreArtifactFiles.length === 0 &&
       coreManifest.credentialsStored === false &&
       coreManifest.rawApiResponsesStored === false,
-    `${coreManifest.artifacts.length} artifacts, credentialsStored=${coreManifest.credentialsStored}`,
+    `${coreManifest.artifacts.length}/${requiredCoreArtifactFiles.length} artifacts, missing=${missingCoreArtifactFiles.length}, credentialsStored=${coreManifest.credentialsStored}`,
   ),
   check(
     "MAP_PERFORMANCE_G4_B",

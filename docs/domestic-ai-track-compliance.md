@@ -17,10 +17,10 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 
 | 기업·모델 | SafeRoute 역할 | 실제 상태 | 안전 경계 | 핵심 증거 |
 |---|---|---|---|---|
-| Upstage `solar-pro3` | 검증된 JSON과 인용 기반 역할별 설명 | Live 12과업 중 11건 첫 시도 통과, 1건 안전 Fallback | 수치·추천·실행 가능성 변경 금지 | `artifacts/evals/upstage-smoke-latest.json` |
+| Upstage `solar-pro3` | 문서 왕복 기반과 검증된 JSON·인용 역할별 설명 | 설명 Live 12과업 중 11건 통과·1건 안전 Fallback, 합성 문서 Mock 계약 60/60 | 수치·추천·실행 가능성 변경 금지, Mock을 Parse·Extract Live로 주장 금지 | `artifacts/evals/upstage-document-roundtrip-mock-latest.json` |
 | SKT `A.X-K1` | K-EXAONE과 같은 12과업 API 계약 | AI One Portal v1.3 exact 계약·readiness 통과, 키 재발급·3분 후에도 Live 1과업은 401 안전 Fallback | 설명 Gate 뒤에서만 사용 | `artifacts/evals/domestic-ai-api-runs/2026-07-21T12-00-06-856Z-live-ax/` |
 | SKT `skt/A.X-4.0-Light` | A100 고정 revision 오프라인 생성 기준선 | 12/12 배치 통과, 강건성 28/30·2건 안전 Fallback | 안전 수치·추천 정답 생성 금지 | `artifacts/evals/local-model-runs/` |
-| LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-smoke-latest.json` |
+| LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/` |
 | NC VARCO | 후속 3D·이미지·음성·번역 에셋 후보 | P0 미연동 | 텍스트 LLM으로 추정하지 않음 | ADR-021과 `docs/synthetic-data-plan.md` |
 
 기상청 API허브는 공개 날씨 입력이며 생성형 AI 공급자가 아니다. 불완전한 Live 필드는 Safety 계산에 섞지 않고 전체 Demo 타임라인으로 Fallback한다.

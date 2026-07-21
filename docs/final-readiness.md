@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-21
 - 대체 문서: `docs/midpoint-review.md`
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`
 
@@ -29,7 +29,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 26개 파일, 233/233 통과 |
+| 단위·계약 | Vitest 27개 파일, 237/237 통과 |
 | 브라우저 폐루프 | Playwright 20/20 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
@@ -41,8 +41,9 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 결정 폐루프 경계 | 시간 8·동의/권한 12·버전 10, 30/30 통과 |
 | 전략 비교 | 30개 변형·90회 비교, SafeRoute 하드 제약 위반 0건 |
 | 국내 AI 표시 안전 | 검증되지 않은 생성문 표시 0건, 실패는 Fallback |
+| Upstage 문서 왕복 기반 | 합성 문서 60쌍 Mock 계약 60/60, 위험 6종·문서 5종·비신뢰 지시 18건, raw 문서·출력 저장 0건 |
 | 국내 AI 트랙 경계 | 제품·평가 host·모델·SDK·credential 자동 감사 통과 필요 |
-| 증거 무결성 | 국내트랙 자동 감사·지도 부하·공간 장면을 포함한 핵심 산출물 15개와 SHA-256 run manifest, 총 16개 파일 생성 |
+| 증거 무결성 | 국내트랙 자동 감사·지도 부하·공간 장면·Upstage 문서 왕복을 포함한 핵심 산출물 17개와 SHA-256 run manifest, 총 18개 파일 생성 |
 
 모든 수치는 합성·Mock·시뮬레이션 또는 명시된 비식별 API smoke 결과다. 실제 운영효과로 일반화하지 않는다.
 
@@ -93,7 +94,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - `artifacts/evals/final-readiness-latest.json`의 `PASSED`와 사람 확인 항목 기록
 - `pnpm run package:submission`으로 allowlist ZIP과 SHA-256 manifest 생성
 - 공개 URL에서도 `Demo fixture`, `Fallback map`과 비운영 한계 표시 확인
-- A.X API 키가 발급되면 기존 12과업 계약만 별도 실행하고 데모 폐루프에는 의존시키지 않기
+- A.X Hosted API는 `EXTERNAL_AUTH_PENDING`으로 보류하고 운영팀 확인 후 기존 12과업 계약만 별도 실행하며 데모 폐루프에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
 
 ## 7. 수용기준
@@ -118,7 +119,8 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 
 - 실제 발표 PC에서의 최종 당일 점검 시각과 담당자
 - 제출 영상 또는 현장 발표에서 사용할 정확한 3분 대사 속도
-- A.X API 계정의 활성 모델·quota·입력 보존 정책
+- A.X 운영팀의 gateway 팀 권한·키 동기화 확인과 이후 quota·입력 보존 정책
+- Upstage 합성 문서 왕복 60쌍 기반과 유료 Parse·Extract Live 실행 승인
 - 실제 운영 파일럿을 위한 데이터 계약·권한·보존·법률·노무 검토
 - 사용자 평가 모집과 역할별 이해도 결과
 - G5-B Round 1 `DO_NOT_PROMOTE`에 따른 관리자 decision 정보위계 재설계와 독립 검토 재실행
