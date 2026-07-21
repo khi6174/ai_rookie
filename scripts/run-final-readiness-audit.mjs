@@ -54,6 +54,15 @@ async function readJson(fileName) {
   return JSON.parse(await readFile(resolve(outputDirectory, fileName), "utf8"));
 }
 
+async function readOptionalJson(fileName) {
+  try {
+    return await readJson(fileName);
+  } catch (error) {
+    if (error?.code === "ENOENT") return null;
+    throw error;
+  }
+}
+
 function check(id, passed, details) {
   return { id, passed, details };
 }
@@ -122,18 +131,41 @@ const riderReferenceStimulus = await readJson(
 const riderReferenceStimulusImage = await readFile(
   resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
 );
-let spatialComprehension = {
+const spatialComprehensionRound2 = await readOptionalJson(
+  "g5-spatial-comprehension-round2-summary.json",
+);
+const spatialComprehensionRound1 = await readOptionalJson(
+  "g5-spatial-comprehension-summary.json",
+);
+let spatialComprehension = spatialComprehensionRound2 ??
+  spatialComprehensionRound1 ?? {
   status: "NOT_RUN",
   reviewerCount: 0,
   answerAccuracy: null,
   defaultPromotionEligible: false,
 };
-try {
-  spatialComprehension = await readJson(
-    "g5-spatial-comprehension-summary.json",
-  );
-} catch {
-  // G5-B remains a separate human gate until a valid result is preserved.
+if (
+  spatialComprehensionRound2 &&
+  (spatialComprehensionRound2.schemaVersion !==
+    "g5-spatial-comprehension-summary-v2" ||
+    spatialComprehensionRound2.studyId !==
+      "g5-b-decision-spatial-comprehension-round2-001" ||
+    spatialComprehensionRound2.dataMode !== "DEMO" ||
+    spatialComprehensionRound2.reviewerCount < 3)
+) {
+  throw new Error("Invalid G5-B Round 2 human comprehension summary");
+}
+if (
+  !spatialComprehensionRound2 &&
+  spatialComprehensionRound1 &&
+  (spatialComprehensionRound1.schemaVersion !==
+    "g5-spatial-comprehension-summary-v1" ||
+    spatialComprehensionRound1.studyId !==
+      "g5-b-decision-spatial-comprehension-001" ||
+    spatialComprehensionRound1.dataMode !== "DEMO" ||
+    spatialComprehensionRound1.reviewerCount < 3)
+) {
+  throw new Error("Invalid G5-B Round 1 human comprehension summary");
 }
 let riderReferenceComprehension = {
   status: "NOT_RUN",
@@ -362,6 +394,12 @@ const result = {
       spatialScene.metrics.identifierMismatchCount +
       spatialScene.metrics.numericMismatchCount,
     g5HumanComprehensionStatus: spatialComprehension.status,
+    g5HumanComprehensionStudyId: spatialComprehension.studyId ?? null,
+    g5HumanEvidenceRound: spatialComprehensionRound2
+      ? "ROUND_2"
+      : spatialComprehensionRound1
+        ? "ROUND_1"
+        : "NOT_RUN",
     g5HumanReviewerCount: spatialComprehension.reviewerCount,
     g5HumanAnswerAccuracy: spatialComprehension.answerAccuracy,
     g5DefaultPromotionEligible:

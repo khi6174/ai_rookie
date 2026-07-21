@@ -70,7 +70,7 @@ pnpm run review:g5
 ## 6. 자동 판정
 
 ```powershell
-pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-results.json
+pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round2-results.json
 ```
 
 - 입력 스키마, 익명 ID, 두 화면 완주와 순서 균형이 맞지 않으면 평가를 거부한다.
@@ -122,3 +122,5 @@ Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 �
 4. 12건 이관 차단 이유를 짧게 제공하고 2.5D를 보조 근거로 낮춘다.
 
 Round 2 결과가 없으므로 현재 공식 판정은 여전히 Round 1의 `DO_NOT_PROMOTE`다. 기술 회귀 통과만으로 사람 이해도 개선을 주장하지 않는다.
+
+Round 2 요약이 strict validator를 통과해 보존되면 최종 readiness는 이를 우선 읽고 `g5HumanEvidenceRound=ROUND_2`로 기록한다. Round 1 원본과 실패 요약은 삭제하지 않으며, Round 2가 없거나 잘못된 경우에는 기존 판정을 조용히 덮어쓰지 않는다.

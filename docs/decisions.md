@@ -528,6 +528,15 @@
 - 기각한 대안: 사람 응답 전까지 자극도 제출하지 않는 방식, 자동 E2E 결과를 사람 이해도 PASS로 기록하는 방식, 원응답 전체를 ZIP에 포함하는 방식, 최신 스크린샷을 해시 없이 임의 교체하는 방식.
 - 영향 파일: `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, `scripts/build-submission-package.mjs`, `tests/rider-reference-comprehension.test.ts`, `docs/submission-package.md`, `docs/final-readiness.md`, `docs/evals.md`, `artifacts/evals/rider-reference-stimulus-manifest.json`
 
+### ADR-054 — G5-B 공식 판정은 유효한 최신 round를 우선하고 사용한 round를 기록한다
+
+- 날짜: 2026-07-21
+- 상태: Approved
+- 결정: 최종 readiness는 strict evaluator가 만든 유효한 Round 2 summary가 있으면 이를 우선하고, 없으면 Round 1 summary를 사용한다. 선택한 `studyId`와 `ROUND_1`·`ROUND_2`를 결과에 기록한다. Round 2 JSON이 존재하지만 schema·study·Demo·최소 3인 계약을 위반하면 Round 1으로 조용히 fallback하지 않고 Gate를 실패시킨다. 제출 allowlist는 Round 1 실패 증거와 완료된 Round 2 결과·요약을 함께 보존한다.
+- 이유: 정보위계 재설계 후 재평가가 성공해도 최종 Gate가 Round 1만 읽으면 개선 결과가 공식 산출물에 반영되지 않고, 반대로 잘못된 Round 2 파일을 묵인하면 실패 증거를 임의로 덮어쓸 수 있기 때문이다.
+- 기각한 대안: Round 1 summary를 수동 교체, Round 2가 있으면 검증 없이 우선, Round 2 완료 시 Round 1 삭제, 최종 보고서에서만 사람이 round를 선택하는 방식.
+- 영향 파일: `scripts/run-final-readiness-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/g5-spatial-comprehension-test.md`, `docs/submission-package.md`, `docs/final-readiness.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

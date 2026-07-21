@@ -150,6 +150,8 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/g5-spatial-comprehension-input.template.json",
   "artifacts/evals/g5-spatial-comprehension-results.json",
   "artifacts/evals/g5-spatial-comprehension-summary.json",
+  "artifacts/evals/g5-spatial-comprehension-round2-results.json",
+  "artifacts/evals/g5-spatial-comprehension-round2-summary.json",
   "artifacts/evals/g5-spatial-comprehension-evidence.json",
   "artifacts/evals/g5-spatial-stimulus-manifest.json",
   "artifacts/evals/g5-spatial-round2-stimulus-manifest.json",
