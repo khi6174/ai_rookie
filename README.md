@@ -60,15 +60,15 @@ pnpm run package:submission
 pnpm run typecheck
 pnpm run build
 pnpm dev
-# G5-B 독립 검토자 3명이 차례로 사용하는 로컬 익명 평가 화면
+# G5-B Round 3 독립 검토자 3명이 차례로 사용하는 로컬 익명 평가 화면
 pnpm run review:g5
 # 검토 화면에서 내려받은 완료 JSON을 기계 판정
-pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round2-results.json
-# 기사 화면 고정 자극 manifest 생성 후 독립 검토자 5명이 차례로 사용하는 익명 평가 화면
+pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round3-results.json
+# 기사 화면 Round 2 고정 자극 manifest 생성 후 독립 검토자 5명이 차례로 사용하는 익명 평가 화면
 pnpm run eval:rider-reference:stimulus
 pnpm run review:rider-reference
 # 검토 화면에서 내려받은 완료 JSON을 기계 판정
-pnpm run eval:rider-reference:comprehension -- artifacts/evals/rider-reference-comprehension-results.json
+pnpm run eval:rider-reference:comprehension -- artifacts/evals/rider-reference-comprehension-round2-results.json
 # 단위 테스트를 재실행하고 핵심 평가 최신본·SHA-256 불변 run을 생성
 pnpm run eval:core-artifacts
 pnpm run eval:upstage:smoke:mock
@@ -89,6 +89,11 @@ pnpm run eval:kma-weather:supplement:live
 # 부분 Live 미승격과 Demo-only Safety 입력 감사 산출물 생성
 pnpm run eval:kma-weather:runtime
 ```
+
+로컬 서버 없이 같은 기기를 검토자에게 차례로 전달할 때는 공개 정적 평가 화면을 사용할 수 있다. 응답은 서버에 업로드되지 않고 현재 브라우저 메모리에만 머물며 마지막에 JSON 파일로 내려받는다.
+
+- G5-B Round 3: <https://saferoute-ai-demo.khiyw.chatgpt.site/tools/g5-spatial-review/>
+- 기사 제품 경계 Round 2: <https://saferoute-ai-demo.khiyw.chatgpt.site/tools/rider-reference-review/>
 
 관리자와 기사 compact 실제 베이스맵은 로컬 `.env.local`에 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`를 설정하고 Kakao Developers 앱에 실행 도메인을 등록했을 때만 활성화된다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 외부 네트워크 없이 동일한 합성 데이터의 schematic map을 사용한다. 기사 compact map은 오프라인에서도 자동으로 Fallback한다. 지도에 표시하는 기사·경로는 모두 Demo fixture이며 실제 위치가 아니다.
 

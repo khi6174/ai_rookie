@@ -210,6 +210,7 @@ let publicDemoBuild = {
   configured: false,
   workerPresent: false,
   staticShellPackaged: false,
+  publicReviewKitPackaged: false,
   packagedMetadataMatches: false,
 };
 try {
@@ -245,6 +246,42 @@ try {
   const publicIcon512 = await stat(
     resolve(root, "dist/client/icons/saferoute-512.png"),
   );
+  const publicG5ReviewIndex = await readFile(
+    resolve(root, "dist/client/tools/g5-spatial-review/index.html"),
+    "utf8",
+  );
+  const publicG5ReviewApp = await readFile(
+    resolve(root, "dist/client/tools/g5-spatial-review/app.js"),
+    "utf8",
+  );
+  const publicRiderReviewIndex = await readFile(
+    resolve(root, "dist/client/tools/rider-reference-review/index.html"),
+    "utf8",
+  );
+  const publicRiderReviewApp = await readFile(
+    resolve(root, "dist/client/tools/rider-reference-review/app.js"),
+    "utf8",
+  );
+  const publicG5Screenshot2d = await stat(
+    resolve(
+      root,
+      "dist/client/artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png",
+    ),
+  );
+  const publicG5Screenshot25d = await stat(
+    resolve(
+      root,
+      "dist/client/artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png",
+    ),
+  );
+  const publicRiderScreenshot = await stat(
+    resolve(
+      root,
+      "dist/client/artifacts/evals/screenshots/rider-source-route-round2-390x844.png",
+    ),
+  );
+  const forbiddenReviewNetworkApi =
+    /(fetch\s*\(|XMLHttpRequest|sendBeacon|WebSocket)/;
   const hostingConfig = JSON.parse(hostingConfigText);
   publicDemoBuild = {
     configured:
@@ -259,6 +296,33 @@ try {
       publicServiceWorker.includes('SHELL_VERSION = "saferoute-shell-v1.0.4"') &&
       publicIcon192.size > 1_000 &&
       publicIcon512.size > 2_000,
+    publicReviewKitPackaged:
+      publicG5ReviewIndex.includes("SafeRoute G5-B Round 3") &&
+      publicG5ReviewIndex.includes('name="robots" content="noindex,nofollow"') &&
+      publicG5ReviewApp.includes(
+        'studyId: "g5-b-decision-spatial-comprehension-round3-001"',
+      ) &&
+      publicG5ReviewApp.includes(
+        'link.download = "g5-spatial-comprehension-round3-results.json"',
+      ) &&
+      publicRiderReviewIndex.includes(
+        "SafeRoute 기사 운행·제품 경계 Round 2",
+      ) &&
+      publicRiderReviewIndex.includes(
+        'name="robots" content="noindex,nofollow"',
+      ) &&
+      publicRiderReviewApp.includes(
+        'studyId: "rider-route-product-boundary-round2-001"',
+      ) &&
+      publicRiderReviewApp.includes(
+        'link.download = "rider-reference-comprehension-round2-results.json"',
+      ) &&
+      !forbiddenReviewNetworkApi.test(
+        `${publicG5ReviewApp}\n${publicRiderReviewApp}`,
+      ) &&
+      publicG5Screenshot2d.size > 200_000 &&
+      publicG5Screenshot25d.size > 200_000 &&
+      publicRiderScreenshot.size > 100_000,
     packagedMetadataMatches:
       hostingConfigText.trim() === packagedHostingConfigText.trim(),
   };
@@ -267,6 +331,7 @@ try {
     configured: false,
     workerPresent: false,
     staticShellPackaged: false,
+    publicReviewKitPackaged: false,
     packagedMetadataMatches: false,
   };
 }
@@ -403,6 +468,11 @@ const evidenceChecks = [
       publicDemoBuild.packagedMetadataMatches,
     `configured=${publicDemoBuild.configured}, worker=${publicDemoBuild.workerPresent}, shell=${publicDemoBuild.staticShellPackaged}, metadata=${publicDemoBuild.packagedMetadataMatches}`,
   ),
+  check(
+    "PUBLIC_HUMAN_REVIEW_KIT",
+    publicDemoBuild.publicReviewKitPackaged,
+    `packaged=${publicDemoBuild.publicReviewKitPackaged}, upload=false, local-download-only=true`,
+  ),
 ];
 
 const commandChecksPassed = commands.every((command) => command.passed);
@@ -436,6 +506,7 @@ const result = {
       publicDemoBuild.workerPresent &&
       publicDemoBuild.staticShellPackaged &&
       publicDemoBuild.packagedMetadataMatches,
+    publicHumanReviewKitReady: publicDemoBuild.publicReviewKitPackaged,
     mapPerformanceProfiles: mapPerformance.profiles.length,
     maxEvaluatedMapCouriers: mapPerformance.budget.maxTotalCouriers,
     spatialSceneRenderer: spatialScene.renderer,

@@ -564,6 +564,15 @@
 - 기각한 대안: 공개 환경에서 service worker 경고를 무시, SPA fallback의 MIME을 완화, PWA 등록 코드를 제거, 수동 배포 확인만 하고 자동 Gate를 추가하지 않는 방식.
 - 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `artifacts/evals`
 
+### ADR-058 — 사람 이해도 도구는 공개 정적 경로에서도 무전송으로 제공한다
+
+- 날짜: 2026-07-23
+- 상태: Approved
+- 결정: G5 Round 3와 기사 제품 경계 Round 2의 기존 순차 검토 도구·해시 고정 자극을 공개 Demo의 `/tools/` 아래에도 패키징한다. 공개 도구는 서버 저장·분석·계정·네트워크 전송을 추가하지 않고, 같은 브라우저 메모리에서 각각 3명·5명의 익명 응답을 모은 뒤 마지막에 JSON으로만 내려받는다. 최종 readiness는 정확한 study·결과 파일명·자극 파일과 `fetch`, XHR, beacon, WebSocket 부재를 별도 Gate로 확인한다.
+- 이유: 로컬 `pnpm` 환경이나 포트 상태 때문에 독립 검토가 중단되는 위험을 줄이되, 외부 설문 서비스로 응답을 보내거나 개인정보 수집 범위를 확대하지 않고 기존 strict 평가 계약을 유지하기 위해서다.
+- 기각한 대안: 외부 설문 SaaS에 응답 전송, 서버 수집 API와 계정 도입, 서로 다른 브라우저의 불완전 파일을 수동 병합, 사람 결과 대신 자동 E2E를 최종 증거로 사용, 자극 해시 없이 최신 화면을 즉시 교체하는 방식.
+- 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-final-readiness-audit.mjs`, `tools/g5-spatial-review/`, `tools/rider-reference-review/`, `README.md`, `docs/g5-spatial-comprehension-test.md`, `docs/rider-reference-comprehension-test.md`, `docs/final-readiness.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

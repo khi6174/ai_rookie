@@ -45,11 +45,13 @@ manifest는 PNG의 크기와 SHA-256을 기록하며 자극 파일이 바뀌면 
 ## 5. 실행 절차
 
 1. `pnpm run eval:rider-reference:stimulus`로 고정 자극 무결성을 확인한다.
-2. `pnpm run review:rider-reference`를 실행하고 `http://127.0.0.1:4175/tools/rider-reference-review/`을 연다.
+2. `pnpm run review:rider-reference`를 실행하고 `http://127.0.0.1:4175/tools/rider-reference-review/`을 연다. `pnpm` 실행이 어렵다면 같은 정적 도구의 공개 경로 `https://saferoute-ai-demo.khiyw.chatgpt.site/tools/rider-reference-review/`를 사용한다.
 3. 다섯 명이 차례로 동의하고 독립 응답한다.
 4. 마지막 참여자 완료 후 `rider-reference-comprehension-round2-results.json`을 내려받는다.
 5. 결과 파일을 `artifacts/evals/`에 복사하되 기존 결과를 덮어쓰지 않는다.
 6. `pnpm run eval:rider-reference:comprehension -- <결과 파일>`로 기계 판정한다.
+
+로컬·공개 도구 모두 응답을 서버로 전송하지 않고 같은 브라우저의 메모리에서만 다섯 응답을 모은 뒤 JSON으로 내려받는다. 검토자에게 같은 기기를 차례로 전달하며, 서로 다른 브라우저에서 만든 불완전 결과를 사람이 합치지 않는다.
 
 ## 6. 판정 기준
 

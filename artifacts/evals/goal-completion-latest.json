@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v1",
-  "capturedAt": "2026-07-23T08:22:04.077Z",
+  "capturedAt": "2026-07-23T08:38:21.073Z",
   "status": "HUMAN_VALIDATION_REQUIRED",
   "objective": "Domestic-track SafeRoute safety-operations decision layer with bounded Atlan Truck and KBS mobility AI references, reproducible closed-loop evidence, and independent human comprehension gates.",
   "criteria": [
@@ -62,7 +62,7 @@
           "id": "FINAL_TECHNICAL_GATE",
           "passed": true,
           "evidence": "artifacts/evals/final-readiness-latest.json",
-          "details": "commands=5/5, checks=13/13"
+          "details": "commands=5/5, checks=14/14"
         },
         {
           "id": "REPRODUCIBLE_TEST_COUNTS",
@@ -171,33 +171,33 @@
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 8283,
-      "sha256": "efeb48e237fe9254d5ece179cfceceeba0a6a15c313efee36f77ae9abca6cf4d"
+      "bytes": 8469,
+      "sha256": "0ced566e10bb0473f8731206982c18faf965f6ae955df5557fb1b5546e307b41"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "5e87ba7bda2c1a9542ab782c96e1b8d03173ea257542484cd49c425682aad69c"
+      "sha256": "d426ae1cb8a7dde5ec44ed7d8bc278669e73bd169aa7048dd7324716f3126976"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "1f3bccf6c4e8de19c2e4a53c94007ff85dac712b92a869b34e77e0f0a583936e"
+      "sha256": "77545d51564175651946391d671fcddd908d89e45390399a550a319389c63fa1"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "cc768072fdd81af10cafce8cf9c973d3c1e74ecb860d3e53d739df17cb9f61a5"
+      "sha256": "207c549191694d53dae734c5957463e0e238e8bedd5ee3851edcd24ec6e01ad9"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 4501,
-      "sha256": "376980c6ac0109826a3befaee631edc89d8ff85d7a20547be9b9f37a1b280ccb"
+      "sha256": "32f87ab09363d367633ec7e05e81ca25ad28f268556736968052a5b585d7a28b"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
       "bytes": 2319,
-      "sha256": "13722d57b66987023f9e1d15a4cf5bae6f8cf85982becf08aecd86bf6e7af418"
+      "sha256": "513028b9c13a3d07de7004ae296186881a9a53d153d2a66ca60d42d83175be7d"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -244,8 +244,8 @@
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 86531,
-      "sha256": "afa4f568ec09b70fc7d37606ca82dd767302d9efdfec79a99f6781d8cfd0b132"
+      "bytes": 88036,
+      "sha256": "dfecbe7a86c2e547a0ed40f496e27135169ca5b0e95a12f0e6865732b4542214"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",

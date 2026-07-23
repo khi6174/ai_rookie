@@ -6,6 +6,15 @@ const hostingPath = resolve(root, ".openai/hosting.json");
 const clientDirectory = resolve(root, "dist/client");
 const workerDirectory = resolve(root, "dist/server");
 const metadataDirectory = resolve(root, "dist/.openai");
+const publicReviewDirectory = resolve(clientDirectory, "tools");
+const publicReviewEvidenceDirectory = resolve(
+  clientDirectory,
+  "artifacts/evals",
+);
+const publicReviewScreenshotDirectory = resolve(
+  publicReviewEvidenceDirectory,
+  "screenshots",
+);
 
 const hosting = JSON.parse(await readFile(hostingPath, "utf8"));
 if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
@@ -65,6 +74,37 @@ await copyFile(resolve(root, "dist/sw.js"), resolve(clientDirectory, "sw.js"));
 await cp(resolve(root, "dist/icons"), resolve(clientDirectory, "icons"), {
   recursive: true,
 });
+await mkdir(publicReviewDirectory, { recursive: true });
+await cp(
+  resolve(root, "tools/g5-spatial-review"),
+  resolve(publicReviewDirectory, "g5-spatial-review"),
+  { recursive: true },
+);
+await cp(
+  resolve(root, "tools/rider-reference-review"),
+  resolve(publicReviewDirectory, "rider-reference-review"),
+  { recursive: true },
+);
+await mkdir(publicReviewScreenshotDirectory, { recursive: true });
+for (const screenshot of [
+  "g5-round3-admin-decision-2d-1280x720.png",
+  "g5-round3-admin-decision-2-5d-1280x720.png",
+  "rider-source-route-round2-390x844.png",
+]) {
+  await copyFile(
+    resolve(root, "artifacts/evals/screenshots", screenshot),
+    resolve(publicReviewScreenshotDirectory, screenshot),
+  );
+}
+for (const manifest of [
+  "g5-spatial-round3-stimulus-manifest.json",
+  "rider-reference-round2-stimulus-manifest.json",
+]) {
+  await copyFile(
+    resolve(root, "artifacts/evals", manifest),
+    resolve(publicReviewEvidenceDirectory, manifest),
+  );
+}
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");
