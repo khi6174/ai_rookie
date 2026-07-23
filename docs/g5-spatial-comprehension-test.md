@@ -26,20 +26,23 @@
 
 - `reviewer-01`, `reviewer-03`: 2D → Demo 2.5D
 - `reviewer-02`: Demo 2.5D → 2D
-- 4명 이상이면 노출 순서 수가 가능한 한 같도록 번갈아 배정한다.
+- 현재 공개 평가 도구는 최종 Gate에 필요한 정확히 3명을 위 순서로 기록한다. 추가 표본은 이 결과 파일에 사람이 합치지 않고 별도 후속 연구로 분리한다.
 
 검토자에게 다음 화면을 보여주기 전 답을 확정하게 한다. 정답, 다른 사람의 답, 파일명에 담긴 모드 설명은 답변 전에 알려주지 않는다.
 
 ## 4. 화면별 질문
 
-각 화면을 처음 보여준 순간부터 네 질문을 모두 답한 순간까지 밀리초 단위 시간을 잰다.
+각 화면을 처음 보여준 순간부터 다섯 핵심 질문과 이해 확신 질문을 모두 답한 순간까지 밀리초 단위 시간을 잰다.
 
 1. 예상 안전 임계치 초과는 몇 분 후, 몇 번째 배송지인가?
 2. 경사 노출은 `현재–휴식`, `휴식–예상 초과`, `예상 초과 이후` 중 어디에 집중되는가?
 3. 추천 조치의 휴식 시간과 이관 배송 건수는 얼마인가?
-4. 원 기사와 수신 기사에게 생기는 변화, 그리고 휴식과 예상 초과 지점 중 어느 것이 경로에서 먼저인지 설명해 달라.
+4. 지원받는 기사와 배송을 나눠 맡는 기사에게 생기는 변화는 무엇인가?
+5. 휴식과 예상 초과 지점 중 어느 것이 경로에서 먼저인가?
 
-각 화면의 답 뒤 이해 확신을 1점(매우 낮음)부터 5점(매우 높음)으로 기록한다. 두 화면을 모두 본 뒤 어느 화면이 더 빨리 이해되었는지, 2.5D가 혼란을 더했는지, 이유를 500자 이내로 기록한다.
+6. 이해 확신을 1점(매우 낮음)부터 5점(매우 높음)으로 기록한다.
+
+두 화면을 모두 본 뒤 어느 화면이 더 빠르고 명료하게 이해되었는지, 2.5D가 혼란을 더했는지, 이유를 500자 이내로 기록한다.
 
 ## 5. 구조화 기록값
 
@@ -48,8 +51,8 @@
 | 질문 | 기록값 |
 |---|---|
 | 경사 구간 | `CURRENT_TO_REST`, `REST_TO_BREACH`, `BREACH_AND_AFTER`, `UNKNOWN` |
-| 원 기사 영향 | `WORKLOAD_REDUCED_AND_BUDGET_RECOVERS`, `WORKLOAD_INCREASES`, `NO_CHANGE`, `UNKNOWN` |
-| 수신 기사 영향 | `TRANSFER_WITHIN_SAFETY_LIMIT`, `TRANSFER_EXCEEDS_SAFETY_LIMIT`, `NO_TRANSFER`, `UNKNOWN` |
+| 지원받는 기사 영향 | `WORKLOAD_REDUCED_AND_BUDGET_RECOVERS`, `WORKLOAD_INCREASES`, `NO_CHANGE`, `UNKNOWN` |
+| 배송을 나눠 맡는 기사 영향 | `TRANSFER_WITHIN_SAFETY_LIMIT`, `TRANSFER_EXCEEDS_SAFETY_LIMIT`, `NO_TRANSFER`, `UNKNOWN` |
 | 경로 우선순위 | `REST_BEFORE_BREACH`, `BREACH_BEFORE_REST`, `UNKNOWN` |
 | 더 명료한 화면 | `TWO_D`, `DEMO_TWO_POINT_FIVE_D`, `SAME` |
 
@@ -135,9 +138,9 @@ Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 �
 
 2.5D의 52분·17번째·10분·8건 수치는 대체로 읽혔고 경사 구간 인지도도 개선됐지만, 경로 우선순위는 모든 참여자가 적어도 한 화면에서 `UNKNOWN`으로 답했고 일부 참여자는 원·수신 기사 영향도 찾지 못했다. strict trial은 모든 핵심 의미를 함께 맞혀야 하므로 0/6이다.
 
-## 10. Round 3 재설계와 실행 상태
+## 10. Round 3 재설계
 
-- 상태: 화면·manifest·평가 도구 준비 완료, 독립 3인 응답 대기
+- 상태: `DO_NOT_PROMOTE` — 독립 3인 결과와 상세 판정은 11절에 기록
 - 자극 manifest: `artifacts/evals/g5-spatial-round3-stimulus-manifest.json`
 - 2D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png`
 - 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png`
