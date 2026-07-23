@@ -81,12 +81,14 @@ manifest는 PNG의 크기와 SHA-256을 기록하며 자극 파일이 바뀌면 
 
 ## 8. Round 2 재설계와 실행 상태
 
-- 상태: 화면·manifest·평가 도구 준비 완료, 독립 5인 응답 대기
+- 상태: `READY_TO_PROMOTE`
 - 자극 SHA-256: `728a5fb73f2cba66ca68a051cc52cc98d9bf3db38cc309b5f717bf180601635d`
-- 예정 결과: `artifacts/evals/rider-reference-comprehension-round2-results.json`
-- 예정 요약: `artifacts/evals/rider-reference-comprehension-round2-summary.json`
+- 결과: `artifacts/evals/rider-reference-comprehension-round2-results.json`
+- 요약: `artifacts/evals/rider-reference-comprehension-round2-summary.json`
 
 Safety 계산과 답의 정답표는 바꾸지 않았다. 첫 화면에 `합성 Demo 경로 · GPS 길안내 아님`을 명시하고, 기존 설명을 `미래 안전한계 예측·지원계획 합의. 기사 동의 → 관리자 승인 후에만 적용`으로 단순화했다. 별도 카드로 화면 높이를 늘리지 않아 390×844·360×800의 핵심 행동과 44px 터치 Gate를 유지한다.
+
+독립 5인 응답은 30/30, 전 문항 정답 5/5, 중대 제품 경계 오인 0건으로 모든 strict Gate를 통과했다. 중앙 완료시간은 6,205ms, 평균 확신은 4/5다. 이는 고정 합성 화면의 이해도 증거이며 실제 GPS·내비게이션·현장 안전성 또는 사고감소 증거가 아니다.
 
 ## 9. 수용기준
 
@@ -95,7 +97,7 @@ Safety 계산과 답의 정답표는 바꾸지 않았다. 첫 화면에 `합성 
 - 동의 전에는 검토를 시작할 수 없다.
 - 각 참여자의 이전 답변과 정답이 노출되지 않는다.
 - 결과 JSON이 strict schema를 통과한다.
-- 실제 응답 전에는 이해도 개선 성과로 보고하지 않는다.
+- 이해도 개선은 Round 2 고정 자극과 독립 5인 결과 범위로만 보고한다.
 
 ## 10. 비목표와 미결사항
 
@@ -108,5 +110,4 @@ Safety 계산과 답의 정답표는 바꾸지 않았다. 첫 화면에 `합성 
 
 ### 미결사항
 
-- Round 2 독립 검토자 5명의 일정과 진행자
 - 본선 제출물에 익명 결과 원본을 포함할지 요약만 포함할지

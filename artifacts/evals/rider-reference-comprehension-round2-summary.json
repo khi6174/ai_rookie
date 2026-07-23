@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "rider-reference-comprehension-summary-v2",
+  "studyId": "rider-route-product-boundary-round2-001",
+  "dataMode": "DEMO",
+  "status": "READY_TO_PROMOTE",
+  "reviewerCount": 5,
+  "questionCount": 6,
+  "totalAnswerCount": 30,
+  "correctAnswerCount": 30,
+  "taskAccuracy": 1,
+  "fullyCorrectReviewerCount": 5,
+  "fullyCorrectReviewerRate": 1,
+  "criticalMisconceptionCount": 0,
+  "medianDurationMs": 6205,
+  "meanConfidence": 4,
+  "comprehensionPassed": true,
+  "note": "Independent comprehension observations only; this is not live-navigation, field-performance, or accident-reduction evidence."
+}

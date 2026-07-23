@@ -3960,6 +3960,17 @@ summary {
   font-size: 0.72rem;
 }
 
+.intervention-queue .support-card > .decision-one-line {
+  margin: 8px 0 0;
+  padding: 9px 10px;
+  border-left: 3px solid var(--color-green-700);
+  border-radius: 8px;
+  color: var(--color-navy-900);
+  background: var(--color-green-100);
+  font-weight: 750;
+  line-height: 1.5;
+}
+
 .support-urgency {
   display: inline-flex;
   min-height: 28px;

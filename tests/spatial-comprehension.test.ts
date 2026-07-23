@@ -59,7 +59,7 @@ function study() {
 }
 
 describe("G5-B 공간 이해도 평가", () => {
-  it("Round 1·2 증거를 보존하면서 Round 3 자극 계약을 별도로 허용한다", () => {
+  it("Round 1·2·3 증거를 보존하면서 Round 4 자극 계약을 별도로 허용한다", () => {
     const round1 = study();
     const round2 = {
       ...study(),
@@ -75,6 +75,13 @@ describe("G5-B 공간 이해도 평가", () => {
       stimulusManifest:
         "artifacts/evals/g5-spatial-round3-stimulus-manifest.json",
     };
+    const round4 = {
+      ...study(),
+      schemaVersion: "g5-spatial-comprehension-v4",
+      studyId: "g5-b-decision-spatial-comprehension-round4-001",
+      stimulusManifest:
+        "artifacts/evals/g5-spatial-round4-stimulus-manifest.json",
+    };
     expect(SpatialComprehensionStudySchema.parse(round1).schemaVersion).toBe(
       "g5-spatial-comprehension-v1",
     );
@@ -83,6 +90,9 @@ describe("G5-B 공간 이해도 평가", () => {
     );
     expect(SpatialComprehensionStudySchema.parse(round3).schemaVersion).toBe(
       "g5-spatial-comprehension-v3",
+    );
+    expect(SpatialComprehensionStudySchema.parse(round4).schemaVersion).toBe(
+      "g5-spatial-comprehension-v4",
     );
   });
 

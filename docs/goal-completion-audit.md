@@ -38,14 +38,14 @@ pnpm run audit:goal:require-ready
 | 혁신성 | Risk Transfer Guard 23/23, 시간·동의·버전 경계 30/30, 국내 AI·Upstage strict 증거 계층 |
 | 추진성 | 최종 기술 Gate, Vitest 246, Playwright 21, clean-start 3, 공개 Demo 빌드 |
 | 성장성 | 24·96·240명 합성 부하, 권역 80명·경로 24개 제한, 불완전 Live 날씨의 Demo 격리 |
-| 실효성 | 기술 폐루프와 G5-B Round 3 최소 3인 이해도, 기사 경로·제품 경계 Round 2 최소 5인 이해도 |
+| 실효성 | 기술 폐루프와 G5-B Round 4 최소 3인 이해도, 기사 경로·제품 경계 Round 2 최소 5인 이해도 |
 | 가치성 | 개인정보·원문 비저장, 기사 권리 승인 문서, SafeRoute 위반 0과 Risk Transfer Guard |
 
 ## 4. 사람 Gate
 
 실효성은 다음 두 strict summary가 모두 있어야 통과한다.
 
-1. `g5-spatial-comprehension-round3-summary.json`: 최소 3명, `comprehensionPassed=true`, `KEEP_OPTIONAL` 또는 `DEFAULT_PROMOTION_CANDIDATE`
+1. `g5-spatial-comprehension-round4-summary.json`: 최소 3명, `comprehensionPassed=true`, `KEEP_OPTIONAL` 또는 `DEFAULT_PROMOTION_CANDIDATE`
 2. `rider-reference-comprehension-round2-summary.json`: 최소 5명, `READY_TO_PROMOTE`, 중대 제품 오인 0명
 
 Round 1 실패, 자동 E2E 정답 입력, 팀 내부 추정 또는 응답 없는 빈 summary는 사람 증거를 대체하지 않는다.
@@ -71,7 +71,7 @@ pnpm run package:submission -- --allow-dirty --diagnostic
 - 심사기준은 정확히 6개이며 이름·판정·원자 check와 blocker가 있다.
 - 근거 파일과 승인 문서의 SHA-256이 기록된다.
 - 감사기·사람 summary 계약·단위 테스트의 SHA-256이 기록된다.
-- G5-B는 유효한 Round 3만 실효성 통과에 사용한다.
+- G5-B는 유효한 Round 4만 실효성 통과에 사용한다. Round 1·2·3 실패는 삭제하지 않는다.
 - 기사 사람 Gate는 5명·중대 오인 0 계약을 유지한다.
 - 사람 Gate 대기 중에는 최종 제출 패키지가 생성되지 않는다.
 - 진단 패키지는 파일명과 manifest에서 최종 제출본과 구분된다.
@@ -85,6 +85,6 @@ pnpm run package:submission -- --allow-dirty --diagnostic
 
 ## 8. 미결사항
 
-- G5-B Round 3 독립 검토자 3명 결과
+- G5-B Round 4 독립 검토자 3명 결과
 - 기사 경로·제품 경계 Round 2 독립 검토자 5명 결과
 - 발표 PC, 제출 폼·파일명·마감의 사람 확인

@@ -103,6 +103,9 @@ const evidence = {
   ),
 };
 
+const g5Round4 = await readOptionalEvidence(
+  "artifacts/evals/g5-spatial-comprehension-round4-summary.json",
+);
 const g5Round3 = await readOptionalEvidence(
   "artifacts/evals/g5-spatial-comprehension-round3-summary.json",
 );
@@ -112,7 +115,7 @@ const g5Round2 = await readOptionalEvidence(
 const g5Round1 = await readOptionalEvidence(
   "artifacts/evals/g5-spatial-comprehension-summary.json",
 );
-const g5 = g5Round3 ?? g5Round2 ?? g5Round1;
+const g5 = g5Round4 ?? g5Round3 ?? g5Round2 ?? g5Round1;
 const riderRound2 = await readOptionalEvidence(
   "artifacts/evals/rider-reference-comprehension-round2-summary.json",
 );
@@ -133,6 +136,7 @@ try {
   evaluateGoalCompletionStatus =
     goalCompletionModule.evaluateGoalCompletionStatus;
   humanEvidence = goalCompletionModule.evaluateHumanGoalEvidence({
+    ...(g5Round4 ? { g5Round4: g5Round4.json } : {}),
     ...(g5Round3 ? { g5Round3: g5Round3.json } : {}),
     ...(riderRound2 ? { riderRound2: riderRound2.json } : {}),
   });
@@ -294,12 +298,12 @@ const criteria = [
         `risk=${final.summary?.riskTransferBoundaries}, workflow=${final.summary?.decisionWorkflowBoundaries}`,
       ),
       check(
-        "HUMAN_G5_ROUND3_COMPREHENSION",
+        "HUMAN_G5_ROUND4_COMPREHENSION",
         g5Round3Passed,
-        g5Round3?.path ?? "MISSING:g5-spatial-comprehension-round3-summary.json",
-        g5Round3
-          ? `status=${g5Round3.json.status}, reviewers=${g5Round3.json.reviewerCount}, comprehensionPassed=${g5Round3.json.comprehensionPassed}`
-          : `Round 2 remains ${g5Round2?.json.status ?? "NOT_RUN"}; independent Round 3 is required after the comprehension redesign.`,
+        g5Round4?.path ?? "MISSING:g5-spatial-comprehension-round4-summary.json",
+        g5Round4
+          ? `status=${g5Round4.json.status}, reviewers=${g5Round4.json.reviewerCount}, comprehensionPassed=${g5Round4.json.comprehensionPassed}`
+          : `Round 3 remains ${g5Round3?.json.status ?? "NOT_RUN"}; independent Round 4 is required after the comprehension redesign.`,
       ),
       check(
         "HUMAN_RIDER_PRODUCT_BOUNDARY",
@@ -378,8 +382,10 @@ const result = {
     failedCriterionCount: failedCriteria.length,
     technicalFinalReadiness: final.status,
     domesticTrackStatus: domesticTrack.status,
-    g5EvidenceRound: g5Round3
-      ? "ROUND_3"
+    g5EvidenceRound: g5Round4
+      ? "ROUND_4"
+      : g5Round3
+        ? "ROUND_3"
       : g5Round2
         ? "ROUND_2"
         : g5Round1

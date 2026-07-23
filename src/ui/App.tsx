@@ -357,8 +357,8 @@ function DecisionSpatialScenePanel({
             <div><dt>{applied ? "적용 계획 최소" : "추천안 적용 후"}</dt><dd>{formatBudget(facts.adjustedMinimumBudget)}</dd></div>
             <div><dt>지원 조치</dt><dd>{facts.restMinutes}분 휴식 + {facts.transferStopCount}건 이관</dd></div>
             <div><dt>ETA 변화</dt><dd>+{facts.etaChangeMinutes}분 · 안전 하드 제약 통과</dd></div>
-            <div className="spatial-impact-fact"><dt>원 기사</dt><dd>8건 감소 · 안전여유 회복</dd></div>
-            <div className="spatial-impact-fact"><dt>수신 기사</dt><dd>8건 추가 · 기준 45 통과</dd></div>
+            <div className="spatial-impact-fact"><dt>지원받는 기사</dt><dd>8건 감소 · 안전여유 회복</dd></div>
+            <div className="spatial-impact-fact"><dt>배송을 나눠 맡는 기사</dt><dd>8건 추가 · 기준 45 통과</dd></div>
           </dl>
           <code>Decision ID · {scene.decisionId}</code>
           <p>양측 기사 모두 안전기준을 통과한 같은 결정입니다.</p>
@@ -1027,8 +1027,10 @@ function InterventionQueue({
       </div>
       <article className={`support-card ${applied ? "is-applied" : ""}`}>
         <div className="support-urgency">{applied ? "계획 적용 완료" : "60분 안에 결정 필요"}</div>
-        <h3>{applied ? "10분 휴식과 배송 8건 이관을 적용했습니다." : "원 기사에게 10분 휴식과 배송 8건 이관을 진행할까요?"}</h3>
-        <p>{applied ? "17번째 배송지 전에 안전여유를 회복하도록 같은 계획 버전에 반영했습니다." : "17번째 배송지 전에 안전여유를 회복하는 조정입니다."}</p>
+        <h3>{applied ? "10분 휴식과 배송 8건 이관을 적용했습니다." : "약 52분 후 17번째 배송지 전에, 10분 휴식과 배송 8건 이관이 필요합니다."}</h3>
+        <p className="decision-one-line">{applied
+          ? "지원받는 기사의 안전여유가 회복되고, 배송을 나눠 맡는 기사도 안전기준을 통과했습니다."
+          : "지원받는 기사는 안전여유가 회복되고, 배송을 나눠 맡는 기사는 8건 추가 후에도 안전기준을 통과합니다."}</p>
         <ol className="decision-sequence" aria-label="현재부터 지원 완료까지의 순서">
           <li><span>현재</span><strong>14번째 배송지 운행</strong></li>
           <li><span>먼저</span><strong>10분 휴식</strong></li>
@@ -1044,12 +1046,12 @@ function InterventionQueue({
         </div>
         <div className="decision-impact-grid">
           <article>
-            <span>원 기사 · 작업이 줄어드는 기사</span>
+            <span>지원받는 기사 · 작업이 줄어듭니다</span>
             <strong>8건 줄고 안전여유가 회복됩니다</strong>
             <small>배송 {sourceStopsBefore} → {sourceStopsAfter}건 · 안전여유 {formatBudget(sourceImpact.baselineMinimumBudget)} → {formatBudget(sourceImpact.candidateMinimumBudget)}</small>
           </article>
           <article>
-            <span>수신 기사 · 배송을 받는 기사</span>
+            <span>배송을 나눠 맡는 기사 · 8건을 받습니다</span>
             <strong>8건 추가 후에도 안전기준을 통과합니다</strong>
             <small>배송 {recipientImpact.stopCountDelta > 0 ? "+" : ""}{recipientImpact.stopCountDelta}건 · 안전여유 {formatBudget(recipientImpact.baselineMinimumBudget)} → {formatBudget(recipientImpact.candidateMinimumBudget)} · 기준 45 이상</small>
           </article>
@@ -1057,8 +1059,8 @@ function InterventionQueue({
         <p className="decision-rationale"><strong>왜 이 조치인가?</strong> 연속작업·비·경사 노출을 줄이고, 12건 이관처럼 수신 기사 기준을 넘는 대안은 제외했습니다.</p>
       </section>
       <div className="consent-grid" aria-label="기사별 동의 상태">
-        <div><span>원 기사 · 작업 8건 감소</span><strong>{consentLabel(sourceStatus)}</strong></div>
-        <div><span>수신 기사 · 배송 8건 추가</span><strong>{consentLabel(recipientStatus)}</strong></div>
+        <div><span>지원받는 기사 · 작업 8건 감소</span><strong>{consentLabel(sourceStatus)}</strong></div>
+        <div><span>배송을 나눠 맡는 기사 · 배송 8건 추가</span><strong>{consentLabel(recipientStatus)}</strong></div>
       </div>
       <button
         type="button"

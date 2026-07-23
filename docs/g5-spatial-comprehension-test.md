@@ -6,7 +6,7 @@
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-23
 - 상위 기준: `docs/g5-spatial-visualization-design.md` 7.2
-- 현재 결과: Round 2 `DO_NOT_PROMOTE` — 순서·양측 영향 명시 후 Round 3 재검토 필요
+- 현재 결과: Round 3 `DO_NOT_PROMOTE` — 역할 용어·첫 결론 단순화 후 Round 4 재검토 필요
 
 ## 1. 목적
 
@@ -22,7 +22,7 @@
 
 ## 3. 고정 자극과 순서
 
-`artifacts/evals/g5-spatial-round3-stimulus-manifest.json`에 해시가 고정된 두 화면만 사용한다.
+`artifacts/evals/g5-spatial-round4-stimulus-manifest.json`에 해시가 고정된 두 화면만 사용한다.
 
 - `reviewer-01`, `reviewer-03`: 2D → Demo 2.5D
 - `reviewer-02`: Demo 2.5D → 2D
@@ -63,7 +63,7 @@
 pnpm run review:g5
 ```
 
-브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 현재 도구는 Round 3 고정 화면을 사용하며 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-round3-results.json`에 복사한다. Round 1·2 원본은 변경하지 않는다.
+브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 현재 도구는 Round 4 고정 화면을 사용하며 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-round4-results.json`에 복사한다. Round 1·2·3 원본은 변경하지 않는다.
 
 `pnpm` 실행이 어려우면 같은 도구의 공개 정적 경로 `https://saferoute-ai-demo.khiyw.chatgpt.site/tools/g5-spatial-review/`를 사용할 수 있다. 세 검토자는 같은 브라우저를 차례로 사용하고 마지막 검토 뒤 한 개의 완료 JSON을 내려받는다.
 
@@ -72,7 +72,7 @@ pnpm run review:g5
 ## 6. 자동 판정
 
 ```powershell
-pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round3-results.json
+pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round4-results.json
 ```
 
 - 입력 스키마, 익명 ID, 두 화면 완주와 순서 균형이 맞지 않으면 평가를 거부한다.
@@ -141,7 +141,19 @@ Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 �
 - 자극 manifest: `artifacts/evals/g5-spatial-round3-stimulus-manifest.json`
 - 2D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png`
 - 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png`
-- 예정 결과: `artifacts/evals/g5-spatial-comprehension-round3-results.json`
-- 예정 요약: `artifacts/evals/g5-spatial-comprehension-round3-summary.json`
+- 결과: `artifacts/evals/g5-spatial-comprehension-round3-results.json`
+- 요약: `artifacts/evals/g5-spatial-comprehension-round3-summary.json`
 
 정답표와 Safety 계산은 유지한다. 지원 진행선 아래에 `10분 휴식이 예상 초과보다 먼저`라는 결론을 표시하고, 원 기사는 `8건 감소·안전여유 회복`, 수신 기사는 `8건 추가 후에도 기준 통과`라고 각각 결과부터 읽히게 했다. 2.5D에도 같은 순서와 양측 의미를 텍스트 대안으로 제공한다. Round 1·2 실패 원본과 요약은 삭제하거나 새 결과로 덮어쓰지 않는다.
+
+## 11. Round 3 결과와 Round 4 실행 상태
+
+Round 3 독립 3인·6 trial은 경사 구간 6/6을 맞혔지만 전체 strict 정답은 0/6으로 `DO_NOT_PROMOTE`였다. 2D에서 52분·17번째 배송지는 각각 0/3, 2.5D에서 지원받는 기사·배송을 나눠 맡는 기사 결과는 각각 1/3, 휴식 선행 순서는 0/3이었다. 2.5D는 기본 승격하지 않는다.
+
+- 자극 manifest: `artifacts/evals/g5-spatial-round4-stimulus-manifest.json`
+- 2D 화면: `artifacts/evals/screenshots/g5-round4-admin-decision-2d-1280x720.png`
+- 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round4-admin-decision-2-5d-1280x720.png`
+- 예정 결과: `artifacts/evals/g5-spatial-comprehension-round4-results.json`
+- 예정 요약: `artifacts/evals/g5-spatial-comprehension-round4-summary.json`
+
+Round 4는 첫 결론에 `약 52분 후 17번째 배송지 전에, 10분 휴식과 배송 8건 이관이 필요합니다`를 한 문장으로 고정한다. 화면의 역할 명칭은 `지원받는 기사`와 `배송을 나눠 맡는 기사`로 풀어 쓰고 바로 다음 문장에서 양측 결과를 함께 설명한다. 내부 역할·정답표·Safety 계산·동의권은 변경하지 않는다.

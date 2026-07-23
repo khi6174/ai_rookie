@@ -6,8 +6,8 @@ import {
 
 function g5(overrides: Record<string, unknown> = {}) {
   return {
-    schemaVersion: "g5-spatial-comprehension-summary-v3",
-    studyId: "g5-b-decision-spatial-comprehension-round3-001",
+    schemaVersion: "g5-spatial-comprehension-summary-v4",
+    studyId: "g5-b-decision-spatial-comprehension-round4-001",
     dataMode: "DEMO",
     status: "KEEP_OPTIONAL",
     reviewerCount: 3,
@@ -30,9 +30,9 @@ function rider(overrides: Record<string, unknown> = {}) {
 }
 
 describe("최종 GOAL 사람 증거 계약", () => {
-  it("유효한 G5 Round 3와 기사 Round 2 5인 결과만 전체 사람 Gate를 통과한다", () => {
+  it("유효한 G5 Round 4와 기사 Round 2 5인 결과만 전체 사람 Gate를 통과한다", () => {
     expect(evaluateHumanGoalEvidence({
-      g5Round3: g5(),
+      g5Round4: g5(),
       riderRound2: rider(),
     })).toEqual({
       g5Passed: true,
@@ -44,22 +44,22 @@ describe("최종 GOAL 사람 증거 계약", () => {
 
   it("이전 Round·인원 부족·잘못된 study 계약은 완료 증거로 파싱하지 않는다", () => {
     expect(() => evaluateHumanGoalEvidence({
-      g5Round3: g5({ schemaVersion: "g5-spatial-comprehension-summary-v2" }),
+      g5Round4: g5({ schemaVersion: "g5-spatial-comprehension-summary-v3" }),
       riderRound2: rider(),
     })).toThrow();
     expect(() => evaluateHumanGoalEvidence({
-      g5Round3: g5(),
+      g5Round4: g5(),
       riderRound2: rider({ reviewerCount: 4 }),
     })).toThrow();
     expect(() => evaluateHumanGoalEvidence({
-      g5Round3: g5(),
+      g5Round4: g5(),
       riderRound2: rider({ studyId: "wrong-study" }),
     })).toThrow();
   });
 
   it("중대 제품 오인이나 G5 이해 실패는 해당 사람 증거를 대기로 유지한다", () => {
     const result = evaluateHumanGoalEvidence({
-      g5Round3: g5({ status: "DO_NOT_PROMOTE", comprehensionPassed: false }),
+      g5Round4: g5({ status: "DO_NOT_PROMOTE", comprehensionPassed: false }),
       riderRound2: rider({
         status: "NEEDS_REVISION",
         comprehensionPassed: false,

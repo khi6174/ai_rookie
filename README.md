@@ -2,9 +2,9 @@
 
 SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전 가능영역을 검증하고, 같은 결정 근거와 기사 동의·관리자 승인 아래 계획을 갱신하는 라스트마일 안전운영 코파일럿입니다.
 
-계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 246/246이다. 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 1·2의 `DO_NOT_PROMOTE` 결과에 따라 관리자 decision 면을 질문·순서·양측 영향 중심으로 단순화했고, 실패 근거를 보존한 Round 3 고정 화면과 익명 평가 도구를 준비했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했고, 기사 Round 1 `NEEDS_REVISION` 뒤 제품 경계와 승인 규칙을 더 명시한 Round 2 평가 도구를 추가했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 남은 작업은 실제 독립 검토자 3명의 G5-B Round 3와 5명의 기사 Round 2 제품 경계 이해 확인, 발표 PC·역할·제출물의 운영 점검입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
+계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 246/246이다. 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 3 독립 3인도 전체 정답 0/6으로 `DO_NOT_PROMOTE`였으므로 실패 원본을 보존하고, `52분·17번째·10분·8건`과 두 기사 역할을 풀어 쓴 Round 4 자극을 준비한다. 기사 제품 경계 Round 2는 독립 5인 30/30, 중대 오인 0건으로 `READY_TO_PROMOTE`를 통과했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 남은 최종 사람 Gate는 G5-B Round 4 독립 3인 이해도이며, 이후 발표 PC·역할·제출물 운영 점검을 확정합니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
-2026-07-23 사람 Gate 최신 상태는 G5-B Round 2 `DO_NOT_PROMOTE`와 기사 제품 경계 Round 1 `NEEDS_REVISION`이다. 실패 원본을 보존한 채 경로 우선순위·양측 영향 결론을 명시한 G5-B Round 3와 Demo/GPS·제품 역할·기사 동의→관리자 승인 규칙을 명시한 기사 Round 2 자극을 준비했다. 남은 최종 GOAL 증거는 각각 독립 3인·5인의 새 평가다.
+2026-07-23 사람 Gate 최신 상태는 G5-B Round 3 `DO_NOT_PROMOTE`, 기사 제품 경계 Round 2 `READY_TO_PROMOTE`다. G5 Round 4는 계산·정답·2D 기본값을 유지하고 결정 문장과 기사 역할 용어만 다시 단순화한다. 남은 최종 GOAL 증거는 Round 4 독립 3인 평가다.
 
 최신 단위·계약 검증은 Vitest 29개 파일·246/246이다.
 
@@ -61,10 +61,10 @@ pnpm run package:submission
 pnpm run typecheck
 pnpm run build
 pnpm dev
-# G5-B Round 3 독립 검토자 3명이 차례로 사용하는 로컬 익명 평가 화면
+# G5-B Round 4 독립 검토자 3명이 차례로 사용하는 로컬 익명 평가 화면
 pnpm run review:g5
 # 검토 화면에서 내려받은 완료 JSON을 기계 판정
-pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round3-results.json
+pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round4-results.json
 # 기사 화면 Round 2 고정 자극 manifest 생성 후 독립 검토자 5명이 차례로 사용하는 익명 평가 화면
 pnpm run eval:rider-reference:stimulus
 pnpm run review:rider-reference
@@ -93,7 +93,7 @@ pnpm run eval:kma-weather:runtime
 
 로컬 서버 없이 같은 기기를 검토자에게 차례로 전달할 때는 공개 정적 평가 화면을 사용할 수 있다. 응답은 서버에 업로드되지 않고 현재 브라우저 메모리에만 머물며 마지막에 JSON 파일로 내려받는다.
 
-- G5-B Round 3: <https://saferoute-ai-demo.khiyw.chatgpt.site/tools/g5-spatial-review/>
+- G5-B Round 4: <https://saferoute-ai-demo.khiyw.chatgpt.site/tools/g5-spatial-review/>
 - 기사 제품 경계 Round 2: <https://saferoute-ai-demo.khiyw.chatgpt.site/tools/rider-reference-review/>
 
 관리자와 기사 compact 실제 베이스맵은 로컬 `.env.local`에 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`를 설정하고 Kakao Developers 앱에 실행 도메인을 등록했을 때만 활성화된다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 외부 네트워크 없이 동일한 합성 데이터의 schematic map을 사용한다. 기사 compact map은 오프라인에서도 자동으로 Fallback한다. 지도에 표시하는 기사·경로는 모두 Demo fixture이며 실제 위치가 아니다.
@@ -104,7 +104,7 @@ pnpm run eval:kma-weather:runtime
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
-`audit:goal`은 여섯 심사기준과 G5-B Round 3·기사 제품 경계 Round 2 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
+`audit:goal`은 여섯 심사기준과 G5-B Round 4·기사 제품 경계 Round 2 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
 
 ## 핵심 문서
 

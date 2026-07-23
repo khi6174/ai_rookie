@@ -15,10 +15,10 @@ async function completeTrial(page: import("@playwright/test").Page) {
   await page.getByLabel("휴식–예상 초과").check();
   await page.getByLabel("휴식 시간(분)").fill(expected.restMinutes);
   await page.getByLabel("이관 배송 건수").fill(expected.transferStopCount);
-  await page.getByLabel("원 기사").selectOption(
+  await page.getByLabel("지원받는 기사").selectOption(
     "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
   );
-  await page.getByLabel("수신 기사").selectOption(
+  await page.getByLabel("배송을 나눠 맡는 기사").selectOption(
     "TRANSFER_WITHIN_SAFETY_LIMIT",
   );
   await page.getByLabel("휴식 지점이 먼저").check();
@@ -26,7 +26,7 @@ async function completeTrial(page: import("@playwright/test").Page) {
   await page.getByRole("button", { name: "답변 확정" }).click();
 }
 
-test("G5-B Round 3 로컬 평가 화면은 3명의 동의·순서 균형·익명 JSON을 완성한다", async ({
+test("G5-B Round 4 로컬 평가 화면은 3명의 동의·순서 균형·익명 JSON을 완성한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
@@ -80,6 +80,6 @@ test("G5-B Round 3 로컬 평가 화면은 3명의 동의·순서 균형·익명
   await page.getByRole("button", { name: "결과 JSON 다운로드" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe(
-    "g5-spatial-comprehension-round3-results.json",
+    "g5-spatial-comprehension-round4-results.json",
   );
 });

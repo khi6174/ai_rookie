@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v1",
-  "capturedAt": "2026-07-23T11:20:04.259Z",
+  "capturedAt": "2026-07-23T12:37:09.367Z",
   "status": "HUMAN_VALIDATION_REQUIRED",
   "objective": "Domestic-track SafeRoute safety-operations decision layer with bounded Atlan Truck and KBS mobility AI references, reproducible closed-loop evidence, and independent human comprehension gates.",
   "criteria": [
@@ -107,21 +107,20 @@
           "details": "risk=23, workflow=30"
         },
         {
-          "id": "HUMAN_G5_ROUND3_COMPREHENSION",
+          "id": "HUMAN_G5_ROUND4_COMPREHENSION",
           "passed": false,
-          "evidence": "MISSING:g5-spatial-comprehension-round3-summary.json",
-          "details": "Round 2 remains DO_NOT_PROMOTE; independent Round 3 is required after the comprehension redesign."
+          "evidence": "MISSING:g5-spatial-comprehension-round4-summary.json",
+          "details": "Round 3 remains DO_NOT_PROMOTE; independent Round 4 is required after the comprehension redesign."
         },
         {
           "id": "HUMAN_RIDER_PRODUCT_BOUNDARY",
-          "passed": false,
-          "evidence": "MISSING:rider-reference-comprehension-round2-summary.json",
-          "details": "Round 1 remains NEEDS_REVISION; five-person independent Round 2 is required after the product-boundary redesign."
+          "passed": true,
+          "evidence": "artifacts/evals/rider-reference-comprehension-round2-summary.json",
+          "details": "status=READY_TO_PROMOTE, reviewers=5, misconceptions=0"
         }
       ],
       "blockers": [
-        "HUMAN_G5_ROUND3_COMPREHENSION",
-        "HUMAN_RIDER_PRODUCT_BOUNDARY"
+        "HUMAN_G5_ROUND4_COMPREHENSION"
       ]
     },
     {
@@ -159,45 +158,44 @@
     "failedCriterionCount": 0,
     "technicalFinalReadiness": "PASSED",
     "domesticTrackStatus": "PASSED",
-    "g5EvidenceRound": "ROUND_2",
+    "g5EvidenceRound": "ROUND_3",
     "g5Status": "DO_NOT_PROMOTE",
-    "riderEvidenceRound": "ROUND_1",
-    "riderStatus": "NEEDS_REVISION"
+    "riderEvidenceRound": "ROUND_2",
+    "riderStatus": "READY_TO_PROMOTE"
   },
   "requiredNextEvidence": [
-    "artifacts/evals/g5-spatial-comprehension-round3-summary.json",
-    "artifacts/evals/rider-reference-comprehension-round2-summary.json"
+    "artifacts/evals/g5-spatial-comprehension-round4-summary.json"
   ],
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 8566,
-      "sha256": "f66ce3d0e87edace533ba899716854b1de5507cc9b6a7200837427d19d7c1a3d"
+      "bytes": 8464,
+      "sha256": "31ae7831882e70085a855f560b19c5717f25135b44f66dbbc6794dcce0521eef"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "aebd7433eb06cec3410fe73d4ed38ca5f40a83fbff173bee13d2282a21fa7fdf"
+      "sha256": "e7d72ce1c4e3c46f27c8e7f90962d56fd70693b60c5db4515cb5b77368a67242"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "5978d6420d3e8aaa141d04ad887c14ebb255bb12ec7af93a24a00836a7c9c6f4"
+      "sha256": "d5f949f89783e5585dd74ac7a52a364d3e0a0937453bf83915ee64bad517dde3"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "03c5ab40c9d4795638743441823cef4d2bcebd14ba291e0f69cf79312d86228d"
+      "sha256": "8cb7a5b984543c8d60d2d4670649b829236bdf56ba229d0c0c76d3a7d6a0be8a"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 4501,
-      "sha256": "3061d8df509ead6b1f613e406d9047ee4c9232bff5eb5dccc2ff3af9b45fdf63"
+      "sha256": "64276606770e3e3a5919e4461d1c339e7ef6d92b53132846a13b5297e23ac55e"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
-      "bytes": 2321,
-      "sha256": "1949a231962e088e47de0f5f314879c5d175d594396631c287df878b0cf68835"
+      "bytes": 2320,
+      "sha256": "151e7953f5942a3ebf57a9e761215648c34cd13ff6841a3ffe3084fcdaeb8173"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -220,9 +218,19 @@
       "sha256": "b88b572ff0ff76096b62916dabb201d1a9fac45ba12156a36e00d77948ac59e8"
     },
     {
+      "path": "artifacts/evals/g5-spatial-comprehension-round3-summary.json",
+      "bytes": 1048,
+      "sha256": "1794762a1eef905f40a3385249dba9af35b85ae0841435c3f3d4aa2cbf73d188"
+    },
+    {
       "path": "artifacts/evals/rider-reference-comprehension-summary.json",
       "bytes": 632,
       "sha256": "dc5b7693830c9c32eade8efe9952bbbcf29e59da1394717bdaa11d39b6f8d82b"
+    },
+    {
+      "path": "artifacts/evals/rider-reference-comprehension-round2-summary.json",
+      "bytes": 617,
+      "sha256": "49106396230efa749147c45a22060d62bfedbcdd898a0fe63a97722255e55a8d"
     }
   ],
   "approvedDocumentManifest": [
@@ -237,15 +245,15 @@
       "path": "docs/design-system.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 63404,
-      "sha256": "ca296a6a3ca22299b54b5cbd4ca280c2eea777e7a327b7a965f7b7bbcbe6cd41"
+      "bytes": 63297,
+      "sha256": "872ff7821178715ead329ffd23f8c71908ac8e9d2bca622aa7579b0a7dd3e4e2"
     },
     {
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 89817,
-      "sha256": "80411967e09bee038ebd2419c59b4fb36e0e18352549e06ccc61af62ffbabc4a"
+      "bytes": 91498,
+      "sha256": "30333c2bcc7372d18f650fa17e4ba311049d87ff6f458fd0666107f008b9383b"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",
@@ -258,8 +266,8 @@
       "path": "docs/evals.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 58674,
-      "sha256": "8383337f7001b005433f3050a78f27c4398c80bc6e63654e2b067d9ed528c9ca"
+      "bytes": 59065,
+      "sha256": "d49092ed261639ef3c348d7f0ca0c1ca3ed51373521c532f365c483d1640a82f"
     },
     {
       "path": "docs/domestic-ai-track-compliance.md",
@@ -272,18 +280,18 @@
   "evaluatorManifest": [
     {
       "path": "scripts/run-goal-completion-audit.mjs",
-      "bytes": 16289,
-      "sha256": "ca46973a511d48be5c4301b30b870d6413bea64ee6ed99a53990ed35b4a91ea6"
+      "bytes": 16506,
+      "sha256": "1983fbc715f3a5f0a074b56b3c95329a0fbc3ef68e8c2329e6b0df5e592d187f"
     },
     {
       "path": "src/evals/goalCompletion.ts",
-      "bytes": 2452,
-      "sha256": "6b804284f580118740c1ab2a5f5d26d9239bb62550a1708d6ff262be8949a07b"
+      "bytes": 2974,
+      "sha256": "12da2163762c53c8ac4afb454124975a29ccaae7838949c8d99a8502f1a73169"
     },
     {
       "path": "tests/goal-completion.test.ts",
       "bytes": 3019,
-      "sha256": "5b8a9ab0b3d005e22d5b963107db6e348d917ef3599325508cd9d9df267bb00f"
+      "sha256": "bcf8109d7bc41da782e6ebd015bd23978b8d2349613a231a660fa1e40ee15b27"
     }
   ],
   "explicitLimitations": [

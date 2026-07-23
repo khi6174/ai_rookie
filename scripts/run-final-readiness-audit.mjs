@@ -132,6 +132,9 @@ const riderReferenceStimulus = await readJson(
 const riderReferenceStimulusImage = await readFile(
   resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
 );
+const spatialComprehensionRound4 = await readOptionalJson(
+  "g5-spatial-comprehension-round4-summary.json",
+);
 const spatialComprehensionRound3 = await readOptionalJson(
   "g5-spatial-comprehension-round3-summary.json",
 );
@@ -141,7 +144,8 @@ const spatialComprehensionRound2 = await readOptionalJson(
 const spatialComprehensionRound1 = await readOptionalJson(
   "g5-spatial-comprehension-summary.json",
 );
-let spatialComprehension = spatialComprehensionRound3 ??
+let spatialComprehension = spatialComprehensionRound4 ??
+  spatialComprehensionRound3 ??
   spatialComprehensionRound2 ??
   spatialComprehensionRound1 ?? {
   status: "NOT_RUN",
@@ -150,6 +154,18 @@ let spatialComprehension = spatialComprehensionRound3 ??
   defaultPromotionEligible: false,
 };
 if (
+  spatialComprehensionRound4 &&
+  (spatialComprehensionRound4.schemaVersion !==
+    "g5-spatial-comprehension-summary-v4" ||
+    spatialComprehensionRound4.studyId !==
+      "g5-b-decision-spatial-comprehension-round4-001" ||
+    spatialComprehensionRound4.dataMode !== "DEMO" ||
+    spatialComprehensionRound4.reviewerCount < 3)
+) {
+  throw new Error("Invalid G5-B Round 4 human comprehension summary");
+}
+if (
+  !spatialComprehensionRound4 &&
   spatialComprehensionRound3 &&
   (spatialComprehensionRound3.schemaVersion !==
     "g5-spatial-comprehension-summary-v3" ||
@@ -161,6 +177,7 @@ if (
   throw new Error("Invalid G5-B Round 3 human comprehension summary");
 }
 if (
+  !spatialComprehensionRound4 &&
   !spatialComprehensionRound3 &&
   spatialComprehensionRound2 &&
   (spatialComprehensionRound2.schemaVersion !==
@@ -173,6 +190,7 @@ if (
   throw new Error("Invalid G5-B Round 2 human comprehension summary");
 }
 if (
+  !spatialComprehensionRound4 &&
   !spatialComprehensionRound3 &&
   !spatialComprehensionRound2 &&
   spatialComprehensionRound1 &&
@@ -265,13 +283,13 @@ try {
   const publicG5Screenshot2d = await stat(
     resolve(
       root,
-      "dist/client/artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png",
+      "dist/client/artifacts/evals/screenshots/g5-round4-admin-decision-2d-1280x720.png",
     ),
   );
   const publicG5Screenshot25d = await stat(
     resolve(
       root,
-      "dist/client/artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png",
+      "dist/client/artifacts/evals/screenshots/g5-round4-admin-decision-2-5d-1280x720.png",
     ),
   );
   const publicRiderScreenshot = await stat(
@@ -297,13 +315,13 @@ try {
       publicIcon192.size > 1_000 &&
       publicIcon512.size > 2_000,
     publicReviewKitPackaged:
-      publicG5ReviewIndex.includes("SafeRoute G5-B Round 3") &&
+      publicG5ReviewIndex.includes("SafeRoute G5-B · Round 4") &&
       publicG5ReviewIndex.includes('name="robots" content="noindex,nofollow"') &&
       publicG5ReviewApp.includes(
-        'studyId: "g5-b-decision-spatial-comprehension-round3-001"',
+        'studyId: "g5-b-decision-spatial-comprehension-round4-001"',
       ) &&
       publicG5ReviewApp.includes(
-        'link.download = "g5-spatial-comprehension-round3-results.json"',
+        'link.download = "g5-spatial-comprehension-round4-results.json"',
       ) &&
       publicRiderReviewIndex.includes(
         "SafeRoute 기사 운행·제품 경계 Round 2",
@@ -515,8 +533,10 @@ const result = {
       spatialScene.metrics.numericMismatchCount,
     g5HumanComprehensionStatus: spatialComprehension.status,
     g5HumanComprehensionStudyId: spatialComprehension.studyId ?? null,
-    g5HumanEvidenceRound: spatialComprehensionRound3
-      ? "ROUND_3"
+    g5HumanEvidenceRound: spatialComprehensionRound4
+      ? "ROUND_4"
+      : spatialComprehensionRound3
+        ? "ROUND_3"
       : spatialComprehensionRound2
         ? "ROUND_2"
         : spatialComprehensionRound1
@@ -541,7 +561,7 @@ const result = {
     "A.X K1 Live passed the fixed 12-task explanation benchmark on 2026-07-23, but remains an optional evidence-layer dependency with account quota and input-retention policy still unverified.",
     "Synthetic simulation results are not evidence of real accident reduction.",
     spatialComprehension.status === "DO_NOT_PROMOTE"
-      ? "G5-B Round 1 human review found low dashboard comprehension; 2.5D must not be promoted and the decision view requires redesign and retest."
+      ? "The latest completed G5-B human review remains DO_NOT_PROMOTE; 2.5D must not be promoted and the Round 4 decision view requires independent retest."
       : "G5-B human comprehension evidence does not authorize automatic 2.5D default promotion.",
     riderReferenceComprehension.status === "READY_TO_PROMOTE"
       ? "Rider reference comprehension evidence does not authorize live GPS, navigation, sensor, or field-performance claims."
@@ -553,7 +573,7 @@ const result = {
     "Confirm the exact submission form, video filename, and organizer upload deadline.",
     "Record the final GitHub commit SHA in the submitted materials.",
     ...(spatialComprehension.status === "DO_NOT_PROMOTE"
-      ? ["Redesign the dashboard decision hierarchy and repeat G5-B with independent reviewers."]
+      ? ["Complete G5-B Round 4 with three independent reviewers."]
       : []),
     ...(riderReferenceComprehension.status !== "READY_TO_PROMOTE"
       ? ["Complete the five-person rider route and product-boundary comprehension review."]

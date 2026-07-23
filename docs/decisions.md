@@ -582,6 +582,15 @@
 - 기각한 대안: 과거 401 증거 삭제, A.X를 P0 또는 브라우저 직접 호출 의존성으로 전환, 생성문이 결정론 엔진 판정을 덮어쓰게 허용, 단일 run을 반복 안정성·현장 성과로 확대 주장하는 방식.
 - 영향 파일: `src/evals/domesticAiProvider.ts`, `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, `scripts/run-goal-completion-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/architecture.md`, `docs/evals.md`, `docs/domestic-ai-track-compliance.md`, `docs/final-readiness.md`, `docs/synthetic-data-plan.md`, `artifacts/evals/domestic-ai-api-runs/`
 
+### ADR-060 — 기사 Round 2는 통과로 고정하고 관리자 G5는 역할 언어를 단순화한 Round 4로 재검증한다
+
+- 날짜: 2026-07-23
+- 상태: Approved
+- 결정: 기사 제품 경계 Round 2의 독립 5인 30/30·중대 오인 0건은 `READY_TO_PROMOTE` 사람 증거로 고정한다. G5 Round 3의 0/6 `DO_NOT_PROMOTE`는 그대로 보존하고 2.5D를 기본 승격하지 않는다. Round 4는 Safety 계산·정답표·동의 흐름을 바꾸지 않고 관리자 첫 결론에 `52분·17번째·10분·8건`을 한 문장으로 표시하며 화면의 `원 기사/수신 기사`를 `지원받는 기사/배송을 나눠 맡는 기사`로 풀어 쓴다. 새 study·manifest·스크린샷·결과 파일을 사용하고 Round 1·2·3을 덮어쓰지 않는다.
+- 이유: 기사 화면은 제품 역할·승인 규칙·Demo/GPS 경계까지 전원이 이해했지만, 관리자 Round 3은 경사 구간만 6/6이고 2D 시간·배송지, 2.5D 양측 영향과 휴식 선행 순서가 여전히 분산됐다. 내부 역할명보다 실제 해야 할 지원과 양측 결과를 먼저 읽게 하는 것이 관찰된 실패와 직접 대응한다.
+- 기각한 대안: strict 기준 완화, Round 3을 부분 성공으로 승격, 실패 응답 수정, 2.5D 기본화, 계산값·정답표를 화면에 맞춰 변경, 과거 자극·결과 덮어쓰기.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals/spatialComprehension.ts`, `src/evals/goalCompletion.ts`, `tools/g5-spatial-review/`, `scripts`, `tests`, `e2e`, `docs/design-system.md`, `docs/evals.md`, `docs/g5-spatial-comprehension-test.md`, `docs/goal-completion-audit.md`, `artifacts/evals`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

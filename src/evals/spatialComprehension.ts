@@ -100,12 +100,23 @@ const SpatialComprehensionStudyV3Schema = z.object({
   reviewers: z.array(ReviewerSchema).min(3),
 }).strict();
 
+const SpatialComprehensionStudyV4Schema = z.object({
+  schemaVersion: z.literal("g5-spatial-comprehension-v4"),
+  studyId: z.literal("g5-b-decision-spatial-comprehension-round4-001"),
+  dataMode: z.literal("DEMO"),
+  stimulusManifest: z.literal(
+    "artifacts/evals/g5-spatial-round4-stimulus-manifest.json",
+  ),
+  reviewers: z.array(ReviewerSchema).min(3),
+}).strict();
+
 export const SpatialComprehensionStudySchema = z.discriminatedUnion(
   "schemaVersion",
   [
     SpatialComprehensionStudyV1Schema,
     SpatialComprehensionStudyV2Schema,
     SpatialComprehensionStudyV3Schema,
+    SpatialComprehensionStudyV4Schema,
   ],
 ).superRefine((study, context) => {
   if (new Set(study.reviewers.map(({ reviewerId }) => reviewerId)).size !== study.reviewers.length) {
@@ -218,8 +229,10 @@ export function evaluateSpatialComprehension(input: unknown) {
 
   return {
     schemaVersion:
-      study.schemaVersion === "g5-spatial-comprehension-v3"
-        ? ("g5-spatial-comprehension-summary-v3" as const)
+      study.schemaVersion === "g5-spatial-comprehension-v4"
+        ? ("g5-spatial-comprehension-summary-v4" as const)
+        : study.schemaVersion === "g5-spatial-comprehension-v3"
+          ? ("g5-spatial-comprehension-summary-v3" as const)
         : study.schemaVersion === "g5-spatial-comprehension-v2"
           ? ("g5-spatial-comprehension-summary-v2" as const)
           : ("g5-spatial-comprehension-summary-v1" as const),

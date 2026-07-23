@@ -13,6 +13,19 @@ const G5Round3SummarySchema = z.object({
   comprehensionPassed: z.boolean(),
 }).passthrough();
 
+const G5Round4SummarySchema = z.object({
+  schemaVersion: z.literal("g5-spatial-comprehension-summary-v4"),
+  studyId: z.literal("g5-b-decision-spatial-comprehension-round4-001"),
+  dataMode: z.literal("DEMO"),
+  status: z.enum([
+    "DO_NOT_PROMOTE",
+    "KEEP_OPTIONAL",
+    "DEFAULT_PROMOTION_CANDIDATE",
+  ]),
+  reviewerCount: z.number().int().min(3),
+  comprehensionPassed: z.boolean(),
+}).passthrough();
+
 const RiderReferenceSummarySchema = z.object({
   schemaVersion: z.literal("rider-reference-comprehension-summary-v2"),
   studyId: z.literal("rider-route-product-boundary-round2-001"),
@@ -24,14 +37,17 @@ const RiderReferenceSummarySchema = z.object({
 }).passthrough();
 
 export type HumanGoalEvidenceInput = {
+  g5Round4?: unknown;
   g5Round3?: unknown;
   riderRound2?: unknown;
 };
 
 export function evaluateHumanGoalEvidence(input: HumanGoalEvidenceInput) {
-  const g5 = input.g5Round3 === undefined
-    ? null
-    : G5Round3SummarySchema.parse(input.g5Round3);
+  const g5 = input.g5Round4 !== undefined
+    ? G5Round4SummarySchema.parse(input.g5Round4)
+    : input.g5Round3 !== undefined
+      ? G5Round3SummarySchema.parse(input.g5Round3)
+      : null;
   const rider = input.riderRound2 === undefined
     ? null
     : RiderReferenceSummarySchema.parse(input.riderRound2);
@@ -51,7 +67,7 @@ export function evaluateHumanGoalEvidence(input: HumanGoalEvidenceInput) {
     allPassed: g5Passed && riderPassed,
     requiredNextEvidence: [
       ...(!g5Passed
-        ? ["artifacts/evals/g5-spatial-comprehension-round3-summary.json"]
+        ? ["artifacts/evals/g5-spatial-comprehension-round4-summary.json"]
         : []),
       ...(!riderPassed
         ? ["artifacts/evals/rider-reference-comprehension-round2-summary.json"]

@@ -87,8 +87,8 @@ await cp(
 );
 await mkdir(publicReviewScreenshotDirectory, { recursive: true });
 for (const screenshot of [
-  "g5-round3-admin-decision-2d-1280x720.png",
-  "g5-round3-admin-decision-2-5d-1280x720.png",
+  "g5-round4-admin-decision-2d-1280x720.png",
+  "g5-round4-admin-decision-2-5d-1280x720.png",
   "rider-source-route-round2-390x844.png",
 ]) {
   await copyFile(
@@ -97,7 +97,7 @@ for (const screenshot of [
   );
 }
 for (const manifest of [
-  "g5-spatial-round3-stimulus-manifest.json",
+  "g5-spatial-round4-stimulus-manifest.json",
   "rider-reference-round2-stimulus-manifest.json",
 ]) {
   await copyFile(

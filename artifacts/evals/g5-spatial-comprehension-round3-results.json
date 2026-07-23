@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "g5-spatial-comprehension-v3",
+  "studyId": "g5-b-decision-spatial-comprehension-round3-001",
+  "dataMode": "DEMO",
+  "stimulusManifest": "artifacts/evals/g5-spatial-round3-stimulus-manifest.json",
+  "reviewers": [
+    {
+      "reviewerId": "reviewer-01",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "TWO_D",
+        "DEMO_TWO_POINT_FIVE_D"
+      ],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 27220,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 10,
+            "breachStopOrdinal": 10,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "UNKNOWN"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 21113,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 52,
+            "breachStopOrdinal": 17,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "UNKNOWN"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "DEMO_TWO_POINT_FIVE_D",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    },
+    {
+      "reviewerId": "reviewer-02",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "DEMO_TWO_POINT_FIVE_D",
+        "TWO_D"
+      ],
+      "trials": [
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 17488,
+          "confidence": 2,
+          "answers": {
+            "timeToBreachMinutes": 52,
+            "breachStopOrdinal": 17,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "UNKNOWN"
+          }
+        },
+        {
+          "mode": "TWO_D",
+          "durationMs": 21525,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 50,
+            "breachStopOrdinal": 1,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "BREACH_BEFORE_REST"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "SAME",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    },
+    {
+      "reviewerId": "reviewer-03",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "TWO_D",
+        "DEMO_TWO_POINT_FIVE_D"
+      ],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 783498,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 50,
+            "breachStopOrdinal": 50,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 14879,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 52,
+            "breachStopOrdinal": 17,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "UNKNOWN",
+            "recipientImpact": "UNKNOWN",
+            "routePriority": "BREACH_BEFORE_REST"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "DEMO_TWO_POINT_FIVE_D",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    }
+  ]
+}
