@@ -591,6 +591,16 @@
 - 기각한 대안: strict 기준 완화, Round 3을 부분 성공으로 승격, 실패 응답 수정, 2.5D 기본화, 계산값·정답표를 화면에 맞춰 변경, 과거 자극·결과 덮어쓰기.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals/spatialComprehension.ts`, `src/evals/goalCompletion.ts`, `tools/g5-spatial-review/`, `scripts`, `tests`, `e2e`, `docs/design-system.md`, `docs/evals.md`, `docs/g5-spatial-comprehension-test.md`, `docs/goal-completion-audit.md`, `artifacts/evals`
 
+### ADR-061 — 공개 사람 평가 도구와 자극은 PWA cache-first에서 제외한다
+
+- 날짜: 2026-07-24
+- 상태: Approved
+- 결정: `/tools/g5-spatial-review/`, `/tools/rider-reference-review/`와 이들이 사용하는 G5·기사 고정 화면 경로는 service worker의 cache-first 대상에서 제외하고 `no-store` 네트워크 응답만 사용한다. shell cache 버전을 올려 기존 브라우저의 오래된 정적 평가 스크립트를 폐기한다. 네트워크가 없으면 과거 round를 대신 표시하지 않고 평가를 중단한다.
+- 이유: Round 4 공개 경로에서 내려받은 파일이 실제로는 Round 3 schema·study를 가진 사례가 확인됐다. 같은 URL의 `app.js`를 고정 shell cache가 먼저 반환하면 새 round의 독립 사람 평가가 이전 자극으로 오염될 수 있고, 기술 Gate가 이를 배포 후 사용자 브라우저 상태에서 발견하지 못한다.
+- 기각한 대안: 파일명만 Round 4로 변경, 이전 Round 3 응답을 Round 4로 재분류, 평가 도구를 cache-first에 둔 채 사용자에게 수동 캐시 삭제만 요구, 네트워크 실패 시 이전 자극으로 계속 진행.
+- 경계: 제품 app shell과 만료 가능한 승인 Demo 계획 캐시는 유지한다. 평가 응답은 계속 브라우저 메모리에만 두고 외부 전송·지속 저장을 추가하지 않는다. 이전 Round 3 추가 응답을 Round 4로 이름 변경하거나 통과 증거로 사용하지 않는다.
+- 영향 파일: `public/sw.js`, `tests/pwa-assets.test.ts`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `docs/g5-spatial-comprehension-test.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

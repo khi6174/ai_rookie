@@ -311,7 +311,10 @@ try {
       publicIndex.includes('<div id="root"></div>'),
     staticShellPackaged:
       publicManifest.display === "standalone" &&
-      publicServiceWorker.includes('SHELL_VERSION = "saferoute-shell-v1.0.4"') &&
+      publicServiceWorker.includes('SHELL_VERSION = "saferoute-shell-v1.0.5"') &&
+      publicServiceWorker.includes('"/tools/g5-spatial-review/"') &&
+      publicServiceWorker.includes('"/tools/rider-reference-review/"') &&
+      publicServiceWorker.includes('fetch(request, { cache: "no-store" })') &&
       publicIcon192.size > 1_000 &&
       publicIcon512.size > 2_000,
     publicReviewKitPackaged:

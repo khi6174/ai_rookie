@@ -1,9 +1,15 @@
-const SHELL_VERSION = "saferoute-shell-v1.0.4";
+const SHELL_VERSION = "saferoute-shell-v1.0.5";
 const SHELL_URLS = [
   "/",
   "/manifest.webmanifest",
   "/icons/saferoute-192.png",
   "/icons/saferoute-512.png",
+];
+const HUMAN_REVIEW_PREFIXES = [
+  "/tools/g5-spatial-review/",
+  "/tools/rider-reference-review/",
+  "/artifacts/evals/screenshots/g5-",
+  "/artifacts/evals/screenshots/rider-",
 ];
 
 self.addEventListener("install", (event) => {
@@ -48,12 +54,21 @@ async function cacheFirstStatic(request) {
   return response;
 }
 
+function isHumanReviewResource(url) {
+  return HUMAN_REVIEW_PREFIXES.some((prefix) => url.pathname.startsWith(prefix));
+}
+
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
 
   const url = new URL(request.url);
   if (url.origin !== self.location.origin) return;
+
+  if (isHumanReviewResource(url)) {
+    event.respondWith(fetch(request, { cache: "no-store" }));
+    return;
+  }
 
   if (request.mode === "navigate") {
     event.respondWith(networkFirstNavigation(request));

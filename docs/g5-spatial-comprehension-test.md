@@ -70,7 +70,7 @@ pnpm run review:g5
 
 `pnpm` 실행이 어려우면 같은 도구의 공개 정적 경로 `https://saferoute-ai-demo.khiyw.chatgpt.site/tools/g5-spatial-review/`를 사용할 수 있다. 세 검토자는 같은 브라우저를 차례로 사용하고 마지막 검토 뒤 한 개의 완료 JSON을 내려받는다.
 
-로컬·공개 도구 모두 응답을 서버나 외부 서비스로 보내지 않고 새로고침 전 브라우저 메모리에만 둔다. 앞 사람의 응답을 다음 사람에게 보여주지 않으며 정답도 표시하지 않는다. 서로 다른 브라우저에서 만든 불완전 파일을 사람이 합치거나 완료 결과로 주장하지 않는다.
+로컬·공개 도구 모두 응답을 서버나 외부 서비스로 보내지 않고 새로고침 전 브라우저 메모리에만 둔다. 앞 사람의 응답을 다음 사람에게 보여주지 않으며 정답도 표시하지 않는다. 서로 다른 브라우저에서 만든 불완전 파일을 사람이 합치거나 완료 결과로 주장하지 않는다. 공개 도구와 자극은 PWA cache-first에서 제외하므로 내려받은 파일의 `schemaVersion`이 반드시 `g5-spatial-comprehension-v4`, `studyId`가 `g5-b-decision-spatial-comprehension-round4-001`인지 확인한다. 다른 값이면 결과를 제출하지 말고 새 탭에서 공개 경로를 다시 연다.
 
 ## 6. 자동 판정
 
@@ -152,6 +152,8 @@ Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 �
 ## 11. Round 3 결과와 Round 4 실행 상태
 
 Round 3 독립 3인·6 trial은 경사 구간 6/6을 맞혔지만 전체 strict 정답은 0/6으로 `DO_NOT_PROMOTE`였다. 2D에서 52분·17번째 배송지는 각각 0/3, 2.5D에서 지원받는 기사·배송을 나눠 맡는 기사 결과는 각각 1/3, 휴식 선행 순서는 0/3이었다. 2.5D는 기본 승격하지 않는다.
+
+2026-07-24 공개 경로에서 추가로 내려받은 파일은 이름과 내부 계약이 모두 Round 3였으며 기존 Round 3 원본과 다른 독립 3인 응답이었다. 별도 supplemental 원본·요약으로 보존한 결과 strict 정답 2/6, 경사 2D 2/3·2.5D 3/3, 2.5D 선호 3/3이지만 여전히 `DO_NOT_PROMOTE`다. “단어 선택 통일”, “한 화면의 정보 과다”, “가독성”, “질문 이해” 피드백은 Round 4의 결론·역할 문구 단순화 필요성과 일치하지만, schema·study·자극이 Round 3이므로 Round 4 사람 Gate로 재분류하지 않는다.
 
 - 자극 manifest: `artifacts/evals/g5-spatial-round4-stimulus-manifest.json`
 - 2D 화면: `artifacts/evals/screenshots/g5-round4-admin-decision-2d-1280x720.png`

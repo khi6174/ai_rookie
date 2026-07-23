@@ -36,7 +36,7 @@ pnpm run audit:goal:require-ready
 |---|---|
 | 창의성 | ADR-051의 레퍼런스 경계, 30개 변형·90회 전략 비교, SafeRoute 하드 제약 위반 0 |
 | 혁신성 | Risk Transfer Guard 23/23, 시간·동의·버전 경계 30/30, 국내 AI·Upstage strict 증거 계층 |
-| 추진성 | 최종 기술 Gate, Vitest 246, Playwright 21, clean-start 3, 공개 Demo 빌드 |
+| 추진성 | 최종 기술 Gate, Vitest 247, Playwright 21, clean-start 3, 공개 Demo 빌드 |
 | 성장성 | 24·96·240명 합성 부하, 권역 80명·경로 24개 제한, 불완전 Live 날씨의 Demo 격리 |
 | 실효성 | 기술 폐루프와 G5-B Round 4 최소 3인 이해도, 기사 경로·제품 경계 Round 2 최소 5인 이해도 |
 | 가치성 | 개인정보·원문 비저장, 기사 권리 승인 문서, SafeRoute 위반 0과 Risk Transfer Guard |

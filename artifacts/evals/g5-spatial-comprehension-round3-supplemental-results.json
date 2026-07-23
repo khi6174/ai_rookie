@@ -1,0 +1,143 @@
+{
+  "schemaVersion": "g5-spatial-comprehension-v3",
+  "studyId": "g5-b-decision-spatial-comprehension-round3-001",
+  "dataMode": "DEMO",
+  "stimulusManifest": "artifacts/evals/g5-spatial-round3-stimulus-manifest.json",
+  "reviewers": [
+    {
+      "reviewerId": "reviewer-01",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "TWO_D",
+        "DEMO_TWO_POINT_FIVE_D"
+      ],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 6319401,
+          "confidence": 1,
+          "answers": {
+            "timeToBreachMinutes": 30,
+            "breachStopOrdinal": 30,
+            "slopeExposureSegment": "UNKNOWN",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "BREACH_BEFORE_REST"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 191790,
+          "confidence": 4,
+          "answers": {
+            "timeToBreachMinutes": 52,
+            "breachStopOrdinal": 17,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "DEMO_TWO_POINT_FIVE_D",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": "피드백\n단어 선택을 통일 할 필요가 있음. 너무 많은 것을 한 화면에 몰아넣은 느낌.\n지원사항 탭을 따로 둘 필요가 있음. \n화면의 가독성이 더 필요함.\n질문 자체도 이해하기 힘듦"
+      }
+    },
+    {
+      "reviewerId": "reviewer-02",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "DEMO_TWO_POINT_FIVE_D",
+        "TWO_D"
+      ],
+      "trials": [
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 52357,
+          "confidence": 4,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 1,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        },
+        {
+          "mode": "TWO_D",
+          "durationMs": 76320,
+          "confidence": 2,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 1,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "DEMO_TWO_POINT_FIVE_D",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": "피드백\n가독성을 높이고, 단어 선택을 좀 더 이해하기 쉬운 단어를 사용했으면 좋겠다."
+      }
+    },
+    {
+      "reviewerId": "reviewer-03",
+      "consentConfirmed": true,
+      "trialOrder": [
+        "TWO_D",
+        "DEMO_TWO_POINT_FIVE_D"
+      ],
+      "trials": [
+        {
+          "mode": "TWO_D",
+          "durationMs": 9471,
+          "confidence": 2,
+          "answers": {
+            "timeToBreachMinutes": 0,
+            "breachStopOrdinal": 1,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        },
+        {
+          "mode": "DEMO_TWO_POINT_FIVE_D",
+          "durationMs": 18454,
+          "confidence": 3,
+          "answers": {
+            "timeToBreachMinutes": 52,
+            "breachStopOrdinal": 17,
+            "slopeExposureSegment": "REST_TO_BREACH",
+            "restMinutes": 10,
+            "transferStopCount": 8,
+            "sourceImpact": "WORKLOAD_REDUCED_AND_BUDGET_RECOVERS",
+            "recipientImpact": "TRANSFER_WITHIN_SAFETY_LIMIT",
+            "routePriority": "REST_BEFORE_BREACH"
+          }
+        }
+      ],
+      "comparison": {
+        "clearerMode": "DEMO_TWO_POINT_FIVE_D",
+        "twoPointFiveDAddedConfusion": false,
+        "comment": ""
+      }
+    }
+  ]
+}
