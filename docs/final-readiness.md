@@ -102,7 +102,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - `pnpm run package:submission`으로 allowlist ZIP과 SHA-256 manifest 생성
 - 기사 경로·제품 경계 익명 검토자 5명 응답과 기계 판정을 완료하거나, 미완료 상태를 제출물에 명시
 - 공개 URL에서도 `Demo fixture`, `Fallback map`과 비운영 한계 표시 확인
-- A.X Hosted API는 `EXTERNAL_AUTH_PENDING`으로 보류하고 운영팀 확인 후 기존 12과업 계약만 별도 실행하며 데모 폐루프에는 의존시키지 않기
+- A.X Hosted API 12과업 Live 성공 증거는 선택적 국내 AI 비교로만 사용하고 데모 폐루프·Safety 판정에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
 
 ## 7. 수용기준
@@ -127,7 +127,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 
 - 실제 발표 PC에서의 최종 당일 점검 시각과 담당자
 - 제출 영상 또는 현장 발표에서 사용할 정확한 3분 대사 속도
-- A.X 운영팀의 gateway 팀 권한·키 동기화 확인과 이후 quota·입력 보존 정책
+- A.X 계정별 quota·입력 보존 정책과 반복 실행 분산
 - Upstage 합성 문서 왕복 60쌍 기반과 유료 Parse·Extract Live 실행 승인
 - 실제 운영 파일럿을 위한 데이터 계약·권한·보존·법률·노무 검토
 - 사용자 평가 모집과 역할별 이해도 결과

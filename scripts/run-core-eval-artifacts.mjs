@@ -269,7 +269,7 @@ async function generateAiEvidence() {
   const domesticFiles = [
     "domestic-ai-api-smoke-mock-latest.json",
     "domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/domestic-ai-api-smoke-latest.json",
-    "domestic-ai-api-smoke-latest.json",
+    "domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/domestic-ai-api-smoke-latest.json",
   ];
   const domesticRows = [];
   for (const file of domesticFiles) {

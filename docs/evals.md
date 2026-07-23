@@ -252,9 +252,11 @@ AI One Portal A.X K1 API 가이드 v1.3의 `A.X-K1`·`https://awf-gw.adot.ai/v1/
 
 K-EXAONE만 등록한 뒤 2026-07-17 첫 Live 12과업을 실행했다. readiness는 문서화된 model·endpoint 계약을 통과했지만, 첫 3건이 설정된 10초에서 `TIMEOUT`, 뒤 9건이 `RATE_LIMITED`로 종료돼 승인 출력과 토큰 사용량을 받지 못했다. 통과 0/12, unsafe 표시 0건이며 이는 모델 출력 품질 결과가 아니라 timeout·계정 rate limit의 운영 실패다. 결과 원본은 `artifacts/evals/domestic-ai-api-runs/2026-07-17-exaone-live-run1/`에 보존했다.
 
-timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 0건으로 통과했다. 이어 같은 계약으로 전체 12과업을 중첩 없이 순차 실행해 12/12, Fallback 0건, unsafe 표시 0건을 통과했다. 평균 지연은 22,124ms, P95는 35,805ms였고 입력 8,684·완료 30,855·합계 39,539 tokens를 기록했다. JSON·CSV 과업 수와 집계, 상태, 비밀정보·프롬프트·원문 응답 비포함을 독립 확인해 `EXAONE_12_TASK_VERIFY_PASS`를 반환했다. 결과는 `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/`에 불변 보존한다. A.X API는 키 발급 전까지 실행 대상에서 제외한다.
+timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 0건으로 통과했다. 이어 같은 계약으로 전체 12과업을 중첩 없이 순차 실행해 12/12, Fallback 0건, unsafe 표시 0건을 통과했다. 평균 지연은 22,124ms, P95는 35,805ms였고 입력 8,684·완료 30,855·합계 39,539 tokens를 기록했다. JSON·CSV 과업 수와 집계, 상태, 비밀정보·프롬프트·원문 응답 비포함을 독립 확인해 `EXAONE_12_TASK_VERIFY_PASS`를 반환했다. 결과는 `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/`에 불변 보존한다.
 
 2026-07-21 A.X 공식 계약으로 readiness를 다시 통과시킨 뒤 합성 과업 1건을 실행했다. 이전 QA host의 `NETWORK_ERROR`와 달리 공개 gateway가 155ms에 응답했으나 `401 UNAUTHORIZED`로 안전 Fallback되어 생성 출력과 토큰 사용량은 없었다. 공식 `awf_` 형식, 따옴표·외곽 공백·제어문자 부재를 비밀값 노출 없이 확인했고 키를 재발급·교체한 뒤 3분 이상 지난 시점에도 137ms `401`이 반복됐다. 따라서 네트워크·모델 품질 실패로 집계하지 않고 gateway의 팀 권한 또는 키 동기화에 대한 운영팀 확인 대상으로 판정했다. 최종 재시도는 `artifacts/evals/domestic-ai-api-runs/2026-07-21T12-00-06-856Z-live-ax/`에 불변 보존한다.
+
+공급자 버그 수정 안내 후 2026-07-23 [A.X K1 LLM API 가이드](https://portal.adot.ai/docs/ax-k1-api-guide)의 동일 공개 gateway·Bearer·`A.X-K1` 계약으로 다시 실행했다. 단일 과업 1/1 통과 뒤 전체 12과업이 12/12, Fallback 0건, unsafe 표시 0건을 통과했다. 평균 지연은 3,386ms, P95는 4,251ms였고 입력 8,227·완료 1,317·합계 9,544 tokens를 기록했다. JSON·CSV의 12개 고유 과업, 집계 일치와 비밀정보·프롬프트·원문 응답 비포함을 독립 확인해 `AX_12_TASK_VERIFY_PASS`를 반환했다. 성공 결과는 `artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/`에 불변 보존하며 이전 401 run을 삭제하거나 모델 품질 실패로 다시 분류하지 않는다.
 
 현재 Upstage 설명 계층에는 관리자·원 기사·수신 기사·고객·보고서 역할, 불가능 이관, 결측·신뢰도, 적용 완료, 문서 내 지시문, 무인용, 소수 표시값과 Fallback 경계를 포함한 12개 합성 과업이 있다. `pnpm run eval:upstage:smoke:mock`은 같은 harness로 Mock 기준선을 생성하고, `pnpm run eval:upstage:smoke`는 서버 환경변수가 모두 있을 때만 Live를 순차 실행한다. 저장 결과에는 생성문·프롬프트·API 키를 포함하지 않고 과업 ID, 상태, 지연, fact·citation 수와 실패 코드만 남긴다. A.X 오프라인 비교용 `scripts/local-model-benchmark.py`도 같은 12개 역할·실패경계를 고정 계약으로 구성했다. A100 순차 실행은 첫 시도 12/12, Fallback 0건, unsafe 표시 0건이었고, 회수한 원본을 `scripts/verify-local-model-benchmark.py`가 raw output hash·고정 계약·CSV·요약 집계까지 독립 검증했다.
 
@@ -393,7 +395,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 - 창의성: 문서 기준 충족
 - 혁신성: 문서 기준 충족
 - 추진성: 계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종과 결정 상태기계 실행 증거 확보
-- 성장성: Upstage strict 계약·Mock·Fallback·Live 12과업, K-EXAONE Live 12/12, A100 환경·A.X 고정 revision 12과업 12/12와 생성 강건성 0/30→22/30→28/30·안전 Fallback·독립 진단 증거 확보
+- 성장성: Upstage strict 계약·Mock·Fallback·Live 12과업, K-EXAONE·A.X K1 Hosted Live 각 12/12, A100 환경·A.X 고정 revision 12과업 12/12와 생성 강건성 0/30→22/30→28/30·안전 Fallback·독립 진단 증거 확보
 - 실효성: 동일 decision ID의 Domain 폐루프·원자 적용, 관리자·기사 Demo 세션, 지정 해상도·키보드 Playwright 폐루프와 서버 clean start 3회 증거 확보
 - 가치성: 사회적 가치와 보호 원칙은 충족, 사용자 평가 증거는 아직 없음
 
@@ -440,6 +442,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | K-EXAONE Live 12과업 | `pnpm run eval:domestic-ai:smoke -- --providers=EXAONE` | 12/12, 평균 22,124ms·P95 35,805ms·총 39,539 tokens, Fallback·unsafe 표시 0건, 독립 집계 검증 통과 |
 | A.X 공식 계약 readiness | `pnpm run eval:domestic-ai:check -- --providers=AX` | `A.X-K1`·공식 gateway exact 계약 통과, API 요청·키 출력 0건 |
 | A.X Live 단일 인증 진단 | `pnpm run eval:domestic-ai:smoke -- --providers=AX --task-limit=1` | 키 재발급·교체·3분 후에도 공개 gateway 응답 137ms, 0/1·`UNAUTHORIZED` 안전 Fallback, 생성 출력·토큰·unsafe 표시 0건 |
+| A.X Live 12과업 복구 확인 | `pnpm run eval:domestic-ai:smoke -- --providers=AX` | 공급자 수정 후 12/12, 평균 3,386ms·P95 4,251ms·총 9,544 tokens, Fallback·unsafe 표시 0건, 독립 집계 검증 통과 |
 | A100 환경 사전점검 | 원격 읽기 전용 점검 | A100-SXM4 80GB 1장·가용 VRAM 81,050MiB 확인, 연결 식별정보 미저장 |
 | A100 CUDA runtime smoke | 원격 격리 Python 환경 | PyTorch 2.5.1+cu121·BF16 행렬곱 통과, 206.73ms·24.12MiB |
 | A.X 고정 snapshot | 로컬 공식 Hugging Face 다운로드·SHA-256 검증 | revision 고정, 16개·14,532,308,097바이트 전부 통과 |
@@ -464,7 +467,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | G4-B Fallback 2D 부하 | `pnpm test`, `pnpm run test:e2e` | 24·96·240명 profile 3/3, 전국 기사 0명·권역 최대 80명·경로 24개, 첫 표시·drill-down·frame·pan·rAF 예산 통과; `map-performance-summary.json` 보존 |
 | G5-A 선택형 Demo 2.5D | `pnpm test`, `pnpm run test:e2e` | 같은 decision·plan·route·4 route point·표시 수치 불일치 0건, SHA-256 재현, Live 혼합·거리 역전·예상 초과 누락 거부, 1280×720 열기·키보드 2D 복귀·reduced-motion·지도 오류 Fallback과 성능 예산 통과; `spatial-scene-summary.json` 보존 |
 
-검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. 별도 결정 경계 30개는 9.999분 허용과 정확히 10분 차단, 양측 동의·대리응답·중복응답·수정·거절·보류, 계획·모델·설정·정책·후보·중요 입력 변경과 적용 경쟁을 직접 재현했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 6개와 무결성 manifest도 보존했다. 실제 화면 기준 상황보고형 리허설과 팀 승인은 완료했으며, 반복 Upstage 실행과 A.X API Live benchmark는 아직 통과로 기록하지 않는다.
+검증 범위는 데이터 계약, 대표 fixture 3개, provenance·Demo 상태, 시간·작업량 경계, Budget 밴드, 초과 결과 모순과 상태 전이 건너뛰기 차단을 포함한다. Safety Budget에서는 세 시나리오 정확값, 임계 경계, 최초 교차 보간, 무초과, 최대 5분 간격, 휴식 회복, 기여도 보존, 연속작업·누적근무·중량·강수·경사·익숙도 단조성과 선택형 입력 신뢰도를 검증했다. KMA Runtime은 전체 계약이 완성되지 않은 부분 Live를 Safety 계산에 넣지 않고 5시점 Demo 타임라인 전체만 선택하며, 두 입력의 필드·출처·해시가 섞이지 않는 불변조건을 검증했다. 개입에서는 결정론적 후보 ID, 다섯 단일 유형과 허용 묶음 6종의 전체 재계산, 8건 허용·12건 차단, 수신 기사 Budget 45와 감소 15점 경계, 용량·시간창·차량·권역·종료시각, 안전 후보만의 순위와 `NO_SAFE_OPTION`을 검증했다. 묶음은 정규 순서, 정책 외 조합, 동일 기사 조건, 이관 후 잔여 stop, 경로 변경 후 ETA, 후행 카탈로그 결측과 fixture 불변성을 검증했다. 결정 폐루프는 두 기사 동의, 권한, 10분 만료, 관리자 승인·보류, 재검증, 계획 materialize, 원자 적용·실패 롤백·멱등성과 고객안내 기록을 검증했다. 별도 결정 경계 30개는 9.999분 허용과 정확히 10분 차단, 양측 동의·대리응답·중복응답·수정·거절·보류, 계획·모델·설정·정책·후보·중요 입력 변경과 적용 경쟁을 직접 재현했다. UI Demo 세션은 관리자·원 기사·수신 기사가 같은 decision ID와 후보를 사용하고, 두 동의 전 승인 잠금, 수정·거절·보류, 승인 후 원자 적용, reset과 비징벌 문구를 유지하는지 검증했다. Upstage 계층은 PII·정확 좌표 제거, 합성문서 출처 보존, strict JSON, 승인 displayValue, 인용·역할·행동·Demo 라벨, timeout·malformed·새 숫자·비난 표현 Fallback과 설명 전후 추천·계획 불변을 검증했다. 서버 Live 어댑터는 공식 HTTPS host·path 허용목록, 브라우저 실행 차단, 명시적 모델·timeout·요청·응답 크기, Authorization 헤더 분리와 401·429·timeout·malformed Fallback을 가짜 HTTP 응답으로 검증했다. 실제 `solar-pro3` 왕복은 `explanation-ko-v1.1.0`에서 12과업 중 11건이 첫 시도 strict Gate를 통과했고 1건은 `MALFORMED_RESPONSE`로 거부돼 템플릿으로 전환됐다. A.X·K-EXAONE 공통 어댑터는 대회 문서 endpoint의 exact allowlist, Bearer 헤더 분리, timeout·인증·rate limit·malformed Fallback과 12과업 동일 Gate를 검증했다. 공통 Mock 24/24는 파이프라인 증거일 뿐 Live 모델 결과로 세지 않는다. K-EXAONE 실제 12과업은 60초 계약에서 첫 시도 12/12를 통과했고 독립 집계 검증을 통과했다. A.X K1 Hosted 실제 12과업도 공급자 수정 후 첫 시도 12/12·Fallback 0건으로 같은 strict Gate와 독립 집계 검증을 통과했다. A.X 고정 revision은 12개 고정 JSON 계약을 첫 시도에 모두 재현했고 독립 검증기가 raw output·CSV·요약 집계를 다시 확인했다. 검증된 실제 생성 경로 모두에서 검증되지 않은 생성문 표시 0건이다. Playwright는 새 결정 ID reset, 전체 키보드 순회, 지정 네 해상도, 가로 넘침, 터치 높이와 두 기사 동의부터 적용까지를 자동 재현했고 clean-start 실행기는 서버까지 3회 재기동했다. 지정 스크린샷 6개와 무결성 manifest도 보존했다. 실제 화면 기준 상황보고형 리허설과 팀 승인은 완료했으며, A.X Hosted 단일 실행 외 반복 분산과 Upstage 반복 실행은 아직 통과로 기록하지 않는다.
 
 ## 16. 결과 산출물
 
@@ -627,9 +630,8 @@ artifacts/evals/
 
 - 시나리오별 정확한 기여도·개입 후 기대값
 - property test 도구와 허용 수치 오차
-- A.X 운영팀의 gateway 팀 권한·키 동기화 확인과 401 해소
 - A.X 가이드의 RPS 3 표기와 제약사항 표 내부 6 요청 설명 불일치 확인
-- A.X Live 12과업 결과와 K-EXAONE 반복 실행 분산
+- A.X·K-EXAONE 반복 실행 분산과 계정별 쿼터·입력 보존 정책
 - SafeRoute P0에 필요한 VARCO 에셋 사용처와 별도 평가 계약
 - A.X v1.2 30과업 반복 실행의 분산
 - Upstage 왕복 반복 실행의 분산과 안정성

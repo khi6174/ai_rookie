@@ -4,9 +4,9 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-23
 - 계획 버전: `synthetic-data-v1.2.0`
-- 목표 환경: NVIDIA A100 GPU, LG K-EXAONE API, Upstage API, 외부 인증 대기 중인 SKT A.X Hosted API, 필요성 승인 후 NC VARCO 에셋 API
+- 목표 환경: NVIDIA A100 GPU, LG K-EXAONE API, Upstage API, Live 12과업 계약을 통과한 SKT A.X Hosted API, 필요성 승인 후 NC VARCO 에셋 API
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/safety-model.md`, `docs/intervention-policy.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 목적
@@ -691,7 +691,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ### Phase 3 — 배치 생성
 
-- 결정론적 skeleton 기반 structured operations; A.X Hosted API는 `EXTERNAL_AUTH_PENDING` 동안 필수 의존성에서 제외
+- 결정론적 skeleton 기반 structured operations; A.X Hosted API는 Live 12/12 통과 후에도 선택적 설명·평가 계층으로 두고 필수 생성 의존성에서 제외
 - EXAONE challenge mutations
 - 규칙·수작업·검증된 텍스트 모델 기반 documents
 - Upstage 문서 왕복 60쌍 기반; 유료 Parse·Extract Live 호출은 별도 승인 후 실행
@@ -804,7 +804,7 @@ API 키는 서버 또는 승인된 생성 환경의 secret으로만 사용하고
 
 ## 26. 미결사항
 
-- A.X Hosted API의 gateway 팀 권한·키 동기화와 실제 활성 모델·쿼터
+- A.X Hosted API의 실제 계정 쿼터·입력 보존 정책과 반복 실행 분산
 - K-EXAONE 계정에서 실제 활성화된 모델·쿼터
 - SafeRoute P0에 필요한 VARCO 에셋 사용처와 해당 제품·쿼터
 - Upstage 제품별 정확한 버전·쿼터

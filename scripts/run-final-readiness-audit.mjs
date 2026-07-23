@@ -538,7 +538,7 @@ const result = {
     "The public Finals Demo is not approval for production operation.",
     "No real courier or customer personal data is processed.",
     "Kakao Maps renders synthetic Demo coordinates only; no real courier location, TMS, authentication, or customer message delivery is integrated.",
-    "A.X K1 API Live benchmark is not claimed until a valid account key and quota are verified.",
+    "A.X K1 Live passed the fixed 12-task explanation benchmark on 2026-07-23, but remains an optional evidence-layer dependency with account quota and input-retention policy still unverified.",
     "Synthetic simulation results are not evidence of real accident reduction.",
     spatialComprehension.status === "DO_NOT_PROMOTE"
       ? "G5-B Round 1 human review found low dashboard comprehension; 2.5D must not be promoted and the decision view requires redesign and retest."

@@ -1,0 +1,20 @@
+{
+  "schemaVersion": "rider-reference-stimulus-manifest-v2",
+  "studyId": "rider-route-product-boundary-round2-001",
+  "dataMode": "DEMO",
+  "stimulus": {
+    "path": "artifacts/evals/screenshots/rider-source-route-round2-390x844.png",
+    "width": 390,
+    "height": 844,
+    "sha256": "728a5fb73f2cba66ca68a051cc52cc98d9bf3db38cc309b5f717bf180601635d"
+  },
+  "questions": [
+    "current delivery segment",
+    "next safety stop",
+    "support boundary",
+    "SafeRoute product role",
+    "human approval rule",
+    "Demo versus Live boundary"
+  ],
+  "note": "Fixed deterministic Demo stimulus; no live GPS, navigation, sensor, or personal data."
+}

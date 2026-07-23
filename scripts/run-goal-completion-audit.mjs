@@ -412,7 +412,7 @@ const result = {
   explicitLimitations: [
     "Synthetic Demo, Mock, public-weather adapter, and redacted API evidence are not field accident-reduction evidence.",
     "No live GPS, turn-by-turn navigation, dispatch brokerage, sensor, accident detection, automatic rescue, authentication, TMS, or customer delivery is claimed.",
-    "A.X Hosted API remains external-auth pending and is not a P0 or final Demo dependency.",
+    "A.X K1 Live passed the fixed 12-task explanation benchmark on 2026-07-23 but remains an optional evidence-layer dependency, not a P0 or final Demo dependency.",
     "Goal completion remains unproven until both independent human comprehension summaries pass their strict contracts.",
   ],
 };

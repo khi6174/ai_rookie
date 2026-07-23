@@ -164,6 +164,8 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/domestic-ai-api-smoke-latest.json",
   "artifacts/evals/domestic-ai-api-runs/2026-07-21T12-00-06-856Z-live-ax/domestic-ai-api-smoke-latest.csv",
   "artifacts/evals/domestic-ai-api-runs/2026-07-21T12-00-06-856Z-live-ax/domestic-ai-api-smoke-latest.json",
+  "artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/domestic-ai-api-smoke-latest.csv",
+  "artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/domestic-ai-api-smoke-latest.json",
   "artifacts/evals/domestic-ai-smoke.csv",
   "artifacts/evals/domestic-track-compliance-latest.json",
   "artifacts/evals/final-readiness-latest.json",

@@ -573,6 +573,15 @@
 - 기각한 대안: 외부 설문 SaaS에 응답 전송, 서버 수집 API와 계정 도입, 서로 다른 브라우저의 불완전 파일을 수동 병합, 사람 결과 대신 자동 E2E를 최종 증거로 사용, 자극 해시 없이 최신 화면을 즉시 교체하는 방식.
 - 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-final-readiness-audit.mjs`, `tools/g5-spatial-review/`, `tools/rider-reference-review/`, `README.md`, `docs/g5-spatial-comprehension-test.md`, `docs/rider-reference-comprehension-test.md`, `docs/final-readiness.md`
 
+### ADR-059 — A.X Hosted API 복구 결과를 선택적 국내 AI 증거로 승격한다
+
+- 날짜: 2026-07-23
+- 상태: Approved
+- 결정: 공급자 버그 수정 안내 후 공식 `https://awf-gw.adot.ai/v1/chat/completions`·Bearer·`A.X-K1` exact 계약을 다시 실행해 고정 12과업 12/12, Fallback 0건, unsafe 표시 0건을 통과한 결과를 선택적 국내 AI 비교 증거로 사용한다. 평균 3,386ms·P95 4,251ms·총 9,544 tokens의 성공 run과 복구 전 401 run을 모두 불변 보존한다. A.X는 검증된 설명 Gate 뒤에서만 사용하고 Safety Budget·추천·실행 가능성을 변경하지 않으며 P0·최종 Demo 의존성으로 승격하지 않는다. 키·프롬프트·원문 출력은 산출물에 저장하지 않는다.
+- 이유: 동일 어댑터와 strict Gate에서 네트워크·인증 문제가 해소됐음을 실제 Live 결과로 확인했으므로 과거의 `EXTERNAL_AUTH_PENDING`만 최신 상태로 유지하면 재현 증거와 문서가 충돌한다. 동시에 단일 12과업 run은 범용 모델 우열, 운영 안정성이나 안전효과를 입증하지 않는다.
+- 기각한 대안: 과거 401 증거 삭제, A.X를 P0 또는 브라우저 직접 호출 의존성으로 전환, 생성문이 결정론 엔진 판정을 덮어쓰게 허용, 단일 run을 반복 안정성·현장 성과로 확대 주장하는 방식.
+- 영향 파일: `src/evals/domesticAiProvider.ts`, `scripts/run-core-eval-artifacts.mjs`, `scripts/run-final-readiness-audit.mjs`, `scripts/run-goal-completion-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/architecture.md`, `docs/evals.md`, `docs/domestic-ai-track-compliance.md`, `docs/final-readiness.md`, `docs/synthetic-data-plan.md`, `artifacts/evals/domestic-ai-api-runs/`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
