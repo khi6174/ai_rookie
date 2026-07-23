@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "g5-spatial-stimulus-manifest-v3",
+  "studyId": "g5-b-decision-spatial-comprehension-round3-001",
+  "dataMode": "DEMO",
+  "viewport": {
+    "width": 1280,
+    "height": 720
+  },
+  "decisionId": "decision-scenario-a-ui-v1",
+  "stimuli": [
+    {
+      "mode": "TWO_D",
+      "path": "artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png",
+      "sha256": "5968211b2666494c08f508cbe4981adebd16a23f6c399736a51511ff1b43e7c8"
+    },
+    {
+      "mode": "DEMO_TWO_POINT_FIVE_D",
+      "path": "artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png",
+      "sha256": "026999e8798ab7e192d2a9c0b6d4f33cf8aaf6477eda844d1c61fde28953b3ca"
+    }
+  ],
+  "limitations": [
+    "Fixed Demo screenshots; no live GPS, terrain, TMS, or field-operation evidence.",
+    "Reviewers must not receive the answer key before completing both trials."
+  ]
+}

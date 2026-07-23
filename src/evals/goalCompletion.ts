@@ -1,8 +1,8 @@
 import { z } from "zod";
 
-const G5Round2SummarySchema = z.object({
-  schemaVersion: z.literal("g5-spatial-comprehension-summary-v2"),
-  studyId: z.literal("g5-b-decision-spatial-comprehension-round2-001"),
+const G5Round3SummarySchema = z.object({
+  schemaVersion: z.literal("g5-spatial-comprehension-summary-v3"),
+  studyId: z.literal("g5-b-decision-spatial-comprehension-round3-001"),
   dataMode: z.literal("DEMO"),
   status: z.enum([
     "DO_NOT_PROMOTE",
@@ -14,8 +14,8 @@ const G5Round2SummarySchema = z.object({
 }).passthrough();
 
 const RiderReferenceSummarySchema = z.object({
-  schemaVersion: z.literal("rider-reference-comprehension-summary-v1"),
-  studyId: z.literal("rider-route-product-boundary-001"),
+  schemaVersion: z.literal("rider-reference-comprehension-summary-v2"),
+  studyId: z.literal("rider-route-product-boundary-round2-001"),
   dataMode: z.literal("DEMO"),
   status: z.enum(["READY_TO_PROMOTE", "NEEDS_REVISION"]),
   reviewerCount: z.number().int().min(5),
@@ -24,17 +24,17 @@ const RiderReferenceSummarySchema = z.object({
 }).passthrough();
 
 export type HumanGoalEvidenceInput = {
-  g5Round2?: unknown;
-  riderReference?: unknown;
+  g5Round3?: unknown;
+  riderRound2?: unknown;
 };
 
 export function evaluateHumanGoalEvidence(input: HumanGoalEvidenceInput) {
-  const g5 = input.g5Round2 === undefined
+  const g5 = input.g5Round3 === undefined
     ? null
-    : G5Round2SummarySchema.parse(input.g5Round2);
-  const rider = input.riderReference === undefined
+    : G5Round3SummarySchema.parse(input.g5Round3);
+  const rider = input.riderRound2 === undefined
     ? null
-    : RiderReferenceSummarySchema.parse(input.riderReference);
+    : RiderReferenceSummarySchema.parse(input.riderRound2);
   const g5Passed =
     g5 !== null &&
     g5.comprehensionPassed === true &&
@@ -51,10 +51,10 @@ export function evaluateHumanGoalEvidence(input: HumanGoalEvidenceInput) {
     allPassed: g5Passed && riderPassed,
     requiredNextEvidence: [
       ...(!g5Passed
-        ? ["artifacts/evals/g5-spatial-comprehension-round2-summary.json"]
+        ? ["artifacts/evals/g5-spatial-comprehension-round3-summary.json"]
         : []),
       ...(!riderPassed
-        ? ["artifacts/evals/rider-reference-comprehension-summary.json"]
+        ? ["artifacts/evals/rider-reference-comprehension-round2-summary.json"]
         : []),
     ],
   };

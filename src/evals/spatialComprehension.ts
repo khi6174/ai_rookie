@@ -90,9 +90,23 @@ const SpatialComprehensionStudyV2Schema = z.object({
   reviewers: z.array(ReviewerSchema).min(3),
 }).strict();
 
+const SpatialComprehensionStudyV3Schema = z.object({
+  schemaVersion: z.literal("g5-spatial-comprehension-v3"),
+  studyId: z.literal("g5-b-decision-spatial-comprehension-round3-001"),
+  dataMode: z.literal("DEMO"),
+  stimulusManifest: z.literal(
+    "artifacts/evals/g5-spatial-round3-stimulus-manifest.json",
+  ),
+  reviewers: z.array(ReviewerSchema).min(3),
+}).strict();
+
 export const SpatialComprehensionStudySchema = z.discriminatedUnion(
   "schemaVersion",
-  [SpatialComprehensionStudyV1Schema, SpatialComprehensionStudyV2Schema],
+  [
+    SpatialComprehensionStudyV1Schema,
+    SpatialComprehensionStudyV2Schema,
+    SpatialComprehensionStudyV3Schema,
+  ],
 ).superRefine((study, context) => {
   if (new Set(study.reviewers.map(({ reviewerId }) => reviewerId)).size !== study.reviewers.length) {
     context.addIssue({
@@ -203,9 +217,12 @@ export function evaluateSpatialComprehension(input: unknown) {
     prefers2point5dCount >= Math.ceil(study.reviewers.length / 2);
 
   return {
-    schemaVersion: study.schemaVersion === "g5-spatial-comprehension-v2"
-      ? ("g5-spatial-comprehension-summary-v2" as const)
-      : ("g5-spatial-comprehension-summary-v1" as const),
+    schemaVersion:
+      study.schemaVersion === "g5-spatial-comprehension-v3"
+        ? ("g5-spatial-comprehension-summary-v3" as const)
+        : study.schemaVersion === "g5-spatial-comprehension-v2"
+          ? ("g5-spatial-comprehension-summary-v2" as const)
+          : ("g5-spatial-comprehension-summary-v1" as const),
     studyId: study.studyId,
     dataMode: study.dataMode,
     status: defaultPromotionEligible

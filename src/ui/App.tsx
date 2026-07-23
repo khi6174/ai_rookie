@@ -342,23 +342,26 @@ function DecisionSpatialScenePanel({
             ))}
           </svg>
           <figcaption id="spatial-profile-caption">
-            순서: 현재 → 10분 휴식 → 경사 노출 구간 → 17번째 배송지 전 지원. 높이는 위험점수가 아닙니다.
+            <strong>순서 결론: 10분 휴식이 예상 초과보다 먼저입니다.</strong>
+            <span>현재 → 휴식 → 경사 노출 → 17번째 배송지 전 지원. 높이는 위험점수가 아닙니다.</span>
           </figcaption>
         </figure>
         <div className="spatial-facts" aria-label="2.5D 장면의 구조화 수치 대안">
           <div className="spatial-decision-question">
             <span>예상 지원 지점</span>
             <strong>{facts.timeToBreachMinutes}분 후 · {facts.breachStopOrdinal}번째 배송지 전</strong>
-            <small>휴식 뒤 경사 노출 구간 · 강수 · 연속작업</small>
+            <small>먼저 10분 휴식 → 휴식 뒤 경사 노출 → 예상 초과</small>
           </div>
           <dl>
             <div><dt>현재 계획 최소</dt><dd>{formatBudget(facts.baselineMinimumBudget)}</dd></div>
             <div><dt>{applied ? "적용 계획 최소" : "추천안 적용 후"}</dt><dd>{formatBudget(facts.adjustedMinimumBudget)}</dd></div>
             <div><dt>지원 조치</dt><dd>{facts.restMinutes}분 휴식 + {facts.transferStopCount}건 이관</dd></div>
             <div><dt>ETA 변화</dt><dd>+{facts.etaChangeMinutes}분 · 안전 하드 제약 통과</dd></div>
+            <div className="spatial-impact-fact"><dt>원 기사</dt><dd>8건 감소 · 안전여유 회복</dd></div>
+            <div className="spatial-impact-fact"><dt>수신 기사</dt><dd>8건 추가 · 기준 45 통과</dd></div>
           </dl>
           <code>Decision ID · {scene.decisionId}</code>
-          <p>같은 route point 4개와 결정론적 Safety 결과를 2D와 공유합니다.</p>
+          <p>양측 기사 모두 안전기준을 통과한 같은 결정입니다.</p>
         </div>
       </div>
     </div>
@@ -1029,9 +1032,10 @@ function InterventionQueue({
         <ol className="decision-sequence" aria-label="현재부터 지원 완료까지의 순서">
           <li><span>현재</span><strong>14번째 배송지 운행</strong></li>
           <li><span>먼저</span><strong>10분 휴식</strong></li>
-          <li><span>다음</span><strong>휴식 뒤 경사 노출 구간</strong></li>
-          <li><span>그 전에</span><strong>약 52분 후 · 17번째 배송지 전 지원</strong></li>
+          <li><span>그 다음</span><strong>휴식 뒤 경사 노출 구간</strong></li>
+          <li><span>지원 마감</span><strong>약 52분 후 · 17번째 배송지 전</strong></li>
         </ol>
+        <p className="decision-sequence-verdict"><strong>순서 결론</strong> 10분 휴식이 예상 초과보다 먼저입니다.</p>
       </article>
       <section className="decision-impact" aria-labelledby="decision-impact-heading">
         <div className="decision-impact-heading">
@@ -1041,13 +1045,13 @@ function InterventionQueue({
         <div className="decision-impact-grid">
           <article>
             <span>원 기사 · 작업이 줄어드는 기사</span>
-            <strong>배송 {sourceStopsBefore} → {sourceStopsAfter}건</strong>
-            <small>안전여유 {formatBudget(sourceImpact.baselineMinimumBudget)} → {formatBudget(sourceImpact.candidateMinimumBudget)}</small>
+            <strong>8건 줄고 안전여유가 회복됩니다</strong>
+            <small>배송 {sourceStopsBefore} → {sourceStopsAfter}건 · 안전여유 {formatBudget(sourceImpact.baselineMinimumBudget)} → {formatBudget(sourceImpact.candidateMinimumBudget)}</small>
           </article>
           <article>
             <span>수신 기사 · 배송을 받는 기사</span>
-            <strong>배송 {recipientImpact.stopCountDelta > 0 ? "+" : ""}{recipientImpact.stopCountDelta}건</strong>
-            <small>안전여유 {formatBudget(recipientImpact.baselineMinimumBudget)} → {formatBudget(recipientImpact.candidateMinimumBudget)} · 기준 45 통과</small>
+            <strong>8건 추가 후에도 안전기준을 통과합니다</strong>
+            <small>배송 {recipientImpact.stopCountDelta > 0 ? "+" : ""}{recipientImpact.stopCountDelta}건 · 안전여유 {formatBudget(recipientImpact.baselineMinimumBudget)} → {formatBudget(recipientImpact.candidateMinimumBudget)} · 기준 45 이상</small>
           </article>
         </div>
         <p className="decision-rationale"><strong>왜 이 조치인가?</strong> 연속작업·비·경사 노출을 줄이고, 12건 이관처럼 수신 기사 기준을 넘는 대안은 제외했습니다.</p>
@@ -1678,7 +1682,7 @@ function RiderView({
     <main id="main-content" className="rider-stage">
       <div className="rider-phone">
         <div className="rider-topline">
-          <span className="mode-badge"><span aria-hidden="true">◇</span> {demoWeatherRuntime.displayLabel}</span>
+          <span className="mode-badge"><span aria-hidden="true">◇</span> 합성 Demo 경로 · GPS 길안내 아님</span>
           <span className="stopped-badge">정차 확인</span>
         </div>
         <div className="rider-route-bar">
@@ -1707,7 +1711,7 @@ function RiderView({
                 <div className="rider-safe-copy">
                   <p>{applied
                     ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
-                    : "비와 경사 구간, 남은 작업량이 겹칩니다. 정차한 상태에서 계획을 검토해 주세요."}</p>
+                    : "미래 안전한계 예측·지원계획 합의. 기사 동의 → 관리자 승인 후에만 적용됩니다."}</p>
                 </div>
               </div>
               <div className="rider-plan-steps" aria-label={applied ? "적용된 운행 계획" : "지원 계획 진행 순서"}>

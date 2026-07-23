@@ -1,11 +1,11 @@
 const app = document.querySelector("#app");
 const reviewerTarget = 5;
-const stimulus = "/artifacts/evals/screenshots/rider-source-route-390x844.png";
+const stimulus = "/artifacts/evals/screenshots/rider-source-route-round2-390x844.png";
 const study = {
-  schemaVersion: "rider-reference-comprehension-v1",
-  studyId: "rider-route-product-boundary-001",
+  schemaVersion: "rider-reference-comprehension-v2",
+  studyId: "rider-route-product-boundary-round2-001",
   dataMode: "DEMO",
-  stimulusManifest: "artifacts/evals/rider-reference-stimulus-manifest.json",
+  stimulusManifest: "artifacts/evals/rider-reference-round2-stimulus-manifest.json",
   reviewers: [],
 };
 let reviewerIndex = 0;
@@ -92,7 +92,7 @@ function renderComplete() {
     );
     const link = document.createElement("a");
     link.href = url;
-    link.download = "rider-reference-comprehension-results.json";
+    link.download = "rider-reference-comprehension-round2-results.json";
     link.click();
     URL.revokeObjectURL(url);
   });

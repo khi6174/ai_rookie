@@ -1,0 +1,295 @@
+{
+  "schemaVersion": "saferoute-goal-completion-audit-v1",
+  "capturedAt": "2026-07-23T08:01:50.587Z",
+  "status": "HUMAN_VALIDATION_REQUIRED",
+  "objective": "Domestic-track SafeRoute safety-operations decision layer with bounded Atlan Truck and KBS mobility AI references, reproducible closed-loop evidence, and independent human comprehension gates.",
+  "criteria": [
+    {
+      "id": "CREATIVITY",
+      "nameKo": "창의성",
+      "claim": "기존 지도·예방 신호를 복제하지 않고 미래 임계치와 반사실적 안전 개입의 독자 폐루프로 전환한다.",
+      "status": "PASSED",
+      "checks": [
+        {
+          "id": "REFERENCE_BOUNDARY_APPROVED",
+          "passed": true,
+          "evidence": "docs/decisions.md",
+          "details": "ADR-051 separates field-map and preventive-signal references from SafeRoute ownership."
+        },
+        {
+          "id": "COUNTERFACTUAL_STRATEGY_COMPARISON",
+          "passed": true,
+          "evidence": "artifacts/evals/frozen-benchmark-summary.json",
+          "details": "30 variants, 90 comparisons, SafeRoute violations=0"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "id": "INNOVATION",
+      "nameKo": "혁신성",
+      "claim": "안전을 가중치가 아닌 하드 제약으로 두고 위험전가·동의·버전 충돌을 결정론적으로 차단한다.",
+      "status": "PASSED",
+      "checks": [
+        {
+          "id": "RISK_TRANSFER_GUARD",
+          "passed": true,
+          "evidence": "artifacts/evals/risk-transfer-boundary-summary.json",
+          "details": "23/23 passed"
+        },
+        {
+          "id": "DECISION_WORKFLOW_BOUNDARIES",
+          "passed": true,
+          "evidence": "artifacts/evals/decision-workflow-boundary-summary.json",
+          "details": "30/30 passed"
+        },
+        {
+          "id": "DOMESTIC_AI_EVIDENCE_LAYER",
+          "passed": true,
+          "evidence": "artifacts/evals/domestic-track-compliance-latest.json; artifacts/evals/upstage-document-roundtrip-mock-latest.json",
+          "details": "domestic checks=7/7, Upstage Mock=60/60, unsafe=0"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "id": "EXECUTION",
+      "nameKo": "추진성",
+      "claim": "같은 commit의 결정론적 코드·E2E·clean-start·공개 Demo 빌드를 반복 가능한 Gate로 유지한다.",
+      "status": "PASSED",
+      "checks": [
+        {
+          "id": "FINAL_TECHNICAL_GATE",
+          "passed": true,
+          "evidence": "artifacts/evals/final-readiness-latest.json",
+          "details": "commands=5/5, checks=13/13"
+        },
+        {
+          "id": "REPRODUCIBLE_TEST_COUNTS",
+          "passed": true,
+          "evidence": "artifacts/evals/final-readiness-latest.json",
+          "details": "unit=246, e2e=21, clean=3, publicBuild=true"
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "id": "GROWTH",
+      "nameKo": "성장성",
+      "claim": "공급자 독립 계약과 권역 제한을 유지하면서 합성 다기사 관제 규모를 재현한다.",
+      "status": "PASSED",
+      "checks": [
+        {
+          "id": "MULTI_REGION_SCALE",
+          "passed": true,
+          "evidence": "artifacts/evals/map-performance-summary.json",
+          "details": "profiles=3, max=240, region=80, routes=24"
+        },
+        {
+          "id": "HONEST_DATA_PROMOTION_BOUNDARY",
+          "passed": true,
+          "evidence": "artifacts/evals/data-provenance-audit.json",
+          "details": "Incomplete public weather evidence remains isolated from the Safety engine."
+        }
+      ],
+      "blockers": []
+    },
+    {
+      "id": "EFFECTIVENESS",
+      "nameKo": "실효성",
+      "claim": "폐루프가 자동 재현될 뿐 아니라 관리자와 기사가 핵심 결정·제품 경계를 실제로 이해한다.",
+      "status": "HUMAN_VALIDATION_REQUIRED",
+      "checks": [
+        {
+          "id": "TECHNICAL_CLOSED_LOOP",
+          "passed": true,
+          "evidence": "artifacts/evals/final-readiness-latest.json",
+          "details": "risk=23, workflow=30"
+        },
+        {
+          "id": "HUMAN_G5_ROUND3_COMPREHENSION",
+          "passed": false,
+          "evidence": "MISSING:g5-spatial-comprehension-round3-summary.json",
+          "details": "Round 2 remains DO_NOT_PROMOTE; independent Round 3 is required after the comprehension redesign."
+        },
+        {
+          "id": "HUMAN_RIDER_PRODUCT_BOUNDARY",
+          "passed": false,
+          "evidence": "MISSING:rider-reference-comprehension-round2-summary.json",
+          "details": "Round 1 remains NEEDS_REVISION; five-person independent Round 2 is required after the product-boundary redesign."
+        }
+      ],
+      "blockers": [
+        "HUMAN_G5_ROUND3_COMPREHENSION",
+        "HUMAN_RIDER_PRODUCT_BOUNDARY"
+      ]
+    },
+    {
+      "id": "VALUE",
+      "nameKo": "가치성",
+      "claim": "기사 권리·개인정보·안전 형평성을 성능과 교환하지 않고 감사 가능한 근거로 보존한다.",
+      "status": "PASSED",
+      "checks": [
+        {
+          "id": "PRIVACY_AND_RIGHTS_APPROVED",
+          "passed": true,
+          "evidence": "docs/privacy-and-ai-policy.md; docs/product-spec.md; docs/design-system.md",
+          "details": "Approved privacy, product-rights, and role-aware design contracts."
+        },
+        {
+          "id": "NO_RAW_OR_PERSONAL_DATA",
+          "passed": true,
+          "evidence": "artifacts/evals/data-provenance-audit.json; artifacts/evals/upstage-document-roundtrip-mock-latest.json",
+          "details": "No personal data, credentials, raw documents, or raw model outputs are retained in the evaluated evidence."
+        },
+        {
+          "id": "SAFETY_EQUITY_HARD_GATE",
+          "passed": true,
+          "evidence": "artifacts/evals/frozen-benchmark-summary.json; artifacts/evals/risk-transfer-boundary-summary.json",
+          "details": "SafeRoute violations=0, transfer guard=23/23"
+        }
+      ],
+      "blockers": []
+    }
+  ],
+  "summary": {
+    "criterionCount": 6,
+    "passedCriterionCount": 5,
+    "humanValidationRequiredCount": 1,
+    "failedCriterionCount": 0,
+    "technicalFinalReadiness": "PASSED",
+    "domesticTrackStatus": "PASSED",
+    "g5EvidenceRound": "ROUND_2",
+    "g5Status": "DO_NOT_PROMOTE",
+    "riderEvidenceRound": "ROUND_1",
+    "riderStatus": "NEEDS_REVISION"
+  },
+  "requiredNextEvidence": [
+    "artifacts/evals/g5-spatial-comprehension-round3-summary.json",
+    "artifacts/evals/rider-reference-comprehension-round2-summary.json"
+  ],
+  "evidenceManifest": [
+    {
+      "path": "artifacts/evals/final-readiness-latest.json",
+      "bytes": 8271,
+      "sha256": "59474503ab2674f37339bea776e25dc301874a9099c8c1be5f48c786b48d17f9"
+    },
+    {
+      "path": "artifacts/evals/frozen-benchmark-summary.json",
+      "bytes": 1715,
+      "sha256": "cbadb9570297f217c280c88d2ddc079fd3e63ee58f2127434e62bc625d55c9b7"
+    },
+    {
+      "path": "artifacts/evals/risk-transfer-boundary-summary.json",
+      "bytes": 692,
+      "sha256": "8c600d34cb6a7c4f11fe4193155607d0ebb88eb4d6b12bb7e987ac71b19e350f"
+    },
+    {
+      "path": "artifacts/evals/decision-workflow-boundary-summary.json",
+      "bytes": 1295,
+      "sha256": "2ebd7a5d7cce0554464764c34eb0d5c229921e8964276818efa9ef39576831a0"
+    },
+    {
+      "path": "artifacts/evals/domestic-track-compliance-latest.json",
+      "bytes": 4501,
+      "sha256": "3ed179fc6ccec9b637e837b49b2af20441191a044113e54869504a8424aa7f20"
+    },
+    {
+      "path": "artifacts/evals/map-performance-summary.json",
+      "bytes": 2319,
+      "sha256": "148a0f326cfb9460ea6d080eef2a464deefb0af66928b9ccf2061266bb899f13"
+    },
+    {
+      "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
+      "bytes": 32523,
+      "sha256": "84228ae6a91bf27e8d5db30dc0eee12d3cea13cddd08223c01eb6921054af6b5"
+    },
+    {
+      "path": "artifacts/evals/data-provenance-audit.json",
+      "bytes": 3081,
+      "sha256": "e0d0544c1dac18c5071ab2a39027ea5c45e8148678d3425927db2d7c9ab75295"
+    },
+    {
+      "path": "artifacts/evals/g5-spatial-comprehension-summary.json",
+      "bytes": 1078,
+      "sha256": "3c13ee1ed689235245d33053ee188b710197dd387627774993ba46651f53582b"
+    },
+    {
+      "path": "artifacts/evals/g5-spatial-comprehension-round2-summary.json",
+      "bytes": 1052,
+      "sha256": "b88b572ff0ff76096b62916dabb201d1a9fac45ba12156a36e00d77948ac59e8"
+    },
+    {
+      "path": "artifacts/evals/rider-reference-comprehension-summary.json",
+      "bytes": 632,
+      "sha256": "dc5b7693830c9c32eade8efe9952bbbcf29e59da1394717bdaa11d39b6f8d82b"
+    }
+  ],
+  "approvedDocumentManifest": [
+    {
+      "path": "docs/product-spec.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 36956,
+      "sha256": "7c1b0e99a39b033a376cb51b0199416434ecda23b53a17b0d4bd4c08bb923bab"
+    },
+    {
+      "path": "docs/design-system.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 63404,
+      "sha256": "ca296a6a3ca22299b54b5cbd4ca280c2eea777e7a327b7a965f7b7bbcbe6cd41"
+    },
+    {
+      "path": "docs/decisions.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 85431,
+      "sha256": "051d2e43cd60ad6f5149068f1908bb631e96f514dc603163c69fa57b6a309d5f"
+    },
+    {
+      "path": "docs/privacy-and-ai-policy.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 37096,
+      "sha256": "c86fc092a2c5867e4ccdebec3b697ff3b22c7a3f76798a6f3bec7582b2ecfca4"
+    },
+    {
+      "path": "docs/evals.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 57598,
+      "sha256": "a2d645e64c9749fd20eb1c8cba77f4c51cd7c8532bf5f3b626ad66c09b25f4fc"
+    },
+    {
+      "path": "docs/domestic-ai-track-compliance.md",
+      "status": "Approved",
+      "approved": true,
+      "bytes": 6650,
+      "sha256": "09f3b8ded79bd2268ba0c4cab2ee3c11a261eb98dc907baab340ae3688039dad"
+    }
+  ],
+  "evaluatorManifest": [
+    {
+      "path": "scripts/run-goal-completion-audit.mjs",
+      "bytes": 16217,
+      "sha256": "b530e8dcda98b7591df2d171348dbbfff87167806c878e6ec7cfba720d553454"
+    },
+    {
+      "path": "src/evals/goalCompletion.ts",
+      "bytes": 2452,
+      "sha256": "6b804284f580118740c1ab2a5f5d26d9239bb62550a1708d6ff262be8949a07b"
+    },
+    {
+      "path": "tests/goal-completion.test.ts",
+      "bytes": 3019,
+      "sha256": "5b8a9ab0b3d005e22d5b963107db6e348d917ef3599325508cd9d9df267bb00f"
+    }
+  ],
+  "explicitLimitations": [
+    "Synthetic Demo, Mock, public-weather adapter, and redacted API evidence are not field accident-reduction evidence.",
+    "No live GPS, turn-by-turn navigation, dispatch brokerage, sensor, accident detection, automatic rescue, authentication, TMS, or customer delivery is claimed.",
+    "A.X Hosted API remains external-auth pending and is not a P0 or final Demo dependency.",
+    "Goal completion remains unproven until both independent human comprehension summaries pass their strict contracts."
+  ]
+}

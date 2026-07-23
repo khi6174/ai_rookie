@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-23
 - 승인 조건: 평가 스크립트·fixtures·재현 명령과 최초 결과가 저장소에서 확인될 것
 
 ## 1. 목적
@@ -135,7 +135,7 @@
 - `pnpm run eval:g5:comprehension -- <완료 JSON>`이 익명 계약·정확도·혼란·중앙 완료시간을 판정한다.
 - 자동 하네스 준비와 실제 사람 결과를 구분한다. Round 1은 완료됐지만 통과하지 않았으므로 G5-B PASS로 기록하지 않는다.
 - Round 1 실제 결과는 3명·6 trial, 핵심 의미 전체 정답 2/6, 경사 구간 정답 0/6, 혼란 증가 2/3, 중앙 완료시간 2D 377,042ms·2.5D 978,984ms로 `DO_NOT_PROMOTE`다. 기술 Gate PASS와 사람 이해도 실패를 분리해 기록하고 정보위계 재설계 전 2.5D를 기본값으로 승격하지 않는다.
-- Round 2는 같은 정답표와 같은 1280×720 조건에서 decision 질문, 현재→휴식→경사→지원 순서, 원·수신 기사 영향 비교만 명료하게 바꾼 별도 자극을 사용한다. manifest와 캡처는 준비됐지만 사람 응답은 아직 없으므로 공식 판정은 Round 1 `DO_NOT_PROMOTE`를 유지한다.
+- Round 2는 같은 정답표와 같은 1280×720 조건에서 decision 질문, 현재→휴식→경사→지원 순서, 원·수신 기사 영향 비교를 명료하게 바꿨지만 독립 3인·6 trial 전체 정답 0/6으로 `DO_NOT_PROMOTE`였다. 수치와 경사 인지는 개선됐으나 경로 우선순위와 양측 영향이 남아, Round 3은 `휴식이 예상 초과보다 먼저`와 `원 기사 회복·수신 기사 기준 통과`를 결론형 문구로 직접 표시한다. 새 독립 응답 전에는 개선 성공을 주장하지 않는다.
 
 ## 7. 계약 검증
 
@@ -375,7 +375,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 
 고정 화면의 목표는 과업 완료율 80% 이상, 도움 없이 네 문항 모두 정답인 참여자 70% 이상, `실제 GPS·센서·구조 요청이 동작한다`는 오인 0건이다. 결과가 없으면 레퍼런스 반영이 사용자 이해도를 개선했다고 주장하지 않는다. 자동 E2E는 현재·다음 안전 거점·지원 기준, Demo/Fallback 라벨과 승인 전 계획 불변 문구의 존재만 검증하며 사람 이해도 PASS를 대신하지 않는다.
 
-실행 프로토콜은 `docs/rider-reference-comprehension-test.md`가 소유한다. `pnpm run eval:rider-reference:stimulus`는 체크인된 390×844 기사 화면의 크기와 SHA-256을 고정하고, `pnpm run review:rider-reference`는 독립 검토자 5명의 동의·익명 구조화 응답을 수집한다. 완료 JSON은 `pnpm run eval:rider-reference:comprehension -- <결과 파일>`로 판정한다. 현재 도구·계약·자동 E2E만 준비됐으며 실제 사람 응답과 공식 판정은 없다.
+실행 프로토콜은 `docs/rider-reference-comprehension-test.md`가 소유한다. `pnpm run eval:rider-reference:stimulus`는 체크인된 390×844 기사 화면의 크기와 SHA-256을 고정하고, `pnpm run review:rider-reference`는 독립 검토자 5명의 동의·익명 구조화 응답을 수집한다. 완료 JSON은 `pnpm run eval:rider-reference:comprehension -- <결과 파일>`로 판정한다. Round 1은 25/30 정답이었지만 완전 정답 3/5·중대 제품 경계 오인 2명으로 `NEEDS_REVISION`이다. Round 2는 Demo/GPS 경계와 미래 안전한계·지원계획 역할, 기사 동의→관리자 승인 규칙을 첫 화면에 명시한 새 자극으로 분리했으며 독립 응답 전에는 개선 성공을 주장하지 않는다.
 
 ## 15. AI ROOKIE 여섯 심사기준 평가표
 
@@ -455,7 +455,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 29개 파일, 245/245 통과 |
+| 최신 전체 Vitest | `pnpm test` | 29개 파일, 246/246 통과 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |

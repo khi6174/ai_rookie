@@ -32,7 +32,7 @@ const latestArtifactNames = [
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
-  "rider-reference-stimulus-manifest.json",
+  "rider-reference-round2-stimulus-manifest.json",
 ];
 
 function sha256(bytes) {
@@ -349,16 +349,16 @@ async function generateManifest() {
     throw new Error("G5-A spatial scene evidence did not pass its Demo contract gate");
   }
   const riderReferenceStimulus = await readJson(
-    "rider-reference-stimulus-manifest.json",
+    "rider-reference-round2-stimulus-manifest.json",
   );
   const riderReferenceImage = await readFile(
     resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
   );
   if (
     riderReferenceStimulus.schemaVersion !==
-      "rider-reference-stimulus-manifest-v1" ||
+      "rider-reference-stimulus-manifest-v2" ||
     riderReferenceStimulus.studyId !==
-      "rider-route-product-boundary-001" ||
+      "rider-route-product-boundary-round2-001" ||
     riderReferenceStimulus.dataMode !== "DEMO" ||
     riderReferenceStimulus.stimulus?.width !== 390 ||
     riderReferenceStimulus.stimulus?.height !== 844 ||

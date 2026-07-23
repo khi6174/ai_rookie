@@ -48,7 +48,7 @@ const ReviewerSchema = z.object({
   ),
 }).strict();
 
-export const RiderReferenceComprehensionStudySchema = z.object({
+const RiderReferenceComprehensionStudyV1Schema = z.object({
   schemaVersion: z.literal("rider-reference-comprehension-v1"),
   studyId: z.literal("rider-route-product-boundary-001"),
   dataMode: z.literal("DEMO"),
@@ -56,7 +56,25 @@ export const RiderReferenceComprehensionStudySchema = z.object({
     "artifacts/evals/rider-reference-stimulus-manifest.json",
   ),
   reviewers: z.array(ReviewerSchema).min(5),
-}).strict().superRefine((study, context) => {
+}).strict();
+
+const RiderReferenceComprehensionStudyV2Schema = z.object({
+  schemaVersion: z.literal("rider-reference-comprehension-v2"),
+  studyId: z.literal("rider-route-product-boundary-round2-001"),
+  dataMode: z.literal("DEMO"),
+  stimulusManifest: z.literal(
+    "artifacts/evals/rider-reference-round2-stimulus-manifest.json",
+  ),
+  reviewers: z.array(ReviewerSchema).min(5),
+}).strict();
+
+export const RiderReferenceComprehensionStudySchema = z.discriminatedUnion(
+  "schemaVersion",
+  [
+    RiderReferenceComprehensionStudyV1Schema,
+    RiderReferenceComprehensionStudyV2Schema,
+  ],
+).superRefine((study, context) => {
   if (new Set(study.reviewers.map(({ reviewerId }) => reviewerId)).size !== study.reviewers.length) {
     context.addIssue({
       code: "custom",
@@ -123,7 +141,9 @@ export function evaluateRiderReferenceComprehension(input: unknown) {
     criticalMisconceptionCount === 0;
 
   return {
-    schemaVersion: "rider-reference-comprehension-summary-v1" as const,
+    schemaVersion: study.schemaVersion === "rider-reference-comprehension-v2"
+      ? ("rider-reference-comprehension-summary-v2" as const)
+      : ("rider-reference-comprehension-summary-v1" as const),
     studyId: study.studyId,
     dataMode: study.dataMode,
     status: comprehensionPassed

@@ -492,7 +492,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
   });
   await page.getByRole("button", { name: "데모 계정으로 시작" }).click();
   await capture({
-    file: "rider-source-route-390x844.png",
+    file: "rider-source-route-round2-390x844.png",
     width: 390,
     height: 844,
     role: "SOURCE",

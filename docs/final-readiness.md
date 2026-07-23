@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-23
 - 대체 문서: `docs/midpoint-review.md`
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`
 
@@ -29,12 +29,12 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 29개 파일, 245/245 통과 |
+| 단위·계약 | Vitest 29개 파일, 246/246 통과 |
 | 브라우저 폐루프 | Playwright 21/21 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
-| G5-B 사람 이해도 | Round 1 `DO_NOT_PROMOTE`: 3명·6 trial 중 핵심 의미 전체 정답 2/6, 2.5D 혼란 증가 2/3. 질문·순서·양측 영향 중심 Round 2 화면·도구 준비, 독립 응답 대기 |
-| 기사 경로·제품 경계 이해도 | 390×844 고정 자극·5인 익명 검토 도구·strict 판정 계약 준비, 실제 독립 응답과 공식 판정 대기 |
+| G5-B 사람 이해도 | Round 2 `DO_NOT_PROMOTE`: 3명·6 trial 중 전체 정답 0/6. 수치·경사 인지는 개선됐지만 경로 우선순위·양측 영향이 남아 이를 명시한 Round 3 화면·도구 준비, 독립 응답 대기 |
+| 기사 경로·제품 경계 이해도 | Round 1 `NEEDS_REVISION`: 25/30 정답, 완전 정답 3/5, 중대 오인 2명. Demo/GPS·제품 역할·기사 동의→관리자 승인 규칙을 명시한 Round 2 자극 준비, 독립 응답 대기 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
 | 프로덕션 빌드 | TypeScript 검사와 Vite 빌드 성공 |
 | 화면 | 관리자 1440×900·1280×720, 기사 390×844·360×800 통과, 레퍼런스 대응 실제 캡처 6개 |
@@ -50,11 +50,11 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-21 최종 GOAL 사람 증거 계약 반영 Gate는 Vitest 245/245, Playwright 21/21, clean-start 3/3, 지도 부하 3/3, G5-A 공간 장면, 국내트랙 감사 7/7과 build를 통과했다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 통과했으며 실행별 측정값은 `spatial-scene-summary.json`에 보존한다. 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 2026-07-23 이해도 재설계 반영 검증은 Vitest 246/246과 관련 Playwright 20/20을 통과했으며 전체 Gate는 아래 최종 검증에서 다시 고정한다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 유지한다. 실행별 측정값은 `spatial-scene-summary.json`에 보존하고 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 이 기술 `PASSED`는 전체 GOAL 완료 판정이 아니다. `pnpm run audit:goal`이 여섯 심사기준과 두 사람 이해도 Gate를 별도로 판정하며 `READY_FOR_FINAL_SUBMISSION` 이전에는 기본 제출 ZIP 생성을 차단한다.
 
-G5-B 사람 이해도는 유효한 Round 2 summary가 존재하면 이를 우선하고, 없으면 Round 1 실패 증거를 유지한다. 최종 readiness의 `g5HumanEvidenceRound`와 `g5HumanComprehensionStudyId`가 실제 사용한 round를 명시하며 잘못된 summary는 Gate를 실패시킨다.
+G5-B 사람 이해도는 유효한 Round 3 summary가 존재하면 이를 우선하고, 없으면 Round 2·1 실패 증거를 최신 순서로 유지한다. 최종 readiness의 `g5HumanEvidenceRound`와 `g5HumanComprehensionStudyId`가 실제 사용한 round를 명시하며 잘못된 summary는 Gate를 실패시킨다. 기사 이해도도 Round 2가 있을 때만 최종 사람 Gate 후보가 되며 Round 1 실패는 삭제하지 않는다.
 
 ## 4. 문서 게이트
 

@@ -6,8 +6,8 @@ import {
 
 function g5(overrides: Record<string, unknown> = {}) {
   return {
-    schemaVersion: "g5-spatial-comprehension-summary-v2",
-    studyId: "g5-b-decision-spatial-comprehension-round2-001",
+    schemaVersion: "g5-spatial-comprehension-summary-v3",
+    studyId: "g5-b-decision-spatial-comprehension-round3-001",
     dataMode: "DEMO",
     status: "KEEP_OPTIONAL",
     reviewerCount: 3,
@@ -18,8 +18,8 @@ function g5(overrides: Record<string, unknown> = {}) {
 
 function rider(overrides: Record<string, unknown> = {}) {
   return {
-    schemaVersion: "rider-reference-comprehension-summary-v1",
-    studyId: "rider-route-product-boundary-001",
+    schemaVersion: "rider-reference-comprehension-summary-v2",
+    studyId: "rider-route-product-boundary-round2-001",
     dataMode: "DEMO",
     status: "READY_TO_PROMOTE",
     reviewerCount: 5,
@@ -30,10 +30,10 @@ function rider(overrides: Record<string, unknown> = {}) {
 }
 
 describe("최종 GOAL 사람 증거 계약", () => {
-  it("유효한 G5 Round 2와 기사 5인 결과만 전체 사람 Gate를 통과한다", () => {
+  it("유효한 G5 Round 3와 기사 Round 2 5인 결과만 전체 사람 Gate를 통과한다", () => {
     expect(evaluateHumanGoalEvidence({
-      g5Round2: g5(),
-      riderReference: rider(),
+      g5Round3: g5(),
+      riderRound2: rider(),
     })).toEqual({
       g5Passed: true,
       riderPassed: true,
@@ -42,25 +42,25 @@ describe("최종 GOAL 사람 증거 계약", () => {
     });
   });
 
-  it("Round 1·인원 부족·잘못된 study 계약은 완료 증거로 파싱하지 않는다", () => {
+  it("이전 Round·인원 부족·잘못된 study 계약은 완료 증거로 파싱하지 않는다", () => {
     expect(() => evaluateHumanGoalEvidence({
-      g5Round2: g5({ schemaVersion: "g5-spatial-comprehension-summary-v1" }),
-      riderReference: rider(),
+      g5Round3: g5({ schemaVersion: "g5-spatial-comprehension-summary-v2" }),
+      riderRound2: rider(),
     })).toThrow();
     expect(() => evaluateHumanGoalEvidence({
-      g5Round2: g5(),
-      riderReference: rider({ reviewerCount: 4 }),
+      g5Round3: g5(),
+      riderRound2: rider({ reviewerCount: 4 }),
     })).toThrow();
     expect(() => evaluateHumanGoalEvidence({
-      g5Round2: g5(),
-      riderReference: rider({ studyId: "wrong-study" }),
+      g5Round3: g5(),
+      riderRound2: rider({ studyId: "wrong-study" }),
     })).toThrow();
   });
 
   it("중대 제품 오인이나 G5 이해 실패는 해당 사람 증거를 대기로 유지한다", () => {
     const result = evaluateHumanGoalEvidence({
-      g5Round2: g5({ status: "DO_NOT_PROMOTE", comprehensionPassed: false }),
-      riderReference: rider({
+      g5Round3: g5({ status: "DO_NOT_PROMOTE", comprehensionPassed: false }),
+      riderRound2: rider({
         status: "NEEDS_REVISION",
         comprehensionPassed: false,
         criticalMisconceptionCount: 1,

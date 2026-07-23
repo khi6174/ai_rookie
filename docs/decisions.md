@@ -546,6 +546,15 @@
 - 기각한 대안: 기술 readiness를 전체 완료로 간주, 사람 결과 없이 실효성 통과, 문서 표만으로 여섯 기준 완료 주장, `--allow-dirty`만으로 최종 이름의 ZIP 생성.
 - 영향 파일: `scripts/run-goal-completion-audit.mjs`, `src/evals/goalCompletion.ts`, `tests/goal-completion.test.ts`, `scripts/build-submission-package.mjs`, `package.json`, `docs/goal-completion-audit.md`, `docs/submission-package.md`, `docs/final-readiness.md`, `docs/evals.md`, `README.md`
 
+### ADR-056 — 사람 이해도 실패는 새 자극 버전과 결과 우선 문구로 교정한다
+
+- 날짜: 2026-07-23
+- 상태: Approved
+- 결정: G5-B Round 2 `DO_NOT_PROMOTE`와 기사 Round 1 `NEEDS_REVISION`을 최종 GOAL 실패 증거로 보존한다. Safety 계산·정답표·동의 권리는 바꾸지 않고, 관리자에는 `휴식이 예상 초과보다 먼저`와 원·수신 기사 결과를 결론형 문장으로 표시하며 기사에는 Demo/GPS 경계, 미래 안전한계·지원계획 역할, 기사 동의→관리자 승인 규칙을 첫 화면에 명시한다. 수정 화면은 각각 G5 Round 3·기사 Round 2의 새 study·manifest·결과 파일로 평가하며 이전 summary를 덮어쓰지 않는다.
+- 이유: Round 2 관리자는 숫자와 경사 인지가 개선됐지만 경로 우선순위·양측 영향이 `UNKNOWN`으로 남았고, 기사 Round 1은 경로 문항을 모두 맞혔지만 2명이 제품 역할과 승인 규칙을 찾지 못했다. 추가 시각 효과보다 결정에 필요한 결론을 직접 표시하는 편이 실패 원인과 일치한다.
+- 기각한 대안: strict 기준 완화, 기존 결과를 수동 PASS로 변경, 2.5D를 기본값으로 전환, 설명 카드 추가로 모바일 첫 행동을 하단 탭 아래로 밀기, 이전 자극·응답 덮어쓰기.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals`, `tools`, `scripts`, `e2e`, `tests`, `docs/design-system.md`, `docs/evals.md`, `docs/g5-spatial-comprehension-test.md`, `docs/rider-reference-comprehension-test.md`, `docs/goal-completion-audit.md`, `artifacts/evals`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

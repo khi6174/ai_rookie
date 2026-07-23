@@ -127,10 +127,13 @@ const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
 const spatialScene = await readJson("spatial-scene-summary.json");
 const riderReferenceStimulus = await readJson(
-  "rider-reference-stimulus-manifest.json",
+  "rider-reference-round2-stimulus-manifest.json",
 );
 const riderReferenceStimulusImage = await readFile(
   resolve(root, riderReferenceStimulus.stimulus?.path ?? ""),
+);
+const spatialComprehensionRound3 = await readOptionalJson(
+  "g5-spatial-comprehension-round3-summary.json",
 );
 const spatialComprehensionRound2 = await readOptionalJson(
   "g5-spatial-comprehension-round2-summary.json",
@@ -138,7 +141,8 @@ const spatialComprehensionRound2 = await readOptionalJson(
 const spatialComprehensionRound1 = await readOptionalJson(
   "g5-spatial-comprehension-summary.json",
 );
-let spatialComprehension = spatialComprehensionRound2 ??
+let spatialComprehension = spatialComprehensionRound3 ??
+  spatialComprehensionRound2 ??
   spatialComprehensionRound1 ?? {
   status: "NOT_RUN",
   reviewerCount: 0,
@@ -146,6 +150,18 @@ let spatialComprehension = spatialComprehensionRound2 ??
   defaultPromotionEligible: false,
 };
 if (
+  spatialComprehensionRound3 &&
+  (spatialComprehensionRound3.schemaVersion !==
+    "g5-spatial-comprehension-summary-v3" ||
+    spatialComprehensionRound3.studyId !==
+      "g5-b-decision-spatial-comprehension-round3-001" ||
+    spatialComprehensionRound3.dataMode !== "DEMO" ||
+    spatialComprehensionRound3.reviewerCount < 3)
+) {
+  throw new Error("Invalid G5-B Round 3 human comprehension summary");
+}
+if (
+  !spatialComprehensionRound3 &&
   spatialComprehensionRound2 &&
   (spatialComprehensionRound2.schemaVersion !==
     "g5-spatial-comprehension-summary-v2" ||
@@ -157,6 +173,7 @@ if (
   throw new Error("Invalid G5-B Round 2 human comprehension summary");
 }
 if (
+  !spatialComprehensionRound3 &&
   !spatialComprehensionRound2 &&
   spatialComprehensionRound1 &&
   (spatialComprehensionRound1.schemaVersion !==
@@ -178,10 +195,16 @@ let riderReferenceComprehension = {
 };
 try {
   riderReferenceComprehension = await readJson(
-    "rider-reference-comprehension-summary.json",
+    "rider-reference-comprehension-round2-summary.json",
   );
 } catch {
-  // Rider reference comprehension remains a human gate until five valid responses exist.
+  try {
+    riderReferenceComprehension = await readJson(
+      "rider-reference-comprehension-summary.json",
+    );
+  } catch {
+    // Rider reference comprehension remains a human gate until five valid responses exist.
+  }
 }
 let publicDemoBuild = {
   configured: false,
@@ -245,7 +268,7 @@ const requiredCoreArtifactFiles = [
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
-  "rider-reference-stimulus-manifest.json",
+  "rider-reference-round2-stimulus-manifest.json",
 ];
 const coreArtifactFiles = new Set(
   coreManifest.artifacts.map((artifact) => artifact.file),
@@ -311,9 +334,9 @@ const evidenceChecks = [
   check(
     "RIDER_REFERENCE_STIMULUS",
     riderReferenceStimulus.schemaVersion ===
-      "rider-reference-stimulus-manifest-v1" &&
+      "rider-reference-stimulus-manifest-v2" &&
       riderReferenceStimulus.studyId ===
-        "rider-route-product-boundary-001" &&
+        "rider-route-product-boundary-round2-001" &&
       riderReferenceStimulus.dataMode === "DEMO" &&
       riderReferenceStimulus.stimulus?.width === 390 &&
       riderReferenceStimulus.stimulus?.height === 844 &&
@@ -396,11 +419,13 @@ const result = {
       spatialScene.metrics.numericMismatchCount,
     g5HumanComprehensionStatus: spatialComprehension.status,
     g5HumanComprehensionStudyId: spatialComprehension.studyId ?? null,
-    g5HumanEvidenceRound: spatialComprehensionRound2
-      ? "ROUND_2"
-      : spatialComprehensionRound1
-        ? "ROUND_1"
-        : "NOT_RUN",
+    g5HumanEvidenceRound: spatialComprehensionRound3
+      ? "ROUND_3"
+      : spatialComprehensionRound2
+        ? "ROUND_2"
+        : spatialComprehensionRound1
+          ? "ROUND_1"
+          : "NOT_RUN",
     g5HumanReviewerCount: spatialComprehension.reviewerCount,
     g5HumanAnswerAccuracy: spatialComprehension.answerAccuracy,
     g5DefaultPromotionEligible:

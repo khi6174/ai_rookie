@@ -37,6 +37,22 @@ function study(): RiderReferenceComprehensionStudy {
 }
 
 describe("기사 경로·제품 경계 이해도 평가", () => {
+  it("Round 1 증거와 새 Round 2 자극 계약을 분리한다", () => {
+    const round2 = {
+      ...study(),
+      schemaVersion: "rider-reference-comprehension-v2",
+      studyId: "rider-route-product-boundary-round2-001",
+      stimulusManifest:
+        "artifacts/evals/rider-reference-round2-stimulus-manifest.json",
+    };
+    expect(RiderReferenceComprehensionStudySchema.parse(study()).schemaVersion).toBe(
+      "rider-reference-comprehension-v1",
+    );
+    expect(RiderReferenceComprehensionStudySchema.parse(round2).schemaVersion).toBe(
+      "rider-reference-comprehension-v2",
+    );
+  });
+
   it("5명이 경로·제품 역할·승인·Demo 경계를 이해하면 승격 후보로 판정한다", () => {
     const result = evaluateRiderReferenceComprehension(study());
     expect(result).toMatchObject({

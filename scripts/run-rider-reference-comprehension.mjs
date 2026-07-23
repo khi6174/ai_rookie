@@ -20,7 +20,9 @@ try {
   const input = JSON.parse(await readFile(inputPath, "utf8"));
   const result = evaluateRiderReferenceComprehension(input);
   const outputPath = resolve(
-    "artifacts/evals/rider-reference-comprehension-summary.json",
+    input.schemaVersion === "rider-reference-comprehension-v2"
+      ? "artifacts/evals/rider-reference-comprehension-round2-summary.json"
+      : "artifacts/evals/rider-reference-comprehension-summary.json",
   );
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   console.log(

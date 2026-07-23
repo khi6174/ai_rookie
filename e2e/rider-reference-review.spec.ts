@@ -58,6 +58,6 @@ test("기사 경로·제품 경계 검토 도구는 5명의 동의와 익명 JSO
   await page.getByRole("button", { name: "결과 JSON 다운로드" }).click();
   const download = await downloadPromise;
   expect(download.suggestedFilename()).toBe(
-    "rider-reference-comprehension-results.json",
+    "rider-reference-comprehension-round2-results.json",
   );
 });

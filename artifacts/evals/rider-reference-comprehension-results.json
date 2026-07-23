@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "rider-reference-comprehension-v1",
+  "studyId": "rider-route-product-boundary-001",
+  "dataMode": "DEMO",
+  "stimulusManifest": "artifacts/evals/rider-reference-stimulus-manifest.json",
+  "reviewers": [
+    {
+      "reviewerId": "reviewer-01",
+      "consentConfirmed": true,
+      "durationMs": 263568,
+      "confidence": 3,
+      "answers": {
+        "currentSegment": "FOURTEENTH_DELIVERY_SEGMENT",
+        "nextSafetyStop": "TEN_MINUTE_REST",
+        "supportBoundary": "BEFORE_SEVENTEENTH_DELIVERY",
+        "productRole": "UNKNOWN",
+        "approvalRule": "UNKNOWN",
+        "demoBoundary": "DEMO_ROUTE_NO_LIVE_GPS"
+      },
+      "comment": ""
+    },
+    {
+      "reviewerId": "reviewer-02",
+      "consentConfirmed": true,
+      "durationMs": 121791,
+      "confidence": 4,
+      "answers": {
+        "currentSegment": "FOURTEENTH_DELIVERY_SEGMENT",
+        "nextSafetyStop": "TEN_MINUTE_REST",
+        "supportBoundary": "BEFORE_SEVENTEENTH_DELIVERY",
+        "productRole": "SAFETY_OPERATION_DECISION_LAYER",
+        "approvalRule": "RIDER_AND_ADMIN_REQUIRED",
+        "demoBoundary": "DEMO_ROUTE_NO_LIVE_GPS"
+      },
+      "comment": ""
+    },
+    {
+      "reviewerId": "reviewer-03",
+      "consentConfirmed": true,
+      "durationMs": 122105,
+      "confidence": 2,
+      "answers": {
+        "currentSegment": "FOURTEENTH_DELIVERY_SEGMENT",
+        "nextSafetyStop": "TEN_MINUTE_REST",
+        "supportBoundary": "BEFORE_SEVENTEENTH_DELIVERY",
+        "productRole": "UNKNOWN",
+        "approvalRule": "UNKNOWN",
+        "demoBoundary": "UNKNOWN"
+      },
+      "comment": ""
+    },
+    {
+      "reviewerId": "reviewer-04",
+      "consentConfirmed": true,
+      "durationMs": 6198,
+      "confidence": 4,
+      "answers": {
+        "currentSegment": "FOURTEENTH_DELIVERY_SEGMENT",
+        "nextSafetyStop": "TEN_MINUTE_REST",
+        "supportBoundary": "BEFORE_SEVENTEENTH_DELIVERY",
+        "productRole": "SAFETY_OPERATION_DECISION_LAYER",
+        "approvalRule": "RIDER_AND_ADMIN_REQUIRED",
+        "demoBoundary": "DEMO_ROUTE_NO_LIVE_GPS"
+      },
+      "comment": ""
+    },
+    {
+      "reviewerId": "reviewer-05",
+      "consentConfirmed": true,
+      "durationMs": 5934,
+      "confidence": 5,
+      "answers": {
+        "currentSegment": "FOURTEENTH_DELIVERY_SEGMENT",
+        "nextSafetyStop": "TEN_MINUTE_REST",
+        "supportBoundary": "BEFORE_SEVENTEENTH_DELIVERY",
+        "productRole": "SAFETY_OPERATION_DECISION_LAYER",
+        "approvalRule": "RIDER_AND_ADMIN_REQUIRED",
+        "demoBoundary": "DEMO_ROUTE_NO_LIVE_GPS"
+      },
+      "comment": ""
+    }
+  ]
+}

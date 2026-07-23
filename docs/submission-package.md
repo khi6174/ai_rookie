@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-23
 - 기준: `docs/final-readiness.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 1. 결정사항
@@ -44,9 +44,9 @@ pnpm run package:submission
 - 최신 core evidence run과 final readiness run
 - 같은 commit에서 생성한 `demo-dist/`
 
-기사 경로·제품 경계 평가는 `rider-reference-stimulus-manifest.json`과 평가 계약을 항상 포함한다. 실제 독립 검토가 완료된 경우에만 익명 집계 `rider-reference-comprehension-summary.json`을 추가하며, 원응답이나 연락처는 제출 패키지에 넣지 않는다. 요약이 없으면 사람 평가를 `NOT_RUN`으로 명시하고 자동 Gate 통과로 대체하지 않는다.
+기사 경로·제품 경계 평가는 최신 `rider-reference-round2-stimulus-manifest.json`과 평가 계약을 항상 포함하고 Round 1 실패 summary도 이력으로 보존한다. 실제 독립 Round 2가 완료된 경우에만 익명 집계 `rider-reference-comprehension-round2-summary.json`을 최종 사람 Gate 후보로 포함하며, 원응답이나 연락처는 제출 패키지에 넣지 않는다. 요약이 없으면 사람 평가를 대기 상태로 명시하고 자동 Gate 통과로 대체하지 않는다.
 
-G5-B 공간 이해도는 Round 1 실패 원본·요약을 보존하고, 독립 Round 2가 완료되면 `g5-spatial-comprehension-round2-results.json`과 strict 집계 summary를 함께 포함한다. 최종 readiness는 유효한 Round 2를 우선하되 어느 round를 사용했는지 명시한다.
+G5-B 공간 이해도는 Round 1·2 실패 원본과 요약을 보존하고, 독립 Round 3가 완료되면 `g5-spatial-comprehension-round3-results.json`과 strict 집계 summary를 함께 포함한다. 최종 readiness는 유효한 최신 round를 우선하되 어느 round를 사용했는지 명시한다.
 
 ## 4. 명시적 제외
 

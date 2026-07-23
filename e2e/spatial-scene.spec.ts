@@ -36,7 +36,7 @@ async function alignDecisionPanel(page: import("@playwright/test").Page) {
   });
 }
 
-test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극을 고정한다", async ({ browser, page }) => {
+test("G5-B Round 3는 순서·양측 영향을 명시한 같은 decision의 2D와 보조 2.5D 자극을 고정한다", async ({ browser, page }) => {
   await page.setViewportSize(viewport);
   await page.goto("/");
   await selectPrimaryDecision(page);
@@ -44,11 +44,11 @@ test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극�
   const screenshotDirectory = resolve("artifacts/evals/screenshots");
   const twoDPath = resolve(
     screenshotDirectory,
-    "g5-round2-admin-decision-2d-1280x720.png",
+    "g5-round3-admin-decision-2d-1280x720.png",
   );
   const twoPointFiveDPath = resolve(
     screenshotDirectory,
-    "g5-round2-admin-decision-2-5d-1280x720.png",
+    "g5-round3-admin-decision-2-5d-1280x720.png",
   );
   await mkdir(screenshotDirectory, { recursive: true });
   await alignDecisionPanel(page);
@@ -57,8 +57,11 @@ test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극�
   await expect(page.getByRole("heading", { name: "지금 필요한 결정" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "원 기사에게 10분 휴식과 배송 8건 이관을 진행할까요?" })).toBeVisible();
   await expect(page.getByRole("list", { name: "현재부터 지원 완료까지의 순서" })).toBeVisible();
-  await expect(page.getByText("배송 17 → 9건")).toBeVisible();
-  await expect(page.getByText("배송 +8건")).toBeVisible();
+  await expect(page.getByText("10분 휴식이 예상 초과보다 먼저입니다.")).toBeVisible();
+  await expect(page.getByText(/배송 17 → 9건/)).toBeVisible();
+  await expect(page.getByText(/배송 \+8건/)).toBeVisible();
+  await expect(page.getByText("8건 줄고 안전여유가 회복됩니다")).toBeVisible();
+  await expect(page.getByText("8건 추가 후에도 안전기준을 통과합니다")).toBeVisible();
 
   const toggle = page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" });
   const firstDisplayStartedAt = Date.now();
@@ -81,24 +84,26 @@ test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극�
   await expect(scene.getByText("52분 후 · 17번째 배송지 전", { exact: true })).toBeVisible();
   await expect(scene.getByText("29.9", { exact: true })).toBeVisible();
   await expect(scene.getByText("47.2", { exact: true })).toBeVisible();
+  await expect(scene.getByText("8건 감소 · 안전여유 회복", { exact: true })).toBeVisible();
+  await expect(scene.getByText("8건 추가 · 기준 45 통과", { exact: true })).toBeVisible();
   await expect(scene.getByText(`Decision ID · ${decisionId}`)).toBeVisible();
   await alignDecisionPanel(page);
   await page.screenshot({ path: twoPointFiveDPath, animations: "disabled" });
   const stimulusManifest = {
-    schemaVersion: "g5-spatial-stimulus-manifest-v2",
-    studyId: "g5-b-decision-spatial-comprehension-round2-001",
+    schemaVersion: "g5-spatial-stimulus-manifest-v3",
+    studyId: "g5-b-decision-spatial-comprehension-round3-001",
     dataMode: "DEMO",
     viewport,
     decisionId,
     stimuli: [
       {
         mode: "TWO_D",
-        path: "artifacts/evals/screenshots/g5-round2-admin-decision-2d-1280x720.png",
+        path: "artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png",
         sha256: await sha256(twoDPath),
       },
       {
         mode: "DEMO_TWO_POINT_FIVE_D",
-        path: "artifacts/evals/screenshots/g5-round2-admin-decision-2-5d-1280x720.png",
+        path: "artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png",
         sha256: await sha256(twoPointFiveDPath),
       },
     ],
@@ -108,7 +113,7 @@ test("G5-B Round 2는 단순화한 같은 decision의 2D와 보조 2.5D 자극�
     ],
   };
   await writeFile(
-    resolve("artifacts/evals/g5-spatial-round2-stimulus-manifest.json"),
+    resolve("artifacts/evals/g5-spatial-round3-stimulus-manifest.json"),
     `${JSON.stringify(stimulusManifest, null, 2)}\n`,
     "utf8",
   );

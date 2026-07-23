@@ -4,6 +4,10 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 
 계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE Live 12과업도 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 245/245이다. 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 1의 `DO_NOT_PROMOTE` 결과에 따라 관리자 decision 면을 질문·순서·양측 영향 중심으로 단순화했고, 기존 증거를 보존한 Round 2 고정 화면과 익명 평가 도구를 준비했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했고, 기사 화면의 경로·제품 경계 이해를 확인하는 5인 익명 평가 도구를 추가했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 남은 작업은 실제 독립 검토자 3명의 G5-B Round 2와 5명의 기사 제품 경계 이해 확인, 발표 PC·역할·제출물의 운영 점검과 A.X API 인증 해소 시 기존 12과업 계약의 선택적 비교입니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
+2026-07-23 사람 Gate 최신 상태는 G5-B Round 2 `DO_NOT_PROMOTE`와 기사 제품 경계 Round 1 `NEEDS_REVISION`이다. 실패 원본을 보존한 채 경로 우선순위·양측 영향 결론을 명시한 G5-B Round 3와 Demo/GPS·제품 역할·기사 동의→관리자 승인 규칙을 명시한 기사 Round 2 자극을 준비했다. 남은 최종 GOAL 증거는 각각 독립 3인·5인의 새 평가다.
+
+최신 단위·계약 검증은 Vitest 29개 파일·246/246이다.
+
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
 - 출처·Demo 상태와 개인정보 경계
@@ -37,7 +41,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
-- Vitest 29개 파일·245/245 통과
+- Vitest 29개 파일·246/246 통과
 - G5-B 사람 이해도 Round 1은 3명·6 trial 중 핵심 의미 전체 정답 2/6, 경사 구간 0/6, 혼란 증가 2/3으로 `DO_NOT_PROMOTE`; 2.5D 기본 승격 금지와 관리자 decision 정보위계 재설계 필요
 
 ## 실행
@@ -94,7 +98,7 @@ pnpm run eval:kma-weather:runtime
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
-`audit:goal`은 여섯 심사기준과 G5-B Round 2·기사 제품 경계 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
+`audit:goal`은 여섯 심사기준과 G5-B Round 3·기사 제품 경계 Round 2 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
 
 ## 핵심 문서
 

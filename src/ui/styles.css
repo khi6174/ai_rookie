@@ -4024,6 +4024,25 @@ summary {
   line-height: 1.35;
 }
 
+.decision-sequence-verdict {
+  display: flex;
+  gap: 7px;
+  align-items: center;
+  margin: 10px 0 0;
+  padding: 8px 10px;
+  border: 1px solid var(--color-blue-200);
+  border-radius: 10px;
+  color: var(--color-blue-900);
+  background: var(--color-blue-100);
+  font-size: 0.62rem;
+  line-height: 1.4;
+}
+
+.decision-sequence-verdict strong {
+  flex: 0 0 auto;
+  color: var(--color-blue-800);
+}
+
 .decision-impact {
   display: grid;
   gap: 9px;
@@ -4711,11 +4730,18 @@ summary {
 }
 
 .spatial-profile figcaption {
+  display: grid;
+  gap: 3px;
   padding: 10px 14px 12px;
   border-top: 1px solid var(--color-border);
   color: var(--color-text-muted);
   font-size: 0.58rem;
   line-height: 1.5;
+}
+
+.spatial-profile figcaption strong {
+  color: var(--color-blue-900);
+  font-size: 0.65rem;
 }
 
 .spatial-facts {
@@ -4761,6 +4787,15 @@ summary {
   border: 1px solid #d8e0fa;
   border-radius: 9px;
   background: #fbfcff;
+}
+
+.spatial-facts dl > div.spatial-impact-fact {
+  border-color: var(--color-blue-200);
+  background: var(--color-blue-100);
+}
+
+.spatial-impact-fact dd {
+  font-size: 0.64rem;
 }
 
 .spatial-facts dt {
@@ -5069,6 +5104,7 @@ summary {
   .rider-plan-steps > div::before {
     top: 7px;
   }
+
 }
 
 @media (max-width: 370px) {

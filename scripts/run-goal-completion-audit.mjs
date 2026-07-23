@@ -103,16 +103,23 @@ const evidence = {
   ),
 };
 
+const g5Round3 = await readOptionalEvidence(
+  "artifacts/evals/g5-spatial-comprehension-round3-summary.json",
+);
 const g5Round2 = await readOptionalEvidence(
   "artifacts/evals/g5-spatial-comprehension-round2-summary.json",
 );
 const g5Round1 = await readOptionalEvidence(
   "artifacts/evals/g5-spatial-comprehension-summary.json",
 );
-const g5 = g5Round2 ?? g5Round1;
-const rider = await readOptionalEvidence(
+const g5 = g5Round3 ?? g5Round2 ?? g5Round1;
+const riderRound2 = await readOptionalEvidence(
+  "artifacts/evals/rider-reference-comprehension-round2-summary.json",
+);
+const riderRound1 = await readOptionalEvidence(
   "artifacts/evals/rider-reference-comprehension-summary.json",
 );
+const rider = riderRound2 ?? riderRound1;
 const vite = await createServer({
   server: { middlewareMode: true },
   appType: "custom",
@@ -126,8 +133,8 @@ try {
   evaluateGoalCompletionStatus =
     goalCompletionModule.evaluateGoalCompletionStatus;
   humanEvidence = goalCompletionModule.evaluateHumanGoalEvidence({
-    ...(g5Round2 ? { g5Round2: g5Round2.json } : {}),
-    ...(rider ? { riderReference: rider.json } : {}),
+    ...(g5Round3 ? { g5Round3: g5Round3.json } : {}),
+    ...(riderRound2 ? { riderRound2: riderRound2.json } : {}),
   });
 } finally {
   await vite.close();
@@ -159,7 +166,7 @@ const mapPerformance = evidence.mapPerformance.json;
 const upstageDocuments = evidence.upstageDocuments.json;
 const provenance = evidence.provenance.json;
 
-const g5Round2Passed = humanEvidence.g5Passed;
+const g5Round3Passed = humanEvidence.g5Passed;
 const riderPassed = humanEvidence.riderPassed;
 
 const criteria = [
@@ -287,20 +294,20 @@ const criteria = [
         `risk=${final.summary?.riskTransferBoundaries}, workflow=${final.summary?.decisionWorkflowBoundaries}`,
       ),
       check(
-        "HUMAN_G5_ROUND2_COMPREHENSION",
-        g5Round2Passed,
-        g5Round2?.path ?? "MISSING:g5-spatial-comprehension-round2-summary.json",
-        g5Round2
-          ? `status=${g5Round2.json.status}, reviewers=${g5Round2.json.reviewerCount}, comprehensionPassed=${g5Round2.json.comprehensionPassed}`
-          : `Round 1 remains ${g5Round1?.json.status ?? "NOT_RUN"}; independent Round 2 is required.`,
+        "HUMAN_G5_ROUND3_COMPREHENSION",
+        g5Round3Passed,
+        g5Round3?.path ?? "MISSING:g5-spatial-comprehension-round3-summary.json",
+        g5Round3
+          ? `status=${g5Round3.json.status}, reviewers=${g5Round3.json.reviewerCount}, comprehensionPassed=${g5Round3.json.comprehensionPassed}`
+          : `Round 2 remains ${g5Round2?.json.status ?? "NOT_RUN"}; independent Round 3 is required after the comprehension redesign.`,
       ),
       check(
         "HUMAN_RIDER_PRODUCT_BOUNDARY",
         riderPassed,
-        rider?.path ?? "MISSING:rider-reference-comprehension-summary.json",
-        rider
-          ? `status=${rider.json.status}, reviewers=${rider.json.reviewerCount}, misconceptions=${rider.json.criticalMisconceptionCount}`
-          : "Five-person independent rider route and product-boundary review is required.",
+        riderRound2?.path ?? "MISSING:rider-reference-comprehension-round2-summary.json",
+        riderRound2
+          ? `status=${riderRound2.json.status}, reviewers=${riderRound2.json.reviewerCount}, misconceptions=${riderRound2.json.criticalMisconceptionCount}`
+          : `Round 1 remains ${riderRound1?.json.status ?? "NOT_RUN"}; five-person independent Round 2 is required after the product-boundary redesign.`,
       ),
     ],
     true,
@@ -354,8 +361,7 @@ const status = evaluateGoalCompletionStatus(
 
 const allEvidence = [
   ...Object.values(evidence),
-  ...(g5 ? [g5] : []),
-  ...(rider ? [rider] : []),
+  ...[g5Round1, g5Round2, g5Round3, riderRound1, riderRound2].filter(Boolean),
 ];
 const result = {
   schemaVersion: "saferoute-goal-completion-audit-v1",
@@ -372,8 +378,19 @@ const result = {
     failedCriterionCount: failedCriteria.length,
     technicalFinalReadiness: final.status,
     domesticTrackStatus: domesticTrack.status,
-    g5EvidenceRound: g5Round2 ? "ROUND_2" : g5Round1 ? "ROUND_1" : "NOT_RUN",
+    g5EvidenceRound: g5Round3
+      ? "ROUND_3"
+      : g5Round2
+        ? "ROUND_2"
+        : g5Round1
+          ? "ROUND_1"
+          : "NOT_RUN",
     g5Status: g5?.json.status ?? "NOT_RUN",
+    riderEvidenceRound: riderRound2
+      ? "ROUND_2"
+      : riderRound1
+        ? "ROUND_1"
+        : "NOT_RUN",
     riderStatus: rider?.json.status ?? "NOT_RUN",
   },
   requiredNextEvidence: humanEvidence.requiredNextEvidence,

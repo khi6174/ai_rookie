@@ -4,9 +4,9 @@
 
 - 상태: Approved — G5-B 실행 절차
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-23
 - 상위 기준: `docs/g5-spatial-visualization-design.md` 7.2
-- 현재 결과: Round 1 `DO_NOT_PROMOTE` — decision 화면 정보위계 재설계·재검토 필요
+- 현재 결과: Round 2 `DO_NOT_PROMOTE` — 순서·양측 영향 명시 후 Round 3 재검토 필요
 
 ## 1. 목적
 
@@ -63,14 +63,14 @@
 pnpm run review:g5
 ```
 
-브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 현재 도구는 Round 2 고정 화면을 사용하며 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-round2-results.json`에 복사한다. Round 1 원본은 `g5-spatial-comprehension-results.json`에서 변경하지 않는다.
+브라우저에서 `http://127.0.0.1:4174/tools/g5-spatial-review/`을 연다. 한 기기에서 익명 검토자 3명이 차례로 동의하고 두 화면에 답하면 순서 균형·완료시간·JSON 구조가 자동 기록된다. 현재 도구는 Round 3 고정 화면을 사용하며 마지막의 `결과 JSON 다운로드`로 받은 파일을 `artifacts/evals/g5-spatial-comprehension-round3-results.json`에 복사한다. Round 1·2 원본은 변경하지 않는다.
 
 이 로컬 도구는 응답을 서버나 외부 서비스로 보내지 않고 새로고침 전 브라우저 메모리에만 둔다. 앞 사람의 응답을 다음 사람에게 보여주지 않으며 정답도 표시하지 않는다.
 
 ## 6. 자동 판정
 
 ```powershell
-pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round2-results.json
+pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round3-results.json
 ```
 
 - 입력 스키마, 익명 ID, 두 화면 완주와 순서 균형이 맞지 않으면 평가를 거부한다.
@@ -105,14 +105,14 @@ pnpm run eval:g5:comprehension -- artifacts/evals/g5-spatial-comprehension-round
 
 따라서 Demo 2.5D는 기본 기능으로 승격하지 않는다. 현재 기술 Gate 통과와 사람 이해도 실패를 구분하며, 다음 반복은 3D 표현을 늘리는 작업이 아니라 관리자 첫 결정면의 질문·조치·근거 순서를 단순화하는 정보위계 재설계부터 시작한다. 재설계 전 Round 1 결과를 삭제하거나 PASS로 덮어쓰지 않는다.
 
-## 9. Round 2 재설계와 실행 상태
+## 9. Round 2 실행 결과
 
-- 상태: 화면·평가 도구 준비 완료, 독립 검토 응답 대기
+- 상태: `DO_NOT_PROMOTE`
 - 자극 manifest: `artifacts/evals/g5-spatial-round2-stimulus-manifest.json`
 - 2D 화면: `artifacts/evals/screenshots/g5-round2-admin-decision-2d-1280x720.png`
 - 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round2-admin-decision-2-5d-1280x720.png`
-- 예정 결과: `artifacts/evals/g5-spatial-comprehension-round2-results.json`
-- 예정 요약: `artifacts/evals/g5-spatial-comprehension-round2-summary.json`
+- 결과: `artifacts/evals/g5-spatial-comprehension-round2-results.json`
+- 요약: `artifacts/evals/g5-spatial-comprehension-round2-summary.json`
 
 Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 정보위계만 수정했다.
 
@@ -121,6 +121,25 @@ Round 2에서는 Safety 계산과 답의 정답표를 바꾸지 않고 다음 �
 3. 원 기사는 배송 17→9건·안전여유 29.9→47.2, 수신 기사는 배송 +8건·안전여유 52.5→45.0과 기준 45 통과를 나란히 표시한다.
 4. 12건 이관 차단 이유를 짧게 제공하고 2.5D를 보조 근거로 낮춘다.
 
-Round 2 결과가 없으므로 현재 공식 판정은 여전히 Round 1의 `DO_NOT_PROMOTE`다. 기술 회귀 통과만으로 사람 이해도 개선을 주장하지 않는다.
+| 항목 | 결과 |
+|---|---:|
+| 검토자·trial | 3명·6개 |
+| 핵심 의미 전체 정답 | 0/6 |
+| 경사 구간 정답 | 2D 3/3, 2.5D 2/3 |
+| 2.5D 혼란 증가 | 0/3 |
+| 2.5D 명료 선호 | 1/3 |
+| 중앙 완료시간 | 2D 1,302,850ms, 2.5D 43,940ms |
+| 판정 | `DO_NOT_PROMOTE` |
 
-Round 2 요약이 strict validator를 통과해 보존되면 최종 readiness는 이를 우선 읽고 `g5HumanEvidenceRound=ROUND_2`로 기록한다. Round 1 원본과 실패 요약은 삭제하지 않으며, Round 2가 없거나 잘못된 경우에는 기존 판정을 조용히 덮어쓰지 않는다.
+2.5D의 52분·17번째·10분·8건 수치는 대체로 읽혔고 경사 구간 인지도도 개선됐지만, 경로 우선순위는 모든 참여자가 적어도 한 화면에서 `UNKNOWN`으로 답했고 일부 참여자는 원·수신 기사 영향도 찾지 못했다. strict trial은 모든 핵심 의미를 함께 맞혀야 하므로 0/6이다.
+
+## 10. Round 3 재설계와 실행 상태
+
+- 상태: 화면·manifest·평가 도구 준비 완료, 독립 3인 응답 대기
+- 자극 manifest: `artifacts/evals/g5-spatial-round3-stimulus-manifest.json`
+- 2D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2d-1280x720.png`
+- 보조 2.5D 화면: `artifacts/evals/screenshots/g5-round3-admin-decision-2-5d-1280x720.png`
+- 예정 결과: `artifacts/evals/g5-spatial-comprehension-round3-results.json`
+- 예정 요약: `artifacts/evals/g5-spatial-comprehension-round3-summary.json`
+
+정답표와 Safety 계산은 유지한다. 지원 진행선 아래에 `10분 휴식이 예상 초과보다 먼저`라는 결론을 표시하고, 원 기사는 `8건 감소·안전여유 회복`, 수신 기사는 `8건 추가 후에도 기준 통과`라고 각각 결과부터 읽히게 했다. 2.5D에도 같은 순서와 양측 의미를 텍스트 대안으로 제공한다. Round 1·2 실패 원본과 요약은 삭제하거나 새 결과로 덮어쓰지 않는다.

@@ -3,10 +3,10 @@ import { readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const imagePath = resolve(
-  "artifacts/evals/screenshots/rider-source-route-390x844.png",
+  "artifacts/evals/screenshots/rider-source-route-round2-390x844.png",
 );
 const outputPath = resolve(
-  "artifacts/evals/rider-reference-stimulus-manifest.json",
+  "artifacts/evals/rider-reference-round2-stimulus-manifest.json",
 );
 const image = await readFile(imagePath);
 
@@ -21,11 +21,11 @@ if (width !== 390 || height !== 844) {
 }
 
 const manifest = {
-  schemaVersion: "rider-reference-stimulus-manifest-v1",
-  studyId: "rider-route-product-boundary-001",
+  schemaVersion: "rider-reference-stimulus-manifest-v2",
+  studyId: "rider-route-product-boundary-round2-001",
   dataMode: "DEMO",
   stimulus: {
-    path: "artifacts/evals/screenshots/rider-source-route-390x844.png",
+    path: "artifacts/evals/screenshots/rider-source-route-round2-390x844.png",
     width,
     height,
     sha256: createHash("sha256").update(image).digest("hex"),

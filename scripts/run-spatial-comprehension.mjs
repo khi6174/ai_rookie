@@ -20,9 +20,11 @@ try {
   const input = JSON.parse(await readFile(inputPath, "utf8"));
   const result = evaluateSpatialComprehension(input);
   const outputPath = resolve(
-    input.schemaVersion === "g5-spatial-comprehension-v2"
-      ? "artifacts/evals/g5-spatial-comprehension-round2-summary.json"
-      : "artifacts/evals/g5-spatial-comprehension-summary.json",
+    input.schemaVersion === "g5-spatial-comprehension-v3"
+      ? "artifacts/evals/g5-spatial-comprehension-round3-summary.json"
+      : input.schemaVersion === "g5-spatial-comprehension-v2"
+        ? "artifacts/evals/g5-spatial-comprehension-round2-summary.json"
+        : "artifacts/evals/g5-spatial-comprehension-summary.json",
   );
   await writeFile(outputPath, `${JSON.stringify(result, null, 2)}\n`, "utf8");
   console.log(

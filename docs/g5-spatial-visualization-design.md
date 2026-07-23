@@ -4,8 +4,8 @@
 
 - 상태: Approved — G5-A 공급자 독립 Demo 2.5D 구현 기준
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
-- 설계 버전: `g5-spatial-design-v1.1.0`
+- 최종 갱신: 2026-07-23
+- 설계 버전: `g5-spatial-design-v1.2.0`
 - 상위 문서: `AGENTS.md`, `docs/design-system.md`, `docs/geospatial-pwa-implementation-plan.md`, `docs/architecture.md`, `docs/evals.md`
 - 승인 범위: 관리자 활성 decision의 선택형 SVG 2.5D, 기본 2D·기사 PWA 유지
 
@@ -212,6 +212,17 @@ Round 1은 기술 성능과 무관하게 사람 이해에서 실패했다. 이�
 - Round 1 자극·결과를 수정하지 않고 Round 2 manifest·캡처·결과를 별도 보존한다.
 
 Round 2 독립 검토 전에는 이해도 개선, 2.5D 승격 또는 G5-B PASS를 주장하지 않는다.
+
+### 9.2 Round 2 결과와 Round 3 정보위계
+
+Round 2 독립 3인 평가도 `DO_NOT_PROMOTE`였다. 숫자와 경사 구간 인지는 개선됐지만 경로에서 휴식과 예상 초과 중 무엇이 먼저인지, 원 기사와 수신 기사에게 어떤 안전 의미가 생기는지가 일부 응답에서 `UNKNOWN`으로 남았다.
+
+Round 3은 계산·정답표·2D 기본값을 유지하면서 다음만 고정한다.
+
+- 진행선 바로 아래에 `10분 휴식이 예상 초과보다 먼저입니다`를 결론으로 표시한다.
+- 원 기사는 `8건 감소·안전여유 회복`, 수신 기사는 `8건 추가 후에도 기준 45 통과`를 결과부터 표시한다.
+- 2.5D에도 같은 순서·양측 의미의 구조화 텍스트 대안을 제공한다.
+- Round 1·2 자극과 결과를 수정하지 않고 Round 3 manifest·캡처·결과를 별도 보존한다.
 
 ## 10. 승인되어 구현된 항목
 
