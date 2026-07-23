@@ -57,6 +57,14 @@ await copyFile(
 await cp(resolve(root, "dist/assets"), resolve(clientDirectory, "assets"), {
   recursive: true,
 });
+await copyFile(
+  resolve(root, "dist/manifest.webmanifest"),
+  resolve(clientDirectory, "manifest.webmanifest"),
+);
+await copyFile(resolve(root, "dist/sw.js"), resolve(clientDirectory, "sw.js"));
+await cp(resolve(root, "dist/icons"), resolve(clientDirectory, "icons"), {
+  recursive: true,
+});
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");

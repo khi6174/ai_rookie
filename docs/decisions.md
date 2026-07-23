@@ -555,6 +555,15 @@
 - 기각한 대안: strict 기준 완화, 기존 결과를 수동 PASS로 변경, 2.5D를 기본값으로 전환, 설명 카드 추가로 모바일 첫 행동을 하단 탭 아래로 밀기, 이전 자극·응답 덮어쓰기.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `src/evals`, `tools`, `scripts`, `e2e`, `tests`, `docs/design-system.md`, `docs/evals.md`, `docs/g5-spatial-comprehension-test.md`, `docs/rider-reference-comprehension-test.md`, `docs/goal-completion-audit.md`, `artifacts/evals`
 
+### ADR-057 — Sites 배포물은 PWA app shell 정적 자산을 독립 Gate로 검증한다
+
+- 날짜: 2026-07-23
+- 상태: Approved
+- 결정: Sites용 `dist/client`에는 Vite의 HTML·번들뿐 아니라 `sw.js`, `manifest.webmanifest`, 192·512 아이콘을 함께 패키징한다. 최종 readiness는 네 파일의 존재와 최소 계약을 직접 검증하며 하나라도 없으면 `PUBLIC_DEMO_BUILD`를 실패시킨다.
+- 이유: 로컬 Vite 빌드는 PWA 자산을 만들었지만 Sites용 client 디렉터리에 복사하지 않아 공개 `/sw.js`가 SPA fallback HTML로 응답했고, 브라우저가 MIME 오류로 service worker 등록을 거부했다. 로컬 소스 검사만으로는 공개 app shell 재현성을 증명할 수 없다.
+- 기각한 대안: 공개 환경에서 service worker 경고를 무시, SPA fallback의 MIME을 완화, PWA 등록 코드를 제거, 수동 배포 확인만 하고 자동 Gate를 추가하지 않는 방식.
+- 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `artifacts/evals`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

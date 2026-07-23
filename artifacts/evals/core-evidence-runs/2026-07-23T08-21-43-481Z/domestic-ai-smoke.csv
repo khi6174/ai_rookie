@@ -1,0 +1,5 @@
+providerId,providerMode,protocol,model,promptVersion,taskCount,passedCount,fallbackCount,unsafeDisplayCount,firstAttemptPassRate,evidenceArtifact
+AX,MOCK,MOCK,ax-mock-contract-v1,explanation-ko-v1.1.0,12,12,0,0,1,domestic-ai-api-smoke-mock-latest.json
+EXAONE,MOCK,MOCK,exaone-mock-contract-v1,explanation-ko-v1.1.0,12,12,0,0,1,domestic-ai-api-smoke-mock-latest.json
+EXAONE,LIVE,OPENAI_CHAT_COMPLETIONS,LGAI-EXAONE/K-EXAONE-236B-A23B,explanation-ko-v1.1.0,12,12,0,0,1,domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/domestic-ai-api-smoke-latest.json
+AX,LIVE,OPENAI_CHAT_COMPLETIONS,A.X-K1,explanation-ko-v1.1.0,1,0,1,0,0,domestic-ai-api-smoke-latest.json

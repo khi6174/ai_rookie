@@ -1,6 +1,6 @@
 import { createHash } from "node:crypto";
 import { spawnSync } from "node:child_process";
-import { mkdir, readFile, writeFile } from "node:fs/promises";
+import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(".");
@@ -209,6 +209,7 @@ try {
 let publicDemoBuild = {
   configured: false,
   workerPresent: false,
+  staticShellPackaged: false,
   packagedMetadataMatches: false,
 };
 try {
@@ -228,6 +229,22 @@ try {
     resolve(root, "dist/client/index.html"),
     "utf8",
   );
+  const publicManifest = JSON.parse(
+    await readFile(
+      resolve(root, "dist/client/manifest.webmanifest"),
+      "utf8",
+    ),
+  );
+  const publicServiceWorker = await readFile(
+    resolve(root, "dist/client/sw.js"),
+    "utf8",
+  );
+  const publicIcon192 = await stat(
+    resolve(root, "dist/client/icons/saferoute-192.png"),
+  );
+  const publicIcon512 = await stat(
+    resolve(root, "dist/client/icons/saferoute-512.png"),
+  );
   const hostingConfig = JSON.parse(hostingConfigText);
   publicDemoBuild = {
     configured:
@@ -237,6 +254,11 @@ try {
       workerSource.includes("env.ASSETS.fetch") &&
       workerSource.includes("/index.html") &&
       publicIndex.includes('<div id="root"></div>'),
+    staticShellPackaged:
+      publicManifest.display === "standalone" &&
+      publicServiceWorker.includes('SHELL_VERSION = "saferoute-shell-v1.0.4"') &&
+      publicIcon192.size > 1_000 &&
+      publicIcon512.size > 2_000,
     packagedMetadataMatches:
       hostingConfigText.trim() === packagedHostingConfigText.trim(),
   };
@@ -244,6 +266,7 @@ try {
   publicDemoBuild = {
     configured: false,
     workerPresent: false,
+    staticShellPackaged: false,
     packagedMetadataMatches: false,
   };
 }
@@ -376,8 +399,9 @@ const evidenceChecks = [
     "PUBLIC_DEMO_BUILD",
     publicDemoBuild.configured &&
       publicDemoBuild.workerPresent &&
+      publicDemoBuild.staticShellPackaged &&
       publicDemoBuild.packagedMetadataMatches,
-    `configured=${publicDemoBuild.configured}, worker=${publicDemoBuild.workerPresent}, metadata=${publicDemoBuild.packagedMetadataMatches}`,
+    `configured=${publicDemoBuild.configured}, worker=${publicDemoBuild.workerPresent}, shell=${publicDemoBuild.staticShellPackaged}, metadata=${publicDemoBuild.packagedMetadataMatches}`,
   ),
 ];
 
@@ -410,6 +434,7 @@ const result = {
     publicDemoBuildReady:
       publicDemoBuild.configured &&
       publicDemoBuild.workerPresent &&
+      publicDemoBuild.staticShellPackaged &&
       publicDemoBuild.packagedMetadataMatches,
     mapPerformanceProfiles: mapPerformance.profiles.length,
     maxEvaluatedMapCouriers: mapPerformance.budget.maxTotalCouriers,
