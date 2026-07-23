@@ -595,11 +595,11 @@
 
 - 날짜: 2026-07-24
 - 상태: Approved
-- 결정: `/tools/g5-spatial-review/`, `/tools/rider-reference-review/`와 이들이 사용하는 G5·기사 고정 화면 경로는 service worker의 cache-first 대상에서 제외하고 `no-store` 네트워크 응답만 사용한다. shell cache 버전을 올려 기존 브라우저의 오래된 정적 평가 스크립트를 폐기한다. 네트워크가 없으면 과거 round를 대신 표시하지 않고 평가를 중단한다.
+- 결정: `/tools/g5-spatial-review/`, `/tools/rider-reference-review/`와 이들이 사용하는 G5·기사 고정 화면 경로는 service worker의 cache-first 대상에서 제외하고 `no-store` 네트워크 응답만 사용한다. shell cache 버전을 올려 기존 브라우저의 오래된 정적 평가 스크립트를 폐기하고, G5 Round 4의 script·style URL에는 study 버전을 붙여 이전 worker가 제어하는 첫 방문도 오래된 캐시 키와 분리한다. 네트워크가 없으면 과거 round를 대신 표시하지 않고 평가를 중단한다.
 - 이유: Round 4 공개 경로에서 내려받은 파일이 실제로는 Round 3 schema·study를 가진 사례가 확인됐다. 같은 URL의 `app.js`를 고정 shell cache가 먼저 반환하면 새 round의 독립 사람 평가가 이전 자극으로 오염될 수 있고, 기술 Gate가 이를 배포 후 사용자 브라우저 상태에서 발견하지 못한다.
 - 기각한 대안: 파일명만 Round 4로 변경, 이전 Round 3 응답을 Round 4로 재분류, 평가 도구를 cache-first에 둔 채 사용자에게 수동 캐시 삭제만 요구, 네트워크 실패 시 이전 자극으로 계속 진행.
 - 경계: 제품 app shell과 만료 가능한 승인 Demo 계획 캐시는 유지한다. 평가 응답은 계속 브라우저 메모리에만 두고 외부 전송·지속 저장을 추가하지 않는다. 이전 Round 3 추가 응답을 Round 4로 이름 변경하거나 통과 증거로 사용하지 않는다.
-- 영향 파일: `public/sw.js`, `tests/pwa-assets.test.ts`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `docs/g5-spatial-comprehension-test.md`
+- 영향 파일: `public/sw.js`, `tools/g5-spatial-review/index.html`, `tests/pwa-assets.test.ts`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `docs/g5-spatial-comprehension-test.md`
 
 ## 4. 심사기준 연결
 

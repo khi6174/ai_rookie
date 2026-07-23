@@ -320,6 +320,9 @@ try {
     publicReviewKitPackaged:
       publicG5ReviewIndex.includes("SafeRoute G5-B · Round 4") &&
       publicG5ReviewIndex.includes('name="robots" content="noindex,nofollow"') &&
+      publicG5ReviewIndex.includes(
+        'src="./app.js?study=g5-round4-001"',
+      ) &&
       publicG5ReviewApp.includes(
         'studyId: "g5-b-decision-spatial-comprehension-round4-001"',
       ) &&

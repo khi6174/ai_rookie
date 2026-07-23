@@ -30,8 +30,17 @@ test("G5-B Round 4 로컬 평가 화면은 3명의 동의·순서 균형·익명
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 900 });
+  const reviewScriptRequests: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/tools/g5-spatial-review/app.js")) {
+      reviewScriptRequests.push(request.url());
+    }
+  });
   await page.goto("/tools/g5-spatial-review/");
   await expect(page.getByRole("heading", { name: /두 화면을 보고/ })).toBeVisible();
+  expect(reviewScriptRequests).toEqual([
+    expect.stringContaining("app.js?study=g5-round4-001"),
+  ]);
   await page.screenshot({
     path: "artifacts/evals/screenshots/g5-review-facilitator-intro-1280x900.png",
     animations: "disabled",
