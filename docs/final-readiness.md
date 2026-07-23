@@ -88,7 +88,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - 가능하면 `pnpm run verify:final`로 빌드·E2E·clean-start·핵심 평가·국내트랙 감사를 한 번에 재검증한다.
 - 1280×720, 브라우저 확대 100%, 알림과 자동 업데이트를 끈다.
 - `Demo 초기화` 후 새 decision ID와 `Demo fixture · Weather Fallback`을 확인한다.
-- 원 기사와 수신 기사 역할 전환 후 각각 `안전지원` 탭에서 동의를 기록한다.
+- 지원받는 기사와 배송을 나눠 맡는 기사 역할 전환 후 각각 `안전지원` 탭에서 동의를 기록한다.
 - 관리자 승인 후 계획·안내 갱신 완료와 Audit Timeline을 확인한다.
 - 네트워크 장애 시 Live 복구를 시도하며 시간을 쓰지 않고 표시된 Fallback으로 계속 진행한다.
 - 발표자는 `사고확률`, `실제 사고감소`, `학습된 기사 개인 모델`, `실시간 관제 완료`라고 표현하지 않는다.
@@ -101,7 +101,7 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - `pnpm run eval:domestic-track:audit` 통과와 활용명세·제출 제외 항목 확인
 - `artifacts/evals/final-readiness-latest.json`의 `PASSED`와 사람 확인 항목 기록
 - `pnpm run package:submission`으로 allowlist ZIP과 SHA-256 manifest 생성
-- 기사 경로·제품 경계 익명 검토자 5명 응답과 기계 판정을 완료하거나, 미완료 상태를 제출물에 명시
+- 기사 경로·제품 경계 Round 2는 익명 검토자 5명·30/30·중대 오인 0건으로 완료했으며, 결과와 strict summary를 제출 증거에 포함
 - 공개 URL에서도 `Demo fixture`, `Fallback map`과 비운영 한계 표시 확인
 - A.X Hosted API 12과업 Live 성공 증거는 선택적 국내 AI 비교로만 사용하고 데모 폐루프·Safety 판정에는 의존시키지 않기
 - 사용자 평가를 수행할 경우 실제 기사 데이터 없이 참여·녹화 동의를 분리하기
@@ -131,5 +131,4 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - A.X 계정별 quota·입력 보존 정책과 반복 실행 분산
 - Upstage 합성 문서 왕복 60쌍 기반과 유료 Parse·Extract Live 실행 승인
 - 실제 운영 파일럿을 위한 데이터 계약·권한·보존·법률·노무 검토
-- 사용자 평가 모집과 역할별 이해도 결과
-- G5-B Round 1 `DO_NOT_PROMOTE`에 따른 관리자 decision 정보위계 재설계와 독립 검토 재실행
+- G5-B Round 4 독립 검토자 3명 결과

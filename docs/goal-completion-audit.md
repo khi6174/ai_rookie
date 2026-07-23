@@ -86,5 +86,4 @@ pnpm run package:submission -- --allow-dirty --diagnostic
 ## 8. 미결사항
 
 - G5-B Round 4 독립 검토자 3명 결과
-- 기사 경로·제품 경계 Round 2 독립 검토자 5명 결과
 - 발표 PC, 제출 폼·파일명·마감의 사람 확인
