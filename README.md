@@ -2,11 +2,15 @@
 
 SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전 가능영역을 검증하고, 같은 결정 근거와 기사 동의·관리자 승인 아래 계획을 갱신하는 라스트마일 안전운영 코파일럿입니다.
 
-계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 247/247이다. 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 3 독립 3인도 전체 정답 0/6으로 `DO_NOT_PROMOTE`였으므로 실패 원본을 보존하고, `52분·17번째·10분·8건`과 두 기사 역할을 풀어 쓴 Round 4 자극을 준비한다. 기사 제품 경계 Round 2는 독립 5인 30/30, 중대 오인 0건으로 `READY_TO_PROMOTE`를 통과했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했다. 기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. 남은 최종 사람 Gate는 G5-B Round 4 독립 3인 이해도이며, 이후 발표 PC·역할·제출물 운영 점검을 확정합니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
+계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 266/266이다.
+
+24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 3 독립 3인도 전체 정답 0/6으로 `DO_NOT_PROMOTE`였으므로 실패 원본을 보존하고, `52분·17번째·10분·8건`과 두 기사 역할을 풀어 쓴 Round 4 자극을 준비한다. 기사 제품 경계 Round 2는 독립 5인 30/30, 중대 오인 0건으로 `READY_TO_PROMOTE`를 통과했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했다.
+
+기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. TAAS는 영등포구 2024년 트럭 사고 다발지역 3개 지점과 중랑구 2024년 지자체 통계 13개 사고유형을 한 승인 키로 Live 검증했습니다. 두 TAAS 자료 모두 지역 맥락·평가 근거에만 쓰며 Safety 계산에는 자동 반영하지 않습니다. 남은 최종 사람 Gate는 G5-B Round 4 독립 3인 이해도이며, 이후 발표 PC·역할·제출물 운영 점검을 확정합니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
 2026-07-23 사람 Gate 최신 상태는 G5-B Round 3 `DO_NOT_PROMOTE`, 기사 제품 경계 Round 2 `READY_TO_PROMOTE`다. G5 Round 4는 계산·정답·2D 기본값을 유지하고 결정 문장과 기사 역할 용어만 다시 단순화한다. 남은 최종 GOAL 증거는 Round 4 독립 3인 평가다.
 
-최신 단위·계약 검증은 Vitest 29개 파일·247/247이다.
+최신 단위·계약 검증은 Vitest 31개 파일·266/266이다.
 
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
@@ -35,6 +39,8 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 기상청 1.3 현재 체감온도·시정과 4.3 향후 120분 적설 Live 보완 검증, 3시간 적설 무단 환산·현재값 미래복제 차단
 - 4.3 `TMP·REH·WSD`와 기상청 공식 계절별 식으로 미래 체감온도 3시점 결정론적 산출
 - KMA 부분 Live를 감사 증거로만 보존하고 Demo 타임라인 전체를 선택하는 `Weather Fallback`, 필드 혼합 0건
+- TAAS 트럭 사고 다발지역·교통사고 통계 exact endpoint, 공용/별도 키, 응답 스키마, 무자료·인증·timeout·응답 크기·출처 경계를 검증하는 서버 전용 어댑터
+- TAAS 트럭 사고 다발지역 영등포구 2024년 3개 지점·지자체 통계 중랑구 2024년 13개 사고유형 Live 검증, Safety 입력 자동 승격 차단
 - Playwright 관리자–두 기사 폐루프·새 ID reset·키보드·지도 drag/keyboard pan·4개 해상도·스크린샷·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구 21/21과 서버 clean start 3회 통과
 - 관리자·기사 PWA의 선택적 Kakao Maps 2D 베이스 레이어와 결정론적 합성 경로·마커, SDK 실패·오프라인 시 schematic map·구조화 목록 자동 Fallback
 - 24명 합성 기사 위치의 30초 `Demo movement` 재생·일시정지·단계 이동·초기화와 stale/offline 정지·복구 검증
@@ -42,7 +48,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
-- Vitest 29개 파일·247/247 통과
+- Vitest 31개 파일·266/266 통과
 - G5-B 사람 이해도 Round 1은 3명·6 trial 중 핵심 의미 전체 정답 2/6, 경사 구간 0/6, 혼란 증가 2/3으로 `DO_NOT_PROMOTE`; 2.5D 기본 승격 금지와 관리자 decision 정보위계 재설계 필요
 
 ## 실행
@@ -89,6 +95,12 @@ pnpm run eval:kma-weather:coverage
 pnpm run eval:kma-weather:supplement:live
 # 부분 Live 미승격과 Demo-only Safety 입력 감사 산출물 생성
 pnpm run eval:kma-weather:runtime
+# API 호출 없이 TAAS 두 키·endpoint 구성만 확인
+pnpm run eval:taas:check
+# 자격증명 없이 TAAS 정규화·출처·Safety 차단 계약 검증
+pnpm run eval:taas:mock
+# 공용 키에 두 API가 등록됐거나 API별 키가 준비된 뒤 Live smoke
+pnpm run eval:taas:live
 ```
 
 로컬 서버 없이 같은 기기를 검토자에게 차례로 전달할 때는 공개 정적 평가 화면을 사용할 수 있다. 응답은 서버에 업로드되지 않고 현재 브라우저 메모리에만 머물며 마지막에 JSON 파일로 내려받는다.
@@ -98,7 +110,13 @@ pnpm run eval:kma-weather:runtime
 
 관리자와 기사 compact 실제 베이스맵은 로컬 `.env.local`에 `VITE_KAKAO_MAP_JAVASCRIPT_KEY`를 설정하고 Kakao Developers 앱에 실행 도메인을 등록했을 때만 활성화된다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 외부 네트워크 없이 동일한 합성 데이터의 schematic map을 사용한다. 기사 compact map은 오프라인에서도 자동으로 Fallback한다. 지도에 표시하는 기사·경로는 모두 Demo fixture이며 실제 위치가 아니다.
 
-`eval:core-artifacts`는 외부 API를 호출하지 않는다. Vitest를 새로 실행하고 대표 fixture·개입·Risk Transfer Guard를 현재 코드로 재계산한 뒤, 기존 국내 AI·Upstage 요약과 Playwright 접근성 결과를 묶어 `artifacts/evals/` 최신본과 SHA-256 불변 run을 생성한다. `eval:domestic-track:audit`도 외부 API를 호출하지 않고 추적된 런타임·평가 파일, 허용 host, 모델 식별자, 의존성, 비밀정보 경계를 검사해 국내 AI 트랙 활용 증거를 만든다. `OPENAI_CHAT_COMPLETIONS`는 요청 형식 이름일 뿐 OpenAI 모델·서비스 사용을 뜻하지 않는다. Upstage Live는 opt-in smoke 명령에서만 활성화한다. `eval:upstage:smoke:mock`은 자격증명 없이 12개 합성 과업 기준선을 생성하고, `eval:upstage:smoke`는 [.env.example](./.env.example)을 복사한 로컬 `.env.local`의 서버 변수로 실행한다. 현재 Live 첫 시도 검증 통과는 11/12이며 나머지 1건은 안전한 Fallback으로 전환됐다. 국내 AI 공통 명령은 대회 가이드에서 텍스트 API 계약이 확인된 A.X K1과 K-EXAONE만 대상으로 한다. `eval:domestic-ai:check`는 API 호출 없이 secret과 exact endpoint 계약을 점검하고, Live 명령은 readiness 이후에만 명시적으로 실행한다. K-EXAONE은 60초 timeout에서 12/12를 통과했고 평균 22,124ms·P95 35,805ms·총 39,539 tokens를 기록했다. A.X K1은 2026-07-23 재시도에서 12/12, Fallback 0건, unsafe 표시 0건을 통과했고 평균 3,386ms·P95 4,251ms·총 9,544 tokens를 기록했다. 기상청은 API허브 4.1·4.2 Mock 계약과 무호출 readiness를 먼저 검증하며, Live 명령은 승인된 로컬 `authKey`가 준비된 뒤에만 실황·예보를 각 1회 호출한다. 1.3·4.3 보완 명령도 같은 서버 전용 키를 재사용하고 exact endpoint만 호출하므로 새 키나 새 환경변수는 필요 없다. `eval:kma-weather:runtime`은 외부 API를 호출하지 않고 승인된 Live 증거의 미완전 범위와 Demo-only Safety 입력 경계를 재검증한다. `VITE_` 접두사를 사용하지 않으며 키를 저장소나 채팅에 넣지 않는다. A100의 A.X 고정 revision은 정확 복사 12/12와 최종 생성 강건성 28/30을 독립 검증했고 나머지 2건은 안전한 Fallback으로 전환됐다. 로컬 모델 benchmark도 접속정보·비밀번호를 저장하지 않고 고정 revision과 비식별 결과만 보존한다.
+`eval:core-artifacts`는 외부 API를 호출하지 않는다. Vitest를 새로 실행하고 대표 fixture·개입·Risk Transfer Guard를 현재 코드로 재계산한 뒤, 기존 국내 AI·Upstage 요약과 Playwright 접근성 결과를 묶어 `artifacts/evals/` 최신본과 SHA-256 불변 run을 생성한다. `eval:domestic-track:audit`도 외부 API를 호출하지 않고 추적된 런타임·평가 파일, 허용 host, 모델 식별자, 의존성, 비밀정보 경계를 검사해 국내 AI 트랙 활용 증거를 만든다. `OPENAI_CHAT_COMPLETIONS`는 요청 형식 이름일 뿐 OpenAI 모델·서비스 사용을 뜻하지 않는다.
+
+Upstage Live는 opt-in smoke 명령에서만 활성화한다. `eval:upstage:smoke:mock`은 자격증명 없이 12개 합성 과업 기준선을 생성하고, `eval:upstage:smoke`는 [.env.example](./.env.example)을 복사한 로컬 `.env.local`의 서버 변수로 실행한다. 현재 Live 첫 시도 검증 통과는 11/12이며 나머지 1건은 안전한 Fallback으로 전환됐다. 국내 AI 공통 명령은 대회 가이드에서 텍스트 API 계약이 확인된 A.X K1과 K-EXAONE만 대상으로 한다. `eval:domestic-ai:check`는 API 호출 없이 secret과 exact endpoint 계약을 점검하고, Live 명령은 readiness 이후에만 명시적으로 실행한다. K-EXAONE은 60초 timeout에서 12/12를 통과했고 평균 22,124ms·P95 35,805ms·총 39,539 tokens를 기록했다. A.X K1은 2026-07-23 재시도에서 12/12, Fallback 0건, unsafe 표시 0건을 통과했고 평균 3,386ms·P95 4,251ms·총 9,544 tokens를 기록했다.
+
+기상청은 API허브 4.1·4.2 Mock 계약과 무호출 readiness를 먼저 검증하며, Live 명령은 승인된 로컬 `authKey`가 준비된 뒤에만 실황·예보를 각 1회 호출한다. 1.3·4.3 보완 명령도 같은 서버 전용 키를 재사용하고 exact endpoint만 호출하므로 새 키나 새 환경변수는 필요 없다. `eval:kma-weather:runtime`은 외부 API를 호출하지 않고 승인된 Live 증거의 미완전 범위와 Demo-only Safety 입력 경계를 재검증한다.
+
+TAAS는 포털에서 두 API가 모두 등록된 공용 `TAAS_API_KEY`를 사용하거나 필요할 때 `TAAS_TRUCK_API_KEY`·`TAAS_STATS_API_KEY`로 API별 키를 덮어쓸 수 있다. 두 응답은 공개 지역 맥락·평가 증거로만 정규화하고 Safety 계산에는 넣지 않는다. 브라우저에 노출되는 키를 제외한 서버 키에는 `VITE_` 접두사를 사용하지 않으며 키를 저장소나 채팅에 넣지 않는다. A100의 A.X 고정 revision은 정확 복사 12/12와 최종 생성 강건성 28/30을 독립 검증했고 나머지 2건은 안전한 Fallback으로 전환됐다. 로컬 모델 benchmark도 접속정보·비밀번호를 저장하지 않고 고정 revision과 비식별 결과만 보존한다.
 
 `eval:core-artifacts`의 현재 bundle에는 시간 8개·동의/권한 12개·계획/모델 버전 10개의 결정 폐루프 경계 30개, 국내트랙 자동 감사와 해당 SHA-256 요약도 포함된다.
 

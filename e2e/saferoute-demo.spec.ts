@@ -281,6 +281,16 @@ for (const viewport of [
     await expect(structuredRoute).toContainText("14번째 배송지 구간");
     await expect(structuredRoute).toContainText("10분 휴식 지점");
     await expect(structuredRoute).toContainText("약 52분 · 17번째 전");
+    const directions = page.getByLabel("합성 위치 자동차 길찾기 미리보기");
+    await expect(directions.getByText("Demo 경로로 계속")).toBeVisible();
+    const directionsLink = directions.getByRole("link", {
+      name: "카카오맵에서 Demo 길찾기",
+    });
+    await expect(directionsLink).toHaveAttribute(
+      "href",
+      /^https:\/\/map\.kakao\.com\/link\/by\/car\//,
+    );
+    await expectMinimumTouchHeight(directionsLink, 48);
     await expect(page.getByText("실시간 길안내", { exact: true })).toHaveCount(0);
     await expect(page.getByText("운전점수", { exact: true })).toHaveCount(0);
     await expect(page.getByText("자동 구조", { exact: true })).toHaveCount(0);

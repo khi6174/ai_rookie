@@ -10,12 +10,14 @@ $ViteStderr = Join-Path ([System.IO.Path]::GetTempPath()) "saferoute-vite-$PID.s
 $Server = $null
 $ExitCode = 1
 $PreviousKakaoMapEnabled = $env:VITE_KAKAO_MAP_ENABLED
+$PreviousKakaoDirectionsEnabled = $env:KAKAO_DIRECTIONS_ENABLED
 $env:VITE_KAKAO_MAP_ENABLED = "false"
+$env:KAKAO_DIRECTIONS_ENABLED = "false"
 
 try {
   $Server = Start-Process `
     -FilePath "node" `
-    -ArgumentList @("./node_modules/vite/bin/vite.js", "--host", "127.0.0.1", "--port", "4173", "--strictPort") `
+    -ArgumentList @("./node_modules/vite/bin/vite.js", "--mode", "test", "--host", "127.0.0.1", "--port", "4173", "--strictPort") `
     -WorkingDirectory $Root `
     -WindowStyle Hidden `
     -RedirectStandardOutput $ViteStdout `
@@ -64,6 +66,11 @@ try {
     Remove-Item Env:VITE_KAKAO_MAP_ENABLED -ErrorAction SilentlyContinue
   } else {
     $env:VITE_KAKAO_MAP_ENABLED = $PreviousKakaoMapEnabled
+  }
+  if ($null -eq $PreviousKakaoDirectionsEnabled) {
+    Remove-Item Env:KAKAO_DIRECTIONS_ENABLED -ErrorAction SilentlyContinue
+  } else {
+    $env:KAKAO_DIRECTIONS_ENABLED = $PreviousKakaoDirectionsEnabled
   }
 }
 

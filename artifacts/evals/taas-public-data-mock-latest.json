@@ -1,0 +1,106 @@
+{
+  "schemaVersion": "taas-public-data-smoke-v1",
+  "capturedAt": "2026-07-24T14:22:46.563Z",
+  "status": "COMPLETED",
+  "mode": "MOCK_CONTRACT",
+  "requestSent": false,
+  "truckCandidate": {
+    "schemaVersion": "taas-truck-frequent-zone-v1",
+    "status": "AVAILABLE",
+    "areaId": "taas-seoul-yeongdeungpo-public-sample",
+    "year": 2024,
+    "areaCodes": {
+      "sido": "11",
+      "gugun": "560"
+    },
+    "zones": [
+      {
+        "zoneId": "7000001",
+        "legalDistrictCode": "1156010100",
+        "areaLabel": "합성 서울 영등포구",
+        "spotLabel": "합성 교차로 부근",
+        "occurrenceCount": 4,
+        "casualtyCount": 5,
+        "deathCount": 0,
+        "seriousInjuryCount": 2,
+        "slightInjuryCount": 2,
+        "reportedInjuryCount": 1,
+        "centroid": {
+          "longitude": 126.9005,
+          "latitude": 37.5005
+        }
+      }
+    ],
+    "responseSha256": "69229dfb4908a94642b3ac34895849014aa6438aa3408bdf1f158361c0e92e94",
+    "provenance": {
+      "kind": "MOCK",
+      "sourceId": "mock-taas-truck-frequent-zone",
+      "sourceLabel": "합성 계약 표본 · TAAS · 화물차 교통사고 다발지역",
+      "collectedAt": "2026-07-24T14:22:46.563Z",
+      "validAt": "2024-01-01T00:00:00+09:00",
+      "transformedBy": "taas-truck-adapter@1.0.0",
+      "licenseOrPolicy": "SafeRoute deterministic mock contract",
+      "sourceVersion": "taas-openapi:2024",
+      "contentHashSha256": "69229dfb4908a94642b3ac34895849014aa6438aa3408bdf1f158361c0e92e94",
+      "isDemo": true
+    },
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "allowedUse": "REGIONAL_CONTEXT_AND_EVALUATION_ONLY",
+      "reason": "AGGREGATED_TRUCK_CRASH_HISTORY_IS_NOT_A_COURIER_RISK_LABEL"
+    }
+  },
+  "statsCandidate": {
+    "schemaVersion": "taas-municipal-crash-statistics-v1",
+    "status": "AVAILABLE",
+    "areaId": "taas-seoul-jungnang-public-statistics",
+    "year": 2024,
+    "areaCodes": {
+      "sido": "1100",
+      "gugun": "1121"
+    },
+    "areaLabel": "합성 서울특별시 관악구",
+    "statistics": [
+      {
+        "category": "전체사고",
+        "accidentCount": 720,
+        "deathCount": 4,
+        "injuredPersonCount": 910,
+        "fatalityRate": 0.56
+      },
+      {
+        "category": "화물차사고",
+        "accidentCount": 41,
+        "deathCount": 1,
+        "injuredPersonCount": 52,
+        "fatalityRate": 2.44
+      }
+    ],
+    "responseSha256": "4ac06a89fd077c8ac461df95be941b841c5cf3ea01951337287ec7abd2b80503",
+    "provenance": {
+      "kind": "MOCK",
+      "sourceId": "mock-taas-municipal-crash-statistics",
+      "sourceLabel": "합성 계약 표본 · TAAS · 지자체별 대상 교통사고 통계",
+      "collectedAt": "2026-07-24T14:22:46.563Z",
+      "validAt": "2024-01-01T00:00:00+09:00",
+      "transformedBy": "taas-municipal-stats-adapter@1.0.0",
+      "licenseOrPolicy": "SafeRoute deterministic mock contract",
+      "sourceVersion": "taas-openapi:2024",
+      "contentHashSha256": "4ac06a89fd077c8ac461df95be941b841c5cf3ea01951337287ec7abd2b80503",
+      "isDemo": true
+    },
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "allowedUse": "REGIONAL_CONTEXT_AND_EVALUATION_ONLY",
+      "reason": "MUNICIPAL_CRASH_STATISTICS_ARE_NOT_A_COURIER_RISK_LABEL"
+    }
+  },
+  "assertions": {
+    "responseSchemasValidated": true,
+    "publicDataClaimed": false,
+    "safetyEngineInputApproved": false,
+    "exactCoordinatesSentToAi": false,
+    "rawResponsesStored": false,
+    "secretsStored": false
+  }
+}

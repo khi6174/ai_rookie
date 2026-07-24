@@ -373,6 +373,33 @@ type Capacity = {
 
 존재하는 용량 차원은 모두 검사한다. 중량 데이터가 없다고 적재 가능으로 단정하지 않는다.
 
+### 4.3 Kakao Mobility 합성 길찾기 미리보기
+
+`KakaoDirectionsPreview`는 기사 PWA의 합성 경로 설명용 외부 공급자 결과다.
+
+```ts
+type KakaoDirectionsPreview = {
+  schemaVersion: "kakao-directions-preview-v1";
+  status: "LIVE";
+  provider: "KAKAO_MOBILITY";
+  profile: "rider-demo";
+  capturedAt: IsoDateTime;
+  distanceMeters: number;
+  durationSeconds: number;
+  path: GeoPoint[];
+  isDemo: true;
+  coordinateSource: "DETERMINISTIC_SYNTHETIC_FIXTURE";
+  safetyEngineInputApproved: false;
+};
+```
+
+- 브라우저는 임의 좌표를 전달하지 않고 서버에 고정된 `rider-demo` profile만 요청한다.
+- 공급자에는 `MapAdapter`의 결정론적 합성 현재 위치·휴식 지점·다음 배송지만 전달한다.
+- 거리·시간은 양의 정수이고 path는 대한민국 범위의 2~501개 점이다.
+- 공급자 원문, 요청 ID, 인증키는 응답·로그·산출물에 보존하지 않는다.
+- 오류·오프라인·키 미설정에서는 기존 합성 경로와 구조화 목록으로 전환한다.
+- 이 결과는 Safety Budget, Time-to-Breach, 개입 순위, 동의·승인 또는 적용 계획을 변경할 수 없다.
+
 ## 5. CourierState
 
 기사 개인의 현재 운영상 상태를 나타낸다. 실제 이름, 연락처, 고용평가와 원시 생체정보를 포함하지 않는다.

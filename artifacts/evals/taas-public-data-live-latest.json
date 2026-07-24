@@ -1,0 +1,219 @@
+{
+  "schemaVersion": "taas-public-data-smoke-v1",
+  "capturedAt": "2026-07-24T14:20:10.939Z",
+  "status": "COMPLETED",
+  "mode": "LIVE",
+  "requestSent": true,
+  "truckCandidate": {
+    "schemaVersion": "taas-truck-frequent-zone-v1",
+    "status": "AVAILABLE",
+    "areaId": "taas-seoul-yeongdeungpo-public-sample",
+    "year": 2024,
+    "areaCodes": {
+      "sido": "11",
+      "gugun": "560"
+    },
+    "zones": [
+      {
+        "zoneId": "7132439",
+        "legalDistrictCode": "1156012300",
+        "areaLabel": "서울 영등포구1",
+        "spotLabel": "서울 영등포구 문래동5가(27-2 부근)",
+        "occurrenceCount": 4,
+        "casualtyCount": 4,
+        "deathCount": 1,
+        "seriousInjuryCount": 3,
+        "slightInjuryCount": 0,
+        "reportedInjuryCount": 0,
+        "centroid": {
+          "longitude": 126.882608711863,
+          "latitude": 37.516536985531
+        }
+      },
+      {
+        "zoneId": "7132469",
+        "legalDistrictCode": "1156010700",
+        "areaLabel": "서울 영등포구2",
+        "spotLabel": "서울 영등포구 영등포동(영등포청과시장교차로 부근)",
+        "occurrenceCount": 4,
+        "casualtyCount": 4,
+        "deathCount": 1,
+        "seriousInjuryCount": 3,
+        "slightInjuryCount": 0,
+        "reportedInjuryCount": 0,
+        "centroid": {
+          "longitude": 126.900421250276,
+          "latitude": 37.520596437065
+        }
+      },
+      {
+        "zoneId": "7132453",
+        "legalDistrictCode": "1156013200",
+        "areaLabel": "서울 영등포구3",
+        "spotLabel": "서울 영등포구 신길동(신길광장공원교차로 부근)",
+        "occurrenceCount": 4,
+        "casualtyCount": 4,
+        "deathCount": 0,
+        "seriousInjuryCount": 4,
+        "slightInjuryCount": 0,
+        "reportedInjuryCount": 0,
+        "centroid": {
+          "longitude": 126.905168759032,
+          "latitude": 37.499892104015
+        }
+      }
+    ],
+    "responseSha256": "22d9c53ae2aef663eab2c26e5890c4b0d886249044adc3491fc55be68b2a0e9a",
+    "provenance": {
+      "kind": "PUBLIC_DATA_DERIVED",
+      "sourceId": "taas-truck-frequent-zone",
+      "sourceLabel": "TAAS · 화물차 교통사고 다발지역",
+      "collectedAt": "2026-07-24T14:20:10.939Z",
+      "validAt": "2024-01-01T00:00:00+09:00",
+      "transformedBy": "taas-truck-adapter@1.0.0",
+      "licenseOrPolicy": "한국도로교통공단 TAAS OpenAPI 이용조건 · 출처 및 자료링크 표시",
+      "sourceUri": "https://opendata.koroad.or.kr/api/selectTruckDataSet.do",
+      "sourceVersion": "taas-openapi:2024",
+      "contentHashSha256": "22d9c53ae2aef663eab2c26e5890c4b0d886249044adc3491fc55be68b2a0e9a",
+      "isDemo": true
+    },
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "allowedUse": "REGIONAL_CONTEXT_AND_EVALUATION_ONLY",
+      "reason": "AGGREGATED_TRUCK_CRASH_HISTORY_IS_NOT_A_COURIER_RISK_LABEL"
+    }
+  },
+  "statsCandidate": {
+    "schemaVersion": "taas-municipal-crash-statistics-v1",
+    "status": "AVAILABLE",
+    "areaId": "taas-seoul-jungnang-public-statistics",
+    "year": 2024,
+    "areaCodes": {
+      "sido": "1100",
+      "gugun": "1121"
+    },
+    "areaLabel": "서울특별시 중랑구",
+    "statistics": [
+      {
+        "category": "전체사고",
+        "accidentCount": 1199,
+        "deathCount": 8,
+        "injuredPersonCount": 1623,
+        "fatalityRate": 0.67
+      },
+      {
+        "category": "어린이사고",
+        "accidentCount": 46,
+        "deathCount": 0,
+        "injuredPersonCount": 59,
+        "fatalityRate": 0
+      },
+      {
+        "category": "고령자사고",
+        "accidentCount": 273,
+        "deathCount": 6,
+        "injuredPersonCount": 305,
+        "fatalityRate": 2.2
+      },
+      {
+        "category": "보행자사고",
+        "accidentCount": 298,
+        "deathCount": 5,
+        "injuredPersonCount": 302,
+        "fatalityRate": 1.68
+      },
+      {
+        "category": "자전거사고",
+        "accidentCount": 87,
+        "deathCount": 1,
+        "injuredPersonCount": 97,
+        "fatalityRate": 1.15
+      },
+      {
+        "category": "야간사고",
+        "accidentCount": 464,
+        "deathCount": 3,
+        "injuredPersonCount": 616,
+        "fatalityRate": 0.65
+      },
+      {
+        "category": "어린이보행사고",
+        "accidentCount": 15,
+        "deathCount": 0,
+        "injuredPersonCount": 16,
+        "fatalityRate": 0
+      },
+      {
+        "category": "스쿨존내어린이사고",
+        "accidentCount": 2,
+        "deathCount": 0,
+        "injuredPersonCount": 2,
+        "fatalityRate": 0
+      },
+      {
+        "category": "고령운전자사고",
+        "accidentCount": 283,
+        "deathCount": 2,
+        "injuredPersonCount": 382,
+        "fatalityRate": 0.71
+      },
+      {
+        "category": "고령보행자사고",
+        "accidentCount": 88,
+        "deathCount": 4,
+        "injuredPersonCount": 84,
+        "fatalityRate": 4.55
+      },
+      {
+        "category": "개인형이동수단(PM)사고",
+        "accidentCount": 15,
+        "deathCount": 0,
+        "injuredPersonCount": 15,
+        "fatalityRate": 0
+      },
+      {
+        "category": "뺑소니사고",
+        "accidentCount": 20,
+        "deathCount": 0,
+        "injuredPersonCount": 25,
+        "fatalityRate": 0
+      },
+      {
+        "category": "무면허사고",
+        "accidentCount": 15,
+        "deathCount": 0,
+        "injuredPersonCount": 17,
+        "fatalityRate": 0
+      }
+    ],
+    "responseSha256": "2a853865c150e5b7910526d0071cec2f9d9d21c21be42231e63a4e693fb66da1",
+    "provenance": {
+      "kind": "PUBLIC_DATA_DERIVED",
+      "sourceId": "taas-municipal-crash-statistics",
+      "sourceLabel": "TAAS · 지자체별 대상 교통사고 통계",
+      "collectedAt": "2026-07-24T14:20:10.939Z",
+      "validAt": "2024-01-01T00:00:00+09:00",
+      "transformedBy": "taas-municipal-stats-adapter@1.0.0",
+      "licenseOrPolicy": "한국도로교통공단 TAAS OpenAPI 이용조건 · 출처 및 자료링크 표시",
+      "sourceUri": "https://opendata.koroad.or.kr/api/selectSttDataSet.do",
+      "sourceVersion": "taas-openapi:2024",
+      "contentHashSha256": "2a853865c150e5b7910526d0071cec2f9d9d21c21be42231e63a4e693fb66da1",
+      "isDemo": true
+    },
+    "domainReadiness": {
+      "safeForSafetyEngine": false,
+      "allowedUse": "REGIONAL_CONTEXT_AND_EVALUATION_ONLY",
+      "reason": "MUNICIPAL_CRASH_STATISTICS_ARE_NOT_A_COURIER_RISK_LABEL"
+    }
+  },
+  "assertions": {
+    "approvedTruckApiOnly": true,
+    "approvedStatsApiOnly": true,
+    "responseSchemasValidated": true,
+    "publicDataProvenanceVerified": true,
+    "safetyEngineInputApproved": false,
+    "exactCoordinatesSentToAi": false,
+    "rawResponsesStored": false,
+    "secretsStored": false
+  }
+}

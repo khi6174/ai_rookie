@@ -1,0 +1,9 @@
+{
+  "schemaVersion": "taas-public-data-configuration-check-v1",
+  "capturedAt": "2026-07-24T14:22:43.479Z",
+  "status": "READY",
+  "requestSent": false,
+  "missing": [],
+  "endpointContractVerified": true,
+  "sharedApprovedKeySupported": true
+}

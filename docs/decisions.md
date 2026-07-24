@@ -601,6 +601,25 @@
 - 경계: 제품 app shell과 만료 가능한 승인 Demo 계획 캐시는 유지한다. 평가 응답은 계속 브라우저 메모리에만 두고 외부 전송·지속 저장을 추가하지 않는다. 이전 Round 3 추가 응답을 Round 4로 이름 변경하거나 통과 증거로 사용하지 않는다.
 - 영향 파일: `public/sw.js`, `tools/g5-spatial-review/index.html`, `tests/pwa-assets.test.ts`, `scripts/run-final-readiness-audit.mjs`, `docs/final-readiness.md`, `docs/g5-spatial-comprehension-test.md`
 
+### ADR-062 — TAAS 실제 공공데이터는 지역 맥락으로만 격리한다
+
+- 날짜: 2026-07-24
+- 상태: Approved
+- 결정: 승인된 TAAS `화물차 교통사고 다발지역`과 `지자체별 대상 교통사고 통계`는 HTTPS REST JSON·API별 승인 권한·exact endpoint로만 수집한다. 두 API가 한 포털 키에 등록되면 공용 `TAAS_API_KEY`를 사용하고, 별도 키가 발급된 경우 API별 환경변수로 덮어쓴다. 응답은 스키마, 공개 geometry 형식, 사상자 합계, 연도·지역, provider code와 크기·timeout을 검증하고 원문 SHA-256 provenance를 남긴다. 원문 응답과 인증키는 저장하지 않으며 공개 polygon은 결과 계약에 보존하지 않는다. `NODATA_ERROR`는 0위험으로 해석하지 않는 `NO_DATA` 상태다. 두 데이터는 지역 운영 맥락과 평가 근거에만 사용하고 Safety Budget, Time-to-Breach, 개입 순위, Risk Transfer Guard 또는 기사 평가에 입력하지 않는다.
+- 이유: 최종 발표에 검증된 실제 공공데이터 근거를 추가하면서도 과거 사고 집계를 개인 기사 위험이나 인과효과로 오인하지 않고, 합성 배송계획의 결정론적 폐루프를 보존하기 위해서다.
+- 기각한 대안: WMS 이미지를 그대로 겹치는 방식, 하나의 키가 두 API에 공통이라고 가정하는 방식, 다발지역을 즉시 경로 차단 또는 사고확률 라벨로 사용하는 방식, 무자료 응답을 안전지역으로 해석하는 방식, 인증키·원문 응답을 평가 산출물에 저장하는 방식.
+- 영향 파일: `.env.example`, `package.json`, `src/adapters/traffic/taas.ts`, `scripts/taas-smoke-entry.ts`, `scripts/run-taas-smoke.mjs`, `tests/taas-public-data.test.ts`, `docs/data-sources.md`, `docs/architecture.md`
+
+### ADR-063 — 기사 길찾기는 합성 세 지점의 서버 경계로 제한한다
+
+- 날짜: 2026-07-24
+- 상태: Approved
+- 결정: 기사 PWA는 같은 decision에서 파생한 결정론적 합성 현재 위치·휴식 지점·다음 배송지에 한해 Kakao Mobility 자동차 길찾기 경로선·거리·예상시간을 표시하고, Kakao Map의 합성 위치 길찾기 링크를 제공한다. 브라우저는 임의 좌표를 서버로 보내지 않고 고정 `rider-demo` profile만 요청한다. REST 키는 서버 전용이며 원문·요청 ID·키를 저장하지 않는다. 공급자 결과는 표시 전용이고 Safety Budget·Time-to-Breach·개입 순위·동의·승인·배송순서를 변경하지 않는다. 오류·오프라인에서는 기존 schematic 경로와 구조화 목록으로 복귀한다.
+- 이유: 발표 시간 안에 기사 운행 화면의 실제 서비스 연결성을 보여주면서도 실제 GPS·고객주소·개인정보 범위와 안전 결정권을 확대하지 않고 기존 결정론적 폐루프를 보존하기 위해서다.
+- 기각한 대안: 브라우저에서 REST 키 직접 사용, 사용자 입력 좌표를 공개 프록시로 전달, 실제 GPS 권한 즉시 요청, 카카오 추천 경로가 승인 계획을 덮어쓰는 방식, 공급자 실패 시 길찾기와 안전지원 전체 차단.
+- 검증 경계: 사용자의 시간제약 승인에 따라 이 기능의 새 Round 사람 평가는 생략한다. 자동 계약·E2E·빌드는 유지하되 이해도·현장 안전·사고감소 개선을 새로 주장하지 않는다.
+- 영향 파일: `.env.example`, `server/kakao-directions-proxy.mjs`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, `src/adapters/maps/kakaoDirections.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/kakao-directions.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

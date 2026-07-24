@@ -79,9 +79,9 @@ G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과
 
 ADR-043의 `src/adapters/maps/kakao.ts`는 공식 HTTPS SDK 로딩과 provider 객체의 생명주기만 소유한다. React 지도 계층은 `MapRenderModel.geographicPoint(s)`를 Kakao `Polyline`과 `CustomOverlay`로 변환하고 SDK 원시 데이터나 주소·경로 API 응답을 읽지 않는다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 공급자 독립 schematic 지도를 사용한다. SDK 로드·도메인 인증·네트워크가 실패하면 `ERROR` 상태를 표시하고 같은 schematic 지도와 구조화 목록으로 자동 복귀한다. 지도 공급자 상태는 Safety·개입·결정 상태기계 입력이 아니다.
 
-ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderModel`에서 현재 위치, 휴식 지점, 다음 배송지와 경로만 축소해 기사 프레젠테이션 모델로 만든다. 기사 Kakao 계층은 온라인에서만 이 모델을 렌더링하며 오프라인·SDK 오류·키 미설정 시 기존 CSS schematic과 항상 남아 있는 구조화 목록을 사용한다. 브라우저 Geolocation API, 주소·길찾기 API와 위치 저장은 호출하지 않는다.
+ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderModel`에서 현재 위치, 휴식 지점, 다음 배송지와 경로만 축소해 기사 프레젠테이션 모델로 만든다. 기사 Kakao 계층은 온라인에서만 이 모델을 렌더링하며 오프라인·SDK 오류·키 미설정 시 기존 CSS schematic과 항상 남아 있는 구조화 목록을 사용한다. ADR-063의 같은-origin `/api/kakao-directions`는 브라우저 좌표를 받지 않고 서버에 고정된 합성 세 지점만 Kakao Mobility Directions에 전달해 정규화된 경로선·거리·시간을 반환한다. 브라우저 Geolocation API, 실제 주소와 위치 저장은 호출하지 않는다.
 
-아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 화물차 높이·중량·통행제한, 실시간 교통, 오더 배차, 실제 길찾기와 턴바이턴 안내를 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
+아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 합성 위치의 자동차 경로 미리보기와 외부 Kakao Map Demo 길찾기만 제공하며, 화물차 높이·중량·통행제한, 실제 GPS·주소, 오더 배차와 내장 턴바이턴 안내는 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
 
 KBS 모빌리티 AI 영상과 Riderlog 계열 공개 사례는 예방적 안전 신호의 문제·데이터 경계만 참고한다. 현재 런타임은 모션 센서, 사고 감지, 자동 구조 요청과 운전점수를 수집하거나 제공하지 않는다. 향후 선택형 운전행동 이벤트를 도입하려면 기사 동의, 목적·보존기간, 재확인 상태와 출처를 승인된 데이터 계약에 먼저 추가하고, 검증된 파생 신호만 Safety 입력 후보로 평가한다. 원시 센서와 개인 점수는 관리자 UI, 국내 AI 입력과 기사 평가에 전달하지 않는다.
 
@@ -166,6 +166,8 @@ tests/
 `KMA candidate → coverage Gate → WeatherState` 경계는 강수 정확값·구간값, 체감온도, 시정, 시간당 적설과 노면 상태를 각각 판정한다. 강수 구간은 모델 포화 상한을 이용한 보수적 경계만 허용하고 가정을 기록한다. 체감온도·시정·시간당 적설이 없으면 Gate가 `BLOCKED`를 반환하며, UI와 Safety 엔진은 기존 Demo/Fallback 상태를 유지한다.
 
 DS-005의 1.3 어댑터는 exact endpoint에서 공개 대표점의 현재 `ta_chi`와 `vs`를 읽고 `vs`만 km에서 m로 변환한다. `sd_3hr`는 3시간 신적설 후보로 별도 보존하며 시간당 값으로 나누지 않는다. DS-006의 4.3 어댑터는 최신 공개 발표시각을 선택하고 현재부터 120분 범위의 `SNO·TMP·REH·WSD`를 추출한다. 적설 구간은 중간값 대신 모델 3cm/h 포화 상한에 대한 보수적 경계로 선택하고, 체감온도는 기상청 공식 계절별 식과 적용조건으로만 산출한다. 4.3 최신성은 3시간 발표주기와 제공지연을 반영한 210분으로 별도 검증한다. 이 보완 계층도 미래 시정과 현재 시간당 적설이 없으므로 `safeForSafetyEngine=false`를 유지한다. 원문·인증키·대표점 위경도는 산출물에 저장하지 않는다.
+
+DS-003의 `src/adapters/traffic/taas.ts`는 한국도로교통공단 TAAS의 화물차 다발지역과 지자체 대상 교통사고 통계를 별도 REST JSON endpoint와 API별 승인 권한으로 검증한다. 포털에서 두 API를 한 인증키에 등록한 경우 `TAAS_API_KEY`를 공유하고, 별도 키가 발급된 경우 API별 환경변수로 덮어쓴다. 화물차 응답은 공개 중심점과 발생·사상자 집계만 정규화하고 polygon 원문을 산출물에 보존하지 않는다. 지자체 통계는 연도·지역이 일치하는 사고유형별 사고·사망·부상·치명률만 허용한다. `NODATA_ERROR`는 실패나 0위험이 아니라 검증된 `NO_DATA` 상태다. 두 후보는 `PUBLIC_DATA_DERIVED` provenance와 원문 SHA-256을 가지지만 개인 기사 위험 라벨이 아니며 Domain Safety 계산에 전달되지 않는다.
 
 Runtime 선택기는 `safeForSafetyEngine=false`인 KMA evidence와 Demo fixture를 받으면 일부 필드를 섞지 않고 Demo `WeatherState[]` 전체를 `FALLBACK`으로 선택한다. Live evidence는 출처·해시·준비/차단 필드만 별도 보존하고 Safety 엔진에는 전달하지 않는다. 이 선택 결과는 관리자·기사 공통 배지와 감사 패널에 노출되며, 계산 모드는 계속 Demo다.
 

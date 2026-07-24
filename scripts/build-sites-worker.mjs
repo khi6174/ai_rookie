@@ -5,6 +5,10 @@ const root = resolve(".");
 const hostingPath = resolve(root, ".openai/hosting.json");
 const clientDirectory = resolve(root, "dist/client");
 const workerDirectory = resolve(root, "dist/server");
+const directionsProxySource = resolve(
+  root,
+  "server/kakao-directions-proxy.mjs",
+);
 const metadataDirectory = resolve(root, "dist/.openai");
 const publicReviewDirectory = resolve(clientDirectory, "tools");
 const publicReviewEvidenceDirectory = resolve(
@@ -21,7 +25,9 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
   throw new Error("Sites project_id is missing from .openai/hosting.json");
 }
 
-const workerSource = `const securityHeaders = {
+const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
+
+const securityHeaders = {
   "Referrer-Policy": "no-referrer",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
@@ -41,6 +47,14 @@ function secure(response) {
 
 const worker = {
   async fetch(request, env) {
+    const url = new URL(request.url);
+    if (url.pathname === "/api/kakao-directions") {
+      return secure(await handleKakaoDirectionsRequest(request, {
+        apiKey: env.KAKAO_MOBILITY_REST_API_KEY,
+        enabled: env.KAKAO_DIRECTIONS_ENABLED !== "false",
+      }));
+    }
+
     const response = await env.ASSETS.fetch(request);
     if (response.status !== 404 || request.method !== "GET") {
       return secure(response);
@@ -108,6 +122,10 @@ for (const manifest of [
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");
+await copyFile(
+  directionsProxySource,
+  resolve(workerDirectory, "kakao-directions-proxy.mjs"),
+);
 await copyFile(hostingPath, resolve(metadataDirectory, "hosting.json"));
 
 console.log(`SITES_WORKER_BUILD_PASS project=${hosting.project_id}`);

@@ -19,8 +19,13 @@ import {
 import {
   createDecisionSpatialScene,
   createFixtureMapAdapter,
+  createKakaoMapDemoDirectionsUrl,
   createRiderCompactMapModel,
+  fetchKakaoDirectionsPreview,
+  KakaoDirectionsClientError,
   validateSpatialSceneAgainstMapModel,
+  type KakaoDirectionsFallbackCode,
+  type KakaoDirectionsPreview,
   type MapAdapter,
   type MapRenderModel,
   type RiderCompactMapModel,
@@ -1508,8 +1513,61 @@ function RiderCompactRoute({
   const kakaoJavaScriptKey = import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
   const kakaoRequested = online && Boolean(kakaoJavaScriptKey) && import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
   const [kakaoMapStatus, setKakaoMapStatus] = useState<KakaoMapStatus>("LOADING");
+  const [directionsState, setDirectionsState] = useState<
+    | { status: "LOADING" }
+    | { status: "LIVE"; preview: KakaoDirectionsPreview }
+    | { status: "FALLBACK"; code: KakaoDirectionsFallbackCode }
+  >(
+    online
+      ? { status: "LOADING" }
+      : { status: "FALLBACK", code: "OFFLINE" },
+  );
   const kakaoReady = kakaoRequested && kakaoMapStatus === "READY";
   const kakaoFailed = kakaoRequested && kakaoMapStatus === "ERROR";
+  const mapDirectionsUrl = useMemo(
+    () => createKakaoMapDemoDirectionsUrl(mapModel),
+    [mapModel],
+  );
+  const renderedMapModel = useMemo(
+    () =>
+      directionsState.status === "LIVE"
+        ? { ...mapModel, path: directionsState.preview.path }
+        : mapModel,
+    [directionsState, mapModel],
+  );
+
+  useEffect(() => {
+    if (!online) {
+      setDirectionsState({ status: "FALLBACK", code: "OFFLINE" });
+      return;
+    }
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => controller.abort(), 8_500);
+    setDirectionsState({ status: "LOADING" });
+    fetchKakaoDirectionsPreview({ signal: controller.signal })
+      .then((preview) => setDirectionsState({ status: "LIVE", preview }))
+      .catch((error: unknown) => {
+        setDirectionsState({
+          status: "FALLBACK",
+          code:
+            error instanceof KakaoDirectionsClientError
+              ? error.code
+              : "NETWORK_ERROR",
+        });
+      })
+      .finally(() => window.clearTimeout(timeout));
+    return () => {
+      window.clearTimeout(timeout);
+      controller.abort();
+    };
+  }, [online]);
+
+  const directionsLabel =
+    directionsState.status === "LIVE"
+      ? "카카오모빌리티 경로"
+      : directionsState.status === "LOADING"
+        ? "경로 계산 중"
+        : "Demo 경로로 계속";
   return (
     <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약">
       <div className="compact-map-heading">
@@ -1523,7 +1581,7 @@ function RiderCompactRoute({
           <KakaoRiderRouteMap
             applied={applied}
             javaScriptKey={kakaoJavaScriptKey}
-            model={mapModel}
+            model={renderedMapModel}
             onStatusChange={setKakaoMapStatus}
           />
         )}
@@ -1546,6 +1604,71 @@ function RiderCompactRoute({
         <li><span>다음 안전 거점</span><strong>{applied ? "15:48 휴식 지점" : "10분 휴식 지점"}</strong></li>
         <li><span>지원 기준</span><strong>{applied ? "조정 순서 적용" : "약 52분 · 17번째 전"}</strong></li>
       </ol>
+      <section
+        className={`rider-directions-preview ${directionsState.status === "LIVE" ? "is-live" : "is-fallback"}`}
+        aria-label="합성 위치 자동차 길찾기 미리보기"
+        aria-live="polite"
+      >
+        <div className="rider-directions-heading">
+          <div>
+            <span>자동차 길찾기 · 합성 Demo</span>
+            <strong>{directionsLabel}</strong>
+          </div>
+          <span className="rider-directions-status">
+            {directionsState.status === "LIVE"
+              ? "연결됨"
+              : directionsState.status === "LOADING"
+                ? "확인 중"
+                : "Fallback"}
+          </span>
+        </div>
+        {directionsState.status === "LIVE" ? (
+          <div className="rider-directions-metrics">
+            <div>
+              <span>예상 거리</span>
+              <strong>
+                {(directionsState.preview.distanceMeters / 1_000).toFixed(1)} km
+              </strong>
+            </div>
+            <div>
+              <span>예상 시간</span>
+              <strong>
+                약 {Math.max(1, Math.round(directionsState.preview.durationSeconds / 60))}분
+              </strong>
+            </div>
+            <div>
+              <span>경유</span>
+              <strong>휴식 지점</strong>
+            </div>
+          </div>
+        ) : (
+          <p className="rider-directions-fallback">
+            {directionsState.status === "LOADING"
+              ? "카카오 경로와 ETA를 확인하고 있습니다."
+              : "외부 경로를 불러오지 못해 승인된 합성 경로와 구조화 목록을 유지합니다."}
+          </p>
+        )}
+        {online ? (
+          <a
+            className="button button-secondary rider-directions-open"
+            href={mapDirectionsUrl}
+            target="_blank"
+            rel="noreferrer"
+          >
+            카카오맵에서 Demo 길찾기
+          </a>
+        ) : (
+          <span
+            className="button button-secondary rider-directions-open is-disabled"
+            aria-disabled="true"
+          >
+            연결 후 Demo 길찾기
+          </span>
+        )}
+        <small>
+          합성 위치만 사용합니다. 실제 GPS가 아니며 Safety 계산·배송순서를 변경하지 않습니다.
+        </small>
+      </section>
     </section>
   );
 }
@@ -1726,8 +1849,8 @@ function RiderView({
               <div><span>배송 진행</span><strong>14 / 31</strong><small>{remainingStopCount}건 남음</small></div>
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
             </section>
-            <RiderCompactRoute applied={applied} mapModel={mapModel} online={pwa.online} />
             <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
+            <RiderCompactRoute applied={applied} mapModel={mapModel} online={pwa.online} />
             <section className="rider-next-plan">
               <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>
               <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>

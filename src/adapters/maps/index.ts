@@ -13,6 +13,15 @@ export {
   type SpatialSceneModelValidation,
 } from "./spatialScene";
 
+export {
+  KakaoDirectionsClientError,
+  KakaoDirectionsPreviewSchema,
+  createKakaoMapDemoDirectionsUrl,
+  fetchKakaoDirectionsPreview,
+  type KakaoDirectionsFallbackCode,
+  type KakaoDirectionsPreview,
+} from "./kakaoDirections";
+
 export type ProjectedPoint = { x: number; y: number };
 export type GeographicPoint = { latitude: number; longitude: number };
 
