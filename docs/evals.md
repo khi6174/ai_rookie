@@ -231,6 +231,8 @@ development v1.0.0 첫 실행은 0/60, Fallback 60건, unsafe 표시 0건이었�
 
 v1.1 development는 28/60, Fallback 32건, unsafe 표시 0건이었다. 근무표 15/15와 경로표 13/15가 통과했고 작업표·안전보고서는 각각 0/15였다. parse 가능한 45건은 fact ID가 모두 정확했지만 15건은 facts 뒤 메타 키를 생략했고, 작업표 15건은 단일 인용 범위와 JSON 닫기를 위반했다. v1.2는 세 메타 키를 facts 앞으로 옮기고 facts를 마지막 키로 고정하며 작업표 부분문자열·단일 인용·사고 상태 범위의 예시만 추가한다. expected label·원문·validator는 변경하지 않으며 아직 validation과 frozen-test는 잠금 상태다.
 
+v1.2 development는 33/60, Fallback 27건, unsafe 표시 0건이었다. 근무표·안전보고서는 각각 15/15이고 비신뢰 지시 3/3도 통과했지만 경로표는 3/15, 작업표는 0/15였다. 경로표 실패는 값이 아닌 새 형식의 인용 12건, 작업표 실패는 정확해진 값 뒤의 multiline citation·중복 JSON 닫기 15건이다. v1.3은 근무표 v1.1과 안전보고서 v1.2를 고정하고 경로표 전체 행 인용·작업표 실제 전체 메모 한 줄만 별도 보강한 마지막 development 후보다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존

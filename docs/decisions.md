@@ -670,6 +670,16 @@
 - 기각한 대안: v1.1 실패 무시 후 validation 진행, 누락 메타 자동 삽입, multiline citation 허용, hub 이름 전체와 hub ID를 동일 처리, accident-status의 긴 문구를 정답으로 변경.
 - 영향 파일: `scripts/local-model-operations-documents-v1.2.py`, `scripts/verify-local-model-operations-documents-v1.2.py`, `scripts/diagnose-local-model-operations-documents.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.1.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-069 — v1.3은 문서 유형별 검증된 프롬프트를 라우팅하고 개발 반복을 종료한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: v1.3은 근무표에 v1.1, 안전보고서에 v1.2의 프롬프트를 그대로 사용한다. 경로표는 v1.2의 메타 선행 구조에서 모든 first/last field citation을 동일한 원문 전체 표 행으로 복사하게 하고, 작업표는 safety-category citation을 실제 운영 메모 한 줄 전체로 복사하며 JSON 배열·객체를 한 번씩만 닫게 한다. 이 버전을 마지막 development 후보로 실행하고 이후 expected·validator를 유지한 채 validation 일반화를 확인한다.
+- 이유: 전역 v1.2 변경은 안전보고서를 15/15로 개선했지만 경로표를 13/15에서 3/15로 후퇴시켰다. 문서 유형별 실패가 분리됐으므로 이미 통과한 유형까지 다시 흔드는 전역 프롬프트보다 검증된 유형별 라우팅이 재현성과 과적합 통제에 유리하다.
+- 경계: v1.1과 v1.2의 성공 출력만 합쳐 v1.3 성과로 주장하지 않는다. v1.3 development 결과가 완벽하지 않아도 Gate 완화·정답 변경·후처리 승격을 하지 않으며 validation 결과를 본 뒤 frozen-test 실행 여부를 결정한다.
+- 기각한 대안: v1.2 전역 프롬프트를 모든 유형에 유지, v1.1 route 결과와 v1.2 safety 결과를 사후 합산, 원문에 없는 재구성 인용 허용, work-sheet citation 정답을 짧은 문장으로 변경.
+- 영향 파일: `scripts/local-model-operations-documents-v1.3.py`, `scripts/verify-local-model-operations-documents-v1.3.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.2.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

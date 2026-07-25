@@ -573,3 +573,40 @@ v1.2 development는 새 폴더에서 실행한다.
 ```
 
 v1.2 development를 최종 개발 프롬프트 후보로 사용한다. 결과를 독립 검증한 뒤에도 실패가 남으면 통과율과 오류를 그대로 보존하고, 정답·Gate를 완화하는 반복 튜닝 대신 멘토링 쟁점으로 분리할지 판단한다.
+
+### 11.9 development v1.2.0 결과와 문서 유형별 v1.3.0
+
+v1.2는 33/60, Fallback 27건, unsafe 표시 0건이었다. 근무표 15/15와 안전보고서 15/15가 통과했고 비신뢰 지시 3/3도 모두 격리했다. 경로표는 3/15, 작업표는 0/15였다. 오류는 작업표 `MALFORMED_JSON` 15건과 경로표 `CITATION_NOT_IN_SOURCE` 12건으로 수렴했다. 모델 로드 `3,181.17ms`, 평균 생성 `8,079.02ms`, P95 `9,672.51ms`, 최대 peak VRAM `14,191.88MiB`였다.
+
+작업표의 ID·단위·부분문자열 값은 v1.2에서 모두 정확해졌지만 마지막 safety-category citation에 제목과 줄바꿈을 합친 뒤 대괄호를 중복 닫았다. 이 실패에는 v1.2의 예시 citation이 실제 원문 전체 한 줄보다 짧았던 프롬프트 결함도 포함된다. 경로표 실패 12건은 값은 정확했지만 원문 전체 표 행 대신 `1 | ETA | 값` 같은 새 인용 형식을 만들었다.
+
+v1.3은 하나의 전역 프롬프트를 더 바꾸지 않고 문서 유형별로 개발에서 확인한 경계를 라우팅한다.
+
+- 근무표: v1.1 프롬프트를 그대로 고정
+- 안전보고서: v1.2 프롬프트를 그대로 고정
+- 경로표: 메타 선행 구조를 유지하고 세 field가 같은 원문 전체 행을 인용하도록 명시
+- 작업표: 실제 운영 메모 한 줄 전체 예시와 facts 배열·객체 1회 닫기를 명시
+
+expected·원문·validator·모델 revision·greedy decoding은 변경하지 않는다. v1.3을 마지막 development 프롬프트 후보로 실행하고 이후에는 결과가 완벽하지 않아도 추가 개발 반복보다 validation으로 일반화를 확인한다.
+
+서버에는 base와 v1.1·v1.2·v1.3 wrapper가 같은 `transfer` 폴더에 있어야 한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.3.py"
+# expected: 02b1620090a9161a295fccd2b255cdcb59daf4b0e9901786fbae47eb94bf4765
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.3.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --self-test
+# expected final line: LOCAL_MODEL_OPERATIONS_V1_3_SELF_TEST_PASS tasks=100 routes=4 prompt=local-operations-extract-ko-v1.3.0
+```
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.3.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split development \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-dev-v1.3.0-run1"
+```
