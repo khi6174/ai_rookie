@@ -1,0 +1,59 @@
+{
+  "schemaVersion": "local-model-operations-documents-diagnostic-v1",
+  "capturedAt": "2026-07-25T06:38:07.375378+00:00",
+  "sourceResultSchemaVersion": "local-model-operations-documents-v1",
+  "sourceCapturedAt": "2026-07-25T06:35:55.618423+00:00",
+  "sourcePromptVersion": "local-operations-extract-ko-v1.3.0",
+  "evaluatedSplit": "development",
+  "sourceTaskCount": 60,
+  "originalVerdictPreserved": true,
+  "originalPassed": 35,
+  "originalFallback": 25,
+  "originalUnsafeDisplayCount": 0,
+  "originalCodes": {
+    "MALFORMED_JSON": 10,
+    "MARKDOWN_WRAPPER": 15,
+    "PASS": 35
+  },
+  "originalCodesByDocumentKind": {
+    "DELIVERY_WORK_SHEET": {
+      "MALFORMED_JSON": 10,
+      "PASS": 5
+    },
+    "ROUTE_STOP_MANIFEST": {
+      "MARKDOWN_WRAPPER": 15
+    },
+    "SAFETY_INCIDENT_PREVENTION_REPORT": {
+      "PASS": 15
+    },
+    "SHIFT_ROSTER": {
+      "PASS": 15
+    }
+  },
+  "completeSingleFenceCount": 15,
+  "fencedInnerDiagnosticOnly": {
+    "codes": {
+      "CITATION_VALUE_MISMATCH": 15
+    },
+    "codesByDocumentKind": {
+      "ROUTE_STOP_MANIFEST": {
+        "CITATION_VALUE_MISMATCH": 15
+      }
+    },
+    "latentPassesAreNotPromoted": true
+  },
+  "contractShape": {
+    "factIdExactCount": 50,
+    "factIdMismatchCount": 0,
+    "topLevelMissing": {},
+    "topLevelExtra": {}
+  },
+  "decision": "DEVELOPMENT_PROMPT_REVISION_REQUIRED",
+  "nextPromptVersion": "local-operations-extract-ko-v1.4.0",
+  "validationAndFrozenRemainLocked": true,
+  "limitations": [
+    "코드펜스 내부 진단은 원본 PASS로 승격하지 않는다.",
+    "개발 split에서만 프롬프트를 수정하며 expected label과 원본문서는 바꾸지 않는다.",
+    "합성 문서 추출 기준선이며 실제 운영문서 성능이나 모델 학습 완료 증거가 아니다."
+  ]
+}

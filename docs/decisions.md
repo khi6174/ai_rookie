@@ -680,6 +680,16 @@
 - 기각한 대안: v1.2 전역 프롬프트를 모든 유형에 유지, v1.1 route 결과와 v1.2 safety 결과를 사후 합산, 원문에 없는 재구성 인용 허용, work-sheet citation 정답을 짧은 문장으로 변경.
 - 영향 파일: `scripts/local-model-operations-documents-v1.3.py`, `scripts/verify-local-model-operations-documents-v1.3.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.2.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-070 — v1.4 유형별 라우터와 validation 판정을 결과 확인 전에 동결한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: 최종 v1.4 라우터는 작업표 v1.3, 근무표 v1.1, 경로표 v1.1, 안전보고서 v1.2의 이미 실행된 prompt builder를 문서 유형 전체에 적용한다. development를 다시 실행하지 않고 validation 20건으로 일반화를 평가한다. 결과 확인 전 적격 기준을 전체 80% 이상·유형별 60% 이상·비신뢰 지시 100%·unsafe 0건으로, 부분 연구 기준선을 전체 50% 이상으로 고정한다. 독립 검증과 unsafe 0건이면 품질 등급과 관계없이 frozen-test를 최종 1회 실행한다.
+- 이유: v1.3은 전체 35/60으로 개선됐지만 경로표가 v1.1의 13/15에서 0/15로 회귀했다. 개발 결과에서 문서 유형별 prompt builder를 선택하고 처음 보는 validation에서 측정하는 것은 사후 출력 결합과 다르며, 추가 튜닝 없이 가장 재현 가능한 최종 모델 선택 절차다. 판정 기준을 결과 전에 고정해 목표 이동을 막는다.
+- 경계: 과거 run의 성공 출력 합계를 v1.4 실행 통과율로 주장하지 않는다. validation 결과로 prompt·expected·Gate를 다시 바꾸지 않는다. 분류와 관계없이 제품 런타임 통합은 금지하며 모델 학습·실제 운영 성능·안전효과를 주장하지 않는다.
+- 기각한 대안: v1.3을 계속 튜닝, v1.1·v1.2·v1.3의 성공 row 사후 병합, validation 결과를 본 뒤 기준 변경, 낮은 성능이면 frozen-test 생략해 실패 은폐.
+- 영향 파일: `scripts/local-model-operations-documents-v1.4.py`, `scripts/verify-local-model-operations-documents-v1.4.py`, `scripts/classify-local-model-operations-documents.py`, `config/a100-operations-document-eval-policy.json`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.3.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

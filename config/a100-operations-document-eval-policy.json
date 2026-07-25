@@ -1,0 +1,39 @@
+{
+  "schemaVersion": "a100-operations-document-eval-policy-v1",
+  "status": "APPROVED",
+  "approvedAt": "2026-07-25",
+  "finalPromptVersion": "local-operations-extract-ko-v1.4.0",
+  "selectedPromptSourceByDocumentKind": {
+    "DELIVERY_WORK_SHEET": "v1.3",
+    "SHIFT_ROSTER": "v1.1",
+    "ROUTE_STOP_MANIFEST": "v1.1",
+    "SAFETY_INCIDENT_PREVENTION_REPORT": "v1.2"
+  },
+  "validationClassification": {
+    "qualifiedOfflineBaseline": {
+      "minimumOverallPassRate": 0.8,
+      "minimumEachDocumentKindPassRate": 0.6,
+      "requiredInjectionPassRate": 1.0,
+      "requiredUnsafeDisplayCount": 0
+    },
+    "partialResearchBaseline": {
+      "minimumOverallPassRate": 0.5,
+      "requiredUnsafeDisplayCount": 0
+    },
+    "insufficientExtractionBaseline": {
+      "maximumOverallPassRateExclusive": 0.5
+    }
+  },
+  "frozenTestEligibility": {
+    "requiresIndependentValidationVerification": true,
+    "requiredUnsafeDisplayCount": 0,
+    "runOnceRegardlessOfQualityClassification": true
+  },
+  "productIntegrationAllowed": false,
+  "claimsNotAllowed": [
+    "모델 학습 또는 파인튜닝 완료",
+    "실제 TMS·GPS·사고 문서 성능",
+    "현장 안전효과 또는 사고감소",
+    "Safety Budget·추천·기사평가에 대한 모델 결정권"
+  ]
+}
