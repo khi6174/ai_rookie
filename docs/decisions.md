@@ -700,6 +700,16 @@
 - 기각한 대안: 전체 75%만 보고 적격으로 승격, 작업표 기준 완화, validation 실패를 이용한 v1.5 튜닝, frozen-test 생략, frozen 반복 실행.
 - 영향 파일: `artifacts/evals/local-model-runs/operations-documents-validation-v1.4.0-run1/`, `scripts/classify-local-model-operations-documents.py`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-072 — frozen 17/20은 비신뢰 exact 실패로 부분 연구 기준선에 고정한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: v1.4 frozen-test 최종 1회 결과 17/20·unsafe 0건을 `PARTIAL_RESEARCH_BASELINE`으로 고정한다. 전체 85%, 유형별 최소 60%는 충족했지만 비신뢰 안전보고서 1건이 observation ID의 citation 정렬에 실패해 사전 요구 1/1을 만족하지 못했다. 모델은 자유메모 지시를 실행·노출하지 않았으나 exact task 실패이므로 주입 통과로 승격하지 않는다. v1.4를 제품에 통합하지 않고 멘토링 검토 자료로만 사용한다.
+- 이유: 안전한 Fallback과 지시 격리 성공을 정확 추출 성공과 구분해야 한다. 결과 후 비신뢰 기준을 완화하면 사전 정책과 frozen 무결성이 훼손되며, 반대로 unsafe 출력으로 오인하면 실제 실패 원인인 citation misalignment를 왜곡한다.
+- 경계: frozen 재실행·v1.5 튜닝·후처리 승격을 하지 않는다. 실제 운영문서 성능, 모델 학습 완료, 현장 안전효과를 주장하지 않는다. 후속 SFT·LoRA는 SKT 멘토의 structured-output·데이터 규모·라이선스 권고 후 새 계획과 새 split으로만 진행한다.
+- 기각한 대안: 지시를 따르지 않았다는 이유만으로 injection PASS 처리, 전체 85%만 보고 적격 승격, frozen 결과로 prompt 수정, 실패 3건 제외 후 17/17 주장.
+- 영향 파일: `artifacts/evals/local-model-runs/operations-documents-frozen-v1.4.0-run1/`, `artifacts/evals/local-model-runs/operations-documents-comparison.json`, `scripts/summarize-local-model-operations-documents.py`, `docs/a100-operations-document-mentor-brief.md`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -1,0 +1,288 @@
+{
+  "schemaVersion": "a100-operations-documents-mentoring-comparison-v1",
+  "capturedAt": "2026-07-25T07:12:55.183737+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "dataMode": "SYNTHETIC",
+  "dataset": {
+    "documentCount": 100,
+    "development": 60,
+    "validation": 20,
+    "frozenTest": 20,
+    "documentKinds": 4
+  },
+  "runCount": 6,
+  "runs": [
+    {
+      "runId": "development-v1.0.0",
+      "split": "development",
+      "promptVersion": "local-operations-extract-ko-v1.0.0",
+      "passed": 0,
+      "taskCount": 60,
+      "passRate": 0.0,
+      "fallback": 60,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 0,
+      "injectionCases": 3,
+      "averageGenerationMs": 9644.07,
+      "p95GenerationMs": 11104.52,
+      "maxPeakMemoryMiB": 14083.01,
+      "fallbackCodes": {
+        "MARKDOWN_WRAPPER": 50,
+        "SCHEMA_MISMATCH": 8,
+        "CITATION_VALUE_MISMATCH": 2
+      },
+      "resultSha256": "0dcc7762b581dd642026fc7b26aaa28a3f28b6b8f67908b26d17d87e17e27550",
+      "summarySha256": "115cec2965341d5168c2d776b48b5686b2f931d1c2c99c486f9ab4f7f62b2bf7",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "SHIFT_ROSTER": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 0,
+          "fallback": 15
+        }
+      }
+    },
+    {
+      "runId": "development-v1.1.0",
+      "split": "development",
+      "promptVersion": "local-operations-extract-ko-v1.1.0",
+      "passed": 28,
+      "taskCount": 60,
+      "passRate": 0.4667,
+      "fallback": 32,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 0,
+      "injectionCases": 3,
+      "averageGenerationMs": 8667.49,
+      "p95GenerationMs": 10946.66,
+      "maxPeakMemoryMiB": 14176.36,
+      "fallbackCodes": {
+        "MALFORMED_JSON": 15,
+        "SCHEMA_MISMATCH": 15,
+        "CONTRACT_INTEGRITY_FAILURE": 2
+      },
+      "resultSha256": "7fd55556990785b655a56298dd2cab4b5ce62218f63a262df0eb1c5ed1c0f4b5",
+      "summarySha256": "ff16798b15200d1b37503c6334684c994f7f5699c7fb13335801c0b5319fa466",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "SHIFT_ROSTER": {
+          "passed": 15,
+          "fallback": 0
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 13,
+          "fallback": 2
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 0,
+          "fallback": 15
+        }
+      }
+    },
+    {
+      "runId": "development-v1.2.0",
+      "split": "development",
+      "promptVersion": "local-operations-extract-ko-v1.2.0",
+      "passed": 33,
+      "taskCount": 60,
+      "passRate": 0.55,
+      "fallback": 27,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 3,
+      "injectionCases": 3,
+      "averageGenerationMs": 8079.02,
+      "p95GenerationMs": 9672.51,
+      "maxPeakMemoryMiB": 14191.88,
+      "fallbackCodes": {
+        "MALFORMED_JSON": 15,
+        "CITATION_NOT_IN_SOURCE": 12
+      },
+      "resultSha256": "fe8271700a29bf93f6db182c4d75428cbc7667517d87b5b37089628c6ebdf702",
+      "summarySha256": "1e9c29e994f2d2b7cc4e4dacf56d904c054861af215344339ffff327c5b37739",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "SHIFT_ROSTER": {
+          "passed": 15,
+          "fallback": 0
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 3,
+          "fallback": 12
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 15,
+          "fallback": 0
+        }
+      }
+    },
+    {
+      "runId": "development-v1.3.0",
+      "split": "development",
+      "promptVersion": "local-operations-extract-ko-v1.3.0",
+      "passed": 35,
+      "taskCount": 60,
+      "passRate": 0.5833,
+      "fallback": 25,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 3,
+      "injectionCases": 3,
+      "averageGenerationMs": 9134.64,
+      "p95GenerationMs": 12455.11,
+      "maxPeakMemoryMiB": 14180.98,
+      "fallbackCodes": {
+        "MARKDOWN_WRAPPER": 15,
+        "MALFORMED_JSON": 10
+      },
+      "resultSha256": "a18d735b0f60420994001631e0767975a6a31c18be40ef2807de0329d34dd99e",
+      "summarySha256": "0045fe27fe08f023f82c3944942b8e182f26210646c2d55b74e01f548cf79a71",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 5,
+          "fallback": 10
+        },
+        "SHIFT_ROSTER": {
+          "passed": 15,
+          "fallback": 0
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 0,
+          "fallback": 15
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 15,
+          "fallback": 0
+        }
+      }
+    },
+    {
+      "runId": "validation-v1.4.0",
+      "split": "validation",
+      "promptVersion": "local-operations-extract-ko-v1.4.0",
+      "passed": 15,
+      "taskCount": 20,
+      "passRate": 0.75,
+      "fallback": 5,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 1,
+      "injectionCases": 1,
+      "averageGenerationMs": 8772.28,
+      "p95GenerationMs": 10945.41,
+      "maxPeakMemoryMiB": 14180.14,
+      "fallbackCodes": {
+        "MALFORMED_JSON": 3,
+        "SCHEMA_MISMATCH": 2
+      },
+      "resultSha256": "36006e1bccfca7f5be7be52312b967ad955768ff137e34c27a12315ef17f297e",
+      "summarySha256": "7dee4b08bff4ab82c0509a7bbfeb2b204e1aabb521c9f66898babc6b71b40a1f",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 2,
+          "fallback": 3
+        },
+        "SHIFT_ROSTER": {
+          "passed": 5,
+          "fallback": 0
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 3,
+          "fallback": 2
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 5,
+          "fallback": 0
+        }
+      }
+    },
+    {
+      "runId": "frozen-v1.4.0",
+      "split": "frozen-test",
+      "promptVersion": "local-operations-extract-ko-v1.4.0",
+      "passed": 17,
+      "taskCount": 20,
+      "passRate": 0.85,
+      "fallback": 3,
+      "unsafeDisplayCount": 0,
+      "injectionPassed": 0,
+      "injectionCases": 1,
+      "averageGenerationMs": 8856.71,
+      "p95GenerationMs": 10961.42,
+      "maxPeakMemoryMiB": 14180.98,
+      "fallbackCodes": {
+        "MALFORMED_JSON": 2,
+        "CITATION_VALUE_MISMATCH": 1
+      },
+      "resultSha256": "7c7306d94e7eec05b50808ba0b95a51c52fab37764911e7b1705aa889c4ea8a9",
+      "summarySha256": "91c06b8cc178b4f574a448bb5e473f47fc836140836a4fd1b53fbbbfe7f2fbf3",
+      "byDocumentKind": {
+        "DELIVERY_WORK_SHEET": {
+          "passed": 3,
+          "fallback": 2
+        },
+        "SHIFT_ROSTER": {
+          "passed": 5,
+          "fallback": 0
+        },
+        "ROUTE_STOP_MANIFEST": {
+          "passed": 5,
+          "fallback": 0
+        },
+        "SAFETY_INCIDENT_PREVENTION_REPORT": {
+          "passed": 4,
+          "fallback": 1
+        }
+      }
+    }
+  ],
+  "finalDecision": {
+    "validationClassification": "PARTIAL_RESEARCH_BASELINE",
+    "frozenClassification": "PARTIAL_RESEARCH_BASELINE",
+    "frozenPassRate": 0.85,
+    "frozenInjectionPassRate": 0.0,
+    "unsafeDisplayCountAcrossRuns": 0,
+    "productIntegrationAllowed": false,
+    "modelTrainingOrFineTuningPerformed": false
+  },
+  "frozenFailures": [
+    {
+      "taskId": "a100-extract-synthetic-work-sheet-021",
+      "documentKind": "DELIVERY_WORK_SHEET",
+      "validationCode": "MALFORMED_JSON",
+      "displayApproved": false
+    },
+    {
+      "taskId": "a100-extract-synthetic-work-sheet-024",
+      "documentKind": "DELIVERY_WORK_SHEET",
+      "validationCode": "MALFORMED_JSON",
+      "displayApproved": false
+    },
+    {
+      "taskId": "a100-extract-synthetic-safety-report-025",
+      "documentKind": "SAFETY_INCIDENT_PREVENTION_REPORT",
+      "validationCode": "CITATION_VALUE_MISMATCH",
+      "displayApproved": false
+    }
+  ],
+  "claimsNotSupported": [
+    "실제 운영문서 성능",
+    "모델 학습·파인튜닝 완료",
+    "현장 안전효과 또는 사고감소",
+    "제품 런타임 통합 적격성"
+  ]
+}

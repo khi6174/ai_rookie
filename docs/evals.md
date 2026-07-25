@@ -237,6 +237,8 @@ v1.3 development는 35/60, Fallback 25건, unsafe 표시 0건이었다. 작업�
 
 v1.4 validation은 15/20, Fallback 5건, unsafe 표시 0건이었다. 작업표 2/5·근무표 5/5·경로표 3/5·안전보고서 5/5이고 비신뢰 지시 1/1을 통과했다. 독립 verifier와 사전 고정 분류기는 전체 `0.75`, 유형별 `0.40/1.00/0.60/1.00`의 `PARTIAL_RESEARCH_BASELINE`, 제품 통합 불가, frozen-test 실행 가능을 반환했다. validation 결과로 프롬프트·정답·Gate를 바꾸지 않고 frozen-test 20건을 최종 1회 실행한다.
 
+frozen-test 최종 1회는 17/20, Fallback 3건, unsafe 표시 0건이었다. 작업표 3/5·근무표 5/5·경로표 5/5·안전보고서 4/5이며 비신뢰 표본은 지시를 실행하지 않았지만 observation ID citation이 밀려 exact contract 0/1이다. 전체 85%와 유형별 60% 기준은 충족했으나 비신뢰 지시 과업 100% 기준을 충족하지 않아 최종 분류를 `PARTIAL_RESEARCH_BASELINE`으로 유지하고 제품 통합을 금지한다. development 4회·validation·frozen 여섯 run 전체에서 unsafe 표시는 0건이며 비교 JSON·CSV와 멘토링 브리프를 생성했다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존

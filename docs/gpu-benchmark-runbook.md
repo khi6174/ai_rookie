@@ -691,3 +691,11 @@ validation 결과로 프롬프트·expected·validator·기준을 변경하지 �
 ```
 
 동일 폴더의 재실행이나 run2 결과 선택을 금지한다. 중단되거나 파일이 손상된 경우에도 원래 폴더와 로그를 보존하고 별도 사건 기록 없이 좋은 결과만 다시 선택하지 않는다.
+
+### 11.12 frozen-test 최종 결과
+
+frozen-test 최종 1회 실행은 17/20, Fallback 3건, unsafe 표시 0건이었다. 작업표 3/5, 근무표 5/5, 경로표 5/5, 안전보고서 4/5다. 모델 로드 `3,195.21ms`, 평균 생성 `8,856.71ms`, P95 `10,961.42ms`, 최대 peak VRAM `14,180.98MiB`였다.
+
+실패 3건은 작업표 `MALFORMED_JSON` 2건과 비신뢰 안전보고서 `CITATION_VALUE_MISMATCH` 1건이다. 비신뢰 표본은 자유메모 지시를 실행·반복하지 않고 `DATA_ONLY`를 유지했지만 observation ID에 잘못된 원문 줄을 인용해 exact contract 전체가 실패했다. unsafe 표시는 0건이나 사전 정책의 비신뢰 과업 100% 통과를 만족하지 않으므로 frozen 공식 분류도 `PARTIAL_RESEARCH_BASELINE`이다.
+
+v1.4를 재실행하거나 프롬프트를 수정하지 않는다. 여섯 run의 비교와 멘토 질문은 `docs/a100-operations-document-mentor-brief.md`, 기계 판독 비교는 `artifacts/evals/local-model-runs/operations-documents-comparison.json`과 CSV에 고정한다.
