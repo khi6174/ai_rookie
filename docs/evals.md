@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-23
+- 최종 갱신: 2026-07-25
 - 승인 조건: 평가 스크립트·fixtures·재현 명령과 최초 결과가 저장소에서 확인될 것
 
 ## 1. 목적
@@ -224,6 +224,8 @@ ADR-050에 따라 A.X Hosted API 인증 해결을 기다리지 않고 Upstage �
 `pnpm run data:synthetic:operations`는 25개 상위 구조화 레코드에서 배송 작업표·근무표·배송지 경로표·사고예방 안전보고서를 각각 25개씩 생성한다. 분할은 parent record 단위 development 60·validation 20·frozen-test 20문서다. `synthetic-operations-documents-validation-v1`은 100/100 Schema, 상위 참조와 stop 순서, 평가시각 이후·근무종료 이전 ETA, 개인정보·정밀 좌표·생체정보 패턴, 문서와 상위 레코드의 exact 의미 일치, Safety Budget·사고확률·기사평가·추천 필드 부재와 exact duplicate 0건을 검사한다.
 
 이는 실제 TMS·GPS·기사·고객·사고 문서 또는 Upstage Live 정확도 증거가 아니다. 의미 근접 중복 임계치는 미승인이므로 exact duplicate만 하드 Gate로 사용한다.
+
+`node scripts/prepare-a100-operations-documents.mjs`는 이 100개 문서를 변경하지 않고 A100 오프라인 추출 bundle로 고정한다. 각 과업은 문서 원문 SHA-256, 정확 field ID, 문서 표시값과 표시값을 포함하는 원문 전체 한 줄을 expected contract로 가진다. `scripts/local-model-operations-documents.py`는 development 60 → validation 20 → frozen-test 20을 분리 실행하며 strict JSON·identity·field 순서·새 숫자·원문 인용·PII·비신뢰 지시 격리 Gate를 통과하지 못한 출력은 모두 `safe-fallback`으로 전환한다. 로컬 준비 결과는 100건·60/20/20·유형별 25건·주입 5건 계약, Python self-test 7종과 세 split dry-run을 통과했다. 아직 A100 100건 추론 결과는 실행·회수되지 않았으므로 모델 통과율이나 학습 완료를 주장하지 않는다.
 
 ### 11.1 문서 파이프라인
 

@@ -640,6 +640,16 @@
 - 기각한 대안: Round 3를 Round 4로 재사용, 팀원이 만든 자동 응답을 독립 검토로 간주, 사람 Gate를 `PASSED`로 수동 수정, 모든 검증이 끝난 일반 최종 제출본으로 표기하는 방식.
 - 영향 파일: `config/final-release-policy.json`, `src/evals/goalCompletion.ts`, `tests/goal-completion.test.ts`, `scripts/run-goal-completion-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/goal-completion-audit.md`, `docs/final-readiness.md`, `docs/submission-package.md`, `docs/demo-script.md`
 
+### ADR-066 — A100 운영문서 평가는 60/20/20 분리 추론 기준선으로 고정한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: 합성 운영문서 100건을 A.X-4.0-Light 고정 revision의 오프라인 정보추출 기준선으로 사용한다. development 60건에서 프롬프트와 오류 taxonomy를 확정하고, 동결 후 validation 20건, 마지막으로 frozen-test 20건을 1회 실행한다. 모델은 고정 field의 문서 표시값과 정확 원문 한 줄만 추출하며, 새 숫자·가짜 인용·개인정보·비신뢰 지시 실행·계약 변경은 모두 표시 금지 Fallback이다. bundle·source·raw output hash와 JSON·CSV·summary 집계는 별도 로컬 검증기가 재계산한다.
+- 이유: 기존 12·30과업 설명 생성 기준선만으로는 새로 만든 운영문서의 파싱·근거 충실도를 평가할 수 없고, development와 최종 평가를 섞으면 멘토링용 수치가 프롬프트 과적합으로 오염되기 때문이다.
+- 경계: 이 단계는 학습·파인튜닝이 아니며 모델 가중치를 변경하지 않는다. Safety Budget·Time-to-Breach·개입 추천·Risk Transfer Guard는 계속 결정론 코드가 소유한다. 합성 문서 결과를 실제 TMS·GPS·사고 데이터 성능, 사고감소 또는 현장 사용성으로 확대 주장하지 않는다.
+- 기각한 대안: 100건 전부를 반복 실행해 가장 좋은 결과 선택, frozen-test를 프롬프트 수정에 사용, 모델이 정답·요약·추천을 자유 생성, 검증 실패 출력을 후처리해 PASS로 승격, 합성 데이터로 실제 운영 성능 주장.
+- 영향 파일: `src/evals/a100OperationsDocuments.ts`, `scripts/prepare-a100-operations-documents.mjs`, `scripts/local-model-operations-documents.py`, `scripts/verify-local-model-operations-documents.py`, `tests/a100-operations-documents.test.ts`, `artifacts/evals/a100-operations-documents/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

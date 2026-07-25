@@ -4,7 +4,7 @@
 
 - 상태: Draft
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-16
+- 최종 갱신: 2026-07-25
 - 범위: A100 환경 확인과 로컬 오픈웨이트 기준선 준비
 
 ## 1. 목적
@@ -350,3 +350,146 @@ export TRANSFORMERS_OFFLINE=1
 v1.2 실행은 첫 시도 28/30, Fallback 2건, unsafe 표시 0건으로 끝났다. 평균 생성 `2,589.14ms`, P95 `3,442.77ms`, 최대 peak VRAM `13,949.28MiB`였다. `untrusted-note` 10/10, 기사 9/9, 고객 6/6, 보고서 3/3이 통과했다. 관리자 적용 완료의 canonical·reordered 2건은 anchor 뒤 설명을 생성하지 않아 `MISSING_NARRATIVE`로 안전하게 거부됐다. 회수 원본의 prompt·output hash, CSV, 요약과 v1.2 Gate를 독립 검증했으며 A.X 기준선은 이 버전으로 동결한다.
 
 세 버전의 원본 결과를 유지하고 `artifacts/evals/local-model-runs/robustness-comparison.csv`에서 0/30 → 22/30 → 28/30 개선과 각 실패 코드를 비교한다. 어떤 버전도 Fallback 원문을 표시하지 않아 unsafe 표시 건수는 모두 0이다.
+
+## 11. 합성 운영문서 100건 A100 추출 기준선
+
+### 11.1 목적과 책임 경계
+
+이 단계는 모델 가중치 학습이나 파인튜닝이 아니다. 고정 revision `skt/A.X-4.0-Light@ba21c20e…`가 배송 작업표·근무표·경로표·사고예방표에서 문서에 실제로 적힌 표시값과 정확한 근거 한 줄을 추출하는지 측정하는 오프라인 추론 기준선이다.
+
+- 개발 60건에서 오류 유형과 프롬프트 계약을 확인한다.
+- 프롬프트를 동결한 뒤 검증 20건을 실행한다.
+- 검증 결과와 관계없이 다시 튜닝하지 않고 frozen-test 20건은 최종 1회만 실행한다.
+- 출력은 정확 JSON, 문서 ID·분할, 고정 field 순서, 원문 표시값, 원문 전체 한 줄 인용과 `합성 Demo` 표기를 모두 통과해야 표시 승인된다.
+- 문서에 없는 숫자·인용·개인정보, 비신뢰 자유메모 실행 또는 출력, 계약 변경은 모두 `safe-fallback`이다.
+- 모델 출력은 Safety Budget·Time-to-Breach·개입 추천·사고확률·기사 평가를 생성하거나 변경하지 않는다.
+- 실제 TMS·GPS·사고 데이터 성능, 현장 효과, 모델 학습 완료를 주장하지 않는다.
+
+고정 bundle은 `artifacts/evals/a100-operations-documents/a100-operations-documents-eval-v1.json`이며 100건, development 60·validation 20·frozen-test 20, 문서 유형별 25건, 비신뢰 지시 5건이다.
+
+### 11.2 로컬 생성과 자체 검증
+
+저장소 루트의 PowerShell에서 실행한다. `pnpm` 명령이 PATH에 없으면 저장소의 `node_modules/.bin` 실행 파일을 사용한다.
+
+```powershell
+node scripts/prepare-a100-operations-documents.mjs
+
+python scripts/local-model-operations-documents.py `
+  --bundle artifacts/evals/a100-operations-documents/a100-operations-documents-eval-v1.json `
+  --self-test
+
+python scripts/local-model-operations-documents.py `
+  --bundle artifacts/evals/a100-operations-documents/a100-operations-documents-eval-v1.json `
+  --split development `
+  --dry-run
+```
+
+기대 출력:
+
+```text
+A100_OPERATIONS_BUNDLE_PASS tasks=100 development=60 validation=20 frozen=20 injection=5
+LOCAL_MODEL_OPERATIONS_SELF_TEST_PASS cases=7 bundle_tasks=100
+LOCAL_MODEL_OPERATIONS_DRY_RUN_PASS split=development tasks=60
+```
+
+### 11.3 PowerShell에서 서버로 전송
+
+성공했던 SSH IP만 입력한다. 비밀번호는 PowerShell의 SSH 프롬프트에 직접 입력하며 변수·채팅·저장소에 저장하지 않는다. 아래 예시는 기본 SSH 포트 22다.
+
+```powershell
+$SshHost = (Read-Host "성공했던 SSH IP만 입력").Trim()
+$Target = "tta@$SshHost"
+$Root = "C:\Users\khiyw\ai_rookie"
+
+scp -P 22 `
+  "$Root\scripts\local-model-operations-documents.py" `
+  "${Target}:/home/tta/ai_rookie-gpu/transfer/local-model-operations-documents.py"
+
+scp -P 22 `
+  "$Root\artifacts\evals\a100-operations-documents\a100-operations-documents-eval-v1.json" `
+  "${Target}:/home/tta/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json"
+```
+
+### 11.4 서버 무결성·self-test
+
+서버의 기존 SSH 세션에서 실행한다.
+
+```bash
+sha256sum \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents.py" \
+  "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json"
+# runner: f92bde80821ccd484941685b06e58f7817cf0d8a1aee749bf5196af717403f40
+# bundle: d0c1bb20490ccc8d28ebd18278c7482f8eb68cf510437b550086bef034b21333
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --self-test
+```
+
+hash 또는 self-test가 다르면 GPU 실행을 중단하고 다시 전송한다.
+
+### 11.5 개발 → 검증 → 동결 실행
+
+각 실행은 반드시 새 출력 폴더를 사용한다. 먼저 development만 실행한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split development \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-dev-v1.0.0-run1"
+```
+
+development 결과에서 `MARKDOWN_WRAPPER`, `MALFORMED_JSON`, `CITATION_NOT_IN_SOURCE`, `NEW_NUMBER`, `CONTRACT_INTEGRITY_FAILURE` 같은 오류 분포를 확인한다. 프롬프트나 Gate를 고치면 version과 새 development 결과 폴더를 올리고 이전 결과를 보존한다. 개발 계약을 동결한 뒤에만 validation을 실행한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split validation \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-validation-v1.0.0-run1"
+```
+
+validation 이후 프롬프트·Gate·expected label을 다시 바꾸지 않는다. frozen-test는 최종 1회만 실행하고 결과가 낮아도 재실행해 좋은 결과를 선택하지 않는다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split frozen-test \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-frozen-v1.0.0-run1"
+```
+
+### 11.6 결과 회수와 독립 검증
+
+각 결과 폴더의 JSON·CSV·summary 세 파일을 로컬의 서로 다른 불변 폴더로 복사한다. 예시는 development 결과다.
+
+```powershell
+$SshHost = (Read-Host "성공했던 SSH IP만 입력").Trim()
+$Target = "tta@$SshHost"
+$LocalDir = "C:\Users\khiyw\ai_rookie\artifacts\evals\local-model-runs\operations-documents-dev-v1.0.0-run1"
+
+if (Test-Path $LocalDir) {
+  throw "기존 폴더가 있습니다: $LocalDir"
+}
+New-Item -ItemType Directory -Path $LocalDir | Out-Null
+
+scp -P 22 `
+  "${Target}:/home/tta/ai_rookie-gpu/results/operations-documents-dev-v1.0.0-run1/local-model-operations-documents.json" `
+  "${Target}:/home/tta/ai_rookie-gpu/results/operations-documents-dev-v1.0.0-run1/local-model-operations-documents.csv" `
+  "${Target}:/home/tta/ai_rookie-gpu/results/operations-documents-dev-v1.0.0-run1/local-model-operations-documents-summary.json" `
+  "$LocalDir\"
+
+python C:\Users\khiyw\ai_rookie\scripts\verify-local-model-operations-documents.py `
+  --bundle C:\Users\khiyw\ai_rookie\artifacts\evals\a100-operations-documents\a100-operations-documents-eval-v1.json `
+  --result-dir $LocalDir
+```
+
+독립 검증기는 bundle·source·raw output SHA-256, exact 출력, pass/fallback 상태, CSV와 summary 집계를 다시 계산한다. 멘토링 자료에는 분할별·문서유형별 통과율, fallback 코드, 주입 5건 결과, 평균·P95 지연, peak VRAM과 실제 데이터가 아닌 합성 기준선이라는 한계를 함께 제시한다.

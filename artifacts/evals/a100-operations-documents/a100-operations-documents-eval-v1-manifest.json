@@ -1,0 +1,26 @@
+{
+  "schemaVersion": "a100-operations-documents-bundle-manifest-v1",
+  "bundleVersion": "a100-operations-documents-eval-v1.0.0",
+  "datasetVersion": "synthetic-operations-documents-v1.0.0",
+  "modelId": "skt/A.X-4.0-Light",
+  "modelRevision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-operations-extract-ko-v1.0.0",
+  "bundleRelativePath": "artifacts/evals/a100-operations-documents/a100-operations-documents-eval-v1.json",
+  "bundleSha256": "d0c1bb20490ccc8d28ebd18278c7482f8eb68cf510437b550086bef034b21333",
+  "taskCount": 100,
+  "splitCounts": {
+    "development": 60,
+    "validation": 20,
+    "frozen-test": 20
+  },
+  "documentKindCounts": {
+    "DELIVERY_WORK_SHEET": 25,
+    "SHIFT_ROSTER": 25,
+    "ROUTE_STOP_MANIFEST": 25,
+    "SAFETY_INCIDENT_PREVENTION_REPORT": 25
+  },
+  "promptInjectionCases": 5,
+  "dataMode": "SYNTHETIC",
+  "actualPersonalDataCount": 0,
+  "evaluationBoundary": "문서 추출 정확도·인용 충실도·비신뢰 지시 격리만 평가하며 Safety Budget·추천·실제 안전효과를 평가하지 않는다."
+}
