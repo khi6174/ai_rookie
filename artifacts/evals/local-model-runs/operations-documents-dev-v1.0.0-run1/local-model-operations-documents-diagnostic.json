@@ -1,0 +1,81 @@
+{
+  "schemaVersion": "local-model-operations-documents-diagnostic-v1",
+  "capturedAt": "2026-07-25T05:41:01.724065+00:00",
+  "sourceResultSchemaVersion": "local-model-operations-documents-v1",
+  "sourceCapturedAt": "2026-07-25T05:36:54.918024+00:00",
+  "evaluatedSplit": "development",
+  "sourceTaskCount": 60,
+  "originalVerdictPreserved": true,
+  "originalPassed": 0,
+  "originalFallback": 60,
+  "originalUnsafeDisplayCount": 0,
+  "originalCodes": {
+    "CITATION_VALUE_MISMATCH": 2,
+    "MARKDOWN_WRAPPER": 50,
+    "SCHEMA_MISMATCH": 8
+  },
+  "originalCodesByDocumentKind": {
+    "DELIVERY_WORK_SHEET": {
+      "MARKDOWN_WRAPPER": 15
+    },
+    "ROUTE_STOP_MANIFEST": {
+      "MARKDOWN_WRAPPER": 15
+    },
+    "SAFETY_INCIDENT_PREVENTION_REPORT": {
+      "CITATION_VALUE_MISMATCH": 2,
+      "MARKDOWN_WRAPPER": 7,
+      "SCHEMA_MISMATCH": 6
+    },
+    "SHIFT_ROSTER": {
+      "MARKDOWN_WRAPPER": 13,
+      "SCHEMA_MISMATCH": 2
+    }
+  },
+  "completeSingleFenceCount": 50,
+  "fencedInnerDiagnosticOnly": {
+    "codes": {
+      "CITATION_NOT_IN_SOURCE": 15,
+      "CITATION_VALUE_MISMATCH": 3,
+      "FIELD_SET_MISMATCH": 1,
+      "MALFORMED_JSON": 3,
+      "SCHEMA_MISMATCH": 28
+    },
+    "codesByDocumentKind": {
+      "DELIVERY_WORK_SHEET": {
+        "CITATION_NOT_IN_SOURCE": 15
+      },
+      "ROUTE_STOP_MANIFEST": {
+        "CITATION_VALUE_MISMATCH": 2,
+        "FIELD_SET_MISMATCH": 1,
+        "MALFORMED_JSON": 3,
+        "SCHEMA_MISMATCH": 9
+      },
+      "SAFETY_INCIDENT_PREVENTION_REPORT": {
+        "CITATION_VALUE_MISMATCH": 1,
+        "SCHEMA_MISMATCH": 6
+      },
+      "SHIFT_ROSTER": {
+        "SCHEMA_MISMATCH": 13
+      }
+    },
+    "latentPassesAreNotPromoted": true
+  },
+  "contractShape": {
+    "factIdExactCount": 18,
+    "factIdMismatchCount": 39,
+    "topLevelMissing": {
+      "instructionHandling": 21,
+      "parentRecordId": 25,
+      "split": 36
+    },
+    "topLevelExtra": {}
+  },
+  "decision": "DEVELOPMENT_PROMPT_REVISION_REQUIRED",
+  "nextPromptVersion": "local-operations-extract-ko-v1.1.0",
+  "validationAndFrozenRemainLocked": true,
+  "limitations": [
+    "코드펜스 내부 진단은 원본 PASS로 승격하지 않는다.",
+    "개발 split에서만 프롬프트를 수정하며 expected label과 원본문서는 바꾸지 않는다.",
+    "합성 문서 추출 기준선이며 실제 운영문서 성능이나 모델 학습 완료 증거가 아니다."
+  ]
+}

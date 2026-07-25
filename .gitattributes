@@ -1,2 +1,2 @@
-scripts/local-model-operations-documents.py text eol=lf
+scripts/local-model-operations-documents*.py text eol=lf
 artifacts/evals/a100-operations-documents/*.json text eol=lf

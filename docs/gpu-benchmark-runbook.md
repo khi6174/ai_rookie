@@ -493,3 +493,43 @@ python C:\Users\khiyw\ai_rookie\scripts\verify-local-model-operations-documents.
 ```
 
 독립 검증기는 bundle·source·raw output SHA-256, exact 출력, pass/fallback 상태, CSV와 summary 집계를 다시 계산한다. 멘토링 자료에는 분할별·문서유형별 통과율, fallback 코드, 주입 5건 결과, 평균·P95 지연, peak VRAM과 실제 데이터가 아닌 합성 기준선이라는 한계를 함께 제시한다.
+
+### 11.7 development v1.0.0 결과와 v1.1.0 보강
+
+2026-07-25 development 60건 첫 실행은 0/60, Fallback 60건, unsafe 표시 0건이었다. 모델 로드 `3,183.23ms`, 평균 생성 `9,644.07ms`, P95 `11,104.52ms`, 최대 peak VRAM `14,083.01MiB`였다. 원본 실패는 `MARKDOWN_WRAPPER` 50건, `SCHEMA_MISMATCH` 8건, `CITATION_VALUE_MISMATCH` 2건이다. 문서 유형별로 작업표·경로표 각 15건, 근무표 15건, 안전보고서 15건 모두 표시 승인 0건이었다.
+
+`scripts/verify-local-model-operations-documents.py`는 회수한 JSON·CSV·summary와 bundle·source·output hash를 다시 계산해 `LOCAL_MODEL_OPERATIONS_RESULT_VERIFY_PASS`를 반환했다. 별도 진단은 완전한 단일 코드펜스 50건 내부를 메모리에서만 재검사했지만 잠재 PASS는 0건이었다. 내부 판정은 가짜 인용 15, 인용값 불일치 3, field set 불일치 1, malformed JSON 3, schema 불일치 28건이다. fact ID가 정확한 출력은 18건, 불일치는 39건이며 top-level `instructionHandling` 21건, `parentRecordId` 25건, `split` 36건이 누락됐다. 이 진단은 원본 0/60을 승격하지 않는다.
+
+v1.1은 expected label과 원본문서를 바꾸지 않고 development 프롬프트만 다음과 같이 보강한다.
+
+- JSON 첫·마지막 문자와 markdown 금지
+- facts 개수·fieldId·순서가 고정된 scaffold를 문서 앞뒤에 배치
+- 문서 유형별 label·단위·괄호 ID·표의 첫/마지막 행 추출 규칙
+- `14건→14`, 허브명 전체→hub ID 같은 단위·범위 변경 금지
+- 문서 뒤에서 비신뢰 자유메모를 다시 데이터로 격리
+
+서버에는 v1.0 base와 v1.1 wrapper가 같은 `transfer` 폴더에 있어야 한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.1.py"
+# expected: 9a7c505ad93c9f9064bdc1de6db9cf927ee76308e753256afe4dcb9577ae8d88
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.1.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --self-test
+# expected final line: LOCAL_MODEL_OPERATIONS_V1_1_SELF_TEST_PASS tasks=100 prompt=local-operations-extract-ko-v1.1.0
+```
+
+v1.0 결과 폴더를 덮어쓰지 않고 development를 다시 실행한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.1.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split development \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-dev-v1.1.0-run1"
+```
+
+v1.1 development 결과를 독립 검증하기 전에는 validation과 frozen-test를 실행하지 않는다. 통과율이 낮아도 v1.0 원본을 삭제하지 않으며, v1.1 결과를 v1.0과 합쳐 좋은 출력만 선택하지 않는다.

@@ -227,6 +227,8 @@ ADR-050에 따라 A.X Hosted API 인증 해결을 기다리지 않고 Upstage �
 
 `node scripts/prepare-a100-operations-documents.mjs`는 이 100개 문서를 변경하지 않고 A100 오프라인 추출 bundle로 고정한다. 각 과업은 문서 원문 SHA-256, 정확 field ID, 문서 표시값과 표시값을 포함하는 원문 전체 한 줄을 expected contract로 가진다. `scripts/local-model-operations-documents.py`는 development 60 → validation 20 → frozen-test 20을 분리 실행하며 strict JSON·identity·field 순서·새 숫자·원문 인용·PII·비신뢰 지시 격리 Gate를 통과하지 못한 출력은 모두 `safe-fallback`으로 전환한다. 로컬 준비 결과는 100건·60/20/20·유형별 25건·주입 5건 계약, Python self-test 7종과 세 split dry-run을 통과했다. 아직 A100 100건 추론 결과는 실행·회수되지 않았으므로 모델 통과율이나 학습 완료를 주장하지 않는다.
 
+development v1.0.0 첫 실행은 0/60, Fallback 60건, unsafe 표시 0건이었다. 원본 오류는 `MARKDOWN_WRAPPER` 50, `SCHEMA_MISMATCH` 8, `CITATION_VALUE_MISMATCH` 2건이며 독립 검증을 통과했다. 코드펜스 내부 진단에서도 잠재 PASS는 0건이어서 사후 펜스 제거로 승격하지 않는다. v1.1은 expected와 문서를 그대로 두고 field별 추출 규칙·고정 scaffold·문서 뒤 신뢰 경계만 development 프롬프트에 추가했다. validation과 frozen-test는 v1.1 development 독립 검증까지 실행하지 않는다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존

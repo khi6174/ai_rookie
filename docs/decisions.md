@@ -650,6 +650,16 @@
 - 기각한 대안: 100건 전부를 반복 실행해 가장 좋은 결과 선택, frozen-test를 프롬프트 수정에 사용, 모델이 정답·요약·추천을 자유 생성, 검증 실패 출력을 후처리해 PASS로 승격, 합성 데이터로 실제 운영 성능 주장.
 - 영향 파일: `src/evals/a100OperationsDocuments.ts`, `scripts/prepare-a100-operations-documents.mjs`, `scripts/local-model-operations-documents.py`, `scripts/verify-local-model-operations-documents.py`, `tests/a100-operations-documents.test.ts`, `artifacts/evals/a100-operations-documents/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-067 — 운영문서 development v1.0 실패는 보존하고 field별 신뢰 anchor로 v1.1을 분리한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: development v1.0.0의 0/60·Fallback 60·unsafe 표시 0건과 모든 raw output을 불변 보존한다. 코드펜스 내부도 기존 Gate로 진단하되 원본 PASS로 승격하지 않는다. v1.1은 expected label·문서·validator를 바꾸지 않고, 문서 유형별 field 추출 위치, 단위·부분문자열 범위, 고정 scaffold와 문서 뒤 신뢰 경계만 프롬프트에 추가해 새 development 폴더에서 실행한다.
+- 이유: 실패 50건은 코드펜스 내부에서도 잠재 PASS가 0건이었고, 단위 제거·field 추가·top-level 누락·표 열 오매핑·비신뢰 메모 뒤 값 이동이 함께 확인됐다. 펜스 제거나 관대한 의미 비교로는 정확 인용 계약을 충족할 수 없다.
+- 경계: v1.0과 v1.1의 성공 출력만 합쳐 통과율을 만들지 않는다. v1.1 development 독립 검증 전 validation·frozen-test를 실행하지 않는다. 모델 출력이 Safety Budget·추천·기사 평가를 소유하지 않으며 이는 파인튜닝이나 실제 운영문서 성능 증거가 아니다.
+- 기각한 대안: markdown 자동 제거 후 재채점, `14`와 `14건`을 동일 처리, 가짜·부분 인용 허용, 실패 raw output 삭제, validation·frozen-test를 개발 프롬프트 수정에 사용.
+- 영향 파일: `scripts/diagnose-local-model-operations-documents.py`, `scripts/local-model-operations-documents-v1.1.py`, `scripts/verify-local-model-operations-documents-v1.1.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.0.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
