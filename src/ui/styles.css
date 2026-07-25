@@ -1,28 +1,30 @@
 :root {
-  --color-canvas: #f5f7fb;
+  --color-canvas: #f4f7fc;
   --color-surface: #ffffff;
-  --color-surface-subtle: #f1f4fa;
-  --color-navy-950: #101c2c;
-  --color-navy-900: #16263b;
-  --color-navy-800: #243a56;
-  --color-text: #172033;
-  --color-text-muted: #5c6878;
-  --color-text-disabled: #8b95a3;
-  --color-border: #d7deef;
-  --color-border-strong: #aab7d4;
+  --color-surface-subtle: #eaf0ff;
+  --color-navy-950: #e8eeff;
+  --color-navy-900: #eef4ff;
+  --color-navy-800: #dbe4ff;
+  --color-text: #101828;
+  --color-text-muted: #475467;
+  --color-text-disabled: #6b7684;
+  --color-border: #e6ecf5;
+  --color-border-strong: #d7deef;
   --color-teal-800: #087334;
   --color-teal-700: #0b8f43;
-  --color-teal-100: #e7ffef;
-  --color-blue-800: #041c91;
-  --color-blue-700: #0628c7;
-  --color-blue-200: #c6d0ff;
-  --color-blue-100: #e9edff;
-  --color-amber-800: #7a4300;
-  --color-amber-700: #965400;
-  --color-amber-600: #b76a00;
-  --color-amber-100: #fff1d2;
-  --color-red-700: #b42318;
-  --color-red-100: #fde9e7;
+  --color-teal-100: #e6f8ee;
+  --color-blue-800: #1d4ed8;
+  --color-blue-700: #2563eb;
+  --color-blue-200: #c7d7fe;
+  --color-blue-100: #eaf0ff;
+  --color-amber-800: #92400e;
+  --color-amber-700: #b45309;
+  --color-amber-600: #d97706;
+  --color-amber-100: #fff4e2;
+  --color-red-700: #dc2626;
+  --color-red-100: #fdeeec;
+  --color-violet-700: #7c3aed;
+  --color-violet-100: #f2edff;
   --color-green-500: #0fe75a;
   --color-green-700: #087a36;
   --color-green-100: #e6ffef;
@@ -31,13 +33,16 @@
   --radius-lg: 14px;
   --radius-card: 16px;
   --radius-full: 999px;
-  --shadow-sm: 0 1px 2px rgb(16 28 44 / 6%);
-  --shadow-card: 0 1px 2px rgb(6 40 199 / 7%), 0 10px 28px rgb(16 28 44 / 7%);
+  --shadow-sm: 0 1px 2px rgb(16 24 40 / 4%);
+  --shadow-card: 0 1px 3px rgb(16 24 40 / 5%), 0 8px 24px rgb(16 24 40 / 5%);
   --shadow-md: 0 8px 24px rgb(6 40 199 / 10%);
   --shadow-modal: 0 20px 60px rgb(16 28 44 / 18%);
+  --gradient-hero: linear-gradient(135deg, #e8eeff 0%, #f2f6ff 55%, #eef4ff 100%);
+  --gradient-header: linear-gradient(135deg, #dbe4ff 0%, #eaf0ff 60%, #eef4ff 100%);
+  --font-sans: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   color: var(--color-text);
   background: var(--color-canvas);
-  font-family: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", "Segoe UI", sans-serif;
+  font-family: var(--font-sans);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
 }
@@ -91,7 +96,7 @@ button:disabled {
   left: 8px;
   padding: 10px 14px;
   border-radius: var(--radius-md);
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-950);
   transform: translateY(-150%);
 }
@@ -126,7 +131,7 @@ button:disabled {
 }
 
 .brand-lockup strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.95rem;
   line-height: 1.2;
 }
@@ -173,7 +178,7 @@ button:disabled {
 }
 
 .role-switcher button.is-active {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
 }
@@ -286,7 +291,7 @@ button:disabled {
 
 .button-neutral,
 .button-quiet {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   border-color: var(--color-border-strong);
   background: var(--color-surface);
 }
@@ -346,13 +351,13 @@ button:disabled {
   align-self: start;
   min-height: calc(100vh - 109px);
   padding: 24px 14px 18px;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-950);
 }
 
 .nav-label {
   margin: 0 10px 8px;
-  color: var(--color-border-strong);
+  color: var(--color-text-muted);
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -369,7 +374,7 @@ button:disabled {
   min-height: 44px;
   padding: 8px 12px;
   border-radius: var(--radius-md);
-  color: var(--color-surface);
+  color: var(--color-text);
   text-decoration: none;
   font-size: 0.82rem;
   font-weight: 650;
@@ -391,18 +396,18 @@ button:disabled {
 }
 
 .nav-item small {
-  color: var(--color-border-strong);
+  color: var(--color-text-muted);
   font-size: 0.62rem;
   font-weight: 500;
 }
 
 .nav-item.is-current {
-  color: var(--color-navy-950);
+  color: var(--color-text);
   background: var(--color-teal-100);
 }
 
 .nav-item.is-muted {
-  color: var(--color-border-strong);
+  color: var(--color-text-muted);
 }
 
 .nav-simulation {
@@ -411,15 +416,15 @@ button:disabled {
   gap: 5px;
   margin-top: auto;
   padding: 12px;
-  border: 1px solid rgb(216 222 230 / 25%);
+  border: 1px solid var(--color-border-strong);
   border-radius: var(--radius-md);
-  color: var(--color-border);
+  color: var(--color-text-muted);
   font-size: 0.67rem;
   line-height: 1.45;
 }
 
 .nav-simulation strong {
-  color: var(--color-surface);
+  color: var(--color-text);
 }
 
 .admin-main {
@@ -454,7 +459,7 @@ button:disabled {
 
 .admin-context h1 {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.45rem;
   line-height: 1.3;
   letter-spacing: -0.025em;
@@ -515,7 +520,7 @@ button:disabled {
 }
 
 .weather-boundary-copy strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.75rem;
 }
 
@@ -578,7 +583,7 @@ button:disabled {
 
 .kpi-strip strong {
   align-self: end;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.55rem;
   font-variant-numeric: tabular-nums;
 }
@@ -615,7 +620,7 @@ button:disabled {
 
 .panel-heading h2 {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1rem;
   line-height: 1.35;
 }
@@ -672,7 +677,7 @@ button:disabled {
 }
 
 .route-progress strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.72rem;
 }
 
@@ -722,7 +727,7 @@ button:disabled {
   place-items: center;
   border: 2px solid var(--color-navy-900);
   border-radius: 50%;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-surface);
   font-size: 0.62rem;
   font-weight: 800;
@@ -790,7 +795,7 @@ button:disabled {
 }
 
 .timeline-summary strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.95rem;
   font-variant-numeric: tabular-nums;
 }
@@ -866,7 +871,7 @@ button:disabled {
 
 .support-card h3 {
   margin: 10px 0 7px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.95rem;
   line-height: 1.45;
 }
@@ -901,7 +906,7 @@ button:disabled {
 
 .support-facts dd {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-weight: 750;
   text-align: right;
 }
@@ -928,7 +933,7 @@ button:disabled {
 }
 
 .consent-grid strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.76rem;
 }
 
@@ -997,7 +1002,7 @@ thead th {
 }
 
 tbody th {
-  color: var(--color-navy-900);
+  color: var(--color-text);
 }
 
 tr.is-recommended {
@@ -1045,7 +1050,7 @@ tr.is-recommended {
 }
 
 .intervention-coverage strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.7rem;
 }
 
@@ -1124,7 +1129,7 @@ tr.is-recommended {
 
 .explanation-copy > p {
   margin: 12px 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.82rem;
   line-height: 1.7;
 }
@@ -1228,7 +1233,7 @@ tr.is-recommended {
 }
 
 .audit-panel strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.72rem;
 }
 
@@ -1257,7 +1262,7 @@ tr.is-recommended {
 
 .rider-phone h1 {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: clamp(1.7rem, 7vw, 2.1rem);
   line-height: 1.28;
   letter-spacing: -0.04em;
@@ -1296,7 +1301,7 @@ tr.is-recommended {
 }
 
 .rider-route-summary strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.05rem;
   line-height: 1.25;
 }
@@ -1336,7 +1341,7 @@ tr.is-recommended {
 
 .compact-map-heading strong,
 .compact-map-footer strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.76rem;
 }
 
@@ -1373,7 +1378,7 @@ tr.is-recommended {
   place-items: center;
   border: 3px solid var(--color-navy-900);
   border-radius: 50%;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-surface);
   font-size: 0.68rem;
   font-style: normal;
@@ -1420,7 +1425,7 @@ tr.is-recommended {
 
 .rider-next-plan strong,
 .rider-profile-card strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.95rem;
   line-height: 1.4;
 }
@@ -1538,7 +1543,7 @@ tr.is-recommended {
 .rider-safety-card h2,
 .rider-action-card h2 {
   margin: 16px 0 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.05rem;
 }
 
@@ -1570,7 +1575,7 @@ tr.is-recommended {
 }
 
 .before-after strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.65rem;
   font-variant-numeric: tabular-nums;
 }
@@ -1618,7 +1623,7 @@ tr.is-recommended {
 
 .rider-action-card dd {
   margin: 5px 0 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.8rem;
   font-weight: 750;
 }
@@ -1717,7 +1722,7 @@ summary {
 
 .dialog-header h2 {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1.25rem;
 }
 
@@ -1763,7 +1768,7 @@ summary {
 }
 
 .dialog-metrics strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 1rem;
   font-variant-numeric: tabular-nums;
 }
@@ -1778,7 +1783,7 @@ summary {
 
 .dialog-checks h3 {
   margin: 0 0 9px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.85rem;
 }
 
@@ -1801,7 +1806,7 @@ summary {
 }
 
 .notice-preview strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.8rem;
 }
 
@@ -2109,6 +2114,7 @@ summary {
 }
 
 .app-header.is-admin .brand-mark {
+  color: var(--color-text);
   background: var(--color-navy-950);
 }
 
@@ -2154,7 +2160,7 @@ summary {
 }
 
 .demo-flow-steps li.is-current {
-  color: var(--color-navy-900);
+  color: var(--color-text);
 }
 
 .demo-flow-steps li.is-current > span {
@@ -2194,7 +2200,7 @@ summary {
 
 .nav-title {
   margin: 0 10px 28px;
-  color: var(--color-surface);
+  color: var(--color-text);
   font-size: 1.35rem;
   line-height: 1.02;
   letter-spacing: -0.04em;
@@ -2203,13 +2209,13 @@ summary {
 .admin-nav .nav-item {
   min-height: 52px;
   margin-bottom: 4px;
-  color: #b5c0ce;
+  color: var(--color-text-muted);
   font-size: 0.78rem;
 }
 
 .admin-nav .nav-item > span:first-child {
   width: 22px;
-  color: #8190a4;
+  color: var(--color-text-muted);
   font-size: 0.58rem;
   font-weight: 800;
 }
@@ -2407,7 +2413,7 @@ summary {
   padding: 0 7px;
   border: 3px solid var(--color-surface);
   border-radius: 18px;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-950);
   box-shadow: 0 3px 10px rgb(16 28 44 / 20%);
   font-size: 0.62rem;
@@ -2415,10 +2421,10 @@ summary {
 }
 
 .map-pin.pin-depot { bottom: 48px; left: 6%; }
-.map-pin.pin-current { top: 255px; left: 39%; background: var(--color-blue-700); }
-.map-pin.pin-rest { top: 166px; left: 58%; color: var(--color-navy-950); background: var(--color-amber-100); }
-.map-pin.pin-breach { top: 154px; right: 7%; background: var(--color-red-700); }
-.map-pin.pin-breach.is-applied { background: var(--color-green-700); }
+.map-pin.pin-current { top: 255px; left: 39%; color: var(--color-surface); background: var(--color-blue-700); }
+.map-pin.pin-rest { top: 166px; left: 58%; color: var(--color-text); background: var(--color-amber-100); }
+.map-pin.pin-breach { top: 154px; right: 7%; color: var(--color-surface); background: var(--color-red-700); }
+.map-pin.pin-breach.is-applied { color: var(--color-surface); background: var(--color-green-700); }
 
 .map-label,
 .map-provenance {
@@ -2478,17 +2484,17 @@ summary {
   grid-template-columns: auto minmax(0, 1fr);
   min-height: 66px;
   border-bottom: 0;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-950);
   backdrop-filter: none;
 }
 
-.app-header.is-rider .brand-lockup strong { color: var(--color-surface); }
-.app-header.is-rider .brand-lockup small { color: #aebdce; }
+.app-header.is-rider .brand-lockup strong { color: var(--color-text); }
+.app-header.is-rider .brand-lockup small { color: var(--color-text-muted); }
 .app-header.is-rider .brand-mark { background: var(--color-blue-700); }
 .app-header.is-rider .role-switcher { justify-self: end; border-color: rgb(255 255 255 / 20%); background: rgb(255 255 255 / 7%); }
-.app-header.is-rider .role-switcher button { min-width: 68px; color: #b9c5d4; }
-.app-header.is-rider .role-switcher button.is-active { color: var(--color-surface); background: rgb(255 255 255 / 14%); box-shadow: none; }
+.app-header.is-rider .role-switcher button { min-width: 68px; color: var(--color-text-muted); }
+.app-header.is-rider .role-switcher button.is-active { color: var(--color-text); background: rgb(255 255 255 / 56%); box-shadow: none; }
 .app-header.is-rider .header-actions { display: none; }
 .app-header.is-rider + .global-announcement { display: none; }
 
@@ -2522,7 +2528,7 @@ summary {
   place-items: center;
   border: 1px solid rgb(255 255 255 / 24%);
   border-radius: 9px;
-  color: var(--color-surface);
+  color: var(--color-text);
   font-size: 0.68rem;
   font-weight: 850;
 }
@@ -2541,7 +2547,7 @@ summary {
 .rider-route-bar > div { display: grid; gap: 2px; }
 .rider-route-bar > div:last-child { justify-items: end; }
 .rider-route-bar span { color: var(--color-text-muted); font-size: 0.58rem; }
-.rider-route-bar strong { color: var(--color-navy-900); font-size: 0.76rem; }
+.rider-route-bar strong { color: var(--color-text); font-size: 0.76rem; }
 
 .rider-pwa-status {
   display: grid;
@@ -2551,7 +2557,7 @@ summary {
   min-height: 52px;
   padding: 8px 16px;
   border-bottom: 1px solid var(--color-border);
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-surface);
 }
 
@@ -2729,7 +2735,7 @@ summary {
   min-height: 355px;
   overflow: hidden;
   padding: 28px 25px;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-950);
 }
 
@@ -2758,14 +2764,15 @@ summary {
   height: 38px;
   place-items: center;
   border-radius: 10px;
+  color: var(--color-surface);
   background: var(--color-blue-700);
   font-size: 0.68rem;
   font-weight: 900;
 }
 
 .login-brand strong { font-size: 1rem; }
-.login-hero > p { position: relative; z-index: 2; margin: 112px 0 10px; color: #aebdd0; font-size: 0.7rem; font-weight: 750; }
-.login-hero h1 { position: relative; z-index: 2; margin: 0; color: var(--color-surface); font-size: 2.12rem; line-height: 1.24; letter-spacing: -0.045em; }
+.login-hero > p { position: relative; z-index: 2; margin: 112px 0 10px; color: var(--color-text-muted); font-size: 0.7rem; font-weight: 750; }
+.login-hero h1 { position: relative; z-index: 2; margin: 0; color: var(--color-text); font-size: 2.12rem; line-height: 1.24; letter-spacing: -0.045em; }
 
 .login-route-art {
   position: absolute;
@@ -2795,13 +2802,13 @@ summary {
 }
 
 .fixture-pill { display: inline-flex; min-height: 25px; align-items: center; padding: 0 8px; border-radius: 6px; color: var(--color-blue-700); background: var(--color-blue-100); font-size: 0.58rem; font-weight: 850; }
-.login-panel h2 { margin: 15px 0 6px; color: var(--color-navy-950); font-size: 1.3rem; }
+.login-panel h2 { margin: 15px 0 6px; color: var(--color-text); font-size: 1.3rem; }
 .login-panel > p { margin: 0; color: var(--color-text-muted); font-size: 0.76rem; line-height: 1.55; }
 .login-panel dl { overflow: hidden; margin: 19px 0; border: 1px solid var(--color-border); border-radius: 12px; }
 .login-panel dl div { display: flex; min-height: 47px; align-items: center; justify-content: space-between; padding: 0 12px; border-bottom: 1px solid var(--color-border); }
 .login-panel dl div:last-child { border-bottom: 0; }
 .login-panel dt { color: var(--color-text-muted); font-size: 0.65rem; }
-.login-panel dd { margin: 0; color: var(--color-navy-900); font-size: 0.72rem; font-weight: 800; }
+.login-panel dd { margin: 0; color: var(--color-text); font-size: 0.72rem; font-weight: 800; }
 .login-primary { min-height: 52px; }
 .login-back { min-height: 48px; margin-top: 8px; border-color: transparent; }
 .login-panel > small { display: block; margin-top: 13px; color: var(--color-text-disabled); font-size: 0.58rem; text-align: center; }
@@ -2887,7 +2894,7 @@ summary {
   padding: 4px 10px;
   border: 1px solid rgb(255 255 255 / 24%);
   border-radius: 10px;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: rgb(255 255 255 / 8%);
   cursor: pointer;
   list-style: none;
@@ -2895,7 +2902,7 @@ summary {
 
 .rider-role-menu summary::-webkit-details-marker { display: none; }
 .rider-role-menu summary span { font-size: 0.7rem; font-weight: 850; }
-.rider-role-menu summary small { color: #aebdce; font-size: 0.52rem; }
+.rider-role-menu summary small { color: var(--color-text-muted); font-size: 0.52rem; }
 
 .rider-role-menu .role-switcher {
   position: absolute;
@@ -2980,7 +2987,7 @@ summary {
   padding: 0 10px;
   border: 1px solid var(--color-border);
   border-radius: 7px;
-  color: var(--color-navy-800);
+  color: var(--color-text);
   background: var(--color-surface);
   font: inherit;
   font-size: 0.6rem;
@@ -3029,14 +3036,14 @@ summary {
 }
 
 .map-breadcrumb strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
 }
 
 .map-breadcrumb .map-reset-camera {
   min-height: 32px;
   margin-left: auto;
   border: 1px solid var(--color-border);
-  color: var(--color-navy-800);
+  color: var(--color-text);
   background: var(--color-surface);
 }
 
@@ -3113,7 +3120,7 @@ summary {
   padding: 10px 12px 10px 48px;
   border: 1px solid rgb(124 145 166 / 38%);
   border-radius: 12px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: rgb(255 255 255 / 92%);
   box-shadow: 0 10px 28px rgb(16 28 44 / 13%);
   text-align: left;
@@ -3165,6 +3172,7 @@ summary {
 }
 
 .courier-marker.status-operating {
+  color: var(--color-text);
   background: var(--color-navy-900);
 }
 
@@ -3180,7 +3188,7 @@ summary {
 }
 
 .courier-marker.is-stale {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: #d7dde5;
   opacity: 0.82;
 }
@@ -3244,7 +3252,7 @@ summary {
 }
 
 .map-active-decision > strong {
-  color: var(--color-navy-950);
+  color: var(--color-text);
   font-size: 0.78rem;
 }
 
@@ -3294,7 +3302,7 @@ summary {
 
 .status-dot.is-stale { background: #9ba8b7; }
 .status-dot.is-offline { border: 1px solid #8a96a5; background: transparent; }
-.map-status-strip .map-privacy-note { margin-left: auto; color: var(--color-navy-900); }
+.map-status-strip .map-privacy-note { margin-left: auto; color: var(--color-text); }
 
 .map-structured-alternative {
   border-top: 1px solid var(--color-border);
@@ -3318,7 +3326,7 @@ summary {
   display: grid;
   gap: 12px;
   padding: 14px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-surface);
 }
 
@@ -3421,7 +3429,7 @@ summary {
 }
 
 .map-route-order li strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
 }
 
 .map-route-order code {
@@ -3444,7 +3452,7 @@ summary {
   gap: 12px;
   padding: 18px;
   border-bottom: 1px solid var(--color-border);
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-amber-100);
 }
 
@@ -3559,7 +3567,7 @@ summary {
   padding: 0 7px;
   border: 1px solid rgb(205 216 228 / 88%);
   border-radius: 7px;
-  color: var(--color-navy-800);
+  color: var(--color-text);
   background: rgb(255 255 255 / 91%);
   box-shadow: 0 4px 10px rgb(16 28 44 / 6%);
   font-size: 0.54rem;
@@ -3594,7 +3602,7 @@ summary {
 
 .compact-route-list li:last-child { border-right: 0; }
 .compact-route-list span { color: var(--color-text-muted); font-size: 0.52rem; }
-.compact-route-list strong { overflow-wrap: anywhere; color: var(--color-navy-900); font-size: 0.58rem; line-height: 1.35; }
+.compact-route-list strong { overflow-wrap: anywhere; color: var(--color-text); font-size: 0.58rem; line-height: 1.35; }
 
 .rider-decision-brief {
   display: grid;
@@ -3657,7 +3665,7 @@ summary {
   font-weight: 900;
 }
 
-.rider-privacy-visual strong { color: var(--color-navy-900); font-size: 0.65rem; }
+.rider-privacy-visual strong { color: var(--color-text); font-size: 0.65rem; }
 .rider-privacy-visual small { color: var(--color-text-muted); font-size: 0.51rem; line-height: 1.35; }
 
 @media (max-width: 430px) {
@@ -3822,7 +3830,7 @@ summary {
 
 .rider-hero-card {
   border: 1px solid var(--color-blue-200);
-  color: var(--color-navy-950);
+  color: var(--color-text);
   background:
     radial-gradient(circle at 92% 10%, rgb(6 40 199 / 10%), transparent 34%),
     linear-gradient(150deg, var(--color-surface) 0 62%, #f1f4ff 100%);
@@ -3860,7 +3868,7 @@ summary {
 
 .rider-hero-metrics > div {
   border-color: var(--color-border);
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: rgb(255 255 255 / 82%);
 }
 
@@ -3916,7 +3924,7 @@ summary {
 }
 
 .courier-marker.status-applied {
-  color: var(--color-navy-950);
+  color: var(--color-text);
   background: var(--color-green-500);
 }
 
@@ -3965,7 +3973,7 @@ summary {
   padding: 9px 10px;
   border-left: 3px solid var(--color-green-700);
   border-radius: 8px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: var(--color-green-100);
   font-weight: 750;
   line-height: 1.5;
@@ -4030,7 +4038,7 @@ summary {
 }
 
 .decision-sequence strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.62rem;
   line-height: 1.35;
 }
@@ -4069,7 +4077,7 @@ summary {
 
 .decision-impact-heading h3 {
   margin: 0;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.78rem;
 }
 
@@ -4103,7 +4111,7 @@ summary {
 }
 
 .decision-impact-grid strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.76rem;
 }
 
@@ -4118,7 +4126,7 @@ summary {
 }
 
 .decision-rationale strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
 }
 
 .intervention-queue .consent-grid > div {
@@ -4289,7 +4297,7 @@ summary {
 }
 
 .map-movement-status strong {
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.75rem;
   font-variant-numeric: tabular-nums;
 }
@@ -4380,7 +4388,7 @@ summary {
   padding: 10px 12px;
   border: 1px solid var(--color-blue-200);
   border-radius: 14px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: rgb(255 255 255 / 96%);
   box-shadow: 0 8px 22px rgb(16 28 44 / 18%);
   font: inherit;
@@ -4416,7 +4424,7 @@ summary {
   place-items: center;
   border: 2px solid var(--color-navy-900);
   border-radius: 9px;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   background: rgb(255 255 255 / 94%);
   box-shadow: 0 4px 10px rgb(16 28 44 / 16%);
   font-size: 0.56rem;
@@ -4504,7 +4512,7 @@ summary {
   place-items: center;
   border: 3px solid var(--color-surface);
   border-radius: 50%;
-  color: var(--color-surface);
+  color: var(--color-text);
   background: var(--color-navy-900);
   box-shadow: 0 0 0 2px var(--color-navy-900), 0 5px 14px rgb(16 28 44 / 24%);
   font-size: 0.66rem;
@@ -4512,6 +4520,7 @@ summary {
 }
 
 .rider-kakao-stop.is-rest {
+  color: var(--color-surface);
   background: var(--color-blue-700);
   box-shadow: 0 0 0 2px var(--color-blue-700), 0 5px 14px rgb(16 28 44 / 24%);
 }
@@ -4566,7 +4575,7 @@ summary {
 }
 
 .rider-directions-heading strong {
-  color: var(--color-navy-950);
+  color: var(--color-text);
   font-size: 0.74rem;
 }
 
@@ -4618,7 +4627,7 @@ summary {
 
 .rider-directions-metrics strong {
   overflow-wrap: anywhere;
-  color: var(--color-navy-950);
+  color: var(--color-text);
   font-size: 0.68rem;
   line-height: 1.3;
 }
@@ -4723,7 +4732,7 @@ summary {
   min-height: 410px;
   gap: 14px;
   padding: 18px;
-  color: var(--color-navy-950);
+  color: var(--color-text);
   background:
     radial-gradient(circle at 76% 6%, rgb(15 231 90 / 8%), transparent 24%),
     linear-gradient(145deg, #f8faff 0%, #eef3ff 55%, #fbfcff 100%);
@@ -4939,7 +4948,7 @@ summary {
 
 .spatial-facts code {
   overflow-wrap: anywhere;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.53rem;
 }
 
@@ -5160,7 +5169,7 @@ summary {
 
 .rider-plan-steps strong {
   overflow-wrap: anywhere;
-  color: var(--color-navy-900);
+  color: var(--color-text);
   font-size: 0.65rem;
   line-height: 1.3;
 }

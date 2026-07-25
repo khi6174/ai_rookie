@@ -40,6 +40,7 @@
     "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
     "eval:rider-reference:stimulus": "node scripts/build-rider-reference-stimulus.mjs",
     "eval:rider-reference:comprehension": "node scripts/run-rider-reference-comprehension.mjs",
+    "eval:a11y": "node scripts/run-a11y-audit.mjs",
     "review:g5": "vite --host 127.0.0.1 --port 4174 --strictPort",
     "review:rider-reference": "vite --host 127.0.0.1 --port 4175 --strictPort"
   },
