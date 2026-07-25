@@ -19,6 +19,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--bundle", type=Path, required=True)
     parser.add_argument("--result-json", type=Path, required=True)
     parser.add_argument("--output-json", type=Path, required=True)
+    parser.add_argument(
+        "--next-prompt-version",
+        default="local-operations-extract-ko-v1.1.0",
+    )
     return parser.parse_args()
 
 
@@ -103,6 +107,7 @@ def main() -> None:
         "capturedAt": datetime.now(timezone.utc).isoformat(),
         "sourceResultSchemaVersion": run["schemaVersion"],
         "sourceCapturedAt": run["capturedAt"],
+        "sourcePromptVersion": run["promptVersion"],
         "evaluatedSplit": run["evaluatedSplit"],
         "sourceTaskCount": run["taskCount"],
         "originalVerdictPreserved": True,
@@ -130,7 +135,7 @@ def main() -> None:
             "topLevelExtra": dict(sorted(top_level_extra.items())),
         },
         "decision": "DEVELOPMENT_PROMPT_REVISION_REQUIRED",
-        "nextPromptVersion": "local-operations-extract-ko-v1.1.0",
+        "nextPromptVersion": args.next_prompt_version,
         "validationAndFrozenRemainLocked": True,
         "limitations": [
             "코드펜스 내부 진단은 원본 PASS로 승격하지 않는다.",
@@ -145,7 +150,8 @@ def main() -> None:
     )
     print(
         "LOCAL_MODEL_OPERATIONS_DIAGNOSTIC_PASS "
-        f"original=0/{run['taskCount']} fenced={complete_single_fence_count} "
+        f"original={run['metrics']['passed']}/{run['taskCount']} "
+        f"fenced={complete_single_fence_count} "
         f"latent_pass={fenced_inner_codes.get('LATENT_PASS_NOT_PROMOTED', 0)} "
         "verdict_preserved=true"
     )

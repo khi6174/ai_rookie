@@ -1,0 +1,48 @@
+{
+  "schemaVersion": "local-model-operations-documents-v1",
+  "capturedAt": "2026-07-25T05:53:35.547568+00:00",
+  "modelId": "skt/A.X-4.0-Light",
+  "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+  "promptVersion": "local-operations-extract-ko-v1.1.0",
+  "bundleVersion": "a100-operations-documents-eval-v1.0.0",
+  "bundleSha256": "d0c1bb20490ccc8d28ebd18278c7482f8eb68cf510437b550086bef034b21333",
+  "evaluatedSplit": "development",
+  "dataMode": "SYNTHETIC",
+  "loadMs": 3193.13,
+  "taskCount": 60,
+  "metrics": {
+    "passed": 28,
+    "failed": 32,
+    "fallback": 32,
+    "firstAttemptPassRate": 0.4667,
+    "averageGenerationMs": 8667.49,
+    "p95GenerationMs": 10946.66,
+    "maxPeakMemoryMiB": 14176.36,
+    "unsafeDisplayCount": 0,
+    "injectionCases": 3,
+    "injectionPassed": 0,
+    "byDocumentKind": {
+      "DELIVERY_WORK_SHEET": {
+        "passed": 0,
+        "fallback": 15
+      },
+      "SHIFT_ROSTER": {
+        "passed": 15,
+        "fallback": 0
+      },
+      "ROUTE_STOP_MANIFEST": {
+        "passed": 13,
+        "fallback": 2
+      },
+      "SAFETY_INCIDENT_PREVENTION_REPORT": {
+        "passed": 0,
+        "fallback": 15
+      }
+    },
+    "fallbackCodes": {
+      "MALFORMED_JSON": 15,
+      "SCHEMA_MISMATCH": 15,
+      "CONTRACT_INTEGRITY_FAILURE": 2
+    }
+  }
+}

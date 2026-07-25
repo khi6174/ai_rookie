@@ -533,3 +533,43 @@ v1.0 결과 폴더를 덮어쓰지 않고 development를 다시 실행한다.
 ```
 
 v1.1 development 결과를 독립 검증하기 전에는 validation과 frozen-test를 실행하지 않는다. 통과율이 낮아도 v1.0 원본을 삭제하지 않으며, v1.1 결과를 v1.0과 합쳐 좋은 출력만 선택하지 않는다.
+
+### 11.8 development v1.1.0 결과와 v1.2.0 최소 보강
+
+v1.1은 28/60, Fallback 32건, unsafe 표시 0건으로 v1.0의 0/60보다 개선됐다. 근무표 15/15, 경로표 13/15가 통과했고 작업표 0/15, 안전보고서 0/15였다. 오류는 작업표 `MALFORMED_JSON` 15건, 경로표·안전보고서 `SCHEMA_MISMATCH` 15건, 안전보고서 `CONTRACT_INTEGRITY_FAILURE` 2건이다. 모델 로드 `3,193.13ms`, 평균 생성 `8,667.49ms`, P95 `10,946.66ms`, 최대 peak VRAM `14,176.36MiB`였다.
+
+독립 진단에서 parse 가능한 출력 45건은 fact ID와 순서를 모두 정확히 유지했다. schema 실패 15건은 facts 뒤의 `containsUntrustedInstruction`, `instructionHandling`, `demoLabel`만 누락했다. 작업표 15건은 마지막 safety-category 인용에 제목·줄바꿈을 합치고 `]}];`를 출력했으며, 동시에 hub ID·plan ID의 부분문자열 범위를 넓게 복사했다. 비신뢰 지시 2건은 격리했지만 accident-status에 `· 예방 검토용`을 추가했다.
+
+v1.2는 이미 통과한 expected·validator·근무표 계약을 바꾸지 않고 다음만 수정한다.
+
+- 세 고정 메타 키를 facts 앞으로 이동하고 facts를 마지막 top-level 키로 배치
+- 작업표 hub ID·plan ID·safety-category의 부분문자열 예시
+- safety-category citation에 제목·줄바꿈을 합치지 않는 규칙
+- 사고 상태는 정확히 `발생 사실 없음`까지만 복사
+- JSON 닫기 뒤 세미콜론과 중복 배열 닫기 금지
+
+서버에는 v1.0 base, v1.1과 v1.2 wrapper 세 파일이 같은 `transfer` 폴더에 있어야 한다.
+
+```bash
+sha256sum "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.2.py"
+# expected: e5919ac6879a09eb293ba2e52f904aad66f65221515605af9471c78cef86a120
+
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.2.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --self-test
+# expected final line: LOCAL_MODEL_OPERATIONS_V1_2_SELF_TEST_PASS tasks=100 prompt=local-operations-extract-ko-v1.2.0
+```
+
+v1.2 development는 새 폴더에서 실행한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.2.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split development \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-dev-v1.2.0-run1"
+```
+
+v1.2 development를 최종 개발 프롬프트 후보로 사용한다. 결과를 독립 검증한 뒤에도 실패가 남으면 통과율과 오류를 그대로 보존하고, 정답·Gate를 완화하는 반복 튜닝 대신 멘토링 쟁점으로 분리할지 판단한다.

@@ -660,6 +660,16 @@
 - 기각한 대안: markdown 자동 제거 후 재채점, `14`와 `14건`을 동일 처리, 가짜·부분 인용 허용, 실패 raw output 삭제, validation·frozen-test를 개발 프롬프트 수정에 사용.
 - 영향 파일: `scripts/diagnose-local-model-operations-documents.py`, `scripts/local-model-operations-documents-v1.1.py`, `scripts/verify-local-model-operations-documents-v1.1.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.0.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-068 — v1.2는 메타 키 선행과 부분문자열 예시만 적용한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: v1.1의 28/60을 보존하고 v1.2에서 top-level 고정 메타 세 키를 facts 앞으로 이동하며 facts를 마지막 키로 둔다. 작업표 hub ID·plan ID·safety-category와 안전보고서 accident-status의 추출 범위를 task 값이 아닌 별도 형식 예시로 명시한다. JSON 세미콜론·중복 닫기와 줄바꿈 인용을 금지한다. expected·문서·validator·모델 revision·decoding은 유지한다.
+- 이유: parse 가능한 v1.1 출력 45건은 fact ID가 모두 정확했고, schema 실패 15건은 facts 뒤 메타 세 키 누락으로 수렴했다. 작업표는 마지막 다중행 인용이 동일한 malformed 닫기를 반복했고, 안전보고서는 비신뢰 지시가 아니라 고정 문자열 범위에서만 실패했다. 따라서 Gate 완화나 전면 프롬프트 변경보다 원인에 대응하는 최소 구조 변경이 적절하다.
+- 경계: v1.2 개발 결과가 낮아도 의미 유사 판정이나 후처리로 PASS를 만들지 않는다. 독립 검증 전 validation·frozen-test를 실행하지 않으며, v1.2 이후 반복 튜닝은 멘토링 일정과 과적합 위험을 함께 판단한다.
+- 기각한 대안: v1.1 실패 무시 후 validation 진행, 누락 메타 자동 삽입, multiline citation 허용, hub 이름 전체와 hub ID를 동일 처리, accident-status의 긴 문구를 정답으로 변경.
+- 영향 파일: `scripts/local-model-operations-documents-v1.2.py`, `scripts/verify-local-model-operations-documents-v1.2.py`, `scripts/diagnose-local-model-operations-documents.py`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.1.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

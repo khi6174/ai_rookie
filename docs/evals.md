@@ -229,6 +229,8 @@ ADR-050에 따라 A.X Hosted API 인증 해결을 기다리지 않고 Upstage �
 
 development v1.0.0 첫 실행은 0/60, Fallback 60건, unsafe 표시 0건이었다. 원본 오류는 `MARKDOWN_WRAPPER` 50, `SCHEMA_MISMATCH` 8, `CITATION_VALUE_MISMATCH` 2건이며 독립 검증을 통과했다. 코드펜스 내부 진단에서도 잠재 PASS는 0건이어서 사후 펜스 제거로 승격하지 않는다. v1.1은 expected와 문서를 그대로 두고 field별 추출 규칙·고정 scaffold·문서 뒤 신뢰 경계만 development 프롬프트에 추가했다. validation과 frozen-test는 v1.1 development 독립 검증까지 실행하지 않는다.
 
+v1.1 development는 28/60, Fallback 32건, unsafe 표시 0건이었다. 근무표 15/15와 경로표 13/15가 통과했고 작업표·안전보고서는 각각 0/15였다. parse 가능한 45건은 fact ID가 모두 정확했지만 15건은 facts 뒤 메타 키를 생략했고, 작업표 15건은 단일 인용 범위와 JSON 닫기를 위반했다. v1.2는 세 메타 키를 facts 앞으로 옮기고 facts를 마지막 키로 고정하며 작업표 부분문자열·단일 인용·사고 상태 범위의 예시만 추가한다. expected label·원문·validator는 변경하지 않으며 아직 validation과 frozen-test는 잠금 상태다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존
