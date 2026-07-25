@@ -1,0 +1,192 @@
+{
+  "schemaVersion": "synthetic-operations-parent-v1",
+  "datasetVersion": "synthetic-operations-documents-v1.0.0",
+  "parentRecordId": "synthetic-parent-008",
+  "batchId": "synthetic-operations-batch-v1",
+  "split": "development",
+  "seed": 6181,
+  "createdAt": "2026-07-25T00:00:00+09:00",
+  "dataMode": "SYNTHETIC",
+  "provenance": {
+    "kind": "MOCK",
+    "sourceId": "synthetic-parent-008",
+    "sourceLabel": "SafeRoute 결정론적 합성 운영문서",
+    "transformedBy": "deterministic-operations-document-generator-v1.0.0",
+    "isDemo": true
+  },
+  "generator": {
+    "generator": "RULE_ENGINE",
+    "provider": "SafeRoute",
+    "modelId": "none",
+    "promptFamily": "synthetic-operations-documents",
+    "promptVersion": "v1.0.0",
+    "validationStatus": "ACCEPTED",
+    "validationReportId": "synthetic-operations-documents-validation-v1"
+  },
+  "scenario": "HEAT_STAIRS",
+  "hub": {
+    "hubId": "demo-hub-02",
+    "label": "합성 남부 허브"
+  },
+  "courier": {
+    "courierId": "demo-courier-008",
+    "displayLabel": "합성 기사 008"
+  },
+  "vehicle": {
+    "vehicleId": "demo-ev-008",
+    "capacityKg": 350
+  },
+  "shift": {
+    "shiftId": "demo-shift-008",
+    "startAt": "2026-07-25T08:00:00+09:00",
+    "evaluatedAt": "2026-07-25T10:45:00+09:00",
+    "endAt": "2026-07-25T16:00:00+09:00",
+    "continuousWorkMinutes": 120,
+    "plannedBreakMinutes": 10
+  },
+  "plan": {
+    "planId": "demo-plan-008",
+    "planVersion": "plan-v1",
+    "totalStopCount": 22,
+    "completedStopCount": 7,
+    "remainingStopCount": 15,
+    "remainingWeightKg": 73,
+    "stops": [
+      {
+        "stopId": "demo-stop-008-01",
+        "sequence": 1,
+        "eta": "2026-07-25T10:53:00+09:00",
+        "coarseZone": "합성 남부권역 A구역",
+        "taskType": "문앞 전달",
+        "weightKg": 3
+      },
+      {
+        "stopId": "demo-stop-008-02",
+        "sequence": 2,
+        "eta": "2026-07-25T11:01:00+09:00",
+        "coarseZone": "합성 남부권역 B구역",
+        "taskType": "경비실 전달",
+        "weightKg": 4
+      },
+      {
+        "stopId": "demo-stop-008-03",
+        "sequence": 3,
+        "eta": "2026-07-25T11:09:00+09:00",
+        "coarseZone": "합성 남부권역 C구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 5
+      },
+      {
+        "stopId": "demo-stop-008-04",
+        "sequence": 4,
+        "eta": "2026-07-25T11:17:00+09:00",
+        "coarseZone": "합성 남부권역 D구역",
+        "taskType": "문앞 전달",
+        "weightKg": 6
+      },
+      {
+        "stopId": "demo-stop-008-05",
+        "sequence": 5,
+        "eta": "2026-07-25T11:25:00+09:00",
+        "coarseZone": "합성 남부권역 A구역",
+        "taskType": "경비실 전달",
+        "weightKg": 7
+      },
+      {
+        "stopId": "demo-stop-008-06",
+        "sequence": 6,
+        "eta": "2026-07-25T11:33:00+09:00",
+        "coarseZone": "합성 남부권역 B구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 8
+      },
+      {
+        "stopId": "demo-stop-008-07",
+        "sequence": 7,
+        "eta": "2026-07-25T11:41:00+09:00",
+        "coarseZone": "합성 남부권역 C구역",
+        "taskType": "문앞 전달",
+        "weightKg": 2
+      },
+      {
+        "stopId": "demo-stop-008-08",
+        "sequence": 8,
+        "eta": "2026-07-25T11:49:00+09:00",
+        "coarseZone": "합성 남부권역 D구역",
+        "taskType": "경비실 전달",
+        "weightKg": 3
+      },
+      {
+        "stopId": "demo-stop-008-09",
+        "sequence": 9,
+        "eta": "2026-07-25T11:57:00+09:00",
+        "coarseZone": "합성 남부권역 A구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 4
+      },
+      {
+        "stopId": "demo-stop-008-10",
+        "sequence": 10,
+        "eta": "2026-07-25T12:05:00+09:00",
+        "coarseZone": "합성 남부권역 B구역",
+        "taskType": "문앞 전달",
+        "weightKg": 5
+      },
+      {
+        "stopId": "demo-stop-008-11",
+        "sequence": 11,
+        "eta": "2026-07-25T12:13:00+09:00",
+        "coarseZone": "합성 남부권역 C구역",
+        "taskType": "경비실 전달",
+        "weightKg": 6
+      },
+      {
+        "stopId": "demo-stop-008-12",
+        "sequence": 12,
+        "eta": "2026-07-25T12:21:00+09:00",
+        "coarseZone": "합성 남부권역 D구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 7
+      },
+      {
+        "stopId": "demo-stop-008-13",
+        "sequence": 13,
+        "eta": "2026-07-25T12:29:00+09:00",
+        "coarseZone": "합성 남부권역 A구역",
+        "taskType": "문앞 전달",
+        "weightKg": 8
+      },
+      {
+        "stopId": "demo-stop-008-14",
+        "sequence": 14,
+        "eta": "2026-07-25T12:37:00+09:00",
+        "coarseZone": "합성 남부권역 B구역",
+        "taskType": "경비실 전달",
+        "weightKg": 2
+      },
+      {
+        "stopId": "demo-stop-008-15",
+        "sequence": 15,
+        "eta": "2026-07-25T12:45:00+09:00",
+        "coarseZone": "합성 남부권역 C구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 3
+      }
+    ]
+  },
+  "operatingConditions": {
+    "rainfallMmPerHour": 0,
+    "apparentTemperatureC": 35,
+    "visibilityMeters": 6000,
+    "maxSlopePercent": 4,
+    "stairsStopCount": 7
+  },
+  "safetyObservation": {
+    "observationId": "demo-observation-008",
+    "category": "폭염·계단 작업",
+    "accidentOccurred": false,
+    "purpose": "사고예방 운영 검토",
+    "nonPunitive": true,
+    "containsUntrustedInstruction": false
+  }
+}

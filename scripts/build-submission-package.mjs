@@ -135,6 +135,7 @@ const rootFiles = new Set([
 const approvedDocuments = new Set([
   "docs/architecture.md",
   "docs/data-contracts.md",
+  "docs/dataset-card-synthetic-operations.md",
   "docs/decisions.md",
   "docs/demo-script.md",
   "docs/design-system.md",
@@ -197,6 +198,8 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/run-manifest.json",
   "artifacts/evals/scenario-results.csv",
   "artifacts/evals/spatial-scene-summary.json",
+  "artifacts/evals/synthetic-operations-documents-latest.csv",
+  "artifacts/evals/synthetic-operations-documents-latest.json",
   "artifacts/evals/unit-summary.json",
   "artifacts/evals/upstage-roundtrip.csv",
   "artifacts/evals/upstage-document-roundtrip-mock-latest.csv",
@@ -206,6 +209,11 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/weather-runtime-selection-latest.json",
 ]);
 const sourcePrefixes = ["e2e/", "fixtures/", "scripts/", "src/", "tests/", "tools/"];
+const approvedDataPrefixes = [
+  "data/seed-specs/synthetic-operations-documents-v1.json",
+  "data/manifests/synthetic-operations-documents-v1.json",
+  "data/synthetic/operations-documents-v1/",
+];
 const screenshotPrefix = "artifacts/evals/screenshots/";
 const scannableExtensions = new Set([
   "",
@@ -251,6 +259,9 @@ const includedFiles = trackedFiles.filter(
     approvedDocuments.has(file) ||
     latestEvidenceFiles.has(file) ||
     sourcePrefixes.some((prefix) => file.startsWith(prefix)) ||
+    approvedDataPrefixes.some(
+      (prefix) => file === prefix || file.startsWith(prefix),
+    ) ||
     file.startsWith(screenshotPrefix) ||
     file.startsWith(latestCoreRunPrefix) ||
     file.startsWith(latestFinalRunPrefix),

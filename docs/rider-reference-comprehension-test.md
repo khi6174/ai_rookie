@@ -14,7 +14,7 @@
 
 ## 2. 고정 자극
 
-- 화면: `artifacts/evals/screenshots/rider-source-route-round2-390x844.png`
+- 화면: `artifacts/evals/screenshots/rider-source-route-round2-390x844.png` (Round 2 검토 원본으로 불변 보존; 최신 E2E 캡처는 `rider-source-route-current-390x844.png`)
 - manifest: `artifacts/evals/rider-reference-round2-stimulus-manifest.json`
 - 생성 명령: `pnpm run eval:rider-reference:stimulus`
 - 화면 상태: 원 기사, 적용 전, 390×844, `Fallback map`, 결정론적 합성 경로

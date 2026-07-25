@@ -219,6 +219,12 @@ ADR-050에 따라 A.X Hosted API 인증 해결을 기다리지 않고 Upstage �
 
 `pnpm run eval:upstage:documents:mock`은 `upstage-document-roundtrip-v1.0.0`의 6개 위험 유형×10개 변형, 5개 문서 유형을 합친 정확히 60쌍을 실행했다. 60/60이 strict `ExtractedSafetyRule`·원문 excerpt·정확 사실 일치를 통과했고, 비신뢰 지시 18건을 포함해 Fallback·unsafe 표시·raw 문서·raw 출력 저장은 모두 0건이었다. 60개 source SHA-256은 모두 고유하다. 이는 Live 모델 성능이 아닌 결정론적 계약·평가 기반의 통과다.
 
+### 11.3 합성 운영문서 100개
+
+`pnpm run data:synthetic:operations`는 25개 상위 구조화 레코드에서 배송 작업표·근무표·배송지 경로표·사고예방 안전보고서를 각각 25개씩 생성한다. 분할은 parent record 단위 development 60·validation 20·frozen-test 20문서다. `synthetic-operations-documents-validation-v1`은 100/100 Schema, 상위 참조와 stop 순서, 평가시각 이후·근무종료 이전 ETA, 개인정보·정밀 좌표·생체정보 패턴, 문서와 상위 레코드의 exact 의미 일치, Safety Budget·사고확률·기사평가·추천 필드 부재와 exact duplicate 0건을 검사한다.
+
+이는 실제 TMS·GPS·기사·고객·사고 문서 또는 Upstage Live 정확도 증거가 아니다. 의미 근접 중복 임계치는 미승인이므로 exact duplicate만 하드 Gate로 사용한다.
+
 ### 11.1 문서 파이프라인
 
 - Parse 결과에서 페이지·섹션 출처 보존
@@ -466,7 +472,7 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 31개 파일, 266/266 통과 |
+| 최신 전체 Vitest | `pnpm test` | 32개 파일, 271/271 통과 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |

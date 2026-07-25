@@ -16,6 +16,8 @@ const allowedRuntimeHosts = [
   "api.upstage.ai",
   "apihub.kma.go.kr",
   "dapi.kakao.com",
+  "map.kakao.com",
+  "opendata.koroad.or.kr",
 ];
 const allowedDistributionHosts = ["download.pytorch.org"];
 const expectedDomesticModels = [
@@ -297,10 +299,20 @@ const result = {
       role: "not integrated; downstream asset use remains out of P0 scope",
     },
   ],
-  nonAiExternalInput: {
-    provider: "KMA_API_HUB",
-    role: "public weather evidence; not a generative AI provider",
-  },
+  nonAiExternalInput: [
+    {
+      provider: "KMA_API_HUB",
+      role: "public weather evidence; not a generative AI provider",
+    },
+    {
+      provider: "KAKAO_MAP_AND_MOBILITY",
+      role: "map link and display-only directions; not a generative AI provider",
+    },
+    {
+      provider: "TAAS_KOROAD",
+      role: "public traffic accident context; not a generative AI provider",
+    },
+  ],
   allowedRuntimeHosts,
   allowedDistributionHosts,
   observedRuntimeHosts: runtimeHosts,

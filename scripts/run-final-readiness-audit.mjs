@@ -90,6 +90,7 @@ const commands = [
 const requiredApprovedDocuments = [
   "docs/product-spec.md",
   "docs/data-contracts.md",
+  "docs/dataset-card-synthetic-operations.md",
   "docs/safety-model.md",
   "docs/intervention-policy.md",
   "docs/privacy-and-ai-policy.md",
@@ -123,6 +124,9 @@ const decisionWorkflow = await readJson(
 );
 const domesticTrack = await readJson("domestic-track-compliance-latest.json");
 const weather = await readJson("weather-runtime-selection-latest.json");
+const syntheticOperations = await readJson(
+  "synthetic-operations-documents-latest.json",
+);
 const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
 const spatialScene = await readJson("spatial-scene-summary.json");
@@ -377,6 +381,8 @@ const requiredCoreArtifactFiles = [
   "upstage-roundtrip.csv",
   "upstage-document-roundtrip-mock-latest.json",
   "upstage-document-roundtrip-mock-latest.csv",
+  "synthetic-operations-documents-latest.json",
+  "synthetic-operations-documents-latest.csv",
   "accessibility-summary.json",
   "map-performance-summary.json",
   "spatial-scene-summary.json",
@@ -434,6 +440,22 @@ const evidenceChecks = [
       weather.audit.liveEvidenceUsedForSafety === false &&
       weather.audit.mixedLiveAndDemoFields === false,
     `${weather.displayLabel}, mixed=${weather.audit.mixedLiveAndDemoFields}`,
+  ),
+  check(
+    "SYNTHETIC_OPERATIONS_DOCUMENTS",
+    syntheticOperations.passed === true &&
+      syntheticOperations.parentCount === 25 &&
+      syntheticOperations.documentCount === 100 &&
+      syntheticOperations.splitCounts.development === 60 &&
+      syntheticOperations.splitCounts.validation === 20 &&
+      syntheticOperations.splitCounts["frozen-test"] === 20 &&
+      syntheticOperations.privacyViolationCount === 0 &&
+      syntheticOperations.referentialIntegrityViolationCount === 0 &&
+      syntheticOperations.temporalConstraintViolationCount === 0 &&
+      syntheticOperations.semanticFidelityViolationCount === 0 &&
+      syntheticOperations.safetyBoundaryViolationCount === 0 &&
+      syntheticOperations.exactDuplicateCount === 0,
+    `${syntheticOperations.documentCount}/100 documents, privacy=${syntheticOperations.privacyViolationCount}, integrity=${syntheticOperations.referentialIntegrityViolationCount + syntheticOperations.temporalConstraintViolationCount + syntheticOperations.semanticFidelityViolationCount}, safety=${syntheticOperations.safetyBoundaryViolationCount}, duplicates=${syntheticOperations.exactDuplicateCount}`,
   ),
   check(
     "CORE_MANIFEST",
@@ -524,6 +546,8 @@ const result = {
     riskTransferBoundaries: riskTransfer.totalCaseCount,
     decisionWorkflowBoundaries: decisionWorkflow.caseCount,
     domesticTrackChecks: domesticTrack.checks.length,
+    syntheticOperationsParents: syntheticOperations.parentCount,
+    syntheticOperationsDocuments: syntheticOperations.documentCount,
     coreArtifacts: coreManifest.artifacts.length,
     publicDemoBuildReady:
       publicDemoBuild.configured &&

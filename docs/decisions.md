@@ -620,6 +620,16 @@
 - 검증 경계: 사용자의 시간제약 승인에 따라 이 기능의 새 Round 사람 평가는 생략한다. 자동 계약·E2E·빌드는 유지하되 이해도·현장 안전·사고감소 개선을 새로 주장하지 않는다.
 - 영향 파일: `.env.example`, `server/kakao-directions-proxy.mjs`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, `src/adapters/maps/kakaoDirections.ts`, `src/ui/App.tsx`, `src/ui/styles.css`, `tests/kakao-directions.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs`
 
+### ADR-064 — 운영문서 데이터셋은 25개 상위 레코드에서 결정론적으로 100개를 생성한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: 버전이 고정된 seed spec과 규칙 기반 생성기로 25개 상위 운영 레코드를 만들고, 각 레코드에서 배송 작업표·근무표·배송지 경로표·사고예방 안전보고서 한 건씩 총 100개를 생성한다. 같은 상위 레코드에서 파생된 네 문서는 동일한 `parentRecordId`와 split을 공유하며 development 60·validation 20·frozen-test 20문서로 고정한다. 모든 레코드는 `RULE_ENGINE`, `modelId=none`, `SYNTHETIC`, `MOCK`, `isDemo=true`로 표시하고 Schema·참조·시간·개인정보·의미 일치·안전권한·exact duplicate Gate와 파일별 SHA-256 manifest를 통과해야 한다.
+- 이유: 실제 기사·고객 개인정보나 운영사 문서를 수집하지 않고도 문서 파싱·정보추출·감사 재현성을 평가할 수 있는 충분한 규모의 운영문서 기준선을 만들고, 데이터 계보와 분할 누수를 parent 단위로 통제하기 위해서다.
+- 경계: 이 데이터셋은 실제 사고 사실·사고확률·건강·성과·순위·징계, Safety Budget·Time-to-Breach·개입 추천을 생성하지 않는다. 의미 근접 중복 없음, Upstage Live 성능, 실제 TMS 연동, 모델 학습 완료를 주장하지 않으며 새 사람 평가 Round를 대신하지 않는다.
+- 기각한 대안: 실제 배송·근무·사고 문서 수집, 공개 샘플의 개인정보를 남기는 방식, 자유 생성 LLM이 ID·시간·정답을 소유하는 방식, 문서 단위 무작위 split, 합성 사고를 실제 발생 기록처럼 작성하는 방식.
+- 영향 파일: `data/seed-specs/synthetic-operations-documents-v1.json`, `data/manifests/synthetic-operations-documents-v1.json`, `data/synthetic/operations-documents-v1/`, `src/evals/syntheticOperationsDocuments.ts`, `scripts/run-synthetic-operations-documents.mjs`, `tests/synthetic-operations-documents.test.ts`, `docs/dataset-card-synthetic-operations.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

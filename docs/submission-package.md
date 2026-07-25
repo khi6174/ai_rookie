@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-23
+- 최종 갱신: 2026-07-25
 - 기준: `docs/final-readiness.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 1. 결정사항
@@ -39,7 +39,8 @@ pnpm run package:submission
 - React·TypeScript 소스와 결정론 도메인 엔진
 - 테스트·E2E·평가·검증 스크립트
 - `.env.example`과 재현 가능한 패키지 lock
-- Approved 핵심 문서 18개
+- Approved 핵심 문서 19개
+- 합성 운영문서 dataset card, seed spec, manifest와 검증 통과 문서 100개
 - 최신 평가 요약, 기사 제품 경계 고정 자극 manifest와 체크인된 스크린샷
 - 최신 core evidence run과 final readiness run
 - 같은 commit에서 생성한 `demo-dist/`
@@ -55,6 +56,7 @@ G5-B 공간 이해도는 Round 1·2·3 실패 원본과 요약을 보존하고, 
 - `.env.local`, API 키, 인증정보
 - `node_modules/`, Playwright report, test-results
 - 이전 중복 core·API·날씨 실행 전체
+- 실제 배송·근무·사고 원문과 개인정보가 포함된 운영문서
 
 제외는 과거 작업을 숨기기 위한 것이 아니라 제품 런타임·국내 AI 평가·최종 증거의 제출 범위를 명확하게 만들기 위한 것이다. GitHub 저장소의 개발 이력과 제출 패키지는 별도로 관리한다.
 

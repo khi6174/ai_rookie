@@ -35,6 +35,7 @@
     "eval:taas:check": "node scripts/run-taas-smoke.mjs --check",
     "eval:taas:mock": "node scripts/run-taas-smoke.mjs --mock",
     "eval:taas:live": "node scripts/run-taas-smoke.mjs --live",
+    "data:synthetic:operations": "node scripts/run-synthetic-operations-documents.mjs",
     "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
     "eval:rider-reference:stimulus": "node scripts/build-rider-reference-stimulus.mjs",
     "eval:rider-reference:comprehension": "node scripts/run-rider-reference-comprehension.mjs",

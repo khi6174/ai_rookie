@@ -2,7 +2,7 @@
 
 SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전 가능영역을 검증하고, 같은 결정 근거와 기사 동의·관리자 승인 아래 계획을 갱신하는 라스트마일 안전운영 코파일럿입니다.
 
-계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했고, 전체 Vitest는 266/266이다.
+계약, 결정론적 Safety Budget, 다섯 단일 개입, 허용 묶음 6종, 결정 상태기계·원자적 Demo 적용과 동일 decision ID의 관리자·기사 Demo UI 기반을 완료했습니다. 지정 네 해상도·키보드 폐루프·새 결정 ID reset Playwright E2E, Upstage strict 계약·Mock·Fallback·Live smoke와 A100의 A.X 고정 revision 기준선까지 검증했습니다. 대회 제공 활용 가이드에 맞춘 A.X·K-EXAONE 공통 텍스트 API 계약과 Mock 평가를 구현했고, K-EXAONE과 A.X K1 Live 12과업도 각각 12/12 통과했습니다. 30개 frozen 합성 변형의 동일 후보 집합에서 Fastest-only·Balanced-only·SafeRoute를 90회 비교했고, 하드 제약 위반은 각각 17·11·0건이었다. Risk Transfer Guard는 숫자·breach 직접 경계 20건과 4·8·12건 전체 계획 3건을 모두 통과했다. 시간·동의·버전 충돌은 실제 상태기계 command를 실행하는 30개 경계에서 30/30을 통과했다. 또한 25개 상위 레코드에서 배송 작업표·근무표·배송지 경로표·사고예방 안전보고서 100개를 결정론적으로 생성해 development 60·validation 20·frozen-test 20 분할과 개인정보·참조·시간·의미·안전권한 Gate를 통과했다.
 
 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 3 독립 3인도 전체 정답 0/6으로 `DO_NOT_PROMOTE`였으므로 실패 원본을 보존하고, `52분·17번째·10분·8건`과 두 기사 역할을 풀어 쓴 Round 4 자극을 준비한다. 기사 제품 경계 Round 2는 독립 5인 30/30, 중대 오인 0건으로 `READY_TO_PROMOTE`를 통과했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했다.
 
@@ -10,7 +10,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 
 2026-07-23 사람 Gate 최신 상태는 G5-B Round 3 `DO_NOT_PROMOTE`, 기사 제품 경계 Round 2 `READY_TO_PROMOTE`다. G5 Round 4는 계산·정답·2D 기본값을 유지하고 결정 문장과 기사 역할 용어만 다시 단순화한다. 남은 최종 GOAL 증거는 Round 4 독립 3인 평가다.
 
-최신 단위·계약 검증은 Vitest 31개 파일·266/266이다.
+최신 단위·계약 검증은 Vitest 32개 파일·271/271이다.
 
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
@@ -48,7 +48,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
-- Vitest 31개 파일·266/266 통과
+- Vitest 32개 파일·271/271 통과
 - G5-B 사람 이해도 Round 1은 3명·6 trial 중 핵심 의미 전체 정답 2/6, 경사 구간 0/6, 혼란 증가 2/3으로 `DO_NOT_PROMOTE`; 2.5D 기본 승격 금지와 관리자 decision 정보위계 재설계 필요
 
 ## 실행
@@ -101,6 +101,8 @@ pnpm run eval:taas:check
 pnpm run eval:taas:mock
 # 공용 키에 두 API가 등록됐거나 API별 키가 준비된 뒤 Live smoke
 pnpm run eval:taas:live
+# 25개 상위 레코드에서 합성 운영문서 100개와 manifest 재생성
+pnpm run data:synthetic:operations
 ```
 
 로컬 서버 없이 같은 기기를 검토자에게 차례로 전달할 때는 공개 정적 평가 화면을 사용할 수 있다. 응답은 서버에 업로드되지 않고 현재 브라우저 메모리에만 머물며 마지막에 JSON 파일로 내려받는다.

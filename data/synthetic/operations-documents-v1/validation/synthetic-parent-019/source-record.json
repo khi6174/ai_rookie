@@ -1,0 +1,152 @@
+{
+  "schemaVersion": "synthetic-operations-parent-v1",
+  "datasetVersion": "synthetic-operations-documents-v1.0.0",
+  "parentRecordId": "synthetic-parent-019",
+  "batchId": "synthetic-operations-batch-v1",
+  "split": "validation",
+  "seed": 6192,
+  "createdAt": "2026-07-25T00:00:00+09:00",
+  "dataMode": "SYNTHETIC",
+  "provenance": {
+    "kind": "MOCK",
+    "sourceId": "synthetic-parent-019",
+    "sourceLabel": "SafeRoute 결정론적 합성 운영문서",
+    "transformedBy": "deterministic-operations-document-generator-v1.0.0",
+    "isDemo": true
+  },
+  "generator": {
+    "generator": "RULE_ENGINE",
+    "provider": "SafeRoute",
+    "modelId": "none",
+    "promptFamily": "synthetic-operations-documents",
+    "promptVersion": "v1.0.0",
+    "validationStatus": "ACCEPTED",
+    "validationReportId": "synthetic-operations-documents-validation-v1"
+  },
+  "scenario": "RAIN_SLOPE",
+  "hub": {
+    "hubId": "demo-hub-01",
+    "label": "합성 북부 허브"
+  },
+  "courier": {
+    "courierId": "demo-courier-019",
+    "displayLabel": "합성 기사 019"
+  },
+  "vehicle": {
+    "vehicleId": "demo-ev-019",
+    "capacityKg": 350
+  },
+  "shift": {
+    "shiftId": "demo-shift-019",
+    "startAt": "2026-07-25T08:00:00+09:00",
+    "evaluatedAt": "2026-07-25T10:30:00+09:00",
+    "endAt": "2026-07-25T16:00:00+09:00",
+    "continuousWorkMinutes": 135,
+    "plannedBreakMinutes": 15
+  },
+  "plan": {
+    "planId": "demo-plan-019",
+    "planVersion": "plan-v1",
+    "totalStopCount": 16,
+    "completedStopCount": 6,
+    "remainingStopCount": 10,
+    "remainingWeightKg": 52,
+    "stops": [
+      {
+        "stopId": "demo-stop-019-01",
+        "sequence": 1,
+        "eta": "2026-07-25T10:38:00+09:00",
+        "coarseZone": "합성 북부권역 A구역",
+        "taskType": "문앞 전달",
+        "weightKg": 7
+      },
+      {
+        "stopId": "demo-stop-019-02",
+        "sequence": 2,
+        "eta": "2026-07-25T10:46:00+09:00",
+        "coarseZone": "합성 북부권역 B구역",
+        "taskType": "경비실 전달",
+        "weightKg": 8
+      },
+      {
+        "stopId": "demo-stop-019-03",
+        "sequence": 3,
+        "eta": "2026-07-25T10:54:00+09:00",
+        "coarseZone": "합성 북부권역 C구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 2
+      },
+      {
+        "stopId": "demo-stop-019-04",
+        "sequence": 4,
+        "eta": "2026-07-25T11:02:00+09:00",
+        "coarseZone": "합성 북부권역 D구역",
+        "taskType": "문앞 전달",
+        "weightKg": 3
+      },
+      {
+        "stopId": "demo-stop-019-05",
+        "sequence": 5,
+        "eta": "2026-07-25T11:10:00+09:00",
+        "coarseZone": "합성 북부권역 A구역",
+        "taskType": "경비실 전달",
+        "weightKg": 4
+      },
+      {
+        "stopId": "demo-stop-019-06",
+        "sequence": 6,
+        "eta": "2026-07-25T11:18:00+09:00",
+        "coarseZone": "합성 북부권역 B구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 5
+      },
+      {
+        "stopId": "demo-stop-019-07",
+        "sequence": 7,
+        "eta": "2026-07-25T11:26:00+09:00",
+        "coarseZone": "합성 북부권역 C구역",
+        "taskType": "문앞 전달",
+        "weightKg": 6
+      },
+      {
+        "stopId": "demo-stop-019-08",
+        "sequence": 8,
+        "eta": "2026-07-25T11:34:00+09:00",
+        "coarseZone": "합성 북부권역 D구역",
+        "taskType": "경비실 전달",
+        "weightKg": 7
+      },
+      {
+        "stopId": "demo-stop-019-09",
+        "sequence": 9,
+        "eta": "2026-07-25T11:42:00+09:00",
+        "coarseZone": "합성 북부권역 A구역",
+        "taskType": "무인보관함 전달",
+        "weightKg": 8
+      },
+      {
+        "stopId": "demo-stop-019-10",
+        "sequence": 10,
+        "eta": "2026-07-25T11:50:00+09:00",
+        "coarseZone": "합성 북부권역 B구역",
+        "taskType": "문앞 전달",
+        "weightKg": 2
+      }
+    ]
+  },
+  "operatingConditions": {
+    "rainfallMmPerHour": 11,
+    "apparentTemperatureC": 27,
+    "visibilityMeters": 2500,
+    "maxSlopePercent": 9,
+    "stairsStopCount": 1
+  },
+  "safetyObservation": {
+    "observationId": "demo-observation-019",
+    "category": "강수·경사 노출",
+    "accidentOccurred": false,
+    "purpose": "사고예방 운영 검토",
+    "nonPunitive": true,
+    "containsUntrustedInstruction": false
+  }
+}
