@@ -1,0 +1,46 @@
+{
+  "schemaVersion": "synthetic-operations-validation-v1",
+  "reportId": "synthetic-operations-documents-validation-v1",
+  "datasetVersion": "synthetic-operations-documents-v1.0.0",
+  "passed": true,
+  "parentCount": 25,
+  "documentCount": 100,
+  "splitCounts": {
+    "development": 60,
+    "validation": 20,
+    "frozen-test": 20
+  },
+  "documentKindCounts": {
+    "DELIVERY_WORK_SHEET": 25,
+    "SHIFT_ROSTER": 25,
+    "ROUTE_STOP_MANIFEST": 25,
+    "SAFETY_INCIDENT_PREVENTION_REPORT": 25
+  },
+  "scenarioCounts": {
+    "RAIN_SLOPE": 9,
+    "HEAT_STAIRS": 8,
+    "LOW_VISIBILITY": 8
+  },
+  "promptInjectionCases": 5,
+  "exactDuplicateCount": 0,
+  "privacyViolationCount": 0,
+  "referentialIntegrityViolationCount": 0,
+  "temporalConstraintViolationCount": 0,
+  "semanticFidelityViolationCount": 0,
+  "safetyBoundaryViolationCount": 0,
+  "validationCodes": {
+    "PASS": 100
+  },
+  "limitations": [
+    "규칙 기반 결정론적 합성 데이터이며 실제 TMS·GPS·기사·고객·사고 기록이 아니다.",
+    "의미 근접 중복 임계치는 아직 승인되지 않아 exact duplicate만 차단한다.",
+    "이 데이터는 Safety Budget·사고확률·기사평가·추천을 생성하거나 실제 안전효과를 입증하지 않는다.",
+    "Upstage Live Parse·Extract 성능이 아니라 문서 생성·계약·개인정보·참조 무결성 기준선이다."
+  ],
+  "capturedAt": "2026-07-25T04:09:16.910Z",
+  "generatorVersion": "deterministic-operations-document-generator-v1.0.0",
+  "seedSpecSha256": "137dd3a5d06eff71fe104f396f7157aec50dc781b78f09484cf1606ccda1aa66",
+  "manifestSha256": "1b4bed744ac3fc0e83d3360878bb6b56f92becee8c127c903b5944c14536946d",
+  "rawDocumentStoredInEvidence": false,
+  "acceptedDatasetStoredUnderDataDirectory": true
+}

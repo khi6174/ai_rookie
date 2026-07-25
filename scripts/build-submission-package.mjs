@@ -104,18 +104,45 @@ const goalCompletion = JSON.parse(
     "utf8",
   ),
 );
+const finalReleasePolicy = JSON.parse(
+  await readFile(resolve(root, "config/final-release-policy.json"), "utf8"),
+);
 if (finalReadiness.status !== "PASSED") {
   throw new Error("Final readiness evidence is not PASSED");
 }
 if (domesticTrack.status !== "PASSED") {
   throw new Error("Domestic AI track evidence is not PASSED");
 }
+const disclosedGapRelease =
+  goalCompletion.status ===
+  "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP";
+const disclosedGapPolicyValid =
+  finalReleasePolicy.schemaVersion ===
+    "saferoute-final-release-policy-v1" &&
+  finalReleasePolicy.status === "APPROVED" &&
+  finalReleasePolicy.humanValidationDisposition?.g5Round4 ===
+    "WAIVED_DUE_TO_SUBMISSION_DEADLINE" &&
+  finalReleasePolicy.humanValidationDisposition?.riderRound2 ===
+    "REQUIRED_AND_PASSED" &&
+  finalReleasePolicy.humanValidationDisposition?.waiverDoesNotEqualPass ===
+    true &&
+  goalCompletion.releasePolicy?.waiverDoesNotEqualPass === true &&
+  goalCompletion.summary?.disclosedValidationGapCount === 1 &&
+  goalCompletion.summary?.humanValidationRequiredCount === 0;
+if (disclosedGapRelease && !disclosedGapPolicyValid) {
+  throw new Error(
+    "Disclosed human-validation gap is missing its approved fail-closed release policy.",
+  );
+}
 if (
-  goalCompletion.status !== "READY_FOR_FINAL_SUBMISSION" &&
+  ![
+    "READY_FOR_FINAL_SUBMISSION",
+    "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
+  ].includes(goalCompletion.status) &&
   !diagnostic
 ) {
   throw new Error(
-    `Goal completion is ${goalCompletion.status}. Complete the required human evidence or use --diagnostic for a clearly labeled non-submission archive.`,
+    `Goal completion is ${goalCompletion.status}. Complete the required evidence or use --diagnostic for a clearly labeled non-submission archive.`,
   );
 }
 
@@ -124,6 +151,7 @@ const rootFiles = new Set([
   ".openai/hosting.json",
   "AGENTS.md",
   "README.md",
+  "config/final-release-policy.json",
   "index.html",
   "package.json",
   "playwright.config.ts",
@@ -356,7 +384,8 @@ const packageReadme = `# SafeRoute AI 국내 AI 트랙 제출 패키지
 - 최종 릴리스 게이트: ${finalReadiness.status}
 - 국내 AI 트랙 감사: ${domesticTrack.status}
 - 최종 GOAL 감사: ${goalCompletion.status}
-- 패키지 구분: ${diagnostic ? "DIAGNOSTIC_ONLY" : "FINAL_SUBMISSION_CANDIDATE"}
+- 패키지 구분: ${diagnostic ? "DIAGNOSTIC_ONLY" : disclosedGapRelease ? "DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP" : "FINAL_SUBMISSION_CANDIDATE"}
+- 관리자 이해도 검증: ${disclosedGapRelease ? "일정상 미실시 · 통과로 간주하지 않음" : "승인된 사람 Gate 통과"}
 - 데이터: 합성 Demo fixture, 공개 날씨 증거, 비식별 AI 평가 요약
 
 ## 실행
@@ -368,6 +397,7 @@ pnpm run dev
 \`\`\`
 
 \`demo-dist/\`는 같은 commit에서 생성한 정적 빌드다. 실제 기사 개인정보, 실제 TMS·지도·인증·고객 발송은 포함하지 않는다.
+${disclosedGapRelease ? "\n이 패키지는 관리자 G5-B Round 4 이해도 평가를 수행하지 못한 공백을 공개한다. 관리자 이해도·현장 사용성·사고감소 검증 완료를 주장해서는 안 된다.\n" : ""}
 
 ## 명시적 제외
 
@@ -401,6 +431,13 @@ const submissionManifest = {
   finalReadinessStatus: finalReadiness.status,
   domesticTrackStatus: domesticTrack.status,
   goalCompletionStatus: goalCompletion.status,
+  packageDisposition: diagnostic
+    ? "DIAGNOSTIC_ONLY"
+    : disclosedGapRelease
+      ? "DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP"
+      : "FINAL_SUBMISSION_CANDIDATE",
+  humanValidationGapDisclosed: disclosedGapRelease,
+  humanValidationGapDoesNotEqualPass: disclosedGapRelease,
   diagnosticOnly: diagnostic,
   includedFileCount: manifestEntries.length,
   includedBytes: manifestEntries.reduce((total, item) => total + item.bytes, 0),
@@ -451,6 +488,12 @@ const archiveSummary = {
   finalReadinessStatus: finalReadiness.status,
   domesticTrackStatus: domesticTrack.status,
   goalCompletionStatus: goalCompletion.status,
+  packageDisposition: diagnostic
+    ? "DIAGNOSTIC_ONLY"
+    : disclosedGapRelease
+      ? "DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP"
+      : "FINAL_SUBMISSION_CANDIDATE",
+  humanValidationGapDisclosed: disclosedGapRelease,
   diagnosticOnly: diagnostic,
   explicitExclusions,
   secretAndIdentityScanPassed: true,

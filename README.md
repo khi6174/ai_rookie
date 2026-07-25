@@ -6,11 +6,11 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 
 24명 합성 기사 지도는 5초 간격·30초 `Demo movement`를 재현하며 stale·offline 정지와 연결 복구를 검증했다. G4-B는 24·96·240명 합성 부하에서 권역당 최대 80명, 동시 경로 24개, 5초 갱신 예산을 Windows Chromium Fallback 2D로 통과했다. G5-A는 활성 지원 decision의 같은 4개 route point와 Safety 수치를 공급자 독립 SVG `Demo 2.5D`로 설명하며 기본 2D·기사 PWA·Safety 계산을 유지한다. G5-B Round 3 독립 3인도 전체 정답 0/6으로 `DO_NOT_PROMOTE`였으므로 실패 원본을 보존하고, `52분·17번째·10분·8건`과 두 기사 역할을 풀어 쓴 Round 4 자극을 준비한다. 기사 제품 경계 Round 2는 독립 5인 30/30, 중대 오인 0건으로 `READY_TO_PROMOTE`를 통과했다. 아틀란 트럭의 현장형 경로 UX와 KBS 모빌리티 AI의 예방적 안전 프레이밍은 SafeRoute의 의사결정 계층과 분리 고정했다.
 
-기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. TAAS는 영등포구 2024년 트럭 사고 다발지역 3개 지점과 중랑구 2024년 지자체 통계 13개 사고유형을 한 승인 키로 Live 검증했습니다. 두 TAAS 자료 모두 지역 맥락·평가 근거에만 쓰며 Safety 계산에는 자동 반영하지 않습니다. 남은 최종 사람 Gate는 G5-B Round 4 독립 3인 이해도이며, 이후 발표 PC·역할·제출물 운영 점검을 확정합니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
+기상청 API허브 4.1·4.2와 보완 1.3·4.3의 비식별 Live 표본을 통과했고, 4.3 `TMP·REH·WSD`에서 공식 계절별 체감온도도 결정론적으로 산출했습니다. 현재 시간당 적설과 미래 시정이 남아 Live 날씨는 Safety 입력으로 승격하지 않고, 부분 Live와 Demo를 섞지 않는 명시적 `Weather Fallback`에서 Demo 타임라인 전체만 계산에 사용합니다. TAAS는 영등포구 2024년 트럭 사고 다발지역 3개 지점과 중랑구 2024년 지자체 통계 13개 사고유형을 한 승인 키로 Live 검증했습니다. 두 TAAS 자료 모두 지역 맥락·평가 근거에만 쓰며 Safety 계산에는 자동 반영하지 않습니다. G5-B Round 4 독립 이해도 평가는 일정상 미실시하고 이를 `DISCLOSED_VALIDATION_GAP`으로 제출물에 공개합니다. VARCO는 후속 에셋 생성 API로 분리해 P0에 필요한 사용처가 승인될 때만 연동합니다.
 
-2026-07-23 사람 Gate 최신 상태는 G5-B Round 3 `DO_NOT_PROMOTE`, 기사 제품 경계 Round 2 `READY_TO_PROMOTE`다. G5 Round 4는 계산·정답·2D 기본값을 유지하고 결정 문장과 기사 역할 용어만 다시 단순화한다. 남은 최종 GOAL 증거는 Round 4 독립 3인 평가다.
+사람 Gate 최신 상태는 G5-B Round 3 `DO_NOT_PROMOTE`, 기사 제품 경계 Round 2 `READY_TO_PROMOTE`다. Round 4는 제출 일정상 실행하지 않으며, 관리자 이해도·현장 사용성 검증 완료를 주장하지 않는 공개 공백 데모 제출 상태로 관리한다.
 
-최신 단위·계약 검증은 Vitest 32개 파일·271/271이다.
+최신 단위·계약 검증은 Vitest 32개 파일·272/272이다.
 
 - TypeScript·Zod 데이터 계약
 - 우천·폭염·야간 대표 fixture 3개
@@ -48,7 +48,7 @@ SafeRoute AI는 배송계획 변경 전에 모든 영향 기사의 미래 안전
 - 30개 frozen 변형·3전략 90회 비교: Fastest 17건·Balanced 11건 하드 제약 위반, SafeRoute 0건
 - Risk Transfer Guard 직접 경계 20/20·전체 계획 3/3 통과
 - 시간·동의·버전 충돌 결정 경계 30/30 통과
-- Vitest 32개 파일·271/271 통과
+- Vitest 32개 파일·272/272 통과
 - G5-B 사람 이해도 Round 1은 3명·6 trial 중 핵심 의미 전체 정답 2/6, 경사 구간 0/6, 혼란 증가 2/3으로 `DO_NOT_PROMOTE`; 2.5D 기본 승격 금지와 관리자 decision 정보위계 재설계 필요
 
 ## 실행
@@ -124,7 +124,7 @@ TAAS는 포털에서 두 API가 모두 등록된 공용 `TAAS_API_KEY`를 사용
 
 `verify:final`은 외부 API를 호출하지 않고 빌드, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사를 순서대로 다시 실행한다. 성공 결과는 `artifacts/evals/final-readiness-latest.json`과 timestamp 불변 run에 저장하며 실제 발표 PC 점검·제출 업로드 같은 사람의 확인 항목은 별도로 남긴다.
 
-`audit:goal`은 여섯 심사기준과 G5-B Round 4·기사 제품 경계 Round 2 사람 Gate를 함께 판정한다. `package:submission`은 추적된 working tree가 clean이고 최종 readiness·국내트랙 감사가 `PASSED`, 최종 GOAL이 `READY_FOR_FINAL_SUBMISSION`일 때만 실행된다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 격리형 디자인 프로토타입·로컬 비밀정보·중복 run은 제외한다. 개발 중 패키지 검사는 `--diagnostic`으로만 생성하며 최종 제출본과 파일명·manifest를 분리한다.
+`audit:goal`은 여섯 심사기준과 사람 Gate를 함께 판정한다. 일반 완료 외에 승인된 정책이 있을 때만 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`을 허용하며 사람 통과로 계산하지 않는다. `package:submission`은 clean tree, 최종 readiness·국내트랙 감사 통과와 이 공개 공백 계약을 검사한다. 승인된 소스·문서·최신 증거·스크린샷과 같은 commit의 정적 빌드를 allowlist로 압축하고, 비밀정보·중복 run은 제외한다.
 
 ## 핵심 문서
 

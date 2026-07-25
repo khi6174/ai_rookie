@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   evaluateGoalCompletionStatus,
   evaluateHumanGoalEvidence,
+  parseFinalReleasePolicy,
 } from "../src/evals/goalCompletion";
 
 function g5(overrides: Record<string, unknown> = {}) {
@@ -88,6 +89,14 @@ describe("최종 GOAL 사람 증거 계약", () => {
       "PASSED",
     ])).toBe("HUMAN_VALIDATION_REQUIRED");
     expect(evaluateGoalCompletionStatus([
+      "PASSED",
+      "PASSED",
+      "PASSED",
+      "PASSED",
+      "DISCLOSED_VALIDATION_GAP",
+      "PASSED",
+    ])).toBe("READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP");
+    expect(evaluateGoalCompletionStatus([
       "FAILED",
       "PASSED",
       "PASSED",
@@ -96,5 +105,33 @@ describe("최종 GOAL 사람 증거 계약", () => {
       "PASSED",
     ])).toBe("FAILED");
     expect(() => evaluateGoalCompletionStatus(["PASSED"])).toThrow(/six/);
+  });
+
+  it("마감 공개 공백 정책은 관리자 Gate를 통과로 바꾸지 않는 고정 계약이다", () => {
+    const policy = parseFinalReleasePolicy({
+      schemaVersion: "saferoute-final-release-policy-v1",
+      releaseScope: "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
+      status: "APPROVED",
+      approvedAt: "2026-07-25",
+      humanValidationDisposition: {
+        g5Round4: "WAIVED_DUE_TO_SUBMISSION_DEADLINE",
+        riderRound2: "REQUIRED_AND_PASSED",
+        waiverDoesNotEqualPass: true,
+      },
+      prohibitedClaims: [
+        "관리자 공간 이해도 검증 완료",
+        "실제 현장 사용성 검증 완료",
+        "실제 사고감소 효과",
+        "실시간 TMS·GPS·인증 운영 완료",
+      ],
+    });
+    expect(policy.humanValidationDisposition.waiverDoesNotEqualPass).toBe(true);
+    expect(() => parseFinalReleasePolicy({
+      ...policy,
+      humanValidationDisposition: {
+        ...policy.humanValidationDisposition,
+        waiverDoesNotEqualPass: false,
+      },
+    })).toThrow();
   });
 });

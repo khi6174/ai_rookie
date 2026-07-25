@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "saferoute-final-release-policy-v1",
+  "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
+  "status": "APPROVED",
+  "approvedAt": "2026-07-25",
+  "humanValidationDisposition": {
+    "g5Round4": "WAIVED_DUE_TO_SUBMISSION_DEADLINE",
+    "riderRound2": "REQUIRED_AND_PASSED",
+    "waiverDoesNotEqualPass": true
+  },
+  "prohibitedClaims": [
+    "관리자 공간 이해도 검증 완료",
+    "실제 현장 사용성 검증 완료",
+    "실제 사고감소 효과",
+    "실시간 TMS·GPS·인증 운영 완료"
+  ]
+}

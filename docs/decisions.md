@@ -630,6 +630,16 @@
 - 기각한 대안: 실제 배송·근무·사고 문서 수집, 공개 샘플의 개인정보를 남기는 방식, 자유 생성 LLM이 ID·시간·정답을 소유하는 방식, 문서 단위 무작위 split, 합성 사고를 실제 발생 기록처럼 작성하는 방식.
 - 영향 파일: `data/seed-specs/synthetic-operations-documents-v1.json`, `data/manifests/synthetic-operations-documents-v1.json`, `data/synthetic/operations-documents-v1/`, `src/evals/syntheticOperationsDocuments.ts`, `scripts/run-synthetic-operations-documents.mjs`, `tests/synthetic-operations-documents.test.ts`, `docs/dataset-card-synthetic-operations.md`, `docs/evals.md`
 
+### ADR-065 — 관리자 이해도 미검증은 통과가 아닌 공개된 제출 공백으로 고정한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: 제출 일정상 G5-B Round 4 독립 사람 평가는 실행하지 않는다. Round 3 `DO_NOT_PROMOTE`와 이전 실패 증거를 보존하고, 기술·국내트랙 Gate가 모두 통과하며 기사 Round 2가 계속 유효한 경우에만 최종 상태를 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`으로 판정한다. 이 상태는 `READY_FOR_FINAL_SUBMISSION`이나 사람 Gate 통과와 다르며, 제출 manifest와 발표 문구에 관리자 이해도·현장 사용성 미검증을 의무 표시한다.
+- 이유: 남은 기간에 검토자를 형식적으로 모집하거나 자동 응답으로 사람 증거를 대체하지 않으면서도, 완성된 기술 데모와 재현 증거를 정직한 한계와 함께 제출하기 위해서다.
+- 경계: G5-B 실패 결과를 삭제·이름 변경·통과 처리하지 않는다. 관리자 이해도 검증 완료, 현장 사용성 검증 완료, 실제 사고감소, 실시간 TMS·GPS·인증 운영 완료를 주장하지 않는다. 기술 Gate·기사 권리·Risk Transfer Guard·개인정보·국내 AI 경계는 완화하지 않는다.
+- 기각한 대안: Round 3를 Round 4로 재사용, 팀원이 만든 자동 응답을 독립 검토로 간주, 사람 Gate를 `PASSED`로 수동 수정, 모든 검증이 끝난 일반 최종 제출본으로 표기하는 방식.
+- 영향 파일: `config/final-release-policy.json`, `src/evals/goalCompletion.ts`, `tests/goal-completion.test.ts`, `scripts/run-goal-completion-audit.mjs`, `scripts/build-submission-package.mjs`, `docs/goal-completion-audit.md`, `docs/final-readiness.md`, `docs/submission-package.md`, `docs/demo-script.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

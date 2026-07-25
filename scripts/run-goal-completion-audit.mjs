@@ -60,19 +60,37 @@ function check(id, passed, evidence, details) {
   return { id, passed, evidence, details };
 }
 
-function criterion(id, nameKo, claim, checks, pendingHumanGate = false) {
+function criterion(
+  id,
+  nameKo,
+  claim,
+  checks,
+  {
+    pendingHumanGate = false,
+    waivedHumanCheckIds = [],
+  } = {},
+) {
   const failedChecks = checks.filter((item) => !item.passed);
+  const nonWaivedFailedChecks = failedChecks.filter(
+    (item) => !waivedHumanCheckIds.includes(item.id),
+  );
   return {
     id,
     nameKo,
     claim,
     status: failedChecks.length === 0
       ? "PASSED"
-      : pendingHumanGate && failedChecks.every((item) => item.id.startsWith("HUMAN_"))
+      : nonWaivedFailedChecks.length === 0
+        ? "DISCLOSED_VALIDATION_GAP"
+      : pendingHumanGate &&
+          nonWaivedFailedChecks.every((item) => item.id.startsWith("HUMAN_"))
         ? "HUMAN_VALIDATION_REQUIRED"
         : "FAILED",
     checks,
-    blockers: failedChecks.map((item) => item.id),
+    blockers: nonWaivedFailedChecks.map((item) => item.id),
+    disclosedGaps: failedChecks
+      .filter((item) => waivedHumanCheckIds.includes(item.id))
+      .map((item) => item.id),
   };
 }
 
@@ -101,6 +119,7 @@ const evidence = {
   provenance: await readEvidence(
     "artifacts/evals/data-provenance-audit.json",
   ),
+  releasePolicy: await readEvidence("config/final-release-policy.json"),
 };
 
 const g5Round4 = await readOptionalEvidence(
@@ -129,12 +148,16 @@ const vite = await createServer({
 });
 let evaluateGoalCompletionStatus;
 let humanEvidence;
+let releasePolicy;
 try {
   const goalCompletionModule = await vite.ssrLoadModule(
     "/src/evals/goalCompletion.ts",
   );
   evaluateGoalCompletionStatus =
     goalCompletionModule.evaluateGoalCompletionStatus;
+  releasePolicy = goalCompletionModule.parseFinalReleasePolicy(
+    evidence.releasePolicy.json,
+  );
   humanEvidence = goalCompletionModule.evaluateHumanGoalEvidence({
     ...(g5Round4 ? { g5Round4: g5Round4.json } : {}),
     ...(g5Round3 ? { g5Round3: g5Round3.json } : {}),
@@ -172,6 +195,11 @@ const provenance = evidence.provenance.json;
 
 const g5Round3Passed = humanEvidence.g5Passed;
 const riderPassed = humanEvidence.riderPassed;
+const g5DeadlineWaiverApproved =
+  releasePolicy.humanValidationDisposition.g5Round4 ===
+    "WAIVED_DUE_TO_SUBMISSION_DEADLINE" &&
+  releasePolicy.humanValidationDisposition.waiverDoesNotEqualPass === true &&
+  riderPassed;
 
 const criteria = [
   criterion(
@@ -314,7 +342,12 @@ const criteria = [
           : `Round 1 remains ${riderRound1?.json.status ?? "NOT_RUN"}; five-person independent Round 2 is required after the product-boundary redesign.`,
       ),
     ],
-    true,
+    {
+      pendingHumanGate: true,
+      waivedHumanCheckIds: g5DeadlineWaiverApproved
+        ? ["HUMAN_G5_ROUND4_COMPREHENSION"]
+        : [],
+    },
   ),
   criterion(
     "VALUE",
@@ -359,6 +392,9 @@ const failedCriteria = criteria.filter(({ status }) => status === "FAILED");
 const pendingCriteria = criteria.filter(
   ({ status }) => status === "HUMAN_VALIDATION_REQUIRED",
 );
+const disclosedGapCriteria = criteria.filter(
+  ({ status }) => status === "DISCLOSED_VALIDATION_GAP",
+);
 const status = evaluateGoalCompletionStatus(
   criteria.map(({ status: criterionStatus }) => criterionStatus),
 );
@@ -368,17 +404,28 @@ const allEvidence = [
   ...[g5Round1, g5Round2, g5Round3, riderRound1, riderRound2].filter(Boolean),
 ];
 const result = {
-  schemaVersion: "saferoute-goal-completion-audit-v1",
+  schemaVersion: "saferoute-goal-completion-audit-v2",
   capturedAt: new Date().toISOString(),
   status,
   objective:
-    "Domestic-track SafeRoute safety-operations decision layer with bounded Atlan Truck and KBS mobility AI references, reproducible closed-loop evidence, and independent human comprehension gates.",
+    "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
+  releasePolicy: {
+    path: evidence.releasePolicy.path,
+    status: releasePolicy.status,
+    approvedAt: releasePolicy.approvedAt,
+    g5Round4Disposition:
+      releasePolicy.humanValidationDisposition.g5Round4,
+    waiverDoesNotEqualPass:
+      releasePolicy.humanValidationDisposition.waiverDoesNotEqualPass,
+    prohibitedClaims: releasePolicy.prohibitedClaims,
+  },
   criteria,
   summary: {
     criterionCount: criteria.length,
     passedCriterionCount: criteria.filter(({ status }) => status === "PASSED")
       .length,
     humanValidationRequiredCount: pendingCriteria.length,
+    disclosedValidationGapCount: disclosedGapCriteria.length,
     failedCriterionCount: failedCriteria.length,
     technicalFinalReadiness: final.status,
     domesticTrackStatus: domesticTrack.status,
@@ -399,7 +446,16 @@ const result = {
         : "NOT_RUN",
     riderStatus: rider?.json.status ?? "NOT_RUN",
   },
-  requiredNextEvidence: humanEvidence.requiredNextEvidence,
+  requiredNextEvidence: g5DeadlineWaiverApproved
+    ? humanEvidence.requiredNextEvidence.filter(
+        (path) =>
+          path !==
+          "artifacts/evals/g5-spatial-comprehension-round4-summary.json",
+      )
+    : humanEvidence.requiredNextEvidence,
+  deferredEvidence: g5DeadlineWaiverApproved
+    ? ["artifacts/evals/g5-spatial-comprehension-round4-summary.json"]
+    : [],
   evidenceManifest: allEvidence.map(({ path, bytes, sha256: hash }) => ({
     path,
     bytes,
@@ -419,7 +475,8 @@ const result = {
     "Synthetic Demo, Mock, public-weather adapter, and redacted API evidence are not field accident-reduction evidence.",
     "No live GPS, turn-by-turn navigation, dispatch brokerage, sensor, accident detection, automatic rescue, authentication, TMS, or customer delivery is claimed.",
     "A.X K1 Live passed the fixed 12-task explanation benchmark on 2026-07-23 but remains an optional evidence-layer dependency, not a P0 or final Demo dependency.",
-    "Goal completion remains unproven until both independent human comprehension summaries pass their strict contracts.",
+    "G5-B Round 4 manager comprehension was not run before submission; this waiver is a disclosed validation gap and not a passing human result.",
+    "The Demo submission candidate must not claim completed manager comprehension or field usability validation.",
   ],
 };
 
@@ -429,6 +486,12 @@ console.log(
 );
 console.log(`artifact=${outputPath}`);
 
-if (requireReady && status !== "READY_FOR_FINAL_SUBMISSION") {
+if (
+  requireReady &&
+  ![
+    "READY_FOR_FINAL_SUBMISSION",
+    "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
+  ].includes(status)
+) {
   process.exitCode = 1;
 }

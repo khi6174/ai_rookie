@@ -1,8 +1,21 @@
 {
-  "schemaVersion": "saferoute-goal-completion-audit-v1",
-  "capturedAt": "2026-07-25T04:23:18.837Z",
-  "status": "HUMAN_VALIDATION_REQUIRED",
-  "objective": "Domestic-track SafeRoute safety-operations decision layer with bounded Atlan Truck and KBS mobility AI references, reproducible closed-loop evidence, and independent human comprehension gates.",
+  "schemaVersion": "saferoute-goal-completion-audit-v2",
+  "capturedAt": "2026-07-25T04:40:47.242Z",
+  "status": "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
+  "objective": "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
+  "releasePolicy": {
+    "path": "config/final-release-policy.json",
+    "status": "APPROVED",
+    "approvedAt": "2026-07-25",
+    "g5Round4Disposition": "WAIVED_DUE_TO_SUBMISSION_DEADLINE",
+    "waiverDoesNotEqualPass": true,
+    "prohibitedClaims": [
+      "관리자 공간 이해도 검증 완료",
+      "실제 현장 사용성 검증 완료",
+      "실제 사고감소 효과",
+      "실시간 TMS·GPS·인증 운영 완료"
+    ]
+  },
   "criteria": [
     {
       "id": "CREATIVITY",
@@ -23,7 +36,8 @@
           "details": "30 variants, 90 comparisons, SafeRoute violations=0"
         }
       ],
-      "blockers": []
+      "blockers": [],
+      "disclosedGaps": []
     },
     {
       "id": "INNOVATION",
@@ -50,7 +64,8 @@
           "details": "domestic checks=7/7, Upstage Mock=60/60, unsafe=0"
         }
       ],
-      "blockers": []
+      "blockers": [],
+      "disclosedGaps": []
     },
     {
       "id": "EXECUTION",
@@ -68,10 +83,11 @@
           "id": "REPRODUCIBLE_TEST_COUNTS",
           "passed": true,
           "evidence": "artifacts/evals/final-readiness-latest.json",
-          "details": "unit=271, e2e=21, clean=3, publicBuild=true"
+          "details": "unit=272, e2e=21, clean=3, publicBuild=true"
         }
       ],
-      "blockers": []
+      "blockers": [],
+      "disclosedGaps": []
     },
     {
       "id": "GROWTH",
@@ -92,13 +108,14 @@
           "details": "Incomplete public weather evidence remains isolated from the Safety engine."
         }
       ],
-      "blockers": []
+      "blockers": [],
+      "disclosedGaps": []
     },
     {
       "id": "EFFECTIVENESS",
       "nameKo": "실효성",
       "claim": "폐루프가 자동 재현될 뿐 아니라 관리자와 기사가 핵심 결정·제품 경계를 실제로 이해한다.",
-      "status": "HUMAN_VALIDATION_REQUIRED",
+      "status": "DISCLOSED_VALIDATION_GAP",
       "checks": [
         {
           "id": "TECHNICAL_CLOSED_LOOP",
@@ -119,7 +136,8 @@
           "details": "status=READY_TO_PROMOTE, reviewers=5, misconceptions=0"
         }
       ],
-      "blockers": [
+      "blockers": [],
+      "disclosedGaps": [
         "HUMAN_G5_ROUND4_COMPREHENSION"
       ]
     },
@@ -148,13 +166,15 @@
           "details": "SafeRoute violations=0, transfer guard=23/23"
         }
       ],
-      "blockers": []
+      "blockers": [],
+      "disclosedGaps": []
     }
   ],
   "summary": {
     "criterionCount": 6,
     "passedCriterionCount": 5,
-    "humanValidationRequiredCount": 1,
+    "humanValidationRequiredCount": 0,
+    "disclosedValidationGapCount": 1,
     "failedCriterionCount": 0,
     "technicalFinalReadiness": "PASSED",
     "domesticTrackStatus": "PASSED",
@@ -163,39 +183,40 @@
     "riderEvidenceRound": "ROUND_2",
     "riderStatus": "READY_TO_PROMOTE"
   },
-  "requiredNextEvidence": [
+  "requiredNextEvidence": [],
+  "deferredEvidence": [
     "artifacts/evals/g5-spatial-comprehension-round4-summary.json"
   ],
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 8832,
-      "sha256": "0786f68d4c0dfff30c5ea57666fdf32b23b83c6d7270e44ce9c3f53fab159cea"
+      "bytes": 8831,
+      "sha256": "972dc455663742b62cb81ce68608739b0ab78055eac895d64866c704921e063f"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "42ed7fe3c3700e72e9c3ff1aa8ecf083da46e8f29752e049949f2026130b36ab"
+      "sha256": "914df60685bb0ad75d137716d726dd4ad78b62a7996ede851a3c22c19d9703e9"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "cf66b9fdbf4aa677759aa52e262d38b408259b80ebe064353068a23aa30e40f7"
+      "sha256": "f5fa3f499b4286887eca6360e1ff98f8fe8f471ac9f67007fcdd296c73852cc6"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "f07e3fbde38d9bc34568f41a8449e7ca76d1cf0ccf48693d2e33a026cddf3a9e"
+      "sha256": "7aca82db8348356338e3c4e966e2c26c30c3f4f9c7fa9d6ed3e93e519f7bf4b4"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 4919,
-      "sha256": "98be933e7f5023ee1a1c4ba05ed0d8d40744723c22b2cbebf234792d05d9e12c"
+      "sha256": "79122a57511042746f74ad7c9a52139dc981b8fead933fa767c8fcebd43f9c65"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
-      "bytes": 2321,
-      "sha256": "1aae24d59ec97b23ec4d47a136f2fb74c1d7584f3daf3dbf5f180d7a4ea84975"
+      "bytes": 2320,
+      "sha256": "23e836ad37e40ef9faae71dc3472a88227e3aa99c92dc3e320ef6f1639651482"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -206,6 +227,11 @@
       "path": "artifacts/evals/data-provenance-audit.json",
       "bytes": 3081,
       "sha256": "e0d0544c1dac18c5071ab2a39027ea5c45e8148678d3425927db2d7c9ab75295"
+    },
+    {
+      "path": "config/final-release-policy.json",
+      "bytes": 543,
+      "sha256": "33e083ec674d67bf51a299b6470ed77ca3b7c093bb8c4cec662a5cfca2aefdc0"
     },
     {
       "path": "artifacts/evals/g5-spatial-comprehension-summary.json",
@@ -252,8 +278,8 @@
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 99161,
-      "sha256": "865acd5d53d22cfb13eb8111347e64d2c7a276aa34f2c7c6d2dbf3864f0fd410"
+      "bytes": 100962,
+      "sha256": "c434dc8bf0eea82d985ccfec712e6a46f5be61f22f35ccb70ba5a398e98593c9"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",
@@ -266,8 +292,8 @@
       "path": "docs/evals.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 61697,
-      "sha256": "c0393cabdfc412312c90adc56e2c6a767742fb1701ebda5aa0184d7060f7fda0"
+      "bytes": 61746,
+      "sha256": "45961430def3e74039a86fba72d49630eb233fce92222940b710b4def8cbdc04"
     },
     {
       "path": "docs/domestic-ai-track-compliance.md",
@@ -280,24 +306,25 @@
   "evaluatorManifest": [
     {
       "path": "scripts/run-goal-completion-audit.mjs",
-      "bytes": 16506,
-      "sha256": "1983fbc715f3a5f0a074b56b3c95329a0fbc3ef68e8c2329e6b0df5e592d187f"
+      "bytes": 18516,
+      "sha256": "ef42d4db4f2bd48412ed95b662b48a591b014b58f86cc3aa72fa8ef917ed113f"
     },
     {
       "path": "src/evals/goalCompletion.ts",
-      "bytes": 2974,
-      "sha256": "12da2163762c53c8ac4afb454124975a29ccaae7838949c8d99a8502f1a73169"
+      "bytes": 3761,
+      "sha256": "72b6f33c8f3adf3903557f314def35ad0ee8a5326f8194fa44c969a0a03e6026"
     },
     {
       "path": "tests/goal-completion.test.ts",
-      "bytes": 3019,
-      "sha256": "bcf8109d7bc41da782e6ebd015bd23978b8d2349613a231a660fa1e40ee15b27"
+      "bytes": 4310,
+      "sha256": "c63b71049ce57453a319b0f32bf074fddd3d31a742d63c16d4f96c6d7ef33386"
     }
   ],
   "explicitLimitations": [
     "Synthetic Demo, Mock, public-weather adapter, and redacted API evidence are not field accident-reduction evidence.",
     "No live GPS, turn-by-turn navigation, dispatch brokerage, sensor, accident detection, automatic rescue, authentication, TMS, or customer delivery is claimed.",
     "A.X K1 Live passed the fixed 12-task explanation benchmark on 2026-07-23 but remains an optional evidence-layer dependency, not a P0 or final Demo dependency.",
-    "Goal completion remains unproven until both independent human comprehension summaries pass their strict contracts."
+    "G5-B Round 4 manager comprehension was not run before submission; this waiver is a disclosed validation gap and not a passing human result.",
+    "The Demo submission candidate must not claim completed manager comprehension or field usability validation."
   ]
 }

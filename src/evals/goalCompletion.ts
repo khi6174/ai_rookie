@@ -36,6 +36,23 @@ const RiderReferenceSummarySchema = z.object({
   criticalMisconceptionCount: z.number().int().nonnegative(),
 }).passthrough();
 
+const FinalReleasePolicySchema = z.object({
+  schemaVersion: z.literal("saferoute-final-release-policy-v1"),
+  releaseScope: z.literal("AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO"),
+  status: z.literal("APPROVED"),
+  approvedAt: z.iso.date(),
+  humanValidationDisposition: z.object({
+    g5Round4: z.literal("WAIVED_DUE_TO_SUBMISSION_DEADLINE"),
+    riderRound2: z.literal("REQUIRED_AND_PASSED"),
+    waiverDoesNotEqualPass: z.literal(true),
+  }).strict(),
+  prohibitedClaims: z.array(z.string().min(1)).min(4),
+}).strict();
+
+export function parseFinalReleasePolicy(input: unknown) {
+  return FinalReleasePolicySchema.parse(input);
+}
+
 export type HumanGoalEvidenceInput = {
   g5Round4?: unknown;
   g5Round3?: unknown;
@@ -78,6 +95,7 @@ export function evaluateHumanGoalEvidence(input: HumanGoalEvidenceInput) {
 
 export type GoalCriterionStatus =
   | "PASSED"
+  | "DISCLOSED_VALIDATION_GAP"
   | "HUMAN_VALIDATION_REQUIRED"
   | "FAILED";
 
@@ -90,6 +108,9 @@ export function evaluateGoalCompletionStatus(
   if (statuses.includes("FAILED")) return "FAILED" as const;
   if (statuses.includes("HUMAN_VALIDATION_REQUIRED")) {
     return "HUMAN_VALIDATION_REQUIRED" as const;
+  }
+  if (statuses.includes("DISCLOSED_VALIDATION_GAP")) {
+    return "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP" as const;
   }
   return "READY_FOR_FINAL_SUBMISSION" as const;
 }

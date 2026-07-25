@@ -22,7 +22,7 @@ pnpm run package:submission
 - 추적된 working tree가 clean이다.
 - `artifacts/evals/final-readiness-latest.json`이 `PASSED`다.
 - `artifacts/evals/domestic-track-compliance-latest.json`이 `PASSED`다.
-- `artifacts/evals/goal-completion-latest.json`이 `READY_FOR_FINAL_SUBMISSION`이다.
+- `artifacts/evals/goal-completion-latest.json`이 `READY_FOR_FINAL_SUBMISSION` 또는 승인된 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`이다.
 - 최신 핵심·최종 불변 run이 Git에 추적되어 있다.
 
 명령은 현재 commit에서 프로덕션 빌드를 다시 만들고 다음 파일을 생성한다.
@@ -48,6 +48,8 @@ pnpm run package:submission
 기사 경로·제품 경계 평가는 최신 `rider-reference-round2-stimulus-manifest.json`과 평가 계약을 항상 포함하고 Round 1 실패 summary도 이력으로 보존한다. 실제 독립 Round 2가 완료된 경우에만 익명 집계 `rider-reference-comprehension-round2-summary.json`을 최종 사람 Gate 후보로 포함하며, 원응답이나 연락처는 제출 패키지에 넣지 않는다. 요약이 없으면 사람 평가를 대기 상태로 명시하고 자동 Gate 통과로 대체하지 않는다.
 
 G5-B 공간 이해도는 Round 1·2·3 실패 원본과 요약을 보존하고, 독립 Round 4가 완료되면 `g5-spatial-comprehension-round4-results.json`과 strict 집계 summary를 함께 포함한다. 최종 readiness는 유효한 최신 round를 우선하되 어느 round를 사용했는지 명시한다. 기사 Round 2 `READY_TO_PROMOTE` 결과와 요약은 포함하되 실제 GPS·내비게이션·현장 성과로 확대하지 않는다.
+
+이번 마감 제출은 `config/final-release-policy.json`에 따라 G5-B Round 4를 미실시로 공개한다. 패키지는 `DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP`으로 표시하며, 이를 관리자 이해도나 현장 사용성 검증 완료로 해석하지 않는다.
 
 ## 4. 명시적 제외
 
@@ -75,7 +77,8 @@ G5-B 공간 이해도는 Round 1·2·3 실패 원본과 요약을 보존하고, 
 - 비밀정보·실제 개인정보·로컬 경로가 없다.
 - 격리형 프로토타입과 비승인 외부 산출물이 없다.
 - 최종 readiness와 국내트랙 감사가 모두 `PASSED`다.
-- 최종 GOAL 감사가 `READY_FOR_FINAL_SUBMISSION`이고 진단 패키지가 아니다.
+- 최종 GOAL 감사가 일반 완료 또는 승인된 공개 공백 데모 제출 상태이고 진단 패키지가 아니다.
+- 공개 공백 상태에서는 manifest와 `SUBMISSION_README.md`에 관리자 이해도 미검증이 기록된다.
 - 정적 빌드가 패키지의 commit에서 재생성된다.
 
 ## 7. 비목표

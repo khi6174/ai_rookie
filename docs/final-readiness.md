@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-23
+- 최종 갱신: 2026-07-25
 - 대체 문서: `docs/midpoint-review.md`
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`
 
@@ -29,11 +29,11 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 29개 파일, 247/247 통과 |
+| 단위·계약 | Vitest 32개 파일, 272/272 통과 |
 | 브라우저 폐루프 | Playwright 21/21 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
-| G5-B 사람 이해도 | Round 3 `DO_NOT_PROMOTE`: 3명·6 trial 중 전체 정답 0/6. 경사는 6/6이지만 2D 시간·배송지와 2.5D 양측 영향·경로 우선순위가 남아 역할 용어와 첫 결론을 풀어 쓴 Round 4 화면·도구 준비 |
+| G5-B 사람 이해도 | Round 3 `DO_NOT_PROMOTE` 보존. Round 4는 일정상 미실시하며 `DISCLOSED_VALIDATION_GAP`으로 제출물에 표시 |
 | 기사 제품 경계 이해도 | Round 2 `READY_TO_PROMOTE`: 5명·30/30 정답, 완전 정답 5/5, 중대 오인 0건 |
 | 기사 경로·제품 경계 이해도 | Round 2 `READY_TO_PROMOTE`: 독립 5인 30/30, 완전 정답 5/5, 중대 오인 0건 |
 | 서버 clean start | 독립 서버·브라우저 3/3 |
@@ -45,7 +45,8 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 | 국내 AI 표시 안전 | 검증되지 않은 생성문 표시 0건, 실패는 Fallback |
 | Upstage 문서 왕복 기반 | 합성 문서 60쌍 Mock 계약 60/60, 위험 6종·문서 5종·비신뢰 지시 18건, raw 문서·출력 저장 0건 |
 | 국내 AI 트랙 경계 | 제품·평가 host·모델·SDK·credential 자동 감사 통과 필요 |
-| 증거 무결성 | 국내트랙 자동 감사·지도 부하·공간 장면·Upstage 문서 왕복·기사 제품 경계 고정 자극을 포함한 핵심 산출물 18개와 SHA-256 run manifest, 총 19개 파일 생성 |
+| 합성 운영문서 | 25개 상위 레코드·문서 100개, development 60·validation 20·frozen-test 20, 개인정보·무결성·안전권한·중복 위반 0 |
+| 증거 무결성 | 국내트랙 자동 감사·합성 운영문서·지도 부하·공간 장면·Upstage 문서 왕복·기사 제품 경계 고정 자극을 포함한 핵심 산출물 20개와 SHA-256 run manifest |
 
 모든 수치는 합성·Mock·시뮬레이션 또는 명시된 비식별 API smoke 결과다. 실제 운영효과로 일반화하지 않는다.
 
@@ -53,9 +54,9 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 `pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 공개 빌드 Gate는 Sites용 `dist/client`의 HTML·worker뿐 아니라 `sw.js`, manifest, 192·512 아이콘의 패키징까지 확인해 SPA fallback HTML이 service worker로 배포되는 회귀를 차단한다. 별도 `PUBLIC_HUMAN_REVIEW_KIT`은 G5 Round 4·기사 Round 2 도구, 고정 자극, study ID, 결과 파일명과 외부 전송 API 부재를 확인한다. 사람 평가 도구와 고정 자극 경로는 PWA shell의 cache-first 대상에서 제외해 이전 round의 스크립트·이미지가 새 평가에 재사용되지 않도록 한다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 유지한다. 실행별 측정값은 `spatial-scene-summary.json`에 보존하고 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
-이 기술 `PASSED`는 전체 GOAL 완료 판정이 아니다. `pnpm run audit:goal`이 여섯 심사기준과 두 사람 이해도 Gate를 별도로 판정하며 `READY_FOR_FINAL_SUBMISSION` 이전에는 기본 제출 ZIP 생성을 차단한다.
+이 기술 `PASSED`는 사람 이해도 완료 판정이 아니다. `pnpm run audit:goal`은 여섯 기준과 사람 Gate를 별도로 판정한다. 일반 `READY_FOR_FINAL_SUBMISSION` 외에 승인된 마감 정책이 있을 때만 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`을 허용하며, 제출 ZIP에 관리자 이해도 미검증을 강제로 기록한다.
 
-G5-B 사람 이해도는 유효한 Round 4 summary가 존재하면 이를 우선하고, 없으면 Round 3·2·1 실패 증거를 최신 순서로 유지한다. 최종 readiness의 `g5HumanEvidenceRound`와 `g5HumanComprehensionStudyId`가 실제 사용한 round를 명시하며 잘못된 summary는 Gate를 실패시킨다. 기사 이해도는 Round 2 `READY_TO_PROMOTE`를 최종 사람 Gate 증거로 사용하고 Round 1 실패는 삭제하지 않는다.
+G5-B 사람 이해도는 유효한 Round 4 summary가 존재하면 이를 우선하고, 없으면 Round 3·2·1 실패 증거를 유지한다. 이번 제출에서는 Round 4를 실행하지 않으며 Round 3 실패를 통과로 바꾸지 않는다. 기사 이해도는 Round 2 `READY_TO_PROMOTE`를 유지한다.
 
 ## 4. 문서 게이트
 
@@ -131,4 +132,4 @@ Draft 유지 문서는 현재 합성 Demo의 P0 폐루프를 차단하지 않는
 - A.X 계정별 quota·입력 보존 정책과 반복 실행 분산
 - Upstage 합성 문서 왕복 60쌍 기반과 유료 Parse·Extract Live 실행 승인
 - 실제 운영 파일럿을 위한 데이터 계약·권한·보존·법률·노무 검토
-- G5-B Round 4 독립 검토자 3명 결과
+- G5-B Round 4 독립 검토는 제출 후 후속 검증으로 연기
