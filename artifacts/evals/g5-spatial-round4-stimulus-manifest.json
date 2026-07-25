@@ -11,12 +11,12 @@
     {
       "mode": "TWO_D",
       "path": "artifacts/evals/screenshots/g5-round4-admin-decision-2d-1280x720.png",
-      "sha256": "6c94aa7cf7fe014a6a2423ece1d17ffaa69d9a8f5e9594ab0d4cc08407e157b0"
+      "sha256": "6828e25e4dcd8d0f44fbec5864f9e4beedbf8e71bb1c1f978f33a1b409d3090b"
     },
     {
       "mode": "DEMO_TWO_POINT_FIVE_D",
       "path": "artifacts/evals/screenshots/g5-round4-admin-decision-2-5d-1280x720.png",
-      "sha256": "2cc60eb446fb66e809ecf9287362fad653d0105e3b29d56ed173f3e139963bd6"
+      "sha256": "a0efb2cad39f570eaf34d80f6e8274a6150a003bc9c78e4891234fab39af43da"
     }
   ],
   "limitations": [
