@@ -690,6 +690,16 @@
 - 기각한 대안: v1.3을 계속 튜닝, v1.1·v1.2·v1.3의 성공 row 사후 병합, validation 결과를 본 뒤 기준 변경, 낮은 성능이면 frozen-test 생략해 실패 은폐.
 - 영향 파일: `scripts/local-model-operations-documents-v1.4.py`, `scripts/verify-local-model-operations-documents-v1.4.py`, `scripts/classify-local-model-operations-documents.py`, `config/a100-operations-document-eval-policy.json`, `artifacts/evals/local-model-runs/operations-documents-dev-v1.3.0-run1/`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
 
+### ADR-071 — v1.4 validation은 부분 연구 기준선으로 분류하고 frozen-test를 1회 실행한다
+
+- 날짜: 2026-07-25
+- 상태: Approved
+- 결정: 동결된 v1.4 validation 15/20·unsafe 0건을 `PARTIAL_RESEARCH_BASELINE`으로 확정한다. 작업표 40%가 사전 유형별 60% 기준을 충족하지 않아 적격 오프라인 기준선으로 승격하지 않는다. 독립 검증, 비신뢰 지시 1/1, unsafe 0건이 확인됐으므로 사전 정책에 따라 동일 v1.4로 frozen-test 20건을 정확히 한 번 실행한다.
+- 이유: 전체 75%는 부분 연구 기준 50% 이상이지만 적격 전체 기준 80%와 작업표 유형 기준을 동시에 충족하지 않는다. 결과를 본 뒤 기준을 낮추거나 validation으로 재튜닝하지 않으면서도, frozen-test를 숨기지 않고 최종 일반화 성능을 측정해야 멘토링 자료가 재현 가능하다.
+- 경계: v1.4는 제품 런타임에 통합하지 않는다. frozen 결과와 관계없이 프롬프트·expected·validator를 다시 변경하거나 여러 frozen run 중 좋은 결과를 선택하지 않는다. 모델 학습·파인튜닝 완료, 실제 운영문서 성능, 현장 안전효과를 주장하지 않는다.
+- 기각한 대안: 전체 75%만 보고 적격으로 승격, 작업표 기준 완화, validation 실패를 이용한 v1.5 튜닝, frozen-test 생략, frozen 반복 실행.
+- 영향 파일: `artifacts/evals/local-model-runs/operations-documents-validation-v1.4.0-run1/`, `scripts/classify-local-model-operations-documents.py`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

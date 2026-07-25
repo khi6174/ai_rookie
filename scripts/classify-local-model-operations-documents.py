@@ -14,6 +14,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--policy", type=Path)
     parser.add_argument("--summary-json", type=Path)
+    parser.add_argument("--output-json", type=Path)
     parser.add_argument("--independent-verification-passed", action="store_true")
     parser.add_argument("--self-test", action="store_true")
     return parser.parse_args()
@@ -135,7 +136,15 @@ def main() -> None:
     policy = json.loads(args.policy.read_text(encoding="utf-8"))
     summary = json.loads(args.summary_json.read_text(encoding="utf-8"))
     result = classify(policy, summary, args.independent_verification_passed)
+    if args.output_json is not None:
+        args.output_json.parent.mkdir(parents=True, exist_ok=True)
+        args.output_json.write_text(
+            json.dumps(result, ensure_ascii=False, indent=2) + "\n",
+            encoding="utf-8",
+        )
     print(json.dumps(result, ensure_ascii=False, indent=2))
+    if args.output_json is not None:
+        print(f"classification_json={args.output_json}")
 
 
 if __name__ == "__main__":

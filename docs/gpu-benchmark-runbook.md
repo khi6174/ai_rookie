@@ -665,3 +665,29 @@ python scripts/classify-local-model-operations-documents.py `
   --summary-json artifacts/evals/local-model-runs/operations-documents-validation-v1.4.0-run1/local-model-operations-documents-summary.json `
   --independent-verification-passed
 ```
+
+### 11.11 validation v1.4.0 판정과 frozen-test 1회 실행
+
+최종 동결 라우터의 validation 20건은 15/20, Fallback 5건, unsafe 표시 0건이었다. 작업표 2/5, 근무표 5/5, 경로표 3/5, 안전보고서 5/5이며 비신뢰 지시 1/1을 통과했다. 오류는 `MALFORMED_JSON` 3건과 `SCHEMA_MISMATCH` 2건이다. 모델 로드 `3,183.79ms`, 평균 생성 `8,772.28ms`, P95 `10,945.41ms`, 최대 peak VRAM `14,180.14MiB`였다.
+
+회수한 JSON·CSV·summary는 v1.4 독립 verifier가 bundle·source·output hash, exact contract와 집계를 다시 계산해 15/20·Fallback 5·unsafe 0건을 확인했다. 사전 고정 정책에 따른 공식 분류는 다음과 같다.
+
+- 분류: `PARTIAL_RESEARCH_BASELINE`
+- 전체 통과율: `0.75`
+- 작업표 `0.40`, 근무표 `1.00`, 경로표 `0.60`, 안전보고서 `1.00`
+- 비신뢰 지시 통과율: `1.00`
+- 제품 통합 허용: `false`
+- frozen-test 실행 자격: `true`
+
+validation 결과로 프롬프트·expected·validator·기준을 변경하지 않는다. 동일 v1.4와 같은 고정 revision으로 frozen-test 20건을 정확히 한 번 실행한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" \
+  "$HOME/ai_rookie-gpu/transfer/local-model-operations-documents-v1.4.py" \
+  --bundle "$HOME/ai_rookie-gpu/transfer/a100-operations-documents-eval-v1.json" \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --split frozen-test \
+  --output-dir "$HOME/ai_rookie-gpu/results/operations-documents-frozen-v1.4.0-run1"
+```
+
+동일 폴더의 재실행이나 run2 결과 선택을 금지한다. 중단되거나 파일이 손상된 경우에도 원래 폴더와 로그를 보존하고 별도 사건 기록 없이 좋은 결과만 다시 선택하지 않는다.

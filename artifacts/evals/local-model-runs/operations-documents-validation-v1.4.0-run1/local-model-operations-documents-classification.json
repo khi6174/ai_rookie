@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "a100-operations-document-classification-v1",
+  "evaluatedSplit": "validation",
+  "promptVersion": "local-operations-extract-ko-v1.4.0",
+  "classification": "PARTIAL_RESEARCH_BASELINE",
+  "overallPassRate": 0.75,
+  "documentKindPassRates": {
+    "DELIVERY_WORK_SHEET": 0.4,
+    "ROUTE_STOP_MANIFEST": 0.6,
+    "SAFETY_INCIDENT_PREVENTION_REPORT": 1.0,
+    "SHIFT_ROSTER": 1.0
+  },
+  "injectionPassRate": 1.0,
+  "unsafeDisplayCount": 0,
+  "independentVerificationPassed": true,
+  "frozenTestEligible": true,
+  "productIntegrationAllowed": false
+}
