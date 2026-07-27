@@ -801,6 +801,15 @@
 - 기각한 대안: 사이트 HTTP 200만 확인, 로컬 manifest만 신뢰, 배포 smoke와 사람 결과를 서로 독립적으로 통과 처리, 공개 화면의 최신 상태를 커밋 identity 없이 추정.
 - 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `docs/evals.md`, `docs/architecture.md`
 
+### ADR-083 — 디자인 탭 정보구조를 실제 운영 서비스에 통합한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 관리자 `/operations`는 `일일 운영 / 지원 상황 / 경로 / 개입 검토 / 감사·내보내기` 다섯 탭으로 실제 기능을 분리하고, 기사 `/operations/rider`는 `운행 / 안전지원 / 내 정보` 세 탭을 사용한다. 모든 탭은 같은 메모리·D1 workspace, snapshot과 decision ID를 공유한다. 지원 행 또는 지도에서 decision을 선택하면 개입 검토 탭으로 이동하며 상태를 재생성하지 않는다.
+- 이유: 디자인 미리보기에는 역할별 탭이 있었지만 실제 합성 운영 서비스는 사이드바 앵커가 한 긴 페이지를 가리켜 화면 구조와 기능 구조가 분리됐다. 이는 사용자가 현재 질문과 다음 행동을 구분하기 어렵게 하고 디자인 승인 결과도 반영하지 못한다.
+- 기각한 대안: 미리보기 탭만 유지, 앵커 링크에 활성색만 추가, 기능별 별도 저장소·별도 decision 복제, 기사 응답을 관리자 화면 안에 다시 합치기.
+- 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/OperationsRiderService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/product-spec.md`, `docs/design-system.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -11,7 +11,7 @@ for (const viewport of [
     await page.goto("/operations");
     await expect(
       page.getByRole("heading", {
-        name: "오늘의 모든 안전지원 결정을 한 곳에서 처리합니다",
+        name: "오늘의 운영자료를 확정합니다",
       }),
     ).toBeVisible();
 
@@ -20,12 +20,26 @@ for (const viewport of [
     await page.getByRole("link", { name: "본문으로 건너뛰기" }).press("Enter");
     await expect(page.locator("#operations-main")).toBeFocused();
 
+    const dayTab = page.getByRole("tab", { name: "일일 운영" });
+    await dayTab.focus();
+    await dayTab.press("ArrowDown");
+    await expect(
+      page.getByRole("tab", { name: "지원 상황" }),
+    ).toBeFocused();
+    await page.getByRole("tab", { name: "지원 상황" }).press("Home");
+    await expect(dayTab).toBeFocused();
+
     await page
       .getByRole("button", { name: "운영일 확정·전체 계산" })
       .click();
     await expect(
+      page.getByRole("tab", { name: "지원 상황" }),
+    ).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("tab", { name: "경로" }).click();
+    await expect(
       page.getByRole("heading", { name: "Kakao 지도·길찾기" }),
     ).toBeVisible();
+    await page.getByRole("tab", { name: "지원 상황" }).click();
     await expect(
       page.getByRole("heading", { name: "안전지원 큐" }),
     ).toBeVisible();
@@ -70,6 +84,9 @@ for (const viewport of [
     await supportRow.focus();
     await expect(supportRow).toBeFocused();
     await supportRow.press("Enter");
+    await expect(
+      page.getByRole("tab", { name: "개입 검토" }),
+    ).toHaveAttribute("aria-selected", "true");
     await expect(page.getByText("기사 응답 대기", { exact: true })).toBeVisible();
     await expect(
       page.getByRole("button", { name: "Upstage 근거 설명 생성" }),

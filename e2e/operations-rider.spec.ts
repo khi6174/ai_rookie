@@ -45,11 +45,28 @@ for (const viewport of [
       ),
     ).toBeVisible();
     await expect(
+      page.getByRole("tablist", { name: "기사 주요 화면" }).getByRole("tab"),
+    ).toHaveCount(3);
+    await expect(
+      page.getByRole("tab", { name: "안전지원" }),
+    ).toHaveAttribute("aria-selected", "true");
+    const supportTab = page.getByRole("tab", { name: "안전지원" });
+    await supportTab.focus();
+    await supportTab.press("ArrowRight");
+    await expect(
+      page.getByRole("tab", { name: "내 정보" }),
+    ).toBeFocused();
+    await page.getByRole("tab", { name: "내 정보" }).press("Home");
+    await expect(
+      page.getByRole("tab", { name: "운행" }),
+    ).toBeFocused();
+    await expect(
       page.getByRole("heading", { name: "Kakao 지도·길찾기" }),
     ).toBeVisible();
     await expect(
       page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
     ).toBeVisible();
+    await page.getByRole("tab", { name: "안전지원" }).click();
 
     const metrics = await page.evaluate(() => ({
       viewportWidth: document.documentElement.clientWidth,
@@ -63,6 +80,14 @@ for (const viewport of [
         const box = button.getBoundingClientRect();
         return { width: box.width, height: box.height };
       }),
+      tabButtonSizes: [
+        ...document.querySelectorAll<HTMLElement>(
+          ".operations-rider-tab-bar button",
+        ),
+      ].map((button) => {
+        const box = button.getBoundingClientRect();
+        return { width: box.width, height: box.height };
+      }),
     }));
     expect(metrics.scrollWidth).toBeLessThanOrEqual(
       metrics.viewportWidth + 1,
@@ -70,6 +95,11 @@ for (const viewport of [
     expect(metrics.h1Count).toBe(1);
     expect(
       metrics.responseButtonSizes.every(
+        (box) => box.width >= 44 && box.height >= 44,
+      ),
+    ).toBe(true);
+    expect(
+      metrics.tabButtonSizes.every(
         (box) => box.width >= 44 && box.height >= 44,
       ),
     ).toBe(true);

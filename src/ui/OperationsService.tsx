@@ -40,6 +40,72 @@ type LoadState =
   | { status: "ERROR"; message: string; details: string[] };
 
 type FleetFilter = "SUPPORT" | "ALL" | "MONITOR" | "STABLE";
+type OperationsAdminTab =
+  | "DAY"
+  | "SUPPORT"
+  | "ROUTE"
+  | "INTERVENTIONS"
+  | "AUDIT";
+
+const adminTabs: Array<{
+  value: OperationsAdminTab;
+  icon: string;
+  label: string;
+  hash: string;
+  title: string;
+  subtitle: string;
+}> = [
+  {
+    value: "DAY",
+    icon: "▤",
+    label: "일일 운영",
+    hash: "operations-day",
+    title: "오늘의 운영자료를 확정합니다",
+    subtitle:
+      "합성 근무표·배송 작업표·경로표의 출처와 참조를 검증한 뒤 전체 기사를 같은 시각으로 계산합니다.",
+  },
+  {
+    value: "SUPPORT",
+    icon: "◈",
+    label: "지원 상황",
+    hash: "support-situations",
+    title: "향후 60분 안에 어떤 지원이 필요한가?",
+    subtitle:
+      "모든 활성 기사의 Time-to-Breach와 안전지원 큐를 확인하고 검토할 결정을 선택합니다.",
+  },
+  {
+    value: "ROUTE",
+    icon: "⌖",
+    label: "경로",
+    hash: "route-review",
+    title: "지원 결정의 경로와 도착 영향을 확인합니다",
+    subtitle:
+      "Kakao 지도와 구조화 대안에서 합성 위치·경로를 확인합니다. 지도는 Safety 계산을 변경하지 않습니다.",
+  },
+  {
+    value: "INTERVENTIONS",
+    icon: "⚖",
+    label: "개입 검토",
+    hash: "intervention-review",
+    title: "안전한 개입안을 비교하고 승인합니다",
+    subtitle:
+      "안전 하드 제약과 Risk Transfer Guard를 통과한 후보만 기사 동의와 관리자 승인으로 진행합니다.",
+  },
+  {
+    value: "AUDIT",
+    icon: "▦",
+    label: "감사·내보내기",
+    hash: "audit-export",
+    title: "적용 결과와 감사 근거를 확인합니다",
+    subtitle:
+      "불변 스냅샷, 적용 계획, 고객안내 초안과 감사 이벤트를 같은 결정 근거로 내보냅니다.",
+  },
+];
+
+function adminTabFromHash(): OperationsAdminTab {
+  const hash = window.location.hash.slice(1);
+  return adminTabs.find((tab) => tab.hash === hash)?.value ?? "DAY";
+}
 
 const bundledDocumentTemplateUrl =
   "/templates/daily-operations-documents-2026-07-25-bundled-v1.json";
@@ -112,6 +178,8 @@ function formatEvaluatedAt(value: string) {
 }
 
 export function OperationsService() {
+  const [adminTab, setAdminTab] =
+    useState<OperationsAdminTab>(adminTabFromHash);
   const [operationsPackage, setOperationsPackage] =
     useState<DailyOperationsPackage>(bundledDailyOperationsPackage);
   const [inputSummary, setInputSummary] = useState<OperationsInputSummary>({
@@ -145,6 +213,8 @@ export function OperationsService() {
   const persistenceBaseSavedAtRef = useRef<string | undefined>(
     undefined,
   );
+  const activeTab =
+    adminTabs.find((tab) => tab.value === adminTab) ?? adminTabs[0];
 
   useEffect(() => {
     let cancelled = false;
@@ -304,6 +374,28 @@ export function OperationsService() {
     [fleet],
   );
 
+  const selectAdminTab = (
+    tab: OperationsAdminTab,
+    focusPanel = false,
+  ) => {
+    const nextTab = adminTabs.find((item) => item.value === tab);
+    setAdminTab(tab);
+    if (nextTab) {
+      window.history.replaceState(
+        null,
+        "",
+        `${window.location.pathname}${window.location.search}#${nextTab.hash}`,
+      );
+    }
+    if (focusPanel) {
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById(`operations-panel-${tab.toLowerCase()}`)
+          ?.focus();
+      });
+    }
+  };
+
   const calculateOperationsDay = async () => {
     setLoadState({
       status: "LOADING",
@@ -326,6 +418,7 @@ export function OperationsService() {
       setFleet(nextFleet);
       setWorkspace(nextWorkspace);
       setLoadState({ status: "READY" });
+      selectAdminTab("SUPPORT", true);
     } catch (error) {
       const details =
         typeof error === "object" &&
@@ -352,6 +445,7 @@ export function OperationsService() {
     if (!snapshot || !fleet || !workspace) return;
     setSelectedDecisionId(decisionId);
     setActionMessage(undefined);
+    selectAdminTab("INTERVENTIONS", true);
     if (
       workspace.decisions.some(
         (artifacts) => artifacts.decision.decisionId === decisionId,
@@ -359,6 +453,10 @@ export function OperationsService() {
     ) {
       return;
     }
+    setPersistenceState({
+      status: "SAVING",
+      label: "운영 상태 저장 중",
+    });
     setDecisionLoading(true);
     window.setTimeout(() => {
       setWorkspace((current) =>
@@ -653,16 +751,48 @@ export function OperationsService() {
             <small>합성 운영 서비스</small>
           </span>
         </a>
-        <nav>
-          <a className="active" href="#operations-day">
-            <span aria-hidden="true">▤</span> 일일 운영
-          </a>
-          <a href="#support-workspace">
-            <span aria-hidden="true">◈</span> 안전지원
-          </a>
-          <a href="#operations-evidence">
-            <span aria-hidden="true">⚖</span> 감사·근거
-          </a>
+        <nav role="tablist" aria-label="관리자 운영 화면">
+          {adminTabs.map((tab) => (
+            <button
+              key={tab.value}
+              id={`operations-tab-${tab.value.toLowerCase()}`}
+              type="button"
+              role="tab"
+              aria-selected={adminTab === tab.value}
+              aria-controls={`operations-panel-${tab.value.toLowerCase()}`}
+              className={adminTab === tab.value ? "active" : undefined}
+              onClick={() => selectAdminTab(tab.value)}
+              onKeyDown={(event) => {
+                if (!["ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+                  return;
+                }
+                event.preventDefault();
+                const currentIndex = adminTabs.findIndex(
+                  (item) => item.value === tab.value,
+                );
+                const nextIndex =
+                  event.key === "Home"
+                    ? 0
+                    : event.key === "End"
+                      ? adminTabs.length - 1
+                      : event.key === "ArrowUp"
+                        ? (currentIndex - 1 + adminTabs.length) %
+                          adminTabs.length
+                        : (currentIndex + 1) % adminTabs.length;
+                const nextTab = adminTabs[nextIndex];
+                selectAdminTab(nextTab.value);
+                window.requestAnimationFrame(() => {
+                  document
+                    .getElementById(
+                      `operations-tab-${nextTab.value.toLowerCase()}`,
+                    )
+                    ?.focus();
+                });
+              }}
+            >
+              <span aria-hidden="true">{tab.icon}</span> {tab.label}
+            </button>
+          ))}
         </nav>
         <div className="operations-boundary">
           <strong>합성 운영 모드</strong>
@@ -677,11 +807,8 @@ export function OperationsService() {
         <header className="operations-header">
           <div>
             <p className="operations-kicker">PAID PILOT READY · SYNTHETIC OPERATIONS</p>
-            <h1>오늘의 모든 안전지원 결정을 한 곳에서 처리합니다</h1>
-            <p>
-              업로드된 운영자료가 바뀔 때만 결과가 바뀌며, 같은 입력은 항상
-              같은 계산 결과를 만듭니다.
-            </p>
+            <h1>{activeTab.title}</h1>
+            <p>{activeTab.subtitle}</p>
           </div>
           <div className="operations-header-actions">
             <span
@@ -714,6 +841,14 @@ export function OperationsService() {
           </div>
         </header>
 
+        {adminTab === "DAY" && (
+          <div
+            id="operations-panel-day"
+            className="operations-tab-panel"
+            role="tabpanel"
+            aria-labelledby="operations-tab-day"
+            tabIndex={-1}
+          >
         <section id="operations-day" className="operations-import-card">
           <div>
             <p className="operations-section-label">일일 운영 입력</p>
@@ -774,9 +909,61 @@ export function OperationsService() {
             )}
           </div>
         )}
+            {snapshot && fleet && workspace && (
+              <section className="operations-day-ready" aria-label="운영일 확정 결과">
+                <div>
+                  <p className="operations-section-label">운영일 확정 완료</p>
+                  <h2>{fleet.courierCount}명 전체 평가 · 지원 결정 {fleet.supportDecisionCount}건</h2>
+                  <p>
+                    불변 스냅샷 {snapshot.snapshotVersion}이 저장되었습니다.
+                    지원 상황에서 우선순위와 Time-to-Breach를 확인하세요.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="button button-primary"
+                  onClick={() => selectAdminTab("SUPPORT", true)}
+                >
+                  지원 상황 보기
+                </button>
+              </section>
+            )}
+          </div>
+        )}
 
-        {snapshot && fleet && workspace && (
-          <>
+        {adminTab !== "DAY" && (!snapshot || !fleet || !workspace) && (
+          <section
+            id={`operations-panel-${adminTab.toLowerCase()}`}
+            className="operations-tab-empty"
+            role="tabpanel"
+            aria-labelledby={`operations-tab-${adminTab.toLowerCase()}`}
+            tabIndex={-1}
+          >
+            <span aria-hidden="true">▤</span>
+            <h2>먼저 오늘의 운영자료를 확정해 주세요</h2>
+            <p>
+              운영 스냅샷이 만들어진 뒤 지원 상황·경로·개입·감사 화면을
+              같은 데이터로 연결합니다.
+            </p>
+            <button
+              type="button"
+              className="button button-primary"
+              onClick={() => selectAdminTab("DAY", true)}
+            >
+              일일 운영으로 이동
+            </button>
+          </section>
+        )}
+
+        {snapshot && fleet && workspace && adminTab !== "DAY" && (
+          <div
+            id={`operations-panel-${adminTab.toLowerCase()}`}
+            className="operations-tab-panel"
+            role="tabpanel"
+            aria-labelledby={`operations-tab-${adminTab.toLowerCase()}`}
+            tabIndex={-1}
+          >
+            {adminTab === "SUPPORT" && (
             <section className="operations-summary" aria-label="전체 기사 평가 요약">
               <article>
                 <span>평가 완료</span>
@@ -799,7 +986,9 @@ export function OperationsService() {
                 <small>{formatEvaluatedAt(snapshot.evaluatedAt)}</small>
               </article>
             </section>
+            )}
 
+            {adminTab === "ROUTE" && (
             <OperationsMap
               operationsPackage={operationsPackage}
               selectedCourierId={selectedQueueItem?.courierId}
@@ -811,8 +1000,13 @@ export function OperationsService() {
                 if (queueItem) openDecision(queueItem.decisionId);
               }}
             />
+            )}
 
-            <section id="support-workspace" className="operations-workspace">
+            {(adminTab === "SUPPORT" || adminTab === "INTERVENTIONS") && (
+            <section
+              id="support-workspace"
+              className={`operations-workspace tab-${adminTab.toLowerCase()}`}
+            >
               <div className="operations-fleet-panel">
                 <div className="operations-panel-header">
                   <div>
@@ -1048,24 +1242,30 @@ export function OperationsService() {
                                   </span>
                                   {requirement.status === "PENDING" && (
                                     <span>
-                                      <a
-                                        className="button button-primary button-small"
-                                        href={
-                                          workspaceId
-                                            ? `/operations/rider?workspace=${encodeURIComponent(
-                                                workspaceId,
-                                              )}&decision=${encodeURIComponent(
-                                                selectedArtifacts.decision.decisionId,
-                                              )}&courier=${encodeURIComponent(
-                                                requirement.courierId,
-                                              )}`
-                                            : "#"
-                                        }
-                                        target="_blank"
-                                        rel="noreferrer"
-                                      >
-                                        기사 화면 열기
-                                      </a>
+                                      {persistenceState.status === "SAVED" ? (
+                                        <a
+                                          className="button button-primary button-small"
+                                          href={
+                                            workspaceId
+                                              ? `/operations/rider?workspace=${encodeURIComponent(
+                                                  workspaceId,
+                                                )}&decision=${encodeURIComponent(
+                                                  selectedArtifacts.decision.decisionId,
+                                                )}&courier=${encodeURIComponent(
+                                                  requirement.courierId,
+                                                )}`
+                                              : "#"
+                                          }
+                                          target="_blank"
+                                          rel="noreferrer"
+                                        >
+                                          기사 화면 열기
+                                        </a>
+                                      ) : (
+                                        <span className="operations-rider-link-pending">
+                                          저장 후 기사 화면 활성화
+                                        </span>
+                                      )}
                                       <button
                                         type="button"
                                         className="button button-neutral button-small"
@@ -1161,7 +1361,9 @@ export function OperationsService() {
                 )}
               </div>
             </section>
+            )}
 
+            {adminTab === "AUDIT" && (
             <section id="operations-evidence" className="operations-evidence">
               <div>
                 <p className="operations-section-label">감사 가능한 입력</p>
@@ -1216,7 +1418,8 @@ export function OperationsService() {
                 </button>
               </div>
             </section>
-          </>
+            )}
+          </div>
         )}
       </main>
     </div>

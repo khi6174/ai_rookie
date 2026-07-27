@@ -9,9 +9,15 @@ test.describe("synthetic operations service", () => {
 
     await expect(
       page.getByRole("heading", {
-        name: "오늘의 모든 안전지원 결정을 한 곳에서 처리합니다",
+        name: "오늘의 운영자료를 확정합니다",
       }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("tab", { name: "일일 운영" }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByRole("tablist", { name: "관리자 운영 화면" }).getByRole("tab"),
+    ).toHaveCount(5);
     await expect(page.getByText("활성 기사 25명")).toBeVisible();
     await expect(page.getByText("입력 합성 문서 100개")).toBeVisible();
 
@@ -47,6 +53,9 @@ test.describe("synthetic operations service", () => {
     await expect(page.getByText("출처 사용자 업로드")).toBeVisible();
 
     await page.getByRole("button", { name: "운영일 확정·전체 계산" }).click();
+    await expect(
+      page.getByRole("tab", { name: "지원 상황" }),
+    ).toHaveAttribute("aria-selected", "true");
     await expect(page.getByText("25명", { exact: true }).first()).toBeVisible();
     const supportCount = page.locator(
       ".operations-summary article.support strong",
@@ -61,6 +70,9 @@ test.describe("synthetic operations service", () => {
       Number((await supportCount.textContent())?.replace(/\D/g, "")),
     );
     await supportRows.first().click();
+    await expect(
+      page.getByRole("tab", { name: "개입 검토" }),
+    ).toHaveAttribute("aria-selected", "true");
     await expect(page.locator(".operations-candidate-list article").first()).toBeVisible();
     await expect(page.getByText("기사 응답 대기", { exact: true })).toBeVisible();
     await page.route("**/api/upstage-explanation", async (route) => {
@@ -79,12 +91,11 @@ test.describe("synthetic operations service", () => {
     await expect(
       page.getByText("Fallback 템플릿 · RATE_LIMITED", { exact: true }),
     ).toBeVisible();
+    await page.getByRole("tab", { name: "경로" }).click();
     await expect(
       page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
     ).toBeVisible();
-    await expect(page.locator(".operations-persistence")).toContainText(
-      "운영 상태 저장 중",
-    );
+    await page.getByRole("tab", { name: "개입 검토" }).click();
     await expect(page.locator(".operations-persistence")).toContainText(
       "개발 저장소에 저장됨",
       { timeout: 15_000 },
@@ -139,6 +150,7 @@ test.describe("synthetic operations service", () => {
       "개발 저장소에 저장됨",
       { timeout: 15_000 },
     );
+    await page.getByRole("tab", { name: "감사·내보내기" }).click();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "적용 계획 CSV" }).click();
     expect((await downloadPromise).suggestedFilename()).toContain(
@@ -152,6 +164,7 @@ test.describe("synthetic operations service", () => {
       "customer-notice-drafts.csv",
     );
 
+    await page.getByRole("tab", { name: "지원 상황" }).click();
     await supportRows.nth(1).click();
     await expect(page.locator(".operations-decision-panel code")).toContainText(
       "decision-",
@@ -167,6 +180,7 @@ test.describe("synthetic operations service", () => {
       "개발 저장소에서 복구됨",
       { timeout: 15_000 },
     );
+    await page.getByRole("tab", { name: "지원 상황" }).click();
     await expect(page.getByText("25명", { exact: true }).first()).toBeVisible();
     await page.locator(".operations-courier-row:not([disabled])").first().click();
     await expect(page.getByText("결정 완료", { exact: true })).toBeVisible();

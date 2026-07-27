@@ -20,6 +20,18 @@ type RiderLoadState =
   | { status: "READY"; baseSavedAt: string }
   | { status: "ERROR"; message: string };
 
+type OperationsRiderTab = "ROUTE" | "SUPPORT" | "PROFILE";
+
+const riderTabs: Array<{
+  value: OperationsRiderTab;
+  icon: string;
+  label: string;
+}> = [
+  { value: "ROUTE", icon: "🚚", label: "운행" },
+  { value: "SUPPORT", icon: "◈", label: "안전지원" },
+  { value: "PROFILE", icon: "●", label: "내 정보" },
+];
+
 function actionLabel(type: string) {
   return {
     REST: "휴식",
@@ -31,6 +43,8 @@ function actionLabel(type: string) {
 }
 
 export function OperationsRiderService() {
+  const [riderTab, setRiderTab] =
+    useState<OperationsRiderTab>("SUPPORT");
   const query = useMemo(
     () => new URLSearchParams(window.location.search),
     [],
@@ -126,6 +140,21 @@ export function OperationsRiderService() {
     () => new Set([courierId]),
     [courierId],
   );
+  const selectRiderTab = (
+    tab: OperationsRiderTab,
+    focusPanel = false,
+  ) => {
+    setRiderTab(tab);
+    if (focusPanel) {
+      window.requestAnimationFrame(() => {
+        document
+          .getElementById(
+            `operations-rider-panel-${tab.toLowerCase()}`,
+          )
+          ?.focus();
+      });
+    }
+  };
 
   const respond = async (
     response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED",
@@ -209,9 +238,66 @@ export function OperationsRiderService() {
           <span aria-hidden="true">SR</span>
           <strong>SafeRoute AI</strong>
         </a>
-        <span>합성 기사 검토</span>
+        <span>
+          {riderTab === "ROUTE"
+            ? "오늘의 운행"
+            : riderTab === "SUPPORT"
+              ? "합성 기사 검토"
+              : "Demo 계정"}
+        </span>
       </header>
       <main>
+        {riderTab === "ROUTE" && (
+          <div
+            id="operations-rider-panel-route"
+            className="operations-rider-tab-panel"
+            role="tabpanel"
+            aria-labelledby="operations-rider-tab-route"
+            tabIndex={-1}
+          >
+            <section className="operations-rider-hero is-route">
+              <p>합성 운행 · {courierId}</p>
+              <h1>다음 배송과 안전지원 경로를 확인하세요</h1>
+              <span>{decisionId}</span>
+            </section>
+
+            <section className="operations-rider-route-summary">
+              <div>
+                <span>현재 결정</span>
+                <strong>
+                  {requirement.status === "PENDING"
+                    ? "안전지원 확인 필요"
+                    : "응답 기록 완료"}
+                </strong>
+              </div>
+              <button
+                type="button"
+                className="button button-primary"
+                onClick={() => selectRiderTab("SUPPORT", true)}
+              >
+                안전지원 검토하기
+              </button>
+            </section>
+
+            {operationsPackage && (
+              <OperationsMap
+                operationsPackage={operationsPackage}
+                selectedCourierId={courierId}
+                supportCourierIds={riderSupportIds}
+                onSelectCourier={() => undefined}
+              />
+            )}
+          </div>
+        )}
+
+        {riderTab === "SUPPORT" && (
+          <div
+            id="operations-rider-panel-support"
+            className="operations-rider-tab-panel"
+            role="tabpanel"
+            aria-labelledby="operations-rider-tab-support"
+            tabIndex={-1}
+          >
         <section className="operations-rider-hero">
           <p>정차 후 확인 · {courierId}</p>
           <h1>이 안전지원안을 확인해 주세요</h1>
@@ -244,15 +330,6 @@ export function OperationsRiderService() {
             <strong>{artifacts.selectedEvaluation.etaDeltaMinutes}분</strong>
           </div>
         </section>
-
-        {operationsPackage && (
-          <OperationsMap
-            operationsPackage={operationsPackage}
-            selectedCourierId={courierId}
-            supportCourierIds={riderSupportIds}
-            onSelectCourier={() => undefined}
-          />
-        )}
 
         <section className="operations-rider-rights">
           <strong>응답 전 확인</strong>
@@ -306,7 +383,102 @@ export function OperationsRiderService() {
             </a>
           )}
         </section>
+          </div>
+        )}
+
+        {riderTab === "PROFILE" && (
+          <div
+            id="operations-rider-panel-profile"
+            className="operations-rider-tab-panel"
+            role="tabpanel"
+            aria-labelledby="operations-rider-tab-profile"
+            tabIndex={-1}
+          >
+            <section className="operations-rider-hero is-profile">
+              <p>합성 Demo 계정</p>
+              <h1>내 정보와 데이터 경계를 확인합니다</h1>
+              <span>{courierId}</span>
+            </section>
+            <section className="operations-rider-profile-card">
+              <dl>
+                <div>
+                  <dt>기사 ID</dt>
+                  <dd>{courierId}</dd>
+                </div>
+                <div>
+                  <dt>현재 응답</dt>
+                  <dd>
+                    {requirement.status === "PENDING"
+                      ? "안전지원 검토 대기"
+                      : requirement.status}
+                  </dd>
+                </div>
+                <div>
+                  <dt>데이터 모드</dt>
+                  <dd>SYNTHETIC · 실제 개인정보 없음</dd>
+                </div>
+                <div>
+                  <dt>결정 권리</dt>
+                  <dd>동의 · 수정 요청 · 거절</dd>
+                </div>
+              </dl>
+              <p>
+                이 화면은 실제 위치·생체정보·배송기사 개인정보를 수집하지
+                않습니다. 응답은 현재 합성 decision에만 연결됩니다.
+              </p>
+              <a href="/operations">관리자 운영 화면으로 돌아가기</a>
+            </section>
+          </div>
+        )}
       </main>
+      <nav
+        className="operations-rider-tab-bar"
+        role="tablist"
+        aria-label="기사 주요 화면"
+      >
+        {riderTabs.map((tab) => (
+          <button
+            key={tab.value}
+            id={`operations-rider-tab-${tab.value.toLowerCase()}`}
+            type="button"
+            role="tab"
+            aria-selected={riderTab === tab.value}
+            aria-controls={`operations-rider-panel-${tab.value.toLowerCase()}`}
+            className={riderTab === tab.value ? "active" : undefined}
+            onClick={() => selectRiderTab(tab.value)}
+            onKeyDown={(event) => {
+              if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) {
+                return;
+              }
+              event.preventDefault();
+              const currentIndex = riderTabs.findIndex(
+                (item) => item.value === tab.value,
+              );
+              const nextIndex =
+                event.key === "Home"
+                  ? 0
+                  : event.key === "End"
+                    ? riderTabs.length - 1
+                    : event.key === "ArrowLeft"
+                      ? (currentIndex - 1 + riderTabs.length) %
+                        riderTabs.length
+                      : (currentIndex + 1) % riderTabs.length;
+              const nextTab = riderTabs[nextIndex];
+              selectRiderTab(nextTab.value);
+              window.requestAnimationFrame(() => {
+                document
+                  .getElementById(
+                    `operations-rider-tab-${nextTab.value.toLowerCase()}`,
+                  )
+                  ?.focus();
+              });
+            }}
+          >
+            <span aria-hidden="true">{tab.icon}</span>
+            {tab.label}
+          </button>
+        ))}
+      </nav>
     </div>
   );
 }

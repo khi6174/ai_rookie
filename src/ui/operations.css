@@ -63,23 +63,32 @@
   margin-top: 40px;
 }
 
-.operations-sidebar nav a {
+.operations-sidebar nav button {
   display: flex;
+  width: 100%;
   min-height: 44px;
   align-items: center;
   gap: 12px;
   padding: 10px 12px;
+  border: 0;
   border-radius: 10px;
   color: var(--color-text-muted);
+  background: transparent;
   font-size: 14px;
   font-weight: 650;
-  text-decoration: none;
+  text-align: left;
+  cursor: pointer;
 }
 
-.operations-sidebar nav a.active,
-.operations-sidebar nav a:hover {
+.operations-sidebar nav button.active,
+.operations-sidebar nav button:hover {
   color: var(--color-blue-800);
   background: var(--color-blue-100);
+}
+
+.operations-sidebar nav button:focus-visible {
+  outline: 3px solid var(--color-blue-700);
+  outline-offset: 2px;
 }
 
 .operations-boundary {
@@ -114,6 +123,77 @@
   min-height: 100vh;
   margin-left: 220px;
   padding: 28px 32px 56px;
+}
+
+.operations-tab-panel {
+  outline: none;
+  animation: operations-tab-enter 160ms ease-out;
+}
+
+.operations-day-ready,
+.operations-tab-empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  margin-top: 18px;
+  padding: 22px 24px;
+  border: 1px solid #cfe2df;
+  border-radius: 16px;
+  background: #f1f9f7;
+}
+
+.operations-day-ready h2,
+.operations-day-ready p,
+.operations-tab-empty h2,
+.operations-tab-empty p {
+  margin: 0;
+}
+
+.operations-day-ready h2 {
+  margin-top: 4px;
+  font-size: 1.05rem;
+}
+
+.operations-day-ready p,
+.operations-tab-empty p {
+  margin-top: 7px;
+  color: var(--color-text-muted);
+  font-size: 0.86rem;
+  line-height: 1.55;
+}
+
+.operations-tab-empty {
+  min-height: 360px;
+  flex-direction: column;
+  justify-content: center;
+  text-align: center;
+}
+
+.operations-tab-empty > span {
+  display: grid;
+  width: 54px;
+  height: 54px;
+  place-items: center;
+  border-radius: 18px;
+  color: var(--color-blue-700);
+  background: var(--color-blue-100);
+  font-size: 1.35rem;
+}
+
+.operations-tab-empty p {
+  max-width: 520px;
+}
+
+@keyframes operations-tab-enter {
+  from {
+    opacity: 0.45;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
 }
 
 .operations-header {
@@ -521,6 +601,14 @@
   margin-top: 16px;
 }
 
+.operations-workspace.tab-support {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.operations-workspace.tab-support .operations-decision-panel {
+  display: none;
+}
+
 .operations-fleet-panel,
 .operations-decision-panel,
 .operations-evidence {
@@ -848,6 +936,13 @@
   gap: 6px;
 }
 
+.operations-rider-link-pending {
+  align-self: center;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
 .operations-completion-list {
   display: grid;
   gap: 5px;
@@ -966,7 +1061,14 @@
   width: min(100%, 430px);
   gap: 14px;
   margin: 0 auto;
-  padding: 24px 18px 48px;
+  padding: 24px 18px 112px;
+}
+
+.operations-rider-tab-panel {
+  display: grid;
+  gap: 14px;
+  outline: none;
+  animation: operations-tab-enter 160ms ease-out;
 }
 
 .operations-rider-hero {
@@ -974,6 +1076,14 @@
   border-radius: 18px;
   color: #fff;
   background: #173b75;
+}
+
+.operations-rider-hero.is-route {
+  background: #145b57;
+}
+
+.operations-rider-hero.is-profile {
+  background: #29364c;
 }
 
 .operations-rider-hero p,
@@ -1041,6 +1151,76 @@
   font-size: 1rem;
 }
 
+.operations-rider-route-summary,
+.operations-rider-profile-card {
+  padding: 18px;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  background: #fff;
+}
+
+.operations-rider-route-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.operations-rider-route-summary > div {
+  display: grid;
+  gap: 5px;
+}
+
+.operations-rider-route-summary span {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.operations-rider-route-summary strong {
+  font-size: 0.92rem;
+}
+
+.operations-rider-profile-card {
+  display: grid;
+  gap: 18px;
+}
+
+.operations-rider-profile-card dl {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+}
+
+.operations-rider-profile-card dl div {
+  display: grid;
+  gap: 4px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.operations-rider-profile-card dt {
+  color: var(--color-text-muted);
+  font-size: 0.74rem;
+}
+
+.operations-rider-profile-card dd {
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 750;
+}
+
+.operations-rider-profile-card p {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  line-height: 1.6;
+}
+
+.operations-rider-profile-card a {
+  color: var(--color-blue-700);
+  font-weight: 750;
+}
+
 .operations-rider-shell .operations-map-card {
   margin-top: 0;
   padding: 14px;
@@ -1100,6 +1280,60 @@
   line-height: 1.5;
 }
 
+.operations-rider-tab-bar {
+  position: fixed;
+  z-index: 30;
+  bottom: 0;
+  left: 50%;
+  display: grid;
+  width: min(100%, 430px);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  transform: translateX(-50%);
+  border: 1px solid var(--color-border);
+  border-bottom: 0;
+  border-radius: 18px 18px 0 0;
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 -10px 30px rgba(15, 23, 42, 0.1);
+}
+
+.operations-rider-tab-bar button {
+  display: grid;
+  min-width: 44px;
+  min-height: 68px;
+  place-items: center;
+  align-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border: 0;
+  color: var(--color-text-muted);
+  background: transparent;
+  font-size: 0.72rem;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.operations-rider-tab-bar button span {
+  font-size: 1rem;
+}
+
+.operations-rider-tab-bar button.active {
+  color: var(--color-blue-800);
+  background: var(--color-blue-100);
+}
+
+.operations-rider-tab-bar button:first-child {
+  border-radius: 18px 0 0;
+}
+
+.operations-rider-tab-bar button:last-child {
+  border-radius: 0 18px 0 0;
+}
+
+.operations-rider-tab-bar button:focus-visible {
+  outline: 3px solid var(--color-blue-700);
+  outline-offset: -4px;
+}
+
 .operations-rider-loading,
 .operations-rider-error {
   width: min(calc(100% - 32px), 430px);
@@ -1134,8 +1368,10 @@
     margin: 0;
   }
 
-  .operations-sidebar nav a {
+  .operations-sidebar nav button {
+    width: auto;
     min-height: 40px;
+    white-space: nowrap;
   }
 
   .operations-boundary,
@@ -1169,7 +1405,8 @@
   }
 
   .operations-header,
-  .operations-import-card {
+  .operations-import-card,
+  .operations-day-ready {
     align-items: stretch;
     flex-direction: column;
   }
@@ -1209,8 +1446,13 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .operations-spinner {
+  .operations-spinner,
+  .operations-tab-panel,
+  .operations-rider-tab-panel {
     animation: none;
+  }
+
+  .operations-spinner {
     border-right-color: currentColor;
   }
 }
