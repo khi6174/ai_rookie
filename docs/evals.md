@@ -709,6 +709,7 @@ artifacts/evals/
 - `artifacts/evals/operations-scale-summary.json`: 24·96·240명 전체 평가와 표본 결정 생성 시간, 불안전 추천 수
 - `artifacts/evals/upstage-smoke-latest.json`: 실제 Upstage 계정의 고정 역할별 설명 검증
 - `artifacts/evals/upstage-operations-document-live-latest.json`: 실제 Upstage Document Parse와 strict 운영 필드 추출 exact-match 검증. `CONFIGURED_NOT_RUN`은 통과가 아님
+- Document Parse Live 검증은 공식 동기식 endpoint에 `output_formats=["markdown"]`을 명시하고, PDF 표식 14/14와 Solar strict JSON exact-match를 모두 통과해야 한다. 응답 원문과 추출값은 저장하지 않고 파싱·추출 해시 및 불일치 경로만 보존한다.
 - `output/pdf/upstage-synthetic-operations-document-fixture.pdf`: 실제 개인정보가 없는 4쪽 Live Parse 고정 입력
 - `artifacts/evals/kakao-directions-smoke-latest.json`: 실제 Kakao Mobility 합성 경로 길찾기 검증
 - `artifacts/evals/operations-deployed-smoke-latest.json`: 공개 Sites에서 D1 저장·재조회·동일 snapshot 복구·stale 쓰기 409 검증. `NOT_RUN`은 통과가 아님

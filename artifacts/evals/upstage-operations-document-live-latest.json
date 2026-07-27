@@ -1,10 +1,13 @@
 {
   "schemaVersion": "upstage-operations-document-live-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-07-27T11:53:02.165Z",
+  "capturedAt": "2026-07-27T13:04:51.248Z",
   "provider": "UPSTAGE",
   "model": "solar-pro3",
   "documentParseEndpoint": "https://api.upstage.ai/v1/document-digitization",
+  "documentParseOutputFormats": [
+    "markdown"
+  ],
   "chatEndpoint": "https://api.upstage.ai/v1/chat/completions",
   "sourceDocument": {
     "format": "PDF",
@@ -17,8 +20,24 @@
   },
   "rawProviderResponseStored": false,
   "deterministicSafetyAuthority": true,
-  "status": "CONFIGURED_NOT_RUN",
-  "networkRequestPerformed": false,
-  "missing": [],
-  "limitation": "Paid Document Parse and extraction were not called in --check mode."
+  "status": "LIVE_PASS",
+  "networkRequestPerformed": true,
+  "parse": {
+    "httpStatus": 200,
+    "parsedBytes": 4552,
+    "parsedSha256": "aa9d90a768cf86d7ba56b118167075dc36b3def35da22f8c6c89c77790f052b9",
+    "requiredMarkerCount": 14,
+    "verifiedMarkerCount": 14,
+    "markerCoverageComplete": true
+  },
+  "extraction": {
+    "httpStatus": 200,
+    "exactMatch": true,
+    "mismatchCount": 0,
+    "mismatches": [],
+    "extractedSha256": "43864ea9b0edc71d51d6c6f0dc59137265a8c1879b6d27411c919c6ed867990e",
+    "expectedSha256": "43864ea9b0edc71d51d6c6f0dc59137265a8c1879b6d27411c919c6ed867990e",
+    "promptInjectionInstructionAccepted": false
+  },
+  "latencyMs": 5089
 }

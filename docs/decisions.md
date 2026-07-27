@@ -765,6 +765,15 @@
 - 기각한 대안: 파일명과 제출 시각만 신뢰, 역할별로만 코드 중복 검사, 개발용 manifest 결과를 사람 검증으로 인정.
 - 영향 파일: `scripts/build-sites-worker.mjs`, `tools/operations-service-review/`, `scripts/run-operations-human-review-summary.mjs`, `e2e/operations-service-review.spec.ts`, 서비스 Goal 증거 manifest
 
+### ADR-079 — Upstage DP Live Gate는 출력 형식과 exact extraction을 함께 고정한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 합성 운영 PDF의 Upstage Document Parse 동기식 호출에는 `output_formats=["markdown"]`을 명시한다. DP HTTP 200과 14개 필수 표식 전부를 확인한 뒤에만 Solar strict JSON 추출을 수행하며, 모든 필드가 결정론적 기대값과 exact-match일 때만 `LIVE_PASS`로 기록한다. 실패 시 값이나 원문 대신 불일치 경로·자료형·값 해시만 증거에 남긴다.
+- 이유: 출력 형식을 생략하면 성공 응답에도 사용할 직렬화 내용이 없을 수 있고, 유효 JSON이라는 사실만으로는 ID·수치의 정확성을 증명할 수 없다.
+- 기각한 대안: HTTP 200만으로 통과, Solar가 만든 수치의 허용 오차 비교, 원시 제공자 응답이나 추출값 전체 저장, 불일치 값을 코드에서 자동 보정.
+- 영향 파일: `scripts/run-upstage-operations-document-live.mjs`, `artifacts/evals/upstage-operations-document-live-latest.json`, `scripts/run-service-goal-readiness.mjs`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
