@@ -112,6 +112,13 @@ describe("shared admin and courier Demo session", () => {
     expect(
       applied.store.pendingCustomerNoticeIds[demoDecisionId],
     ).toBeUndefined();
+    expect(
+      applied.store.customerNoticeDrafts["notice-scenario-a-001"],
+    ).toMatchObject({
+      deliveryStatus: "PREVIEW_ONLY",
+      generationMode: "TEMPLATE",
+      actualDeliverySent: false,
+    });
   });
 
   it("renders the applied plan as resolved rather than as a current breach", () => {

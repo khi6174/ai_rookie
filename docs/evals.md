@@ -693,6 +693,7 @@ artifacts/evals/
 
 - 새로고침·재접속 뒤 활성 운영일·decision·감사 상태 복구
 - 적용 결과 CSV/JSON의 계획·순서·ETA가 권위 저장 상태와 일치
+- 적용된 배송지별 고객안내 초안의 ETA가 적용 계획과 일치하고 `PREVIEW_ONLY`·실제 미발송 상태로 JSON/CSV에 포함
 - 외부 AI·Kakao timeout·malformed·error에서도 계산·동의·승인·내보내기 가능
 - 빈 운영일, 일부 오류, 모두 안전, 복수 지원, 동시 충돌 상태 E2E
 

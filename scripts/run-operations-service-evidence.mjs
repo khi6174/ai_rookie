@@ -97,6 +97,31 @@ try {
     fleet,
     applied.workspace,
   );
+  const customerNoticeCsv = operations.createCustomerNoticeCsv(
+    snapshot,
+    applied.workspace,
+  );
+  const completedArtifacts = applied.workspace.decisions.find(
+    (item) => item.decision.decisionId === first.decision.decisionId,
+  );
+  const completedExport = exportBundle.decisions.find(
+    (item) => item.decisionId === first.decision.decisionId,
+  );
+  const customerNoticeEtaMismatchCount = Object.values(
+    applied.workspace.store.customerNoticeDrafts,
+  ).filter((draft) => {
+    const stop = applied.workspace.store.activePlan.stops.find(
+      (item) => item.stopId === draft.stopId,
+    );
+    const workload = applied.workspace.store.activePlan.workloads.find(
+      (item) => item.planId === stop?.planId,
+    );
+    return (
+      stop === undefined ||
+      draft.updatedEta !== stop.expectedArrivalAt ||
+      draft.appliedPlanVersion !== workload?.planVersion
+    );
+  }).length;
   const result = {
     schemaVersion: "operations-service-evidence-v1",
     dataMode: "SYNTHETIC",
@@ -120,19 +145,41 @@ try {
         item.selectedEvaluation.feasibility.status !== "FEASIBLE",
     ).length,
     conflictCount: conflicts.length,
-    completedDecisionStatus:
-      applied.workspace.decisions.find(
-        (item) => item.decision.decisionId === first.decision.decisionId,
-      )?.decision.status,
+    completedDecisionStatus: completedArtifacts?.decision.status,
     recordedCustomerNoticeCount:
-      applied.workspace.decisions.find(
-        (item) => item.decision.decisionId === first.decision.decisionId,
-      )?.decision.customerNoticeIds.length ?? 0,
+      completedArtifacts?.decision.customerNoticeIds.length ?? 0,
     applyStatus: applied.status,
     pendingCustomerNoticeCount: Object.values(
       applied.workspace.store.pendingCustomerNoticeIds,
     ).flat().length,
+    customerNoticeDraftCount: Object.keys(
+      applied.workspace.store.customerNoticeDrafts,
+    ).length,
+    unsentCustomerNoticeDraftCount: Object.values(
+      applied.workspace.store.customerNoticeDrafts,
+    ).filter(
+      (draft) =>
+        draft.deliveryStatus === "PREVIEW_ONLY" &&
+        draft.actualDeliverySent === false,
+    ).length,
     exportDecisionCount: exportBundle.decisions.length,
+    exportedCustomerNoticeCount: exportBundle.customerNotices.length,
+    customerNoticeEtaMismatchCount,
+    comparisonEvidencePresent:
+      completedExport !== undefined &&
+      completedExport.comparison.adjustedMinimumSafetyBudget >
+        completedExport.comparison.baselineMinimumSafetyBudget &&
+      completedExport.comparison.adjustedBreachStatus ===
+        "NO_BREACH_IN_HORIZON" &&
+      completedExport.comparison.breachOutcome ===
+        completedArtifacts?.selectedEvaluation.breachOutcome &&
+      Number.isFinite(completedExport.comparison.etaDeltaMinutes) &&
+      Number.isFinite(
+        completedExport.comparison.maximumCustomerEtaDeltaMinutes,
+      ),
+    customerNoticeCsvSha256: createHash("sha256")
+      .update(customerNoticeCsv)
+      .digest("hex"),
     exportSha256: createHash("sha256")
       .update(JSON.stringify(exportBundle))
       .digest("hex"),
@@ -148,7 +195,15 @@ try {
     result.conflictCount > 0 &&
     result.applyStatus === "APPLIED" &&
     result.completedDecisionStatus === "NOTICE_RECORDED" &&
-    result.recordedCustomerNoticeCount > 0;
+    result.recordedCustomerNoticeCount > 0 &&
+    result.customerNoticeDraftCount ===
+      result.recordedCustomerNoticeCount &&
+    result.unsentCustomerNoticeDraftCount ===
+      result.customerNoticeDraftCount &&
+    result.exportedCustomerNoticeCount ===
+      result.customerNoticeDraftCount &&
+    result.customerNoticeEtaMismatchCount === 0 &&
+    result.comparisonEvidencePresent;
   const output = { ...result, status: passed ? "PASSED" : "FAILED" };
   const outputDirectory = resolve(root, "artifacts/evals");
   await mkdir(outputDirectory, { recursive: true });

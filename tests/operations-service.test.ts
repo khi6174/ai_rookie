@@ -11,6 +11,7 @@ import {
   createOperationsDecisionWorkspace,
   createAppliedPlanCsv,
   createAuditCsv,
+  createCustomerNoticeCsv,
   createOperationsExportBundle,
   createDailyOperationsSnapshot,
   createOperationsMapCouriers,
@@ -368,7 +369,24 @@ describe("multi-decision operations workspace", () => {
     expect(applied.status).toBe("APPLIED");
     const completed = applied.workspace.decisions[0].decision;
     expect(completed.status).toBe("NOTICE_RECORDED");
-    expect(completed.customerNoticeIds).toHaveLength(1);
+    expect(completed.customerNoticeIds.length).toBeGreaterThan(0);
+    const noticeDrafts = completed.customerNoticeIds.map(
+      (noticeId) => applied.workspace.store.customerNoticeDrafts[noticeId],
+    );
+    expect(noticeDrafts).toHaveLength(
+      applied.workspace.store.activePlan.stops.filter(
+        (stop) => stop.planId === completed.baselinePlanId,
+      ).length,
+    );
+    expect(
+      noticeDrafts.every(
+        (draft) =>
+          draft?.deliveryStatus === "PREVIEW_ONLY" &&
+          draft.actualDeliverySent === false &&
+          draft.generationMode === "TEMPLATE" &&
+          draft.message.includes("실제 메시지는 발송되지 않습니다."),
+      ),
+    ).toBe(true);
     expect(
       applied.workspace.store.activePlan.workloads.find(
         (workload) => workload.planId === completed.baselinePlanId,
@@ -377,6 +395,7 @@ describe("multi-decision operations workspace", () => {
 
     const planCsv = createAppliedPlanCsv(snapshot, applied.workspace);
     const auditCsv = createAuditCsv(snapshot, applied.workspace);
+    const noticeCsv = createCustomerNoticeCsv(snapshot, applied.workspace);
     const bundle = createOperationsExportBundle(
       snapshot,
       fleet,
@@ -388,10 +407,46 @@ describe("multi-decision operations workspace", () => {
     );
     expect(planCsv).toContain(completed.appliedPlanVersion ?? "");
     expect(auditCsv).toContain("PLAN_APPLIED_ATOMICALLY");
+    expect(noticeCsv).toContain("PREVIEW_ONLY");
+    expect(noticeCsv).toContain("actual_delivery_sent");
     expect(bundle.summary).toMatchObject({
       courierCount: 25,
       completedDecisionCount: 1,
     });
+    expect(bundle.customerNotices).toHaveLength(
+      completed.customerNoticeIds.length,
+    );
+    const exportedDecision = bundle.decisions.find(
+      (decision) => decision.decisionId === completed.decisionId,
+    );
+    expect(exportedDecision?.comparison).toMatchObject({
+      adjustedBreachStatus: "NO_BREACH_IN_HORIZON",
+      breachOutcome: applied.workspace.decisions.find(
+        (artifacts) => artifacts.decision.decisionId === completed.decisionId,
+      )?.selectedEvaluation.breachOutcome,
+    });
+    expect(
+      exportedDecision?.comparison.adjustedMinimumSafetyBudget ?? 0,
+    ).toBeGreaterThan(
+      exportedDecision?.comparison.baselineMinimumSafetyBudget ?? 100,
+    );
+    expect(
+      noticeDrafts.every((draft) => {
+        const appliedStop = applied.workspace.store.activePlan.stops.find(
+          (stop) => stop.stopId === draft?.stopId,
+        );
+        const appliedWorkload =
+          applied.workspace.store.activePlan.workloads.find(
+            (workload) => workload.planId === appliedStop?.planId,
+          );
+        return (
+          draft !== undefined &&
+          appliedStop !== undefined &&
+          draft.updatedEta === appliedStop.expectedArrivalAt &&
+          draft.appliedPlanVersion === appliedWorkload?.planVersion
+        );
+      }),
+    ).toBe(true);
     expect(JSON.stringify(bundle)).not.toMatch(
       /01[016789][-\s]?\d{3,4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/,
     );

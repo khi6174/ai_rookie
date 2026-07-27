@@ -857,6 +857,23 @@
   font-size: 12px;
 }
 
+.operations-notice-drafts {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.operations-notice-drafts p {
+  margin: 0;
+  padding: 9px 10px;
+  border: 1px solid #cfe2df;
+  border-radius: 8px;
+  color: #315e61;
+  background: #f1f9f7;
+  font-size: 11px;
+  line-height: 1.45;
+}
+
 .operations-evidence {
   display: grid;
   grid-template-columns: 240px minmax(0, 1fr);

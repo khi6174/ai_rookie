@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-07-27T12:12:57.453Z",
+  "capturedAt": "2026-07-27T12:33:22.237Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -13,13 +13,13 @@
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 38753,
-      "sha256": "74c967774570663ccaac88d2b3fc5b0c1554ab9910635e571393fa05c2356647"
+      "bytes": 38893,
+      "sha256": "5dc7e8acf19f235e6423508972a3c85055c5e8714f18103fd0bd693272a1e209"
     },
     {
       "path": "docs/data-contracts.md",
-      "bytes": 61085,
-      "sha256": "f6c68c34632962839e911edab4ea491fe302846e07c1f8c9b8757d226efdd367"
+      "bytes": 61293,
+      "sha256": "78524fbd908a9973f17fd9a5041e38333cbb348f58d4c64ff0d78e051dff9c91"
     },
     {
       "path": "docs/architecture.md",
@@ -28,23 +28,23 @@
     },
     {
       "path": "docs/evals.md",
-      "bytes": 69466,
-      "sha256": "b2069dd2e9738333cd93fe50206ad8aed629197f201bd501146b046090bdc9af"
+      "bytes": 69613,
+      "sha256": "42cfd346b45899f301d7f7ee2d5f5647bae9d39b8782778f12015d1dbc0b5f14"
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 119871,
-      "sha256": "12425a75a2a82dcf4959a1462a84b1037cbfa076399391a94c53207b8113cb09"
+      "bytes": 121115,
+      "sha256": "83b578b95561c8b6096bb0b08ed19e82a081c98eb2ea992309d69d308948608c"
     },
     {
       "path": "artifacts/evals/operations-service-evidence.json",
-      "bytes": 1057,
-      "sha256": "2ae4cd1fe48028c1e0a2dfbd881cbb65bc91f6d60015047a25dbb627f0d892ef"
+      "bytes": 1342,
+      "sha256": "97a68b9b533bca5b6df37d62011c91e892ef1c562e293e7d8ef0b47b3a9da726"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1171,
-      "sha256": "814d23424a44c91732ee7bd68ed3cbe6c6bdbefb6f62733d093057810c10ebe7"
+      "bytes": 1170,
+      "sha256": "195076110353401761e16f57fef7f252daf062a8300e89e4a2928aa99c9d0e69"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -78,13 +78,13 @@
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1440x900.png",
-      "bytes": 209248,
-      "sha256": "1824391a5b80d198d7b1acd1a5fd01f78f2a35bf0b66da955c2343c9a401a481"
+      "bytes": 210056,
+      "sha256": "cb63d0ce7539b7d5d82b45844e93a280e036f06da32928e6536e8ab86be482f6"
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1280x720.png",
-      "bytes": 203411,
-      "sha256": "dd49d792c17070bdcf7b9fc3650b627862fccfd76563710d44d6fa32352daaa3"
+      "bytes": 204208,
+      "sha256": "1cdc4b4e48b00251032bd2106130800501cc5dcc29515606b5b7528ec54ce750"
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-390x844.png",
@@ -98,8 +98,8 @@
     },
     {
       "path": "e2e/operations-service.spec.ts",
-      "bytes": 9217,
-      "sha256": "2f79ab7af362af6018cde10613f276414029dc4f825ad56431879cd2a35b3f52"
+      "bytes": 9637,
+      "sha256": "3e35f9a7cd757da3347e19f01c94e0611ae87ccdcf55451b131afe34972dccae"
     },
     {
       "path": "e2e/operations-accessibility.spec.ts",

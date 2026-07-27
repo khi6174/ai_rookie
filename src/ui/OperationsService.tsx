@@ -10,6 +10,7 @@ import {
   approveAndApplyOperationsDecision,
   createAppliedPlanCsv,
   createAuditCsv,
+  createCustomerNoticeCsv,
   createDailyOperationsSnapshot,
   createOperationsExportBundle,
   createOperationsPersistedSession,
@@ -597,13 +598,21 @@ export function OperationsService() {
   };
 
   const downloadOperationsExport = (
-    kind: "PLAN" | "AUDIT_CSV" | "AUDIT_JSON",
+    kind: "PLAN" | "NOTICE_CSV" | "AUDIT_CSV" | "AUDIT_JSON",
   ) => {
     if (!snapshot || !fleet || !workspace) return;
     if (kind === "PLAN") {
       downloadText(
         `saferoute-${snapshot.operationDate}-applied-plan.csv`,
         createAppliedPlanCsv(snapshot, workspace),
+        "text/csv",
+      );
+      return;
+    }
+    if (kind === "NOTICE_CSV") {
+      downloadText(
+        `saferoute-${snapshot.operationDate}-customer-notice-drafts.csv`,
+        createCustomerNoticeCsv(snapshot, workspace),
         "text/csv",
       );
       return;
@@ -1112,6 +1121,23 @@ export function OperationsService() {
                             <li>고객안내 초안 {selectedArtifacts.decision.customerNoticeIds.length}건</li>
                             <li>감사 이벤트 {selectedArtifacts.decision.events.length}건</li>
                           </ul>
+                          <div className="operations-notice-drafts">
+                            {selectedArtifacts.decision.customerNoticeIds
+                              .map(
+                                (noticeId) =>
+                                  workspace.store.customerNoticeDrafts[
+                                    noticeId
+                                  ],
+                              )
+                              .filter((draft) => draft !== undefined)
+                              .slice(0, 3)
+                              .map((draft) => (
+                                <p key={draft.noticeId}>
+                                  <strong>발송 안 함 · 초안</strong>{" "}
+                                  {draft.message}
+                                </p>
+                              ))}
+                          </div>
                         </>
                       )}
                       {[
@@ -1166,6 +1192,13 @@ export function OperationsService() {
                   onClick={() => downloadOperationsExport("PLAN")}
                 >
                   적용 계획 CSV
+                </button>
+                <button
+                  type="button"
+                  className="button button-neutral"
+                  onClick={() => downloadOperationsExport("NOTICE_CSV")}
+                >
+                  고객안내 초안 CSV
                 </button>
                 <button
                   type="button"

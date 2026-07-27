@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-service-evidence-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-07-27T12:12:53.945Z",
+  "capturedAt": "2026-07-27T12:33:19.035Z",
   "inputKind": "DOCUMENT_BUNDLE",
   "sourceDocumentCount": 100,
   "extractionProvider": "SAFEROUTE",
@@ -19,10 +19,16 @@
   "unsafeRecommendedCount": 0,
   "conflictCount": 105,
   "completedDecisionStatus": "NOTICE_RECORDED",
-  "recordedCustomerNoticeCount": 1,
+  "recordedCustomerNoticeCount": 11,
   "applyStatus": "APPLIED",
   "pendingCustomerNoticeCount": 0,
+  "customerNoticeDraftCount": 11,
+  "unsentCustomerNoticeDraftCount": 11,
   "exportDecisionCount": 1,
-  "exportSha256": "5d9cf3a355015be98fb34ea8f6f204c9c672a780e63fdbdcb1940f5fd4fabc7d",
+  "exportedCustomerNoticeCount": 11,
+  "customerNoticeEtaMismatchCount": 0,
+  "comparisonEvidencePresent": true,
+  "customerNoticeCsvSha256": "8f22494db188e5ec9a78d8ee857330e674a1b0a2e852ba5472b221b75f5830e9",
+  "exportSha256": "35128ee5d6c4de7ff6febfc54ab3862ef4895f68a82f62d75429ded5d439f87a",
   "status": "PASSED"
 }

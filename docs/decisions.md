@@ -747,6 +747,15 @@
 - 기각한 대안: `.openai/hosting.json`에 `d1=DB`가 있다는 사실만으로 통과, 로컬 memory adapter 결과를 D1 결과로 간주, 사람 검토 중 우연히 저장된 상태를 재현 증거로 사용.
 - 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, 배포 runbook과 평가 문서
 
+### ADR-077 — 고객안내 완료는 ID가 아닌 적용 ETA 기반 미발송 초안과 내보내기로 증명한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 운영 decision 적용 시 기준 plan에 남은 각 합성 배송지별 `CustomerNotice` 초안을 같은 원자 교체 안에서 생성한다. 초안은 적용된 plan version·stop ID·updated ETA·안전운영 조정 사유·템플릿 생성 모드·근거·`PREVIEW_ONLY`·`actualDeliverySent=false`를 포함하며 D1 세션, 운영 증거 JSON과 별도 CSV에 보존한다. `NOTICE_RECORDED`는 이 초안이 생성되지 않으면 성립하지 않는다.
+- 이유: 고객안내 ID만 기록하면 실제 적용 ETA를 사용했는지, 문구가 존재하는지, 발송과 미리보기가 구분되는지 증명할 수 없다.
+- 기각한 대안: notice ID만 저장, 적용 전 후보 ETA로 문구 생성, 실제 발송처럼 `SENT` 표시, 기사 ID·동의·거절 정보를 고객 문구에 포함.
+- 영향 파일: `src/application/apply-plan/index.ts`, `src/application/operations/createDecisionWorkspace.ts`, `src/application/operations/exportOperations.ts`, `src/application/operations/persistOperationsSession.ts`, 관리자 UI와 운영 증거 테스트
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

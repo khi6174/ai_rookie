@@ -108,7 +108,14 @@ const checks = {
     evidence.service.unsafeRecommendedCount === 0 &&
     evidence.service.conflictCount > 0 &&
     evidence.service.applyStatus === "APPLIED" &&
-    evidence.service.completedDecisionStatus === "NOTICE_RECORDED",
+    evidence.service.completedDecisionStatus === "NOTICE_RECORDED" &&
+    evidence.service.customerNoticeDraftCount > 0 &&
+    evidence.service.customerNoticeDraftCount ===
+      evidence.service.unsentCustomerNoticeDraftCount &&
+    evidence.service.customerNoticeDraftCount ===
+      evidence.service.exportedCustomerNoticeCount &&
+    evidence.service.customerNoticeEtaMismatchCount === 0 &&
+    evidence.service.comparisonEvidencePresent === true,
   scale:
     evidence.scale.status === "PASSED" &&
     [24, 96, 240].every((count) =>

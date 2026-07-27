@@ -29,6 +29,22 @@ export type OperationsExportBundle = {
     requiredCourierIds: string[];
     appliedPlanVersion?: string;
     customerNoticeIds: string[];
+    comparison: {
+      baselineMinimumSafetyBudget: number;
+      adjustedMinimumSafetyBudget: number;
+      safetyBudgetGain: number;
+      baselineTimeToBreachMinutes?: number;
+      adjustedBreachStatus:
+        | "PREDICTED"
+        | "NO_BREACH_IN_HORIZON"
+        | "ALREADY_BREACHED"
+        | "INSUFFICIENT_DATA";
+      adjustedTimeToBreachMinutes?: number;
+      breachOutcome: "UNCHANGED" | "DELAYED" | "AVOIDED" | "INTRODUCED";
+      etaDeltaMinutes: number;
+      maximumCustomerEtaDeltaMinutes: number;
+      affectedCustomerCount: number;
+    };
     events: Array<{
       eventId: string;
       at: string;
@@ -40,9 +56,22 @@ export type OperationsExportBundle = {
       evidenceIds: string[];
     }>;
   }>;
+  customerNotices: Array<{
+    noticeId: string;
+    decisionId: string;
+    appliedPlanVersion: string;
+    stopId: string;
+    updatedEta: string;
+    message: string;
+    channel: "ALIMTALK_PREVIEW";
+    reasonCode: "SAFE_OPERATION_ADJUSTMENT";
+    generationMode: "TEMPLATE";
+    deliveryStatus: "PREVIEW_ONLY";
+    actualDeliverySent: false;
+  }>;
 };
 
-function csvCell(value: string | number | undefined) {
+function csvCell(value: string | number | boolean | undefined) {
   const normalized = value === undefined ? "" : String(value);
   return `"${normalized.replaceAll('"', '""')}"`;
 }
@@ -78,28 +107,82 @@ export function createOperationsExportBundle(
         ["NOTICE_RECORDED", "CLOSED"].includes(artifacts.decision.status),
       ).length,
     },
-    decisions: workspace.decisions.map((artifacts) => ({
-      decisionId: artifacts.decision.decisionId,
-      courierId: artifacts.queueItem.courierId,
-      planId: artifacts.queueItem.planId,
-      status: artifacts.decision.status,
-      selectedCandidateId: artifacts.selectedCandidate.candidateId,
-      requiredCourierIds: artifacts.decision.consentRequirements
-        .filter((requirement) => requirement.required)
-        .map((requirement) => requirement.courierId),
-      appliedPlanVersion: artifacts.decision.appliedPlanVersion,
-      customerNoticeIds: artifacts.decision.customerNoticeIds,
-      events: artifacts.decision.events.map((event) => ({
-        eventId: event.eventId,
-        at: event.at,
-        actor: event.actor,
-        actorId: event.actorId,
-        fromStatus: event.fromStatus,
-        toStatus: event.toStatus,
-        reasonCode: event.reasonCode,
-        evidenceIds: event.evidenceIds,
+    decisions: workspace.decisions.map((artifacts) => {
+      const sourceImpact = artifacts.selectedEvaluation.courierImpacts.find(
+        (impact) =>
+          impact.courierId === artifacts.queueItem.courierId &&
+          impact.role === "SOURCE",
+      );
+      if (!sourceImpact) {
+        throw new Error(
+          `Selected evaluation ${artifacts.selectedEvaluation.evaluationId} is missing the source courier impact`,
+        );
+      }
+      const adjustedBreach = sourceImpact.breach;
+      return {
+        decisionId: artifacts.decision.decisionId,
+        courierId: artifacts.queueItem.courierId,
+        planId: artifacts.queueItem.planId,
+        status: artifacts.decision.status,
+        selectedCandidateId: artifacts.selectedCandidate.candidateId,
+        requiredCourierIds: artifacts.decision.consentRequirements
+          .filter((requirement) => requirement.required)
+          .map((requirement) => requirement.courierId),
+        appliedPlanVersion: artifacts.decision.appliedPlanVersion,
+        customerNoticeIds: artifacts.decision.customerNoticeIds,
+        comparison: {
+          baselineMinimumSafetyBudget: sourceImpact.baselineMinimumBudget,
+          adjustedMinimumSafetyBudget: sourceImpact.candidateMinimumBudget,
+          safetyBudgetGain: artifacts.selectedEvaluation.safetyGain,
+          baselineTimeToBreachMinutes:
+            artifacts.queueItem.timeToBreachMinutes,
+          adjustedBreachStatus: adjustedBreach.status,
+          adjustedTimeToBreachMinutes:
+            adjustedBreach.status === "PREDICTED"
+              ? adjustedBreach.timeToBreachMinutes
+              : undefined,
+          breachOutcome: artifacts.selectedEvaluation.breachOutcome,
+          etaDeltaMinutes: artifacts.selectedEvaluation.etaDeltaMinutes,
+          maximumCustomerEtaDeltaMinutes:
+            artifacts.selectedEvaluation.maxCustomerEtaDeltaMinutes,
+          affectedCustomerCount:
+            artifacts.selectedEvaluation.affectedCustomerCount,
+        },
+        events: artifacts.decision.events.map((event) => ({
+          eventId: event.eventId,
+          at: event.at,
+          actor: event.actor,
+          actorId: event.actorId,
+          fromStatus: event.fromStatus,
+          toStatus: event.toStatus,
+          reasonCode: event.reasonCode,
+          evidenceIds: event.evidenceIds,
+        })),
+      };
+    }),
+    customerNotices: Object.values(workspace.store.customerNoticeDrafts)
+      .sort((left, right) => {
+        const decisionDifference = left.decisionId.localeCompare(
+          right.decisionId,
+        );
+        return (
+          decisionDifference ||
+          left.updatedEta.localeCompare(right.updatedEta)
+        );
+      })
+      .map((draft) => ({
+        noticeId: draft.noticeId,
+        decisionId: draft.decisionId,
+        appliedPlanVersion: draft.appliedPlanVersion,
+        stopId: draft.stopId,
+        updatedEta: draft.updatedEta,
+        message: draft.message,
+        channel: draft.channel,
+        reasonCode: draft.reasonCode,
+        generationMode: draft.generationMode,
+        deliveryStatus: draft.deliveryStatus,
+        actualDeliverySent: draft.actualDeliverySent,
       })),
-    })),
   };
 }
 
@@ -197,6 +280,54 @@ export function createAuditCsv(
       "SYNTHETIC",
     ]),
   );
+  return [header, ...rows]
+    .map((row) => row.map((value) => csvCell(value)).join(","))
+    .join("\r\n");
+}
+
+export function createCustomerNoticeCsv(
+  snapshot: DailyOperationsSnapshot,
+  workspace: OperationsDecisionWorkspace,
+) {
+  if (workspace.snapshotId !== snapshot.snapshotId) {
+    throw new Error("Customer notice export belongs to another snapshot");
+  }
+  const header = [
+    "snapshot_id",
+    "operation_date",
+    "notice_id",
+    "decision_id",
+    "plan_version",
+    "stop_id",
+    "eta",
+    "message",
+    "delivery_status",
+    "actual_delivery_sent",
+    "data_mode",
+  ];
+  const rows = Object.values(workspace.store.customerNoticeDrafts)
+    .sort((left, right) => {
+      const decisionDifference = left.decisionId.localeCompare(
+        right.decisionId,
+      );
+      return (
+        decisionDifference ||
+        left.updatedEta.localeCompare(right.updatedEta)
+      );
+    })
+    .map((draft) => [
+      snapshot.snapshotId,
+      snapshot.operationDate,
+      draft.noticeId,
+      draft.decisionId,
+      draft.appliedPlanVersion,
+      draft.stopId,
+      draft.updatedEta,
+      draft.message,
+      draft.deliveryStatus,
+      draft.actualDeliverySent,
+      "SYNTHETIC",
+    ]);
   return [header, ...rows]
     .map((row) => row.map((value) => csvCell(value)).join(","))
     .join("\r\n");

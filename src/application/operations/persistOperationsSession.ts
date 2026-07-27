@@ -49,6 +49,43 @@ const PersistedDecisionWorkspaceSchema = z
           z.string(),
           z.array(z.string()),
         ),
+        customerNoticeDrafts: z
+          .record(
+            z.string(),
+            z
+              .object({
+                schemaVersion: z.literal("customer-notice-v1"),
+                noticeId: z.string().min(3),
+                decisionId: z.string().min(3),
+                stopId: z.string().min(3),
+                appliedPlanVersion: z.string().min(1),
+                generatedAt: z.string().datetime({ offset: true }),
+                channel: z.literal("ALIMTALK_PREVIEW"),
+                updatedEta: z.string().datetime({ offset: true }),
+                reasonCode: z.literal("SAFE_OPERATION_ADJUSTMENT"),
+                message: z.string().min(1).max(500),
+                generationMode: z.literal("TEMPLATE"),
+                citationIds: z.array(z.string().min(3)).min(1),
+                deliveryStatus: z.literal("PREVIEW_ONLY"),
+                provenance: z.array(
+                  z
+                    .object({
+                      kind: z.literal("DERIVED"),
+                      sourceId: z.string().min(3),
+                      sourceLabel: z.string().min(1).max(200),
+                      collectedAt: z.string().datetime({ offset: true }),
+                      validAt: z.string().datetime({ offset: true }),
+                      transformedBy: z.string().min(1),
+                      parentSourceIds: z.array(z.string().min(3)).min(1),
+                      isDemo: z.literal(true),
+                    })
+                    .strict(),
+                ).min(1),
+                actualDeliverySent: z.literal(false),
+              })
+              .strict(),
+          )
+          .default({}),
       })
       .strict(),
   })

@@ -176,6 +176,33 @@ describe("decision workflow happy path", () => {
     expect(fixture).toEqual(beforeFixture);
   });
 
+  it("does not record customer notices when the applied ETA draft is missing", () => {
+    if (materialized.status !== "MATERIALIZED") {
+      throw new Error("Expected a materialized feasible plan");
+    }
+    const applied = applyPlanAtomically({
+      decision: decisionApplyingPlan(),
+      store: createDemoPlanStore(fixture),
+      proposedPlan: materialized.plan,
+      customerNoticeRequestIds: ["notice-request-missing-draft"],
+      at: at(10),
+    });
+    if (applied.status !== "APPLIED") {
+      throw new Error("Expected applied plan");
+    }
+    const brokenStore = structuredClone(applied.store);
+    delete brokenStore.customerNoticeDrafts[
+      "notice-request-missing-draft"
+    ];
+    expect(() =>
+      recordPendingCustomerNotices(
+        applied.decision,
+        brokenStore,
+        at(11),
+      ),
+    ).toThrow("Customer notice draft is missing or invalid");
+  });
+
   it("binds every consent and approval to the selected candidate", () => {
     const approved = recordAdminDecision(decisionAwaitingAdmin(), {
       adminId: "admin-demo-001",

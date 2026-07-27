@@ -132,6 +132,9 @@ test.describe("synthetic operations service", () => {
     await expect(
       page.getByText("계획·안내 갱신 완료", { exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByText(/발송 안 함 · 초안.*실제 메시지는 발송되지 않습니다/).first(),
+    ).toBeVisible();
     await expect(page.locator(".operations-persistence")).toContainText(
       "개발 저장소에 저장됨",
       { timeout: 15_000 },
@@ -140,6 +143,13 @@ test.describe("synthetic operations service", () => {
     await page.getByRole("button", { name: "적용 계획 CSV" }).click();
     expect((await downloadPromise).suggestedFilename()).toContain(
       "applied-plan.csv",
+    );
+    const noticeDownloadPromise = page.waitForEvent("download");
+    await page
+      .getByRole("button", { name: "고객안내 초안 CSV" })
+      .click();
+    expect((await noticeDownloadPromise).suggestedFilename()).toContain(
+      "customer-notice-drafts.csv",
     );
 
     await supportRows.nth(1).click();

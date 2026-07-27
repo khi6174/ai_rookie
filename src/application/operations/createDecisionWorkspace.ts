@@ -577,9 +577,16 @@ export function approveAndApplyOperationsDecision(
     decision,
     store: workspace.store,
     proposedPlan: materialized.plan,
-    customerNoticeRequestIds: [
-      `notice-${decisionId}-plan-update`,
-    ],
+    customerNoticeRequestIds: materialized.plan.stops
+      .filter(
+        (stop) =>
+          stop.planId === decision.baselinePlanId &&
+          ["PENDING", "IN_PROGRESS", "DELAYED", "TRANSFERRED"].includes(
+            stop.status,
+          ),
+      )
+      .sort((left, right) => left.sequence - right.sequence)
+      .map((stop) => `notice-${decisionId}-${stop.stopId}`),
     at: nextDecisionAt(decision),
   });
   if (

@@ -1037,6 +1037,7 @@ type DemoPlanStore = {
   activePlan: ScenarioFixture;
   appliedDecisionVersions: Record<DecisionId, string>;
   pendingCustomerNoticeIds: Record<DecisionId, string[]>;
+  customerNoticeDrafts: Record<string, CustomerNotice>;
 };
 
 type AtomicApplyResult =
@@ -1179,6 +1180,7 @@ type CustomerNotice = {
   citationIds: string[];
 
   deliveryStatus: "PREVIEW_ONLY" | "QUEUED" | "SENT" | "FAILED";
+  actualDeliverySent: boolean;
   provenance: Provenance[];
 };
 ```
@@ -1186,6 +1188,7 @@ type CustomerNotice = {
 ### 검증
 
 - MVP에서는 기본 deliveryStatus가 `PREVIEW_ONLY`다.
+- 합성 운영 서비스에서는 `actualDeliverySent=false`만 허용하고 실제 전송 기능을 제공하지 않는다.
 - updatedEta는 실제 appliedPlanVersion에 존재하는 ETA와 일치해야 한다.
 - 적용 실패한 후보 ETA를 사용할 수 없다.
 - message에는 기사 ID, 이름, 건강정보, 거절·동의 내용이 포함될 수 없다.
