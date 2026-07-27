@@ -55,9 +55,10 @@
   display: flex;
   width: 206px;
   flex-direction: column;
-  padding: 26px 18px 20px;
-  background: var(--rd-navy);
-  color: #fff;
+  border-right: 1px solid var(--rd-line);
+  padding: 20px 14px;
+  background: var(--rd-card);
+  color: var(--rd-ink);
 }
 
 .rd-brand {
@@ -95,81 +96,100 @@
   font-size: 10px;
 }
 
+.rd-admin-nav .rd-brand {
+  padding: 0 6px 20px;
+}
+
+.rd-admin-nav .rd-brand > span {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  background: var(--rd-blue);
+  font-size: 15px;
+}
+
+.rd-admin-nav .rd-brand strong {
+  color: #1d4ed8;
+}
+
+.rd-admin-nav .rd-brand small {
+  color: #667085;
+}
+
 .rd-admin-nav nav {
   display: grid;
-  gap: 6px;
-  margin-top: 54px;
+  gap: 3px;
+  margin-top: 0;
 }
 
 .rd-admin-nav nav button {
   display: flex;
+  min-height: 42px;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   width: 100%;
   border: 0;
-  border-radius: 10px;
+  border-radius: 6px;
   padding: 0 12px;
   background: transparent;
-  color: #b9c7d8;
+  color: #475467;
   text-align: left;
   font-size: 13px;
   font-weight: 700;
 }
 
 .rd-admin-nav nav button span {
-  display: grid;
-  width: 25px;
-  height: 25px;
-  place-items: center;
-  border: 1px solid #496079;
-  border-radius: 7px;
-  font-size: 9px;
+  display: block;
+  width: 17px;
+  height: auto;
+  border: 0;
+  border-radius: 0;
+  font-size: 14px;
+  line-height: 1;
+  text-align: center;
 }
 
 .rd-admin-nav nav button:hover,
 .rd-admin-nav nav button:focus-visible {
-  background: #1c3655;
-  color: #fff;
+  background: #f2f5fa;
+  color: #1d4ed8;
 }
 
 .rd-admin-nav nav button.is-active {
-  background: #245ec0;
-  color: #fff;
+  background: #eaf0ff;
+  color: #1d4ed8;
 }
 
 .rd-admin-nav nav button.is-active span {
-  border-color: #8bb3ff;
-  background: #fff;
-  color: #245ec0;
+  border: 0;
+  background: transparent;
+  color: #1d4ed8;
 }
 
 .rd-simulation-note {
   display: grid;
-  gap: 4px;
-  margin-top: auto;
-  border: 1px solid #36516e;
+  gap: 5px;
+  margin-top: 22px;
+  border: 1px solid #fcd9a4;
   border-radius: 10px;
-  padding: 12px;
-  background: #18304c;
+  padding: 13px 14px;
+  background: #fff4e2;
 }
 
 .rd-simulation-note strong {
-  color: #8fb5ff;
+  color: #92400e;
   font-size: 11px;
-  text-transform: uppercase;
+  text-transform: none;
 }
 
 .rd-simulation-note span {
-  color: #cad5e1;
-  font-size: 10px;
+  color: #92400e;
+  font-size: 11px;
   line-height: 1.5;
 }
 
 .rd-legacy-link {
-  margin-top: 12px;
-  color: #b8c8dc;
-  font-size: 11px;
-  text-align: center;
+  display: none;
 }
 
 .rd-admin-main {

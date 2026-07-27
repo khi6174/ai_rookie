@@ -245,28 +245,31 @@ function AdminNav({
   navigate: (screen: PreviewScreen) => void;
 }) {
   const items: Array<[PreviewScreen, string, string]> = [
-    ["admin-support", "01", "지원 상황"],
-    ["admin-route", "02", "경로"],
-    ["admin-interventions", "03", "개입 검토"],
-    ["admin-audit", "04", "감사기록"],
+    ["admin-support", "▤", "지원 상황"],
+    ["admin-route", "◈", "경로"],
+    ["admin-interventions", "⚖", "개입 검토"],
+    ["admin-audit", "▤", "감사기록"],
   ];
+  const activeScreen = screen === "admin-applied" ? "admin-support" : screen;
   return (
     <aside className="rd-admin-nav">
       <div className="rd-brand"><span>SR</span><div><strong>SafeRoute AI</strong><small>운영 안전 코파일럿</small></div></div>
       <nav aria-label="새 관리자 화면">
-        {items.map(([value, number, label]) => (
+        {items.map(([value, icon, label]) => (
           <button
             type="button"
-            className={screen === value ? "is-active" : undefined}
+            className={activeScreen === value ? "is-active" : undefined}
             key={value}
             onClick={() => navigate(value)}
           >
-            <span>{number}</span>{label}
+            <span aria-hidden="true">{icon}</span>{label}
           </button>
         ))}
       </nav>
-      <div className="rd-simulation-note"><strong>Design preview</strong><span>Kakao 지도·길찾기만 연결됨</span></div>
-      <a className="rd-legacy-link" href="/">기존 기능 화면으로 돌아가기</a>
+      <div className="rd-simulation-note">
+        <strong>Simulation result</strong>
+        <span>실제 사고감소 효과가 아닙니다. 합성 fixture 기반 결정론적 시뮬레이션입니다.</span>
+      </div>
     </aside>
   );
 }

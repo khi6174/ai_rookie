@@ -18,9 +18,9 @@ test("관리자 HTML 디자인 화면을 연결하고 실제 기능 대신 미�
     page.getByRole("heading", { name: "향후 60분 안에 어떤 지원이 필요한가?" }),
   ).toBeVisible();
   await expect(page.getByText("Kakao 오류 · Fallback map")).toBeVisible();
-  await expect(page.getByText("Kakao 지도·길찾기만 연결됨")).toBeVisible();
+  await expect(page.getByText("Simulation result")).toBeVisible();
 
-  await page.getByRole("button", { name: /02 경로/ }).click();
+  await page.getByRole("button", { name: "경로", exact: true }).click();
   await expect(page).toHaveURL(/#admin-route$/);
   await expect(page.getByRole("heading", { name: "경로 · 계획 vs 적용" })).toBeVisible();
   await page.screenshot({
@@ -28,7 +28,7 @@ test("관리자 HTML 디자인 화면을 연결하고 실제 기능 대신 미�
     fullPage: true,
   });
 
-  await page.getByRole("button", { name: /03 개입 검토/ }).click();
+  await page.getByRole("button", { name: "개입 검토", exact: true }).click();
   await page.getByRole("button", { name: "승인 검토", exact: true }).click();
   const dialog = page.getByRole("dialog", { name: "승인 후 계획을 적용할까요?" });
   await expect(dialog).toBeVisible();
