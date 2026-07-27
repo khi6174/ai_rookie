@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-07-27T13:33:51.808Z",
+  "capturedAt": "2026-07-27T13:52:19.559Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -13,8 +13,8 @@
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 38893,
-      "sha256": "5dc7e8acf19f235e6423508972a3c85055c5e8714f18103fd0bd693272a1e209"
+      "bytes": 38883,
+      "sha256": "fc006a7e8cb94af0bc327728cd464756d8bcfcff2c69d06b3aad2c958e8604ec"
     },
     {
       "path": "docs/data-contracts.md",
@@ -23,13 +23,13 @@
     },
     {
       "path": "docs/architecture.md",
-      "bytes": 31439,
-      "sha256": "2fdd4dddea7dd70aa93bbb7771de22323baa86264504fcdb7ef010bf9526c526"
+      "bytes": 31662,
+      "sha256": "939dd8ad592d4b1dce6b2ca1fd9d9f55ac128a28e12c51fce5f6e7c68ccc034e"
     },
     {
       "path": "docs/evals.md",
-      "bytes": 70457,
-      "sha256": "3e720e103ca292a35a1e26260d59e371ce50b8c9ee4bf86d22535efcc112eaea"
+      "bytes": 70505,
+      "sha256": "b5fc8657289d9ab14494bcdf9efb1c2be83bc00a1dab80cd021155cfd20945d1"
     },
     {
       "path": "docs/operations-service-human-review.md",
@@ -38,18 +38,18 @@
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 125566,
-      "sha256": "cabcce0a6740223ca3a0fec0c453db3600abd223d4519bfe27f829fb3d6317f6"
+      "bytes": 126722,
+      "sha256": "bff109f6b2fb1ef3503d6bba635bbfd82de946e654fc6aab876def9a9a209392"
     },
     {
       "path": "artifacts/evals/operations-service-evidence.json",
       "bytes": 1342,
-      "sha256": "d0d9faad5b518a4407af1f907a66253aa20d3b84454157e59aba8a5bb5cfb6b4"
+      "sha256": "a3acd8160df91362c51d089f5c1b2508c2d3a5c2b7f7d44a2176adbdbc5d6d9d"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1169,
-      "sha256": "dd7825f0520866d45b3e9a5e4330032cc4aba61c26399b8271829570f04275e7"
+      "bytes": 1170,
+      "sha256": "3156af6d6e2f963b6a59b7d427435295b0a814cb7404130bc790e33f8fe3cf4a"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -74,22 +74,22 @@
     {
       "path": "artifacts/evals/operations-human-review-summary.json",
       "bytes": 771,
-      "sha256": "7719566ff52d5090c4a2d7a4f617b94c36e8baf2554382388490f6066adc25d1"
+      "sha256": "4a463aee8040f0733de5f1b42c2af9a8e70a6d1fc56a841c69b4917b80f1e5da"
     },
     {
       "path": "artifacts/evals/operations-human-review-study-manifest.json",
       "bytes": 710,
-      "sha256": "d3bb6323068496de3e174449a74d06cb7c5dde3b5024f2d0d5a4b2187030631d"
+      "sha256": "ceaa1fa8f8bd1a5e1230a2d3788e1142d5e190ccbaefd73ded443a4946d0d6de"
     },
     {
       "path": "artifacts/evals/operations-deployed-smoke-latest.json",
-      "bytes": 1032,
-      "sha256": "37b6977e3c6a6720f6024dd3785b69afa6fc8ca157354d8eabf5250af357cb34"
+      "bytes": 1319,
+      "sha256": "be4738c8cde40a14f7f959a1f266aff93234cc8782bbdf5237f3be753df37b48"
     },
     {
-      "path": "artifacts/evals/human-review-stimuli/9716c7a522a35de93937428804f37d797fa7a43d30837d71df90345b130996ed.png",
-      "bytes": 210064,
-      "sha256": "9716c7a522a35de93937428804f37d797fa7a43d30837d71df90345b130996ed"
+      "path": "artifacts/evals/human-review-stimuli/80c0f00d42348711dacf13505d8b9003c550b2467b8433b817f008140a965105.png",
+      "bytes": 210059,
+      "sha256": "80c0f00d42348711dacf13505d8b9003c550b2467b8433b817f008140a965105"
     },
     {
       "path": "artifacts/evals/human-review-stimuli/c742fd9c0ee372c09695619cb300c5499c73f0fc4793b9e4357c3d88069a8cba.png",
@@ -98,13 +98,13 @@
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1440x900.png",
-      "bytes": 210059,
-      "sha256": "80c0f00d42348711dacf13505d8b9003c550b2467b8433b817f008140a965105"
+      "bytes": 210076,
+      "sha256": "4a31dc455193df52a7cd7e69d93a79c86af0de5c4e74af1acb7b344d5ee9473d"
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1280x720.png",
-      "bytes": 204218,
-      "sha256": "49a446bb11b5ddf9955a3db733202d26944302ccb824b27ba1f195a88ecee84e"
+      "bytes": 204238,
+      "sha256": "fc31da6acb3eec79a5251c4a7d4ff6aa415fe532f0fe5c499b3e77470e3874a3"
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-390x844.png",

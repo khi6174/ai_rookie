@@ -1,7 +1,7 @@
 {
   "schemaVersion": "service-goal-readiness-v1",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
-  "capturedAt": "2026-07-27T13:33:51.808Z",
+  "capturedAt": "2026-07-27T13:52:19.559Z",
   "status": "HUMAN_VALIDATION_REQUIRED",
   "dataMode": "SYNTHETIC",
   "commands": [
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 1581,
+      "durationMs": 1416,
       "summary": "$ tsc --noEmit --pretty false"
     },
     {
@@ -18,31 +18,31 @@
       "command": "pnpm run test",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 9605,
-      "summary": "      Tests  299 passed (299) |    Start at  22:31:12 |    Duration  8.42s (transform 13.10s, setup 0ms, import 31.44s, tests 22.21s, environment 6ms)"
+      "durationMs": 10096,
+      "summary": "      Tests  299 passed (299) |    Start at  22:49:36 |    Duration  8.93s (transform 14.79s, setup 0ms, import 33.55s, tests 21.92s, environment 7ms)"
     },
     {
       "id": "FULL_E2E",
       "command": "pnpm run test:e2e",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 113854,
-      "summary": "  ok 32 e2e\\spatial-scene.spec.ts:39:1 › G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은 decision의 2D와 보조 2.5D 자극을 고정한다 (2.2s) |   ok 33 e2e\\spatial-scene.spec.ts:217:1 › G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D 구조화 대안을 유지한다 (1.5s) |   33 passed (1.8m)"
+      "durationMs": 117910,
+      "summary": "  ok 32 e2e\\spatial-scene.spec.ts:39:1 › G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은 decision의 2D와 보조 2.5D 자극을 고정한다 (2.2s) |   ok 33 e2e\\spatial-scene.spec.ts:217:1 › G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D 구조화 대안을 유지한다 (1.5s) |   33 passed (1.9m)"
     },
     {
       "id": "OPERATIONS_SCALE",
       "command": "pnpm run eval:operations:scale",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 23880,
-      "summary": "Operations scale evaluation: PASSED 24=1319ms 96=4675ms 240=13928ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
+      "durationMs": 23007,
+      "summary": "Operations scale evaluation: PASSED 24=1408ms 96=4715ms 240=13973ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
     },
     {
       "id": "OPERATIONS_EVIDENCE",
       "command": "pnpm run eval:operations:evidence",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 10230,
+      "durationMs": 10320,
       "summary": "Operations service evidence: PASSED couriers=25 decisions=15 conflicts=105 | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-service-evidence.json"
     },
     {
@@ -50,8 +50,8 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2361,
-      "summary": "dist/assets/index-DxOjqkbk.js                   288.48 kB │ gzip: 88.24 kB | \u001b[32m✓ built in 345ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
+      "durationMs": 2358,
+      "summary": "dist/assets/index-DxOjqkbk.js                   288.48 kB │ gzip: 88.24 kB | \u001b[32m✓ built in 367ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
     }
   ],
   "checks": {
