@@ -112,6 +112,11 @@ await copyFile(resolve(root, "dist/sw.js"), resolve(clientDirectory, "sw.js"));
 await cp(resolve(root, "dist/icons"), resolve(clientDirectory, "icons"), {
   recursive: true,
 });
+await cp(
+  resolve(root, "dist/templates"),
+  resolve(clientDirectory, "templates"),
+  { recursive: true },
+);
 await mkdir(publicReviewDirectory, { recursive: true });
 await cp(
   resolve(root, "tools/g5-spatial-review"),
