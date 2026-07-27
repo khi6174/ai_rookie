@@ -1,3 +1,4 @@
+import { readFile } from "node:fs/promises";
 import { expect, test } from "@playwright/test";
 
 test.describe("synthetic operations service", () => {
@@ -12,6 +13,38 @@ test.describe("synthetic operations service", () => {
       }),
     ).toBeVisible();
     await expect(page.getByText("활성 기사 25명")).toBeVisible();
+    await expect(page.getByText("입력 합성 문서 100개")).toBeVisible();
+
+    const documentBundleDownload = page.waitForEvent("download");
+    await page
+      .getByRole("link", { name: "합성 문서 번들 내려받기" })
+      .click();
+    const downloadedBundle = await documentBundleDownload;
+    const downloadedBundlePath = await downloadedBundle.path();
+    expect(downloadedBundlePath).not.toBeNull();
+    const documentBundle = JSON.parse(
+      await readFile(downloadedBundlePath!, "utf8"),
+    );
+    expect(documentBundle).toMatchObject({
+      schemaVersion: "daily-operations-document-bundle-v1",
+      dataMode: "SYNTHETIC",
+      extraction: {
+        provider: "SAFEROUTE",
+        mode: "DETERMINISTIC",
+        validationStatus: "ACCEPTED",
+        rawDocumentStored: false,
+        rawOutputStored: false,
+      },
+    });
+    expect(documentBundle.documents).toHaveLength(100);
+    expect(documentBundle.extractedRecords).toHaveLength(25);
+    await page
+      .getByLabel("합성 운영 문서 번들 또는 정규화 패키지 선택")
+      .setInputFiles(downloadedBundlePath!);
+    await expect(
+      page.getByText("추출 상태 SAFEROUTE DETERMINISTIC · strict 추출 통과"),
+    ).toBeVisible();
+    await expect(page.getByText("출처 사용자 업로드")).toBeVisible();
 
     await page.getByRole("button", { name: "운영일 확정·전체 계산" }).click();
     await expect(page.getByText("25명", { exact: true }).first()).toBeVisible();
@@ -30,6 +63,25 @@ test.describe("synthetic operations service", () => {
     await supportRows.first().click();
     await expect(page.locator(".operations-candidate-list article").first()).toBeVisible();
     await expect(page.getByText("기사 응답 대기", { exact: true })).toBeVisible();
+    await page.route("**/api/upstage-explanation", async (route) => {
+      await route.fulfill({
+        status: 429,
+        contentType: "application/json",
+        body: JSON.stringify({
+          error: "합성 E2E 공급자 제한",
+          code: "RATE_LIMITED",
+        }),
+      });
+    });
+    await page
+      .getByRole("button", { name: "Upstage 근거 설명 생성" })
+      .click();
+    await expect(
+      page.getByText("Fallback 템플릿 · RATE_LIMITED", { exact: true }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
+    ).toBeVisible();
     await expect(page.locator(".operations-persistence")).toContainText(
       "운영 상태 저장 중",
     );

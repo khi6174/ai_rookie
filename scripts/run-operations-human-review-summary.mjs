@@ -15,6 +15,21 @@ await mkdir(inputDirectory, { recursive: true });
 const files = (await readdir(inputDirectory)).filter((file) =>
   file.endsWith(".json"),
 );
+const expectedAnswers = {
+  ADMIN: {
+    "admin-purpose": "SUPPORT",
+    "admin-data-mode": "SYNTHETIC",
+    "admin-ai": "EXPLAIN",
+    "admin-consent": "RIDER",
+    "admin-documents": "VALIDATED",
+  },
+  RIDER: {
+    "rider-choice": "THREE",
+    "rider-penalty": "NO_PENALTY",
+    "rider-map": "ASSIST",
+    "rider-apply": "AFTER_APPROVAL",
+  },
+};
 const results = [];
 for (const file of files) {
   const bytes = await readFile(resolve(inputDirectory, file));
@@ -27,15 +42,50 @@ for (const file of files) {
     !["ADMIN", "RIDER"].includes(result.role) ||
     !/^[A-Za-z0-9_-]{3,24}$/.test(result.reviewerCode ?? "") ||
     !Array.isArray(result.answers) ||
-    result.answers.length !== 4 ||
+    result.answers.length !==
+      Object.keys(expectedAnswers[result.role] ?? {}).length ||
     result.uploadPerformed !== false
   ) {
     throw new Error(`Invalid operations review result: ${file}`);
+  }
+  const expected = expectedAnswers[result.role];
+  const answerIds = result.answers.map((answer) => answer.questionId);
+  if (
+    new Set(answerIds).size !== answerIds.length ||
+    Object.keys(expected).some((questionId) => !answerIds.includes(questionId))
+  ) {
+    throw new Error(`Invalid operations review question set: ${file}`);
+  }
+  const verifiedAnswers = result.answers.map((answer) => {
+    const expectedValue = expected[answer.questionId];
+    const correct = answer.answer === expectedValue;
+    if (
+      answer.expected !== expectedValue ||
+      answer.correct !== correct ||
+      answer.critical !== true
+    ) {
+      throw new Error(`Tampered operations review answer: ${file}`);
+    }
+    return { ...answer, correct };
+  });
+  const verifiedCorrectCount = verifiedAnswers.filter(
+    (answer) => answer.correct,
+  ).length;
+  const verifiedCriticalMisconceptionCount = verifiedAnswers.filter(
+    (answer) => !answer.correct,
+  ).length;
+  if (
+    result.correctCount !== verifiedCorrectCount ||
+    result.criticalMisconceptionCount !==
+      verifiedCriticalMisconceptionCount
+  ) {
+    throw new Error(`Invalid operations review totals: ${file}`);
   }
   results.push({
     file,
     sha256: createHash("sha256").update(bytes).digest("hex"),
     ...result,
+    answers: verifiedAnswers,
   });
 }
 const uniqueReviewers = new Set(

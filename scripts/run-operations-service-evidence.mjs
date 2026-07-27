@@ -14,10 +14,24 @@ try {
   const fixtures = await server.ssrLoadModule(
     "/src/adapters/fixtures/syntheticOperationsPackage.ts",
   );
+  const documentFixtures = await server.ssrLoadModule(
+    "/src/adapters/fixtures/syntheticOperationsDocumentBundle.ts",
+  );
   const operations = await server.ssrLoadModule(
     "/src/application/operations/index.ts",
   );
-  const operationsPackage = fixtures.bundledDailyOperationsPackage;
+  const domain = await server.ssrLoadModule(
+    "/src/domain/operations/index.ts",
+  );
+  const inputResult = await domain.normalizeDailyOperationsInput(
+    documentFixtures.bundledDailyOperationsDocumentBundle,
+  );
+  if (inputResult.status !== "VALID") {
+    throw new Error(
+      `Bundled document input failed: ${JSON.stringify(inputResult.issues)}`,
+    );
+  }
+  const operationsPackage = inputResult.package;
   const snapshot = await operations.createDailyOperationsSnapshot(
     operationsPackage,
     { createdAt: "2026-07-27T04:00:00.000Z" },
@@ -87,6 +101,11 @@ try {
     schemaVersion: "operations-service-evidence-v1",
     dataMode: "SYNTHETIC",
     capturedAt: new Date().toISOString(),
+    inputKind: inputResult.inputKind,
+    sourceDocumentCount: inputResult.documentCount,
+    extractionProvider: inputResult.extraction?.provider,
+    extractionMode: inputResult.extraction?.mode,
+    rawDocumentPersisted: false,
     packageId: operationsPackage.packageId,
     packageHash: snapshot.packageHash,
     snapshotId: snapshot.snapshotId,
@@ -119,6 +138,9 @@ try {
       .digest("hex"),
   };
   const passed =
+    result.inputKind === "DOCUMENT_BUNDLE" &&
+    result.sourceDocumentCount === 100 &&
+    result.rawDocumentPersisted === false &&
     result.activeCourierCount === 25 &&
     result.supportDecisionCount > 1 &&
     result.initializedDecisionCount === result.supportDecisionCount &&

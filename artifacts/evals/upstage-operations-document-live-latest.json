@@ -1,0 +1,24 @@
+{
+  "schemaVersion": "upstage-operations-document-live-v1",
+  "dataMode": "SYNTHETIC",
+  "capturedAt": "2026-07-27T11:53:02.165Z",
+  "provider": "UPSTAGE",
+  "model": "solar-pro3",
+  "documentParseEndpoint": "https://api.upstage.ai/v1/document-digitization",
+  "chatEndpoint": "https://api.upstage.ai/v1/chat/completions",
+  "sourceDocument": {
+    "format": "PDF",
+    "pageCount": 4,
+    "bytes": 81313,
+    "sha256": "73ea5a31e7837a0c2574745ee591a2739af3a94d2169b2c2664c881d151ac95b",
+    "parentRecordId": "synthetic-parent-025",
+    "actualPersonalDataCount": 0,
+    "rawDocumentStoredInEvidence": false
+  },
+  "rawProviderResponseStored": false,
+  "deterministicSafetyAuthority": true,
+  "status": "CONFIGURED_NOT_RUN",
+  "networkRequestPerformed": false,
+  "missing": [],
+  "limitation": "Paid Document Parse and extraction were not called in --check mode."
+}

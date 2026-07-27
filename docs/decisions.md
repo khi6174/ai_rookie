@@ -729,6 +729,24 @@
 - 기각한 대안: 관리자의 대리 응답, 충돌 없는 마지막 저장 우선, 현재 승인 범위 밖의 실제 인증 즉시 도입.
 - 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/OperationsRiderService.tsx`, `src/application/operations/persistOperationsSession.ts`, `server/operations-session-store.mjs`, 운영 E2E와 사람 검토 도구
 
+### ADR-075 — 운영 원문 번들과 정규화 패키지를 분리하고 Live 문서 계층을 별도 Gate로 둔다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 합성 운영 입력은 네 종류의 Markdown 원문 100개, 파일별 SHA-256, 추출 계층 메타데이터와 strict 추출 레코드 25개를 포함한 `DailyOperationsDocumentBundle`로 받을 수 있다. 원문은 메모리에서 해시·상위 레코드·문서 종류·핵심 참조·PII를 검증한 뒤 `DailyOperationsPackage`로 정규화하며 세션 저장소에는 원문을 보존하지 않는다. 실제 Upstage 문서 계층은 4쪽 합성 PDF 한 건을 Document Parse하고 그 결과에서 strict 운영 필드를 Solar로 추출해 exact match와 prompt-injection 비수용을 확인한 경우에만 `LIVE_PASS`다. 유료 호출 전에는 `CONFIGURED_NOT_RUN`으로 표시하며 설명 API Live 성공으로 문서 Parse 성공을 대신하지 않는다.
+- 이유: 정규화 JSON만 직접 업로드하는 구현은 “합성 운영 문서 입력”과 실제 Parse·Extract 계층을 증명하지 못한다. 반대로 원문을 D1에 저장하거나 LLM 추출을 곧바로 Safety 입력으로 사용하면 개인정보·보존·AI 권한 경계가 약해진다.
+- 기각한 대안: JSON 패키지를 원문 문서라고 부르는 방식, 원문 해시 없이 추출 결과만 신뢰하는 방식, 설명 API smoke를 문서 Parse 증거로 재사용하는 방식, 원문과 공급자 raw 응답을 평가 산출물이나 D1에 저장하는 방식.
+- 영향 파일: `src/domain/operations/contracts.ts`, `src/adapters/fixtures/syntheticOperationsPackage.ts`, `src/ui/OperationsService.tsx`, `scripts/build-upstage-operations-document-fixture.py`, `scripts/run-upstage-operations-document-live.mjs`, `scripts/run-service-goal-readiness.mjs`, 운영 계약·E2E·증거 문서
+
+### ADR-076 — 배포 완료는 공개 런타임의 D1 복구·충돌 검증 이후에만 인정한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 로컬 메모리 저장소와 D1 모의 계약 테스트만으로 배포된 영속성 완료를 주장하지 않는다. 기존 공개 Sites 주소에 새 버전을 배포한 뒤, 고정 비식별 합성 smoke workspace에서 GET·PUT·재조회와 오래된 기준시각 PUT의 `409 SESSION_CONFLICT`를 실행한다. 응답이 `storage=D1`이고 동일 snapshot·지원 큐를 복구하며 stale 쓰기를 차단한 경우에만 `operations-deployed-smoke-latest.json`을 `LIVE_PASS`로 기록한다.
+- 이유: D1 binding 누락, Worker route 패키징 오류, 프로덕션 schema 생성 문제는 로컬 E2E만으로 발견할 수 없다. 배포 URL이 열리는 것과 운영 상태가 실제로 보존되는 것은 서로 다른 완료 조건이다.
+- 기각한 대안: `.openai/hosting.json`에 `d1=DB`가 있다는 사실만으로 통과, 로컬 memory adapter 결과를 D1 결과로 간주, 사람 검토 중 우연히 저장된 상태를 재현 증거로 사용.
+- 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, 배포 runbook과 평가 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

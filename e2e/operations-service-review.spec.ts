@@ -7,6 +7,7 @@ const correctLabels = {
     /결정론적 합성 데이터/,
     /계산된 결정 사실을 역할별 문장으로 설명/,
     /별도 기사 화면에서 기록/,
+    /파일 해시·참조·추출 스키마를 검증해 정규화한 뒤/,
   ],
   RIDER: [
     /동의, 수정 요청, 거절이 모두 제공/,
@@ -42,11 +43,11 @@ async function completeReview(
     dataMode: "SYNTHETIC",
     role,
     reviewerCode,
-    correctCount: 4,
+    correctCount: role === "ADMIN" ? 5 : 4,
     criticalMisconceptionCount: 0,
     uploadPerformed: false,
   });
-  expect(result.answers).toHaveLength(4);
+  expect(result.answers).toHaveLength(role === "ADMIN" ? 5 : 4);
   expect(download.suggestedFilename()).toBe(
     `operations-service-review-${role.toLowerCase()}-${reviewerCode}.json`,
   );

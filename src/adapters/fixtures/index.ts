@@ -12,11 +12,6 @@ export {
   createMapMovementTimeline,
   demoReconnectCourierId,
 } from "./mapMovementTimeline";
-export {
-  bundledDailyOperationsPackage,
-  bundledSyntheticOperationsRecords,
-} from "./syntheticOperationsPackage";
-
 export const rainyHillyLongShiftFixture = createScenarioFixture({
   fixtureId: "scenario-rain-hill-longshift-v1",
   evaluatedAt: "2026-07-14T00:00:00.000Z",

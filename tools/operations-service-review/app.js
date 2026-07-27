@@ -48,6 +48,17 @@ const studies = {
         expected: "RIDER",
         critical: true,
       },
+      {
+        id: "admin-documents",
+        prompt: "합성 운영 문서는 언제 Safety 계산에 사용할 수 있습니까?",
+        options: [
+          ["VALIDATED", "파일 해시·참조·추출 스키마를 검증해 정규화한 뒤에만 사용한다."],
+          ["DIRECT", "업로드한 원문을 곧바로 Safety 계산에 넣는다."],
+          ["AI_DECIDES", "Upstage가 안전하다고 판단하면 검증 없이 사용한다."],
+        ],
+        expected: "VALIDATED",
+        critical: true,
+      },
     ],
   },
   RIDER: {

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-07-27T11:39:00.052Z",
+  "capturedAt": "2026-07-27T12:12:57.453Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -13,43 +13,53 @@
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 38479,
-      "sha256": "ad6824c123972dca542e2e9c062be7ab170027b4f91a87808ac227fffceaeb50"
+      "bytes": 38753,
+      "sha256": "74c967774570663ccaac88d2b3fc5b0c1554ab9910635e571393fa05c2356647"
     },
     {
       "path": "docs/data-contracts.md",
-      "bytes": 59724,
-      "sha256": "47b0033f367996dde3899dcbd19e248c4207eefa892d138f42043d1773e403c7"
+      "bytes": 61085,
+      "sha256": "f6c68c34632962839e911edab4ea491fe302846e07c1f8c9b8757d226efdd367"
     },
     {
       "path": "docs/architecture.md",
-      "bytes": 30694,
-      "sha256": "a21a23a513d4d8a6fcd81c4f397f2221808047f17fdcda0fb71424a87c3d5993"
+      "bytes": 31439,
+      "sha256": "2fdd4dddea7dd70aa93bbb7771de22323baa86264504fcdb7ef010bf9526c526"
     },
     {
       "path": "docs/evals.md",
-      "bytes": 68811,
-      "sha256": "d3e02fe3d2c440ed520de2481039da1d354b479423a20489a9d6b3064da8be87"
+      "bytes": 69466,
+      "sha256": "b2069dd2e9738333cd93fe50206ad8aed629197f201bd501146b046090bdc9af"
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 116679,
-      "sha256": "60f721710edc84610ebbba26e95664c658681015753b5e2d32117f05817e97d4"
+      "bytes": 119871,
+      "sha256": "12425a75a2a82dcf4959a1462a84b1037cbfa076399391a94c53207b8113cb09"
     },
     {
       "path": "artifacts/evals/operations-service-evidence.json",
-      "bytes": 844,
-      "sha256": "9278e207f6d64d365a986ded9e90656d3cc2e057624d4d1c84a0f53bd740af6f"
+      "bytes": 1057,
+      "sha256": "2ae4cd1fe48028c1e0a2dfbd881cbb65bc91f6d60015047a25dbb627f0d892ef"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1170,
-      "sha256": "4c841c298b6bd73d5edf0aa0b4680ef86f02d8faa1d16241a43979879e006c96"
+      "bytes": 1171,
+      "sha256": "814d23424a44c91732ee7bd68ed3cbe6c6bdbefb6f62733d093057810c10ebe7"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
       "bytes": 3262,
       "sha256": "796969cf2be0075b10f6b489c2bf3ec40c49165825f9572600accdba11bffc6c"
+    },
+    {
+      "path": "artifacts/evals/upstage-operations-document-live-latest.json",
+      "bytes": 867,
+      "sha256": "29a3b2a18690c3ce6d474adc8b3668f22bf269b0048c4183c3b505559a366da0"
+    },
+    {
+      "path": "output/pdf/upstage-synthetic-operations-document-fixture.pdf",
+      "bytes": 81313,
+      "sha256": "73ea5a31e7837a0c2574745ee591a2739af3a94d2169b2c2664c881d151ac95b"
     },
     {
       "path": "artifacts/evals/kakao-directions-smoke-latest.json",
@@ -59,32 +69,37 @@
     {
       "path": "artifacts/evals/operations-human-review-summary.json",
       "bytes": 427,
-      "sha256": "e1e732bc6f85fa7b62599344ec064ccdfcdc813e00e4041efc7ebfcf2d191bad"
+      "sha256": "651bacdbab3e947095cd05bb99c163476a087eb562601b194d9e2ef85acab35e"
+    },
+    {
+      "path": "artifacts/evals/operations-deployed-smoke-latest.json",
+      "bytes": 408,
+      "sha256": "4f207134081effb8a0b45e596e9b1501b05576d8c13a46d9d8397da275ffab3e"
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1440x900.png",
-      "bytes": 203816,
-      "sha256": "61513209df0d4e016a4d015b3af31b229587289a780cfc380792cb98337f40d8"
+      "bytes": 209248,
+      "sha256": "1824391a5b80d198d7b1acd1a5fd01f78f2a35bf0b66da955c2343c9a401a481"
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1280x720.png",
-      "bytes": 198844,
-      "sha256": "5efb20ecdf87678c932ed65b7e6c4cac23549a5016398fd59f66fdd69696900e"
+      "bytes": 203411,
+      "sha256": "dd49d792c17070bdcf7b9fc3650b627862fccfd76563710d44d6fa32352daaa3"
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-390x844.png",
-      "bytes": 63604,
-      "sha256": "0c1d05a0799fa72181505d1f9c4e96f9913125a17d3a6f4b79b021b403ade332"
+      "bytes": 63590,
+      "sha256": "c742fd9c0ee372c09695619cb300c5499c73f0fc4793b9e4357c3d88069a8cba"
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-360x800.png",
-      "bytes": 61892,
-      "sha256": "1f493638a845ab5f16602faf59a2d2f48151b019d62e6c9cb07d59514f832af9"
+      "bytes": 61883,
+      "sha256": "a1807e95cfb5f0c244bd9e95eef613c099a9c08d14a0e6d9b3a9fda9a24e997f"
     },
     {
       "path": "e2e/operations-service.spec.ts",
-      "bytes": 7218,
-      "sha256": "c7367e4b858fd3ef81e3f6cddeceaca0d0596db35d3743a43de67a8fb6aa8dec"
+      "bytes": 9217,
+      "sha256": "2f79ab7af362af6018cde10613f276414029dc4f825ad56431879cd2a35b3f52"
     },
     {
       "path": "e2e/operations-accessibility.spec.ts",
@@ -93,8 +108,8 @@
     },
     {
       "path": "e2e/operations-rider.spec.ts",
-      "bytes": 3026,
-      "sha256": "3f1581517ac6d0e398361566e9b6bfc3f9f2c91e6ce5f158458696f22b1c4c89"
+      "bytes": 3141,
+      "sha256": "7f681a9f545abc32f701f01e2ea1b4628826cf53a651e42724b99cfd289f64ee"
     }
   ]
 }

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { bundledDailyOperationsPackage } from "../src/adapters/fixtures";
+import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheticOperationsPackage";
 import {
   createDailyOperationsSnapshot,
   createOperationsDecisionWorkspace,

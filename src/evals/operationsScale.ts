@@ -1,4 +1,4 @@
-import { bundledSyntheticOperationsRecords } from "../adapters/fixtures";
+import { bundledSyntheticOperationsRecords } from "../adapters/fixtures/syntheticOperationsPackage";
 import {
   createDailyOperationsSnapshot,
   createOperationsDecisionWorkspace,

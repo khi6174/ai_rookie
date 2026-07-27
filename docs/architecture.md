@@ -334,7 +334,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 ### 12.1 합성 운영 서비스 계층
 
-`DailyOperationsPackage`는 UI 업로드 또는 번들 샘플에서 Application 계층으로 들어온다. Contracts 계층이 schema·참조·시간·합계·개인정보를 검증하고, 통과한 패키지만 Domain `ScenarioFixture`로 투영한다. 원문 문서나 LLM 출력은 Domain 입력이 아니다.
+`DailyOperationsDocumentBundle`은 UI 업로드 또는 번들 샘플에서 Ingestion 계층으로 들어온다. Ingestion은 네 종류 합성 원문의 SHA-256·상위 레코드·문서 종류·핵심 참조·PII와 strict 추출 레코드를 검증하고 원문을 저장하지 않은 채 `DailyOperationsPackage`로 정규화한다. Contracts 계층이 package schema·참조·시간·합계를 다시 검증하고, 통과한 패키지만 Domain `ScenarioFixture`로 투영한다. 원문 문서나 LLM 출력은 Domain 입력이 아니다.
 
 `OperationsSnapshotService`는 package hash와 설정 버전을 포함한 불변 `DailyOperationsSnapshot`을 만든다. `FleetEvaluationService`는 스냅샷의 모든 활성 기사를 평가하고 임계치 초과가 예측되거나 승인된 지원 규칙에 해당하는 기사마다 별도 decision을 만든다. `DecisionWorkspaceService`는 열린 decision 간 수신 기사·계획·스냅샷 충돌을 확인한다.
 
@@ -346,9 +346,12 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 - `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답
 - `/api/upstage-explanation`: 검증된 합성 결정 사실만 Upstage로 전달하고 공급자 원문 대신 strict JSON만 반환
+- Upstage Document Parse·Extract Live 평가는 합성 PDF와 strict exact-match Gate로 분리한다. 승인되지 않은 유료 호출은 실행하지 않고 `CONFIGURED_NOT_RUN`으로 남기며, 원문과 raw 공급자 응답을 증거에 저장하지 않는다.
 - `/api/kakao-directions`: 고정 Demo 또는 `deterministic-synthetic-operations`로 표시된 국내 범위 합성 좌표만 Kakao Mobility에 전달
 - `/operations`: 관리자 전체 운영·지원 큐·승인·내보내기
 - `/operations/rider`: 동일 decision의 별도 기사 응답 화면
+
+배포 완료는 Worker 패키지 생성이나 D1 binding 선언만으로 판정하지 않는다. 공개 URL의 고정 합성 smoke workspace에서 저장·재조회·snapshot 복구·stale 쓰기 `409 SESSION_CONFLICT`가 확인되어야 한다.
 
 ## 13. 심사기준과 아키텍처 증거
 

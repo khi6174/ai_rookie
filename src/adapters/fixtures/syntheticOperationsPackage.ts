@@ -26,7 +26,8 @@ export const bundledSyntheticOperationsRecords = Object.values(
 export const bundledDailyOperationsPackage: DailyOperationsPackage =
   DailyOperationsPackageSchema.parse({
     schemaVersion: "daily-operations-package-v1",
-    packageId: "daily-operations-2026-07-25-bundled-v1",
+    packageId:
+      "daily-operations-documents-2026-07-25-bundled-v1-normalized",
     operationDate: "2026-07-25",
     evaluatedAt: "2026-07-25T18:00:00+09:00",
     timeZone: "Asia/Seoul",

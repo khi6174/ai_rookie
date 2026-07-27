@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   bundledDailyOperationsPackage,
-} from "../adapters/fixtures";
+} from "../adapters/fixtures/syntheticOperationsPackage";
 import { createUpstageProxyProvider } from "../adapters/upstage";
 import {
   generateExplanation,
@@ -25,7 +25,7 @@ import {
   type OperationsDecisionWorkspace,
 } from "../application/operations";
 import type { DailyOperationsPackage, DailyOperationsSnapshot } from "../domain/operations";
-import { validateDailyOperationsPackage } from "../domain/operations";
+import { normalizeDailyOperationsInput } from "../domain/operations";
 import {
   ExplanationInputSchema,
   type ExplanationResult,
@@ -39,6 +39,15 @@ type LoadState =
   | { status: "ERROR"; message: string; details: string[] };
 
 type FleetFilter = "SUPPORT" | "ALL" | "MONITOR" | "STABLE";
+
+const bundledDocumentTemplateUrl =
+  "/templates/daily-operations-documents-2026-07-25-bundled-v1.json";
+
+type OperationsInputSummary = {
+  kind: "DOCUMENT_BUNDLE" | "NORMALIZED_PACKAGE";
+  documentCount: number;
+  label: string;
+};
 
 type PersistenceState =
   | { status: "CHECKING"; label: string }
@@ -104,6 +113,11 @@ function formatEvaluatedAt(value: string) {
 export function OperationsService() {
   const [operationsPackage, setOperationsPackage] =
     useState<DailyOperationsPackage>(bundledDailyOperationsPackage);
+  const [inputSummary, setInputSummary] = useState<OperationsInputSummary>({
+    kind: "DOCUMENT_BUNDLE",
+    documentCount: 100,
+    label: "SafeRoute 결정론 추출 · 검증 통과",
+  });
   const [snapshot, setSnapshot] =
     useState<DailyOperationsSnapshot | null>(null);
   const [fleet, setFleet] = useState<FleetEvaluation | null>(null);
@@ -147,6 +161,11 @@ export function OperationsService() {
         if (cancelled) return;
         skipNextPersistenceRef.current = true;
         setOperationsPackage(restored.operationsPackage);
+        setInputSummary({
+          kind: "NORMALIZED_PACKAGE",
+          documentCount: 0,
+          label: "저장된 strict 정규화 패키지",
+        });
         setSnapshot(restored.snapshot);
         setFleet(restored.fleet);
         setWorkspace(restored.workspace);
@@ -508,14 +527,17 @@ export function OperationsService() {
 
   const onPackageFile = async (file: File | undefined) => {
     if (!file) return;
-    setLoadState({ status: "LOADING", message: "합성 운영 패키지를 검증하고 있습니다." });
+    setLoadState({
+      status: "LOADING",
+      message: "합성 운영 문서와 추출 결과를 교차 검증하고 있습니다.",
+    });
     try {
       const parsed = JSON.parse(await file.text()) as unknown;
-      const result = validateDailyOperationsPackage(parsed);
+      const result = await normalizeDailyOperationsInput(parsed);
       if (result.status !== "VALID") {
         setLoadState({
           status: "ERROR",
-          message: "업로드한 패키지에 수정이 필요한 항목이 있습니다.",
+          message: "업로드한 운영 입력에 수정이 필요한 항목이 있습니다.",
           details: result.issues.map((issue) => issue.message),
         });
         return;
@@ -523,6 +545,14 @@ export function OperationsService() {
       setOperationsPackage({
         ...result.package,
         source: "USER_UPLOADED",
+      });
+      setInputSummary({
+        kind: result.inputKind,
+        documentCount: result.documentCount,
+        label:
+          result.inputKind === "DOCUMENT_BUNDLE"
+            ? `${result.extraction?.provider ?? "검증 계층"} ${result.extraction?.mode ?? "검증"} · strict 추출 통과`
+            : "strict 정규화 패키지",
       });
       setSnapshot(null);
       setFleet(null);
@@ -532,8 +562,10 @@ export function OperationsService() {
     } catch {
       setLoadState({
         status: "ERROR",
-        message: "JSON 패키지를 읽지 못했습니다.",
-        details: ["다운로드한 SafeRoute 표준 패키지 형식을 사용해 주세요."],
+        message: "운영 입력 JSON을 읽지 못했습니다.",
+        details: [
+          "다운로드한 SafeRoute 합성 문서 번들 또는 정규화 패키지를 사용해 주세요.",
+        ],
       });
     } finally {
       if (fileInputRef.current) fileInputRef.current.value = "";
@@ -661,8 +693,15 @@ export function OperationsService() {
               <span aria-hidden="true">◇</span> SYNTHETIC · MOCK
             </span>
             <button type="button" className="button button-neutral" onClick={downloadPackage}>
-              표준 패키지 내려받기
+              정규화 패키지 내려받기
             </button>
+            <a
+              className="button button-neutral"
+              href={bundledDocumentTemplateUrl}
+              download="daily-operations-documents-2026-07-25-bundled-v1.json"
+            >
+              합성 문서 번들 내려받기
+            </a>
           </div>
         </header>
 
@@ -674,6 +713,13 @@ export function OperationsService() {
               <li>활성 기사 {operationsPackage.records.length}명</li>
               <li>허브 {new Set(operationsPackage.records.map((record) => record.hub.hubId)).size}곳</li>
               <li>남은 배송 {operationsPackage.records.reduce((total, record) => total + record.plan.remainingStopCount, 0)}건</li>
+              <li>
+                입력{" "}
+                {inputSummary.kind === "DOCUMENT_BUNDLE"
+                  ? `합성 문서 ${inputSummary.documentCount}개`
+                  : "정규화 패키지"}
+              </li>
+              <li>추출 상태 {inputSummary.label}</li>
               <li>출처 {operationsPackage.source === "BUNDLED_SAMPLE" ? "검증된 번들 샘플" : "사용자 업로드"}</li>
             </ul>
           </div>
@@ -684,11 +730,11 @@ export function OperationsService() {
               className="visually-hidden"
               type="file"
               accept="application/json,.json"
-              aria-label="합성 운영 JSON 패키지 선택"
+              aria-label="합성 운영 문서 번들 또는 정규화 패키지 선택"
               onChange={(event) => void onPackageFile(event.currentTarget.files?.[0])}
             />
             <label className="button button-neutral" htmlFor="operations-package-file">
-              JSON 패키지 선택
+              문서 번들·JSON 선택
             </label>
             <button
               type="button"

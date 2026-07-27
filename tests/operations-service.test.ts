@@ -1,8 +1,11 @@
 import { describe, expect, it } from "vitest";
 import {
+  bundledDailyOperationsDocumentBundle,
+} from "../src/adapters/fixtures/syntheticOperationsDocumentBundle";
+import {
   bundledDailyOperationsPackage,
   bundledSyntheticOperationsRecords,
-} from "../src/adapters/fixtures";
+} from "../src/adapters/fixtures/syntheticOperationsPackage";
 import {
   OperationsPackageValidationError,
   createOperationsDecisionWorkspace,
@@ -20,14 +23,59 @@ import {
   evaluateOperationsFleet,
 } from "../src/application/operations";
 import {
+  normalizeDailyOperationsInput,
   validateDailyOperationsPackage,
+  type DailyOperationsDocumentBundle,
   type DailyOperationsPackage,
 } from "../src/domain/operations";
 
 const clonePackage = (): DailyOperationsPackage =>
   structuredClone(bundledDailyOperationsPackage);
+const cloneDocumentBundle = (): DailyOperationsDocumentBundle =>
+  structuredClone(bundledDailyOperationsDocumentBundle);
 
 describe("daily synthetic operations package", () => {
+  it("normalizes 100 hashed source documents into the 25-courier strict package", async () => {
+    expect(bundledDailyOperationsDocumentBundle.documents).toHaveLength(100);
+    const result = await normalizeDailyOperationsInput(
+      bundledDailyOperationsDocumentBundle,
+    );
+    expect(result).toMatchObject({
+      status: "VALID",
+      inputKind: "DOCUMENT_BUNDLE",
+      documentCount: 100,
+      extraction: {
+        provider: "SAFEROUTE",
+        mode: "DETERMINISTIC",
+        validationStatus: "ACCEPTED",
+        rawDocumentStored: false,
+        rawOutputStored: false,
+      },
+    });
+    if (result.status !== "VALID") throw new Error("Expected valid bundle");
+    expect(result.package.records).toHaveLength(25);
+    expect(result.package.packageId).toBe(
+      "daily-operations-documents-2026-07-25-bundled-v1-normalized",
+    );
+  });
+
+  it("fails closed when a source document is altered, missing, or detached from its record", async () => {
+    const altered = cloneDocumentBundle();
+    altered.documents[0].content += "\n변조된 문장";
+    altered.documents.splice(4, 1);
+    altered.documents.at(-1)!.parentRecordId = "synthetic-parent-unknown";
+
+    const result = await normalizeDailyOperationsInput(altered);
+    expect(result.status).toBe("INVALID");
+    expect(result.issues.map((item) => item.code)).toEqual(
+      expect.arrayContaining([
+        "DOCUMENT_HASH_MISMATCH",
+        "DOCUMENT_MISSING",
+        "DOCUMENT_REFERENCE_MISMATCH",
+      ]),
+    );
+  });
+
   it("loads all 25 accepted parent records in deterministic order", () => {
     expect(bundledSyntheticOperationsRecords).toHaveLength(25);
     expect(bundledSyntheticOperationsRecords[0].parentRecordId).toBe(

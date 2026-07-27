@@ -134,6 +134,55 @@ export const DailyOperationsPackageSchema = z
   })
   .strict();
 
+export const OperationsSourceDocumentKindSchema = z.enum([
+  "DELIVERY_WORK_SHEET",
+  "SHIFT_ROSTER",
+  "ROUTE_STOP_MANIFEST",
+  "SAFETY_INCIDENT_PREVENTION_REPORT",
+]);
+
+export const OperationsSourceDocumentSchema = z
+  .object({
+    schemaVersion: z.literal("operations-source-document-v1"),
+    documentId: opaqueId,
+    parentRecordId: opaqueId,
+    documentKind: OperationsSourceDocumentKindSchema,
+    sourceFormat: z.literal("MARKDOWN"),
+    mediaType: z.literal("text/markdown"),
+    dataMode: z.literal("SYNTHETIC"),
+    content: z.string().min(200).max(12_000),
+    sha256: z.string().regex(/^[a-f0-9]{64}$/),
+  })
+  .strict();
+
+export const DailyOperationsDocumentBundleSchema = z
+  .object({
+    schemaVersion: z.literal("daily-operations-document-bundle-v1"),
+    bundleId: opaqueId,
+    operationDate,
+    evaluatedAt: IsoDateTimeSchema,
+    timeZone: z.literal("Asia/Seoul"),
+    dataMode: z.literal("SYNTHETIC"),
+    source: z.enum(["BUNDLED_SAMPLE", "USER_UPLOADED"]),
+    extraction: z
+      .object({
+        provider: z.enum(["SAFEROUTE", "UPSTAGE"]),
+        mode: z.enum(["DETERMINISTIC", "LIVE", "FALLBACK"]),
+        model: z.string().min(1).max(120),
+        completedAt: IsoDateTimeSchema,
+        validationStatus: z.literal("ACCEPTED"),
+        rawDocumentStored: z.literal(false),
+        rawOutputStored: z.literal(false),
+      })
+      .strict(),
+    documents: z.array(OperationsSourceDocumentSchema).min(4).max(2_000),
+    extractedRecords: z
+      .array(SyntheticOperationsParentRecordSchema)
+      .min(1)
+      .max(500),
+  })
+  .strict();
+
 export const OperationsValidationIssueSchema = z
   .object({
     issueId: opaqueId,
@@ -148,6 +197,9 @@ export const OperationsValidationIssueSchema = z
       "LOAD_MISMATCH",
       "UNSUPPORTED_DATA_MODE",
       "PII_PATTERN_DETECTED",
+      "DOCUMENT_MISSING",
+      "DOCUMENT_HASH_MISMATCH",
+      "DOCUMENT_REFERENCE_MISMATCH",
     ]),
     recordId: opaqueId.optional(),
     fieldPath: z.string().min(1).max(300).optional(),
@@ -209,6 +261,12 @@ export type SyntheticOperationsParentRecord = z.infer<
 export type DailyOperationsPackage = z.infer<
   typeof DailyOperationsPackageSchema
 >;
+export type OperationsSourceDocument = z.infer<
+  typeof OperationsSourceDocumentSchema
+>;
+export type DailyOperationsDocumentBundle = z.infer<
+  typeof DailyOperationsDocumentBundleSchema
+>;
 export type OperationsValidationIssue = z.infer<
   typeof OperationsValidationIssueSchema
 >;
@@ -224,6 +282,21 @@ export type DailyOperationsValidationResult =
     }
   | {
       status: "INVALID";
+      issues: OperationsValidationIssue[];
+    };
+
+export type DailyOperationsInputResult =
+  | {
+      status: "VALID";
+      inputKind: "NORMALIZED_PACKAGE" | "DOCUMENT_BUNDLE";
+      package: DailyOperationsPackage;
+      issues: OperationsValidationIssue[];
+      documentCount: number;
+      extraction?: DailyOperationsDocumentBundle["extraction"];
+    }
+  | {
+      status: "INVALID";
+      inputKind: "NORMALIZED_PACKAGE" | "DOCUMENT_BUNDLE" | "UNKNOWN";
       issues: OperationsValidationIssue[];
     };
 
@@ -422,6 +495,201 @@ export function validateDailyOperationsPackage(
     return { status: "INVALID", issues };
   }
   return { status: "VALID", package: operationsPackage, issues };
+}
+
+const requiredDocumentKinds = OperationsSourceDocumentKindSchema.options;
+
+function containsPiiPattern(value: string) {
+  return (
+    /[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/.test(value) ||
+    /01[016789][-\s]?\d{3,4}[-\s]?\d{4}/.test(value)
+  );
+}
+
+async function sha256Text(value: string) {
+  const digest = await globalThis.crypto.subtle.digest(
+    "SHA-256",
+    new TextEncoder().encode(value),
+  );
+  return [...new Uint8Array(digest)]
+    .map((item) => item.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+export async function normalizeDailyOperationsInput(
+  input: unknown,
+): Promise<DailyOperationsInputResult> {
+  nextIssueId = 1;
+  if (
+    input &&
+    typeof input === "object" &&
+    "schemaVersion" in input &&
+    input.schemaVersion === "daily-operations-package-v1"
+  ) {
+    const packageResult = validateDailyOperationsPackage(input);
+    return packageResult.status === "VALID"
+      ? {
+          ...packageResult,
+          inputKind: "NORMALIZED_PACKAGE",
+          documentCount: 0,
+        }
+      : { ...packageResult, inputKind: "NORMALIZED_PACKAGE" };
+  }
+
+  const bundle = DailyOperationsDocumentBundleSchema.safeParse(input);
+  if (!bundle.success) {
+    return {
+      status: "INVALID",
+      inputKind:
+        input &&
+        typeof input === "object" &&
+        "schemaVersion" in input &&
+        input.schemaVersion === "daily-operations-document-bundle-v1"
+          ? "DOCUMENT_BUNDLE"
+          : "UNKNOWN",
+      issues: bundle.error.issues.map((zodIssue) =>
+        issue({
+          severity: "ERROR",
+          code:
+            zodIssue.path.at(-1) === "dataMode"
+              ? "UNSUPPORTED_DATA_MODE"
+              : "SCHEMA_INVALID",
+          fieldPath: zodIssue.path.join(".") || "bundle",
+          message: zodIssue.message,
+        }),
+      ),
+    };
+  }
+
+  const issues: OperationsValidationIssue[] = [];
+  const add = (value: Omit<OperationsValidationIssue, "issueId">) => {
+    issues.push(issue(value));
+  };
+  const documentsByParent = new Map<
+    string,
+    DailyOperationsDocumentBundle["documents"]
+  >();
+
+  for (const document of bundle.data.documents) {
+    const current = documentsByParent.get(document.parentRecordId) ?? [];
+    current.push(document);
+    documentsByParent.set(document.parentRecordId, current);
+    if (containsPiiPattern(document.content)) {
+      add({
+        severity: "ERROR",
+        code: "PII_PATTERN_DETECTED",
+        recordId: document.parentRecordId,
+        fieldPath: `documents.${document.documentId}.content`,
+        message: `${document.documentId}에서 이메일 또는 휴대전화번호 형태가 감지되었습니다.`,
+      });
+    }
+    if (
+      !document.content.includes(document.parentRecordId) ||
+      !document.content.includes("SYNTHETIC")
+    ) {
+      add({
+        severity: "ERROR",
+        code: "DOCUMENT_REFERENCE_MISMATCH",
+        recordId: document.parentRecordId,
+        fieldPath: `documents.${document.documentId}.content`,
+        message: `${document.documentId}의 상위 레코드 또는 합성 데이터 표시가 일치하지 않습니다.`,
+      });
+    }
+    if ((await sha256Text(document.content)) !== document.sha256) {
+      add({
+        severity: "ERROR",
+        code: "DOCUMENT_HASH_MISMATCH",
+        recordId: document.parentRecordId,
+        fieldPath: `documents.${document.documentId}.sha256`,
+        message: `${document.documentId}의 내용 해시가 등록된 해시와 다릅니다.`,
+      });
+    }
+  }
+
+  const recordIds = new Set(
+    bundle.data.extractedRecords.map((record) => record.parentRecordId),
+  );
+  for (const record of bundle.data.extractedRecords) {
+    const documents = documentsByParent.get(record.parentRecordId) ?? [];
+    const kinds = new Set(documents.map((document) => document.documentKind));
+    for (const kind of requiredDocumentKinds) {
+      if (!kinds.has(kind)) {
+        add({
+          severity: "ERROR",
+          code: "DOCUMENT_MISSING",
+          recordId: record.parentRecordId,
+          fieldPath: "documents",
+          message: `${record.parentRecordId}에 ${kind} 문서가 없습니다.`,
+        });
+      }
+    }
+    if (
+      documents.length !== requiredDocumentKinds.length ||
+      kinds.size !== requiredDocumentKinds.length
+    ) {
+      add({
+        severity: "ERROR",
+        code: "DOCUMENT_REFERENCE_MISMATCH",
+        recordId: record.parentRecordId,
+        fieldPath: "documents",
+        message: `${record.parentRecordId}에는 네 종류의 문서가 각각 한 개씩 있어야 합니다.`,
+      });
+    }
+    const combined = documents.map((document) => document.content).join("\n");
+    for (const expectedReference of [
+      record.courier.courierId,
+      record.shift.shiftId,
+      record.plan.planId,
+      record.vehicle.vehicleId,
+    ]) {
+      if (!combined.includes(expectedReference)) {
+        add({
+          severity: "ERROR",
+          code: "DOCUMENT_REFERENCE_MISMATCH",
+          recordId: record.parentRecordId,
+          fieldPath: "documents",
+          message: `${record.parentRecordId} 문서에서 ${expectedReference} 참조를 확인할 수 없습니다.`,
+        });
+      }
+    }
+  }
+  for (const parentRecordId of documentsByParent.keys()) {
+    if (!recordIds.has(parentRecordId)) {
+      add({
+        severity: "ERROR",
+        code: "DOCUMENT_REFERENCE_MISMATCH",
+        recordId: parentRecordId,
+        fieldPath: "documents",
+        message: `${parentRecordId} 문서에 대응하는 추출 레코드가 없습니다.`,
+      });
+    }
+  }
+
+  const normalizedPackage = DailyOperationsPackageSchema.parse({
+    schemaVersion: "daily-operations-package-v1",
+    packageId: `${bundle.data.bundleId}-normalized`,
+    operationDate: bundle.data.operationDate,
+    evaluatedAt: bundle.data.evaluatedAt,
+    timeZone: bundle.data.timeZone,
+    dataMode: bundle.data.dataMode,
+    source: bundle.data.source,
+    records: bundle.data.extractedRecords,
+  });
+  const packageResult = validateDailyOperationsPackage(normalizedPackage);
+  if (packageResult.status === "INVALID") {
+    issues.push(...packageResult.issues);
+  }
+  if (issues.some((item) => item.severity === "ERROR")) {
+    return { status: "INVALID", inputKind: "DOCUMENT_BUNDLE", issues };
+  }
+  return {
+    status: "VALID",
+    inputKind: "DOCUMENT_BUNDLE",
+    package: normalizedPackage,
+    issues,
+    documentCount: bundle.data.documents.length,
+    extraction: bundle.data.extraction,
+  };
 }
 
 function normalizeForHash(value: unknown): unknown {

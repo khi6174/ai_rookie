@@ -47,6 +47,9 @@ for (const viewport of [
     await expect(
       page.getByRole("heading", { name: "Kakao 지도·길찾기" }),
     ).toBeVisible();
+    await expect(
+      page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
+    ).toBeVisible();
 
     const metrics = await page.evaluate(() => ({
       viewportWidth: document.documentElement.clientWidth,

@@ -80,9 +80,15 @@ const evidence = {
   service: await json("artifacts/evals/operations-service-evidence.json"),
   scale: await json("artifacts/evals/operations-scale-summary.json"),
   upstage: await json("artifacts/evals/upstage-smoke-latest.json"),
+  upstageDocuments: await json(
+    "artifacts/evals/upstage-operations-document-live-latest.json",
+  ),
   kakao: await json("artifacts/evals/kakao-directions-smoke-latest.json"),
   human: await json(
     "artifacts/evals/operations-human-review-summary.json",
+  ),
+  deployed: await json(
+    "artifacts/evals/operations-deployed-smoke-latest.json",
   ),
   hosting: await json(".openai/hosting.json"),
 };
@@ -91,6 +97,9 @@ const checks = {
   automatedCommands: commands.every((command) => command.passed),
   fullOperationsDay:
     evidence.service.status === "PASSED" &&
+    evidence.service.inputKind === "DOCUMENT_BUNDLE" &&
+    evidence.service.sourceDocumentCount === 100 &&
+    evidence.service.rawDocumentPersisted === false &&
     evidence.service.activeCourierCount === 25 &&
     evidence.service.supportDecisionCount > 1 &&
     evidence.service.initializedDecisionCount ===
@@ -114,6 +123,12 @@ const checks = {
     evidence.upstage.run.metrics.passed ===
       evidence.upstage.run.taskCount &&
     evidence.upstage.run.metrics.failed === 0,
+  upstageDocumentLive:
+    evidence.upstageDocuments.status === "LIVE_PASS" &&
+    evidence.upstageDocuments.networkRequestPerformed === true &&
+    evidence.upstageDocuments.parse?.markerCoverageComplete === true &&
+    evidence.upstageDocuments.extraction?.exactMatch === true &&
+    evidence.upstageDocuments.rawProviderResponseStored === false,
   kakaoLive:
     evidence.kakao.status === "LIVE" &&
     evidence.kakao.httpStatus === 200 &&
@@ -127,6 +142,13 @@ const checks = {
         "utf8",
       )
     ).includes("SESSION_CONFLICT"),
+  deployedService:
+    evidence.deployed.status === "LIVE_PASS" &&
+    evidence.deployed.networkRequestPerformed === true &&
+    evidence.deployed.storage === "D1" &&
+    evidence.deployed.restored === true &&
+    evidence.deployed.conflictProtected === true &&
+    evidence.deployed.actualPersonalDataCount === 0,
   roleSeparation:
     (
       await readFile(
@@ -172,12 +194,16 @@ const criteria = [
     passed:
       checks.automatedCommands &&
       checks.persistence &&
+      checks.deployedService &&
       checks.upstageLive &&
+      checks.upstageDocumentLive &&
       checks.kakaoLive,
     evidence: [
       "artifacts/evals/upstage-smoke-latest.json",
+      "artifacts/evals/upstage-operations-document-live-latest.json",
       "artifacts/evals/kakao-directions-smoke-latest.json",
       ".openai/hosting.json",
+      "artifacts/evals/operations-deployed-smoke-latest.json",
     ],
   },
   {
@@ -222,8 +248,11 @@ const manifestPaths = [
   "artifacts/evals/operations-service-evidence.json",
   "artifacts/evals/operations-scale-summary.json",
   "artifacts/evals/upstage-smoke-latest.json",
+  "artifacts/evals/upstage-operations-document-live-latest.json",
+  "output/pdf/upstage-synthetic-operations-document-fixture.pdf",
   "artifacts/evals/kakao-directions-smoke-latest.json",
   "artifacts/evals/operations-human-review-summary.json",
+  "artifacts/evals/operations-deployed-smoke-latest.json",
   "artifacts/evals/screenshots/operations-service-1440x900.png",
   "artifacts/evals/screenshots/operations-service-1280x720.png",
   "artifacts/evals/screenshots/operations-rider-390x844.png",
@@ -243,13 +272,22 @@ for (const path of manifestPaths) {
   });
 }
 const automatedPassed = Object.entries(checks)
-  .filter(([name]) => name !== "human")
+  .filter(
+    ([name]) =>
+      name !== "human" &&
+      name !== "upstageDocumentLive" &&
+      name !== "deployedService",
+  )
   .every(([, passed]) => passed);
 const status = !automatedPassed
   ? "FAILED"
-  : checks.human
-    ? "PASSED"
-    : "HUMAN_VALIDATION_REQUIRED";
+  : !checks.upstageDocumentLive
+    ? "EXTERNAL_API_VALIDATION_REQUIRED"
+    : !checks.deployedService
+      ? "DEPLOYMENT_VALIDATION_REQUIRED"
+    : checks.human
+      ? "PASSED"
+      : "HUMAN_VALIDATION_REQUIRED";
 const result = {
   schemaVersion: "service-goal-readiness-v1",
   goal: "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
@@ -260,14 +298,32 @@ const result = {
   checks,
   criteria,
   blocker:
-    status === "HUMAN_VALIDATION_REQUIRED"
+    status === "EXTERNAL_API_VALIDATION_REQUIRED"
       ? {
+          code: "UPSTAGE_DOCUMENT_PARSE_LIVE_NOT_COMPLETE",
+          currentStatus: evidence.upstageDocuments.status,
+          command: "pnpm run eval:upstage:operations-documents:live",
+          paidApiApprovalRequired: true,
+          humanReviewAlsoPending: {
+            admin: `${evidence.human.adminReviewerCount}/3`,
+            rider: `${evidence.human.riderReviewerCount}/5`,
+          },
+        }
+      : status === "DEPLOYMENT_VALIDATION_REQUIRED"
+        ? {
+            code: "PRODUCTION_D1_RUNTIME_NOT_VERIFIED",
+            currentStatus: evidence.deployed.status,
+            command: "pnpm run eval:operations:deployed:live",
+            siteUrl: evidence.deployed.siteUrl,
+          }
+      : status === "HUMAN_VALIDATION_REQUIRED"
+        ? {
           code: "INDEPENDENT_HUMAN_REVIEW_NOT_COMPLETE",
           admin: `${evidence.human.adminReviewerCount}/3`,
           rider: `${evidence.human.riderReviewerCount}/5`,
           reviewPath: "/tools/operations-service-review/",
         }
-      : undefined,
+        : undefined,
   limitations: [
     "No actual courier, customer, precise GPS, biometric, or private TMS data is processed.",
     "No actual authentication, customer message delivery, or field accident-reduction claim is included.",
@@ -301,3 +357,5 @@ console.log(
 );
 if (status === "FAILED") process.exitCode = 1;
 if (status === "HUMAN_VALIDATION_REQUIRED") process.exitCode = 2;
+if (status === "EXTERNAL_API_VALIDATION_REQUIRED") process.exitCode = 3;
+if (status === "DEPLOYMENT_VALIDATION_REQUIRED") process.exitCode = 4;

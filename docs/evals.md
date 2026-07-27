@@ -675,8 +675,9 @@ artifacts/evals/
 
 ### 21.1 운영 입력
 
-- 정상 합성 패키지 25명 전원 strict 검증 통과
+- 네 종류 합성 운영 원문 100개가 파일 해시·상위 레코드·핵심 참조 검증을 거쳐 25명 strict 패키지로 정규화
 - schema·날짜·중복 ID·참조·시간·합계·PII 오류 fixture 각각 차단
+- 원문 누락·해시 변조·상위 레코드 분리 fixture 각각 차단
 - 같은 패키지 hash에서 동일 snapshot·fleet evaluation 재현
 - 입력 한 필드 변경 시 관련 기사 결과만 승인된 방향으로 변경
 
@@ -706,7 +707,10 @@ artifacts/evals/
 
 - `artifacts/evals/operations-scale-summary.json`: 24·96·240명 전체 평가와 표본 결정 생성 시간, 불안전 추천 수
 - `artifacts/evals/upstage-smoke-latest.json`: 실제 Upstage 계정의 고정 역할별 설명 검증
+- `artifacts/evals/upstage-operations-document-live-latest.json`: 실제 Upstage Document Parse와 strict 운영 필드 추출 exact-match 검증. `CONFIGURED_NOT_RUN`은 통과가 아님
+- `output/pdf/upstage-synthetic-operations-document-fixture.pdf`: 실제 개인정보가 없는 4쪽 Live Parse 고정 입력
 - `artifacts/evals/kakao-directions-smoke-latest.json`: 실제 Kakao Mobility 합성 경로 길찾기 검증
+- `artifacts/evals/operations-deployed-smoke-latest.json`: 공개 Sites에서 D1 저장·재조회·동일 snapshot 복구·stale 쓰기 409 검증. `NOT_RUN`은 통과가 아님
 - `e2e/operations-service.spec.ts`: 관리자 → 별도 기사 화면 → 응답 저장 → 관리자 재로딩 → 승인·적용 → 내보내기 → 새로고침 복구
 - `e2e/operations-accessibility.spec.ts`, `e2e/operations-rider.spec.ts`: 지정 관리자·기사 해상도, 키보드, 레이블, 터치영역, 수평 overflow
 - 공개 검토 도구: `/tools/operations-service-review/`

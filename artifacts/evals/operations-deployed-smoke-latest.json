@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "operations-deployed-smoke-v1",
+  "capturedAt": "2026-07-27T12:00:45.400Z",
+  "status": "NOT_RUN",
+  "dataMode": "SYNTHETIC",
+  "siteUrl": "https://saferoute-ai-demo.khiyw.chatgpt.site",
+  "workspaceId": "operations-workspace-00000000-0000-4000-8000-000000000617",
+  "networkRequestPerformed": false,
+  "limitation": "Production D1 and runtime routes were not called in --check mode."
+}

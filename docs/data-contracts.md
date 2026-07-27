@@ -1584,6 +1584,43 @@ type DailyOperationsPackage = {
   records: SyntheticOperationsParentRecord[];
 };
 
+type DailyOperationsDocumentBundle = {
+  schemaVersion: "daily-operations-document-bundle-v1";
+  bundleId: string;
+  operationDate: string;
+  evaluatedAt: IsoDateTime;
+  timeZone: "Asia/Seoul";
+  dataMode: "SYNTHETIC";
+  source: "BUNDLED_SAMPLE" | "USER_UPLOADED";
+  extraction: {
+    provider: "SAFEROUTE" | "UPSTAGE";
+    mode: "DETERMINISTIC" | "LIVE" | "FALLBACK";
+    model: string;
+    completedAt: IsoDateTime;
+    validationStatus: "ACCEPTED";
+    rawDocumentStored: false;
+    rawOutputStored: false;
+  };
+  documents: OperationsSourceDocument[];
+  extractedRecords: SyntheticOperationsParentRecord[];
+};
+
+type OperationsSourceDocument = {
+  schemaVersion: "operations-source-document-v1";
+  documentId: string;
+  parentRecordId: string;
+  documentKind:
+    | "DELIVERY_WORK_SHEET"
+    | "SHIFT_ROSTER"
+    | "ROUTE_STOP_MANIFEST"
+    | "SAFETY_INCIDENT_PREVENTION_REPORT";
+  sourceFormat: "MARKDOWN";
+  mediaType: "text/markdown";
+  dataMode: "SYNTHETIC";
+  content: string;
+  sha256: string;
+};
+
 type OperationsValidationIssue = {
   issueId: string;
   severity: "ERROR" | "WARNING";
@@ -1629,6 +1666,8 @@ type DailyOperationsSnapshot = {
 - 전체·완료·남은 배송 수와 남은 중량은 배송지 목록에서 재계산한 값과 일치해야 한다.
 - 오류가 하나라도 있으면 스냅샷을 만들지 않는다. 경고는 표시하고 감사기록에 포함한다.
 - 문서 추출 결과는 이 계약을 통과하기 전까지 Safety 엔진에 전달하지 않는다.
+- 문서 번들은 기사별 네 문서 종류를 각각 정확히 하나 포함하고, 파일 SHA-256·`parentRecordId`·기사·근무·계획·차량 참조가 추출 레코드와 일치해야 한다.
+- 설명 API Live 결과는 Document Parse·Extract Live 결과를 대신하지 않는다. 두 계층은 각각 별도 상태와 증거를 가진다.
 
 ### 28.2 스냅샷 불변성
 

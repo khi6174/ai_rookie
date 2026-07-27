@@ -2,7 +2,7 @@
   "schemaVersion": "operations-service-human-review-summary-v1",
   "studyId": "operations-service-human-review-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-07-27T11:12:06.976Z",
+  "capturedAt": "2026-07-27T11:58:46.014Z",
   "status": "NOT_RUN",
   "reviewerCount": 0,
   "adminReviewerCount": 0,

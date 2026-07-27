@@ -1,10 +1,15 @@
 {
   "schemaVersion": "operations-service-evidence-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-07-27T11:38:56.783Z",
-  "packageId": "daily-operations-2026-07-25-bundled-v1",
-  "packageHash": "c19542bbff64cef2d6f938914cf36670fbfcc3e6471e03b555d572590929c66e",
-  "snapshotId": "daily-operations-2026-07-25-bundled-v1-c19542bbff64cef2",
+  "capturedAt": "2026-07-27T12:12:53.945Z",
+  "inputKind": "DOCUMENT_BUNDLE",
+  "sourceDocumentCount": 100,
+  "extractionProvider": "SAFEROUTE",
+  "extractionMode": "DETERMINISTIC",
+  "rawDocumentPersisted": false,
+  "packageId": "daily-operations-documents-2026-07-25-bundled-v1-normalized",
+  "packageHash": "e8ac8e2af3e5e8360ec6dbaf0c4067e98affc6e2e8914253dd98473e62a18a8d",
+  "snapshotId": "daily-operations-documents-2026-07-25-bundled-v1-normalized-e8ac8e2af3e5e836",
   "activeCourierCount": 25,
   "remainingStopCount": 284,
   "supportDecisionCount": 15,
@@ -18,6 +23,6 @@
   "applyStatus": "APPLIED",
   "pendingCustomerNoticeCount": 0,
   "exportDecisionCount": 1,
-  "exportSha256": "b92368cf9b7e993016b4c1794cac58cf1b8b899b3d7a61631438e5451f8dd297",
+  "exportSha256": "5d9cf3a355015be98fb34ea8f6f204c9c672a780e63fdbdcb1940f5fd4fabc7d",
   "status": "PASSED"
 }
