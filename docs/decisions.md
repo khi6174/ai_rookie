@@ -792,6 +792,15 @@
 - 기각한 대안: 항상 현재 HEAD와 최신 스크린샷 사용, 일반 빌드마다 배포 증거 덮어쓰기, 해시 불일치를 무시, 사람 결과의 화면 해시만 신뢰.
 - 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-operations-human-review-summary.mjs`, `artifacts/evals/human-review-stimuli/`, `scripts/run-service-goal-readiness.mjs`, 사람 검토 실행 절차와 테스트
 
+### ADR-082 — 공개 런타임 smoke를 사람 검토 배포 identity에 결속한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 공개 배포 smoke는 D1과 Upstage 설명뿐 아니라 공개 검토 도구의 비개발 manifest를 직접 조회해 schema·study·합성 모드·배포 커밋·역할별 화면 SHA-256·manifest SHA-256을 검증한다. 서비스 Goal readiness는 이 배포 커밋과 manifest 해시가 로컬 사람 검토 요약의 고정 대상과 동일할 때만 배포 Gate를 통과시킨다.
+- 이유: 이전 공개 배포의 D1·Upstage smoke가 성공했더라도 다른 화면·manifest에서 수집한 사람 결과와 결합되면 독립 이해도 증거가 현재 배포를 증명하지 못한다.
+- 기각한 대안: 사이트 HTTP 200만 확인, 로컬 manifest만 신뢰, 배포 smoke와 사람 결과를 서로 독립적으로 통과 처리, 공개 화면의 최신 상태를 커밋 identity 없이 추정.
+- 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `docs/evals.md`, `docs/architecture.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

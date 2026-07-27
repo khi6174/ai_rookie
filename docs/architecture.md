@@ -127,9 +127,9 @@ src/
     controller/         # 단계 전환, reset, fallback
     fixtures/           # 고정 데모 manifest
   pwa/                  # service worker 등록, 설치 상태와 최소 승인 Demo 계획 캐시
-api/                    # P0 미구현, 실제 배포 승인 후 추가
-  upstage/              # 향후 비밀정보를 브라우저에 노출하지 않는 서버 함수
-  external-data/        # 향후 허용된 외부 조회 프록시
+server/                 # Sites Worker 서버 전용 런타임
+  operations-session-store.mjs  # D1 세션 저장·복구·낙관적 동시성
+  upstage-explanation-proxy.mjs # strict 합성 결정 설명 프록시
 tests/
   fixtures/
   contract/
@@ -271,7 +271,7 @@ BASELINE_EVALUATED
 
 Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다.
 
-현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. 문서 왕복 기반은 합성 Markdown 60쌍의 strict 기대 규칙·원문 근거·비신뢰 지시·비저장 경계를 Mock 60/60으로 검증했다. 별도 `synthetic-operations-documents-v1.0.0`은 25개 구조화 상위 레코드에서 작업표·근무표·경로표·사고예방 보고서 100개를 생성하고 parent record 단위로 60/20/20 분할한다. 두 데이터셋 모두 아직 Live Parse·Extract 결과로 주장하지 않는다. K-EXAONE은 Live 12/12를 통과했다. A.X는 2026-07-21 공개 gateway의 401 안전 Fallback을 불변 보존한 뒤, 공급자 수정 후 2026-07-23 같은 exact 계약의 Live 12과업을 12/12·Fallback 0건으로 통과했다. 두 Hosted 모델은 설명 Gate 뒤의 선택적 근거 계층이며 P0 폐루프나 Safety 판정의 의존성이 아니다. Mock을 Live로 표시하지 않는다.
+현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. 문서 왕복 기반은 합성 Markdown 60쌍의 strict 기대 규칙·원문 근거·비신뢰 지시·비저장 경계를 Mock 60/60으로 검증했다. 별도 `synthetic-operations-documents-v1.0.0`은 25개 구조화 상위 레코드에서 작업표·근무표·경로표·사고예방 보고서 100개를 생성하고 parent record 단위로 60/20/20 분할한다. 2026-07-27에는 이 중 고정 합성 상위 레코드 한 건을 4쪽 PDF로 렌더링해 Upstage Document Parse `200`, 필수 표식 14/14, Solar strict 추출 exact match와 비신뢰 지시 비수용을 실제 호출로 확인했다. 원문·공급자 원응답은 증거에 저장하지 않는다. K-EXAONE은 Live 12/12를 통과했다. A.X는 2026-07-21 공개 gateway의 401 안전 Fallback을 불변 보존한 뒤, 공급자 수정 후 2026-07-23 같은 exact 계약의 Live 12과업을 12/12·Fallback 0건으로 통과했다. 두 Hosted 모델은 설명 Gate 뒤의 선택적 근거 계층이며 P0 폐루프나 Safety 판정의 의존성이 아니다. Mock을 Live로 표시하지 않는다.
 
 ### 8.3 연구인프라 활용
 
@@ -388,9 +388,9 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 - Kakao Maps 공개 Demo 도메인·쿼터·정책의 지속 운영 점검과 후속 3D 범위
 - 위치 최신성·정확도·갱신주기와 메모리 보존시간
 - 기사 PWA 실제 인증·위치 권한·푸시 알림과 서버 동기화 계약
-- MVP 감사 스냅샷의 파일·브라우저 메모리 저장 선택
-- 실제 파일럿 서버 함수의 API 경로와 배포 환경
+- 실제 파일럿 D1 보존기간·백업·삭제 운영정책
+- 공개 Sites 사용자 인증을 도입할 경우의 역할·세션 계약
 - 공급자별 국내 AI 모델명·엔드포인트·쿼터
-- Upstage timeout·retry·회로차단 수치
+- Upstage 반복 부하에서의 retry·회로차단 운영 수치
 - Near-miss GeoHash 정밀도와 검증 워크플로
 - 외부 TMS 연결 시 원자적 적용·보상 트랜잭션

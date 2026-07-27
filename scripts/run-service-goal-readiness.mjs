@@ -156,6 +156,11 @@ const checks = {
     evidence.deployed.restored === true &&
     evidence.deployed.conflictProtected === true &&
     evidence.deployed.upstageExplanationLive === true &&
+    evidence.deployed.publicReviewManifestVerified === true &&
+    evidence.deployed.deployedReleaseCommit ===
+      evidence.human.releaseCommit &&
+    evidence.deployed.reviewManifestSha256 ===
+      evidence.human.studyManifestSha256 &&
     evidence.deployed.actualPersonalDataCount === 0,
   roleSeparation:
     (

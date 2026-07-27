@@ -25,6 +25,8 @@ const workspaceId =
   "operations-workspace-00000000-0000-4000-8000-000000000617";
 const endpoint = `${siteUrl}/api/operations/sessions/${workspaceId}`;
 const explanationEndpoint = `${siteUrl}/api/upstage-explanation`;
+const reviewManifestEndpoint =
+  `${siteUrl}/tools/operations-service-review/study-manifest.json`;
 const outputDirectory = path.join(root, "artifacts", "evals");
 const outputPath = path.join(
   outputDirectory,
@@ -156,6 +158,40 @@ try {
   const explanationBody = await explanationResponse
     .json()
     .catch(() => ({}));
+  const reviewManifestResponse = await fetch(reviewManifestEndpoint, {
+    headers: { Accept: "application/json" },
+  });
+  const reviewManifestBody = await reviewManifestResponse
+    .json()
+    .catch(() => ({}));
+  const reviewManifestCore = {
+    schemaVersion: reviewManifestBody.schemaVersion,
+    studyId: reviewManifestBody.studyId,
+    dataMode: reviewManifestBody.dataMode,
+    development: reviewManifestBody.development,
+    releaseCommit: reviewManifestBody.releaseCommit,
+    stimuli: reviewManifestBody.stimuli,
+  };
+  const computedReviewManifestSha256 = createHash("sha256")
+    .update(JSON.stringify(reviewManifestCore))
+    .digest("hex");
+  const reviewManifestContentType =
+    reviewManifestResponse.headers.get("content-type") ?? "";
+  const publicReviewManifestVerified =
+    reviewManifestResponse.status === 200 &&
+    reviewManifestContentType.includes("application/json") &&
+    reviewManifestBody.schemaVersion ===
+      "operations-service-human-review-study-manifest-v1" &&
+    reviewManifestBody.studyId === "operations-service-human-review-v1" &&
+    reviewManifestBody.dataMode === "SYNTHETIC" &&
+    reviewManifestBody.development === false &&
+    /^[0-9a-f]{40}$/.test(reviewManifestBody.releaseCommit ?? "") &&
+    ["ADMIN", "RIDER"].every((role) =>
+      /^[0-9a-f]{64}$/.test(
+        reviewManifestBody.stimuli?.[role]?.sha256 ?? "",
+      ),
+    ) &&
+    reviewManifestBody.manifestSha256 === computedReviewManifestSha256;
   const restored =
     loadResponse.status === 200 &&
     loadBody.storage === "D1" &&
@@ -178,7 +214,8 @@ try {
     saveBody.storage === "D1" &&
     restored &&
     conflictProtected &&
-    upstageExplanationLive;
+    upstageExplanationLive &&
+    publicReviewManifestVerified;
   const artifact = {
     schemaVersion: "operations-deployed-smoke-v1",
     capturedAt: new Date().toISOString(),
@@ -192,10 +229,15 @@ try {
     loadStatus: loadResponse.status,
     staleWriteStatus: staleResponse.status,
     explanationStatus: explanationResponse.status,
+    reviewManifestStatus: reviewManifestResponse.status,
+    reviewManifestContentType,
     storage: saveBody.storage,
     restored,
     conflictProtected,
     upstageExplanationLive,
+    publicReviewManifestVerified,
+    deployedReleaseCommit: reviewManifestBody.releaseCommit,
+    reviewManifestSha256: reviewManifestBody.manifestSha256,
     upstageExplanationOutputSha256:
       explanationBody.output === undefined
         ? undefined
@@ -213,7 +255,7 @@ try {
   };
   await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   console.log(
-    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected} upstage=${upstageExplanationLive}`,
+    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected} upstage=${upstageExplanationLive} review=${publicReviewManifestVerified}`,
   );
   console.log(`JSON: ${outputPath}`);
   if (!passed) process.exitCode = 1;

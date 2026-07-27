@@ -712,7 +712,7 @@ artifacts/evals/
 - Document Parse Live 검증은 공식 동기식 endpoint에 `output_formats=["markdown"]`을 명시하고, PDF 표식 14/14와 Solar strict JSON exact-match를 모두 통과해야 한다. 응답 원문과 추출값은 저장하지 않고 파싱·추출 해시 및 불일치 경로만 보존한다.
 - `output/pdf/upstage-synthetic-operations-document-fixture.pdf`: 실제 개인정보가 없는 4쪽 Live Parse 고정 입력
 - `artifacts/evals/kakao-directions-smoke-latest.json`: 실제 Kakao Mobility 합성 경로 길찾기 검증
-- `artifacts/evals/operations-deployed-smoke-latest.json`: 공개 Sites에서 D1 저장·재조회·동일 snapshot 복구·stale 쓰기 409와 서버 전용 Upstage 설명 프록시 `LIVE` 응답을 함께 검증. `NOT_RUN`은 통과가 아님
+- `artifacts/evals/operations-deployed-smoke-latest.json`: 공개 Sites에서 D1 저장·재조회·동일 snapshot 복구·stale 쓰기 409, 서버 전용 Upstage 설명 프록시 `LIVE`, 공개 사람 검토 manifest의 배포 커밋·SHA-256을 함께 검증. `NOT_RUN`은 통과가 아님
 - `e2e/operations-service.spec.ts`: 관리자 → 별도 기사 화면 → 응답 저장 → 관리자 재로딩 → 승인·적용 → 내보내기 → 새로고침 복구
 - `e2e/operations-accessibility.spec.ts`, `e2e/operations-rider.spec.ts`: 지정 관리자·기사 해상도, 키보드, 레이블, 터치영역, 수평 overflow
 - 공개 검토 도구: `/tools/operations-service-review/`
