@@ -718,4 +718,5 @@ artifacts/evals/
 - 공개 검토 도구: `/tools/operations-service-review/`
 - 공개 검토 도구가 표시한 배포 커밋과 화면 SHA-256을 확인한 뒤, 관리자 3명과 기사 5명이 서로 중복되지 않는 익명 검토 코드를 사용한다.
 - 내려받은 사람 결과는 `artifacts/human-review/operations-service/`에 모아 `pnpm run eval:operations:human`으로 집계한다. 집계기는 배포 커밋·검토 manifest·역할별 화면 SHA-256 불일치, 중복 코드, 정답·합계 변조를 거부한다.
+- 비코칭 진행, 역할 간 중복 금지, 실패 결과 비선별, 재검토 규칙은 `docs/operations-service-human-review.md`를 따른다.
 - 사람 검증이 없으면 자동 테스트가 모두 통과해도 최종 Goal은 완료가 아니다.

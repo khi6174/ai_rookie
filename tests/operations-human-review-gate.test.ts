@@ -17,6 +17,7 @@ let testDirectory: string;
 let inputDirectory: string;
 let manifestPath: string;
 let outputPath: string;
+let stimulusDirectory: string;
 
 const expectedAnswers = {
   ADMIN: {
@@ -72,6 +73,20 @@ async function prepareManifest() {
       .update(JSON.stringify(core))
       .digest("hex"),
   };
+  await mkdir(stimulusDirectory, { recursive: true });
+  await Promise.all(
+    [
+      ["ADMIN", "operations-service-1440x900.png"],
+      ["RIDER", "operations-rider-390x844.png"],
+    ].map(async ([role, screenshotName]) =>
+      writeFile(
+        resolve(stimulusDirectory, `${manifest.stimuli[role].sha256}.png`),
+        await readFile(
+          resolve(root, "artifacts/evals/screenshots", screenshotName),
+        ),
+      ),
+    ),
+  );
   await writeFile(
     manifestPath,
     `${JSON.stringify(manifest, null, 2)}\n`,
@@ -142,6 +157,7 @@ function runGate() {
       `--input=${inputDirectory}`,
       `--manifest=${manifestPath}`,
       `--output=${outputPath}`,
+      `--stimulus-directory=${stimulusDirectory}`,
     ],
     { cwd: root, encoding: "utf8" },
   );
@@ -152,6 +168,7 @@ beforeEach(async () => {
   inputDirectory = resolve(testDirectory, "input");
   manifestPath = resolve(testDirectory, "manifest.json");
   outputPath = resolve(testDirectory, "summary.json");
+  stimulusDirectory = resolve(testDirectory, "stimuli");
   await mkdir(inputDirectory, { recursive: true });
 });
 

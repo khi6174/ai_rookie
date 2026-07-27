@@ -25,6 +25,10 @@ const manifestPath = resolve(
       "artifacts/evals/operations-human-review-study-manifest.json",
     ),
 );
+const stimulusDirectory = resolve(
+  argumentValue("stimulus-directory") ??
+    resolve(root, "artifacts/evals/human-review-stimuli"),
+);
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const manifestCore = {
   schemaVersion: manifest.schemaVersion,
@@ -50,12 +54,9 @@ if (
 ) {
   throw new Error("Invalid operations human review study manifest");
 }
-for (const [reviewRole, screenshotName] of [
-  ["ADMIN", "operations-service-1440x900.png"],
-  ["RIDER", "operations-rider-390x844.png"],
-]) {
+for (const reviewRole of ["ADMIN", "RIDER"]) {
   const screenshotBytes = await readFile(
-    resolve(root, "artifacts/evals/screenshots", screenshotName),
+    resolve(stimulusDirectory, `${manifest.stimuli[reviewRole].sha256}.png`),
   );
   const screenshotSha256 = createHash("sha256")
     .update(screenshotBytes)

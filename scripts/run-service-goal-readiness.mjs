@@ -242,6 +242,7 @@ const criteria = [
     evidence: [
       "artifacts/evals/operations-human-review-summary.json",
       "tools/operations-service-review/index.html",
+      "docs/operations-service-human-review.md",
     ],
   },
 ];
@@ -252,6 +253,7 @@ const manifestPaths = [
   "docs/data-contracts.md",
   "docs/architecture.md",
   "docs/evals.md",
+  "docs/operations-service-human-review.md",
   "docs/decisions.md",
   "artifacts/evals/operations-service-evidence.json",
   "artifacts/evals/operations-scale-summary.json",
@@ -262,6 +264,9 @@ const manifestPaths = [
   "artifacts/evals/operations-human-review-summary.json",
   "artifacts/evals/operations-human-review-study-manifest.json",
   "artifacts/evals/operations-deployed-smoke-latest.json",
+  ...Object.values(evidence.human.stimulusSha256 ?? {}).map(
+    (hash) => `artifacts/evals/human-review-stimuli/${hash}.png`,
+  ),
   "artifacts/evals/screenshots/operations-service-1440x900.png",
   "artifacts/evals/screenshots/operations-service-1280x720.png",
   "artifacts/evals/screenshots/operations-rider-390x844.png",

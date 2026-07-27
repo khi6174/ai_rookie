@@ -37,6 +37,10 @@ const operationsReviewManifestArtifactPath = resolve(
   root,
   "artifacts/evals/operations-human-review-study-manifest.json",
 );
+const operationsReviewStimulusEvidenceDirectory = resolve(
+  root,
+  "artifacts/evals/human-review-stimuli",
+);
 
 const hosting = JSON.parse(await readFile(hostingPath, "utf8"));
 if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
@@ -239,13 +243,30 @@ await writeFile(
   operationsReviewManifestText,
   "utf8",
 );
-await writeFile(
-  operationsReviewManifestArtifactPath,
-  operationsReviewManifestText,
-  "utf8",
-);
+if (process.env.SAFEROUTE_PERSIST_REVIEW_MANIFEST === "true") {
+  await mkdir(operationsReviewStimulusEvidenceDirectory, {
+    recursive: true,
+  });
+  await writeFile(
+    operationsReviewManifestArtifactPath,
+    operationsReviewManifestText,
+    "utf8",
+  );
+  for (const [role, screenshotName] of [
+    ["ADMIN", "operations-service-1440x900.png"],
+    ["RIDER", "operations-rider-390x844.png"],
+  ]) {
+    await copyFile(
+      resolve(root, "artifacts/evals/screenshots", screenshotName),
+      resolve(
+        operationsReviewStimulusEvidenceDirectory,
+        `${operationsReviewManifest.stimuli[role].sha256}.png`,
+      ),
+    );
+  }
+}
 await copyFile(
-  operationsReviewManifestArtifactPath,
+  resolve(operationsReviewDirectory, "study-manifest.json"),
   resolve(
     publicReviewEvidenceDirectory,
     "operations-human-review-study-manifest.json",

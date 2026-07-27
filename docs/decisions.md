@@ -783,6 +783,15 @@
 - 기각한 대안: 환경변수 키 존재만 확인, 브라우저의 버튼 표시만 확인, 설명 결과 전체 저장, D1과 Upstage 중 하나만 통과해도 배포 완료 처리.
 - 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `scripts/run-service-goal-readiness.mjs`, `docs/evals.md`
 
+### ADR-081 — 사람 검토 manifest와 화면은 배포 시점 증거로 고정한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 일반 프로덕션 빌드는 배포 패키지 안의 검토 manifest만 생성하며, 로컬 사람 검토 증거 manifest를 덮어쓰지 않는다. 실제 배포 증거를 고정할 때만 `SAFEROUTE_PERSIST_REVIEW_MANIFEST=true`를 사용하고, 역할별 화면을 SHA-256 파일명으로 별도 보존한다. 집계기는 최신 일반 스크린샷이 아니라 이 내용 주소화 파일을 검증한다.
+- 이유: 배포하지 않은 문서·증거 커밋 뒤 일반 빌드가 로컬 manifest와 스크린샷을 새 HEAD로 바꾸면, 실제 공개 배포에서 내려받은 정당한 사람 결과를 잘못 거부하거나 다른 화면을 검증할 수 있다.
+- 기각한 대안: 항상 현재 HEAD와 최신 스크린샷 사용, 일반 빌드마다 배포 증거 덮어쓰기, 해시 불일치를 무시, 사람 결과의 화면 해시만 신뢰.
+- 영향 파일: `scripts/build-sites-worker.mjs`, `scripts/run-operations-human-review-summary.mjs`, `artifacts/evals/human-review-stimuli/`, `scripts/run-service-goal-readiness.mjs`, 사람 검토 실행 절차와 테스트
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
