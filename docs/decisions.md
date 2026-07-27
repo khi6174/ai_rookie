@@ -756,6 +756,15 @@
 - 기각한 대안: notice ID만 저장, 적용 전 후보 ETA로 문구 생성, 실제 발송처럼 `SENT` 표시, 기사 ID·동의·거절 정보를 고객 문구에 포함.
 - 영향 파일: `src/application/apply-plan/index.ts`, `src/application/operations/createDecisionWorkspace.ts`, `src/application/operations/exportOperations.ts`, `src/application/operations/persistOperationsSession.ts`, 관리자 UI와 운영 증거 테스트
 
+### ADR-078 — 독립 이해도 결과는 검토한 배포 커밋과 화면 해시에 결속한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 운영 서비스 독립 검토 결과에는 배포 커밋, 검토 manifest SHA-256, 역할별 화면 SHA-256을 포함한다. 집계기는 배포용 manifest와 로컬 증거 화면을 다시 해시하고, 서로 다른 역할 사이까지 포함해 검토 코드 중복을 거부한다.
+- 이유: 질문·정답 무결성만 검사하면 이전 화면이나 다른 배포를 본 결과가 현재 릴리스 증거로 섞일 수 있고, 한 사람이 역할만 바꿔 중복 참여해도 독립 검토 인원으로 계산될 수 있다.
+- 기각한 대안: 파일명과 제출 시각만 신뢰, 역할별로만 코드 중복 검사, 개발용 manifest 결과를 사람 검증으로 인정.
+- 영향 파일: `scripts/build-sites-worker.mjs`, `tools/operations-service-review/`, `scripts/run-operations-human-review-summary.mjs`, `e2e/operations-service-review.spec.ts`, 서비스 Goal 증거 manifest
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

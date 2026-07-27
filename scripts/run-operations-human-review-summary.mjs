@@ -3,14 +3,69 @@ import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
 const root = resolve(".");
+function argumentValue(name) {
+  const prefix = `--${name}=`;
+  return process.argv
+    .slice(2)
+    .find((argument) => argument.startsWith(prefix))
+    ?.slice(prefix.length);
+}
 const inputDirectory = resolve(
-  root,
-  "artifacts/human-review/operations-service",
+  argumentValue("input") ??
+    resolve(root, "artifacts/human-review/operations-service"),
 );
 const outputPath = resolve(
-  root,
-  "artifacts/evals/operations-human-review-summary.json",
+  argumentValue("output") ??
+    resolve(root, "artifacts/evals/operations-human-review-summary.json"),
 );
+const manifestPath = resolve(
+  argumentValue("manifest") ??
+    resolve(
+      root,
+      "artifacts/evals/operations-human-review-study-manifest.json",
+    ),
+);
+const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+const manifestCore = {
+  schemaVersion: manifest.schemaVersion,
+  studyId: manifest.studyId,
+  dataMode: manifest.dataMode,
+  development: manifest.development,
+  releaseCommit: manifest.releaseCommit,
+  stimuli: manifest.stimuli,
+};
+const computedManifestSha256 = createHash("sha256")
+  .update(JSON.stringify(manifestCore))
+  .digest("hex");
+if (
+  manifest.schemaVersion !==
+    "operations-service-human-review-study-manifest-v1" ||
+  manifest.studyId !== "operations-service-human-review-v1" ||
+  manifest.dataMode !== "SYNTHETIC" ||
+  manifest.development !== false ||
+  !/^[a-f0-9]{40}$/.test(manifest.releaseCommit ?? "") ||
+  manifest.manifestSha256 !== computedManifestSha256 ||
+  !/^[a-f0-9]{64}$/.test(manifest.stimuli?.ADMIN?.sha256 ?? "") ||
+  !/^[a-f0-9]{64}$/.test(manifest.stimuli?.RIDER?.sha256 ?? "")
+) {
+  throw new Error("Invalid operations human review study manifest");
+}
+for (const [reviewRole, screenshotName] of [
+  ["ADMIN", "operations-service-1440x900.png"],
+  ["RIDER", "operations-rider-390x844.png"],
+]) {
+  const screenshotBytes = await readFile(
+    resolve(root, "artifacts/evals/screenshots", screenshotName),
+  );
+  const screenshotSha256 = createHash("sha256")
+    .update(screenshotBytes)
+    .digest("hex");
+  if (manifest.stimuli[reviewRole].sha256 !== screenshotSha256) {
+    throw new Error(
+      `Operations review stimulus does not match the manifest: ${reviewRole}`,
+    );
+  }
+}
 await mkdir(inputDirectory, { recursive: true });
 const files = (await readdir(inputDirectory)).filter((file) =>
   file.endsWith(".json"),
@@ -41,6 +96,10 @@ for (const file of files) {
     result.dataMode !== "SYNTHETIC" ||
     !["ADMIN", "RIDER"].includes(result.role) ||
     !/^[A-Za-z0-9_-]{3,24}$/.test(result.reviewerCode ?? "") ||
+    result.releaseCommit !== manifest.releaseCommit ||
+    result.studyManifestSha256 !== manifest.manifestSha256 ||
+    result.stimulusSha256 !== manifest.stimuli?.[result.role]?.sha256 ||
+    !Number.isFinite(Date.parse(result.completedAt ?? "")) ||
     !Array.isArray(result.answers) ||
     result.answers.length !==
       Object.keys(expectedAnswers[result.role] ?? {}).length ||
@@ -89,10 +148,10 @@ for (const file of files) {
   });
 }
 const uniqueReviewers = new Set(
-  results.map((result) => `${result.role}:${result.reviewerCode}`),
+  results.map((result) => result.reviewerCode),
 );
 if (uniqueReviewers.size !== results.length) {
-  throw new Error("Duplicate operations review role/reviewer codes");
+  throw new Error("Duplicate operations review reviewer codes");
 }
 const admin = results.filter((result) => result.role === "ADMIN");
 const rider = results.filter((result) => result.role === "RIDER");
@@ -113,6 +172,12 @@ const summary = {
   studyId: "operations-service-human-review-v1",
   dataMode: "SYNTHETIC",
   capturedAt: new Date().toISOString(),
+  releaseCommit: manifest.releaseCommit,
+  studyManifestSha256: manifest.manifestSha256,
+  stimulusSha256: {
+    ADMIN: manifest.stimuli.ADMIN.sha256,
+    RIDER: manifest.stimuli.RIDER.sha256,
+  },
   status:
     results.length === 0
       ? "NOT_RUN"
@@ -134,7 +199,7 @@ const summary = {
     criticalMisconceptionCount: result.criticalMisconceptionCount,
   })),
 };
-await mkdir(resolve(root, "artifacts/evals"), { recursive: true });
+await mkdir(resolve(outputPath, ".."), { recursive: true });
 await writeFile(outputPath, `${JSON.stringify(summary, null, 2)}\n`, "utf8");
 console.log(
   `Operations human review: ${summary.status} admin=${admin.length}/3 rider=${rider.length}/5 critical=${criticalMisconceptionCount}`,

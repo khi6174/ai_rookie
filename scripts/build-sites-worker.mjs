@@ -1,3 +1,5 @@
+import { createHash } from "node:crypto";
+import { execFileSync } from "node:child_process";
 import { copyFile, cp, mkdir, readFile, rm, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 
@@ -26,6 +28,14 @@ const publicReviewEvidenceDirectory = resolve(
 const publicReviewScreenshotDirectory = resolve(
   publicReviewEvidenceDirectory,
   "screenshots",
+);
+const operationsReviewDirectory = resolve(
+  publicReviewDirectory,
+  "operations-service-review",
+);
+const operationsReviewManifestArtifactPath = resolve(
+  root,
+  "artifacts/evals/operations-human-review-study-manifest.json",
 );
 
 const hosting = JSON.parse(await readFile(hostingPath, "utf8"));
@@ -130,7 +140,7 @@ await cp(
 );
 await cp(
   resolve(root, "tools/operations-service-review"),
-  resolve(publicReviewDirectory, "operations-service-review"),
+  operationsReviewDirectory,
   { recursive: true },
 );
 await mkdir(publicReviewScreenshotDirectory, { recursive: true });
@@ -157,6 +167,90 @@ for (const manifest of [
     resolve(publicReviewEvidenceDirectory, manifest),
   );
 }
+
+const releaseCommit = execFileSync(
+  "git",
+  [
+    "-c",
+    `safe.directory=${root.replaceAll("\\", "/")}`,
+    "rev-parse",
+    "HEAD",
+  ],
+  {
+    cwd: root,
+    encoding: "utf8",
+    env: {
+      ...process.env,
+      GIT_CONFIG_GLOBAL: process.platform === "win32" ? "NUL" : "/dev/null",
+    },
+  },
+).trim();
+if (!/^[a-f0-9]{40}$/.test(releaseCommit)) {
+  throw new Error("Operations review release commit is invalid");
+}
+const operationsReviewManifestCore = {
+  schemaVersion: "operations-service-human-review-study-manifest-v1",
+  studyId: "operations-service-human-review-v1",
+  dataMode: "SYNTHETIC",
+  development: false,
+  releaseCommit,
+  stimuli: {
+    ADMIN: {
+      path: "/artifacts/evals/screenshots/operations-service-1440x900.png",
+      sha256: createHash("sha256")
+        .update(
+          await readFile(
+            resolve(
+              root,
+              "artifacts/evals/screenshots/operations-service-1440x900.png",
+            ),
+          ),
+        )
+        .digest("hex"),
+    },
+    RIDER: {
+      path: "/artifacts/evals/screenshots/operations-rider-390x844.png",
+      sha256: createHash("sha256")
+        .update(
+          await readFile(
+            resolve(
+              root,
+              "artifacts/evals/screenshots/operations-rider-390x844.png",
+            ),
+          ),
+        )
+        .digest("hex"),
+    },
+  },
+};
+const operationsReviewManifest = {
+  ...operationsReviewManifestCore,
+  manifestSha256: createHash("sha256")
+    .update(JSON.stringify(operationsReviewManifestCore))
+    .digest("hex"),
+};
+const operationsReviewManifestText = `${JSON.stringify(
+  operationsReviewManifest,
+  null,
+  2,
+)}\n`;
+await writeFile(
+  resolve(operationsReviewDirectory, "study-manifest.json"),
+  operationsReviewManifestText,
+  "utf8",
+);
+await writeFile(
+  operationsReviewManifestArtifactPath,
+  operationsReviewManifestText,
+  "utf8",
+);
+await copyFile(
+  operationsReviewManifestArtifactPath,
+  resolve(
+    publicReviewEvidenceDirectory,
+    "operations-human-review-study-manifest.json",
+  ),
+);
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");

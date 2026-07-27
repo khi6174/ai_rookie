@@ -115,12 +115,14 @@ const studies = {
 };
 
 let role = "ADMIN";
+let studyManifest;
 const roleButtons = [...document.querySelectorAll("[data-role]")];
 const questionsNode = document.querySelector("#questions");
 const image = document.querySelector("#stimulus-image");
 const stimulus = document.querySelector("#stimulus");
 const title = document.querySelector("#stimulus-title");
 const status = document.querySelector("#status");
+const submitButton = document.querySelector("button[type='submit']");
 
 function render() {
   const study = studies[role];
@@ -144,7 +146,7 @@ function render() {
     });
     questionsNode.append(fieldset);
   });
-  status.textContent = "";
+  if (studyManifest) status.textContent = "";
 }
 
 roleButtons.forEach((button) =>
@@ -156,6 +158,10 @@ roleButtons.forEach((button) =>
 
 document.querySelector("#review-form").addEventListener("submit", (event) => {
   event.preventDefault();
+  if (!studyManifest) {
+    status.textContent = "검토 기준을 불러오지 못해 결과를 만들 수 없습니다.";
+    return;
+  }
   const form = new FormData(event.currentTarget);
   const study = studies[role];
   const answers = study.questions.map((question) => {
@@ -174,6 +180,9 @@ document.querySelector("#review-form").addEventListener("submit", (event) => {
     dataMode: "SYNTHETIC",
     role,
     reviewerCode: document.querySelector("#reviewer-code").value,
+    releaseCommit: studyManifest.releaseCommit,
+    studyManifestSha256: studyManifest.manifestSha256,
+    stimulusSha256: studyManifest.stimuli[role].sha256,
     completedAt: new Date().toISOString(),
     answers,
     correctCount: answers.filter((answer) => answer.correct).length,
@@ -195,3 +204,31 @@ document.querySelector("#review-form").addEventListener("submit", (event) => {
 });
 
 render();
+fetch("./study-manifest.json", { cache: "no-store" })
+  .then((response) => {
+    if (!response.ok) throw new Error("manifest request failed");
+    return response.json();
+  })
+  .then((manifest) => {
+    if (
+      manifest.schemaVersion !==
+        "operations-service-human-review-study-manifest-v1" ||
+      manifest.studyId !== "operations-service-human-review-v1" ||
+      manifest.dataMode !== "SYNTHETIC" ||
+      typeof manifest.manifestSha256 !== "string" ||
+      typeof manifest.releaseCommit !== "string" ||
+      typeof manifest.stimuli?.ADMIN?.sha256 !== "string" ||
+      typeof manifest.stimuli?.RIDER?.sha256 !== "string"
+    ) {
+      throw new Error("manifest schema invalid");
+    }
+    studyManifest = manifest;
+    submitButton.disabled = false;
+    status.textContent = manifest.development
+      ? "로컬 자동 검증용 기준을 불러왔습니다."
+      : `배포 검토 기준 ${manifest.releaseCommit.slice(0, 7)}을 불러왔습니다.`;
+  })
+  .catch(() => {
+    submitButton.disabled = true;
+    status.textContent = "검토 기준을 불러오지 못해 결과를 만들 수 없습니다.";
+  });

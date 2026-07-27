@@ -43,10 +43,13 @@ async function completeReview(
     dataMode: "SYNTHETIC",
     role,
     reviewerCode,
+    releaseCommit: "DEVELOPMENT",
     correctCount: role === "ADMIN" ? 5 : 4,
     criticalMisconceptionCount: 0,
     uploadPerformed: false,
   });
+  expect(result.studyManifestSha256).toMatch(/^[a-f0-9]{64}$/);
+  expect(result.stimulusSha256).toMatch(/^[a-f0-9]{64}$/);
   expect(result.answers).toHaveLength(role === "ADMIN" ? 5 : 4);
   expect(download.suggestedFilename()).toBe(
     `operations-service-review-${role.toLowerCase()}-${reviewerCode}.json`,

@@ -715,5 +715,6 @@ artifacts/evals/
 - `e2e/operations-service.spec.ts`: 관리자 → 별도 기사 화면 → 응답 저장 → 관리자 재로딩 → 승인·적용 → 내보내기 → 새로고침 복구
 - `e2e/operations-accessibility.spec.ts`, `e2e/operations-rider.spec.ts`: 지정 관리자·기사 해상도, 키보드, 레이블, 터치영역, 수평 overflow
 - 공개 검토 도구: `/tools/operations-service-review/`
-- 사람 결과는 `artifacts/human-review/operations-service/`에 모아 `pnpm run eval:operations:human`으로 집계한다.
+- 공개 검토 도구가 표시한 배포 커밋과 화면 SHA-256을 확인한 뒤, 관리자 3명과 기사 5명이 서로 중복되지 않는 익명 검토 코드를 사용한다.
+- 내려받은 사람 결과는 `artifacts/human-review/operations-service/`에 모아 `pnpm run eval:operations:human`으로 집계한다. 집계기는 배포 커밋·검토 manifest·역할별 화면 SHA-256 불일치, 중복 코드, 정답·합계 변조를 거부한다.
 - 사람 검증이 없으면 자동 테스트가 모두 통과해도 최종 Goal은 완료가 아니다.

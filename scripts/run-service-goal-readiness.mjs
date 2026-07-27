@@ -259,6 +259,7 @@ const manifestPaths = [
   "output/pdf/upstage-synthetic-operations-document-fixture.pdf",
   "artifacts/evals/kakao-directions-smoke-latest.json",
   "artifacts/evals/operations-human-review-summary.json",
+  "artifacts/evals/operations-human-review-study-manifest.json",
   "artifacts/evals/operations-deployed-smoke-latest.json",
   "artifacts/evals/screenshots/operations-service-1440x900.png",
   "artifacts/evals/screenshots/operations-service-1280x720.png",
