@@ -172,6 +172,28 @@ function DemoFlowSteps({ session }: { session: DemoSession }) {
   );
 }
 
+function MobileStatusBar() {
+  return (
+    <div className="mobile-status-bar" aria-hidden="true">
+      <span>10:21</span>
+      <span className="mobile-device-status">
+        <span className="mobile-signal"><i /><i /><i /><i /></span>
+        <b>5G</b>
+        <span className="mobile-battery"><i /></span>
+      </span>
+    </div>
+  );
+}
+
+function DemoDisclosure() {
+  return (
+    <details className="demo-disclosure">
+      <summary>합성 데이터 · 기사 평가 아님 <strong>자세히 ▾</strong></summary>
+      <p>결정론적 합성 fixture · 실제 개인정보나 로그인 미사용 · 지원 시급성 기준이며 기사 성과·평가가 아닙니다.</p>
+    </details>
+  );
+}
+
 function AppHeader({
   role,
   session,
@@ -221,6 +243,10 @@ function StatusPill({ session }: { session: DemoSession }) {
 function AdminNavigation() {
   return (
     <nav className="admin-nav" aria-label="관리자 주요 메뉴">
+      <div className="admin-nav-brand" aria-label="SafeRoute AI">
+        <span aria-hidden="true">SR</span>
+        <div><strong>SafeRoute AI</strong><small>운영 안전 코파일럿</small></div>
+      </div>
       <strong className="nav-title">Control<br />Tower</strong>
       <a className="nav-item is-current" href="#control-tower" aria-current="page">
         <span aria-hidden="true">01</span><span>지원 상황</span>
@@ -1268,6 +1294,9 @@ function AdminDashboard({
   session,
   explanation,
   explanationLoading,
+  role,
+  onRoleChange,
+  onReset,
   onOpenApproval,
   onGenerateExplanation,
   onFallbackExplanation,
@@ -1275,6 +1304,9 @@ function AdminDashboard({
   session: DemoSession;
   explanation: ExplanationResult | null;
   explanationLoading: boolean;
+  role: Role;
+  onRoleChange: (role: Role) => void;
+  onReset: () => void;
   onOpenApproval: () => void;
   onGenerateExplanation: () => void;
   onFallbackExplanation: () => void;
@@ -1341,12 +1373,27 @@ function AdminDashboard({
   };
 
   return (
-    <div className="admin-layout" id="control-tower">
+    <div className="admin-layout design-react-shell" id="control-tower" data-decision-status={session.decision.status}>
       <AdminNavigation />
       <main id="main-content" className="admin-main">
-        <div className="admin-context">
-          <div><p className="section-kicker">2026년 7월 14일 · Asia/Seoul</p><h1>향후 60분 안에 어떤 지원이 필요한가?</h1></div>
-          <div className="weather-summary"><span aria-hidden="true">☂</span><span><strong>강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</strong><small>Demo Fallback · 시정 {(currentWeather.visibilityMeters / 1_000).toFixed(1)} km</small></span></div>
+        <header className="admin-dashboard-header">
+          <div className="admin-context">
+            <div><p className="section-kicker">2026년 7월 14일 · Asia/Seoul</p><h1>향후 60분 안에 어떤 지원이 필요한가?</h1></div>
+            <div className="weather-summary"><span aria-hidden="true">☂</span><span><strong>강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</strong><small>Demo Fallback · 시정 {(currentWeather.visibilityMeters / 1_000).toFixed(1)} km</small></span></div>
+          </div>
+          <div className="admin-dashboard-actions">
+            <RoleSwitcher role={role} onChange={onRoleChange} />
+            <div className="header-actions">
+              <span className="mode-badge"><span aria-hidden="true">◇</span><span>{demoWeatherRuntime.displayLabel}</span></span>
+              <button type="button" className="button button-quiet button-small" onClick={onReset}>Demo 초기화</button>
+            </div>
+          </div>
+        </header>
+        <DemoFlowSteps session={session} />
+        <div className="global-announcement" aria-live="polite">
+          <StatusPill session={session} />
+          <span>{session.announcement}</span>
+          <code>{session.decision.decisionId}</code>
         </div>
         <WeatherDataBoundary />
         <div className="kpi-strip" aria-label="운영 요약">
@@ -1685,6 +1732,7 @@ function RiderLogin({
   return (
     <main id="main-content" className="rider-login-stage">
       <section className="rider-login" aria-labelledby="rider-login-title">
+        <MobileStatusBar />
         <div className="login-hero">
           <div className="login-brand"><span aria-hidden="true">SR</span><strong>SafeRoute</strong></div>
           <div className="login-route-art" aria-hidden="true"><i /><i /><i /><b /></div>
@@ -1703,6 +1751,7 @@ function RiderLogin({
           <button type="button" className="button button-primary button-block login-primary" onClick={onEnter}>데모 계정으로 시작</button>
           <button type="button" className="button button-quiet button-block login-back" onClick={onBack}>관리자 화면으로 돌아가기</button>
           <small>실제 개인정보나 로그인 정보는 사용하지 않습니다.</small>
+          <DemoDisclosure />
         </div>
       </section>
     </main>
@@ -1769,6 +1818,9 @@ function RiderView({
   session,
   courierId,
   isRecipient,
+  role,
+  onRoleChange,
+  onReset,
   onResponse,
   pwa,
   mapModel,
@@ -1776,6 +1828,9 @@ function RiderView({
   session: DemoSession;
   courierId: string;
   isRecipient: boolean;
+  role: Exclude<Role, "ADMIN">;
+  onRoleChange: (role: Role) => void;
+  onReset: () => void;
   onResponse: (response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED") => void;
   pwa: {
     online: boolean;
@@ -1805,7 +1860,18 @@ function RiderView({
 
   return (
     <main id="main-content" className="rider-stage">
-      <div className="rider-phone">
+      <div className="rider-phone design-react-shell" data-rider-tab={tab} data-applied={applied ? "true" : "false"}>
+        <MobileStatusBar />
+        <div className="rider-demo-toolbar">
+          <div className="rider-toolbar-title">
+            <span aria-hidden="true">{tab === "ROUTE" ? "SR" : tab === "SUPPORT" ? "◈" : "●"}</span>
+            <strong>{tab === "ROUTE" ? "SafeRoute AI" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong>
+          </div>
+          <div className="rider-toolbar-actions">
+            <button type="button" className="rider-reset-button" onClick={onReset}>Demo 초기화</button>
+            <RiderRoleMenu role={role} onChange={onRoleChange} />
+          </div>
+        </div>
         <div className="rider-topline">
           <span className="mode-badge"><span aria-hidden="true">◇</span> 합성 Demo 경로 · GPS 길안내 아님</span>
           <span className="stopped-badge">정차 확인</span>
@@ -1856,6 +1922,7 @@ function RiderView({
               <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
               <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
             </section>
+            <DemoDisclosure />
           </section>
         )}
 
@@ -1918,6 +1985,7 @@ function RiderView({
                 </ul>
               </details>
             </section>
+            <DemoDisclosure />
           </section>
         )}
 
@@ -1959,6 +2027,7 @@ function RiderView({
               <small>실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.</small>
             </section>
             <code className="rider-decision-code">Decision ID · {session.decision.decisionId}</code>
+            <DemoDisclosure />
           </section>
         )}
 
@@ -2119,21 +2188,14 @@ export function App({ initialSession, initialExplanation }: AppProps) {
   return (
     <>
       <a className="skip-link" href="#main-content">본문으로 건너뛰기</a>
-      {role === "ADMIN" || riderEntry[role] ? (
-        <>
-          <AppHeader role={role} session={session} onRoleChange={setRole} onReset={reset} />
-          <div className="global-announcement" aria-live="polite">
-            <StatusPill session={session} />
-            <span>{session.announcement}</span>
-            <code>{session.decision.decisionId}</code>
-          </div>
-        </>
-      ) : null}
       {role === "ADMIN" ? (
         <AdminDashboard
           session={session}
           explanation={explanation}
           explanationLoading={explanationLoading}
+          role={role}
+          onRoleChange={setRole}
+          onReset={reset}
           onOpenApproval={() => setApprovalOpen(true)}
           onGenerateExplanation={() => void requestExplanation(false)}
           onFallbackExplanation={() => void requestExplanation(true)}
@@ -2143,6 +2205,9 @@ export function App({ initialSession, initialExplanation }: AppProps) {
           session={session}
           courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
           isRecipient={role === "RECIPIENT"}
+          role={role}
+          onRoleChange={setRole}
+          onReset={reset}
           onResponse={(response) => respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
           pwa={{ ...pwaRuntime, cacheState: cachedPlanState }}
           mapModel={riderMapModel}

@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 
 const root = resolve(import.meta.dirname, "..");
 const styles = await readFile(resolve(root, "src/ui/styles.css"), "utf8");
-const index = await readFile(resolve(root, "index.html"), "utf8");
 
 const tokenValues = new Map(
   [...styles.matchAll(/(--[\w-]+):\s*(#[0-9a-f]{6})\s*;/gi)].map(
@@ -58,12 +57,8 @@ const failures = checks.flatMap(([label, foreground, background, minimum]) => {
     : [`${label}: ${ratio.toFixed(2)}:1, expected at least ${minimum}:1`];
 });
 
-if (
-  !index.includes(
-    "https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css",
-  )
-) {
-  failures.push("Pretendard Variable CDN link is missing");
+if (!/--font-sans:[^;]*Pretendard[^;]*system-ui[^;]*sans-serif/i.test(styles)) {
+  failures.push("Korean-capable local/system font fallback stack is missing");
 }
 
 if (/color:\s*var\(--color-navy-(?:950|900|800)\)/.test(styles)) {

@@ -9,7 +9,7 @@
       "height": 900,
       "role": "ADMIN",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "f6f7ac4debca4f3cc2a6579b974524f9c5a5fbc5ca48cac3211d4933b94c8198"
+      "sha256": "b86b98a6051a6efc33a83bf9d34ef553c67feb1a0af5c8b2cc825aa0c1179417"
     },
     {
       "file": "admin-applied-1280x720.png",
@@ -17,7 +17,7 @@
       "height": 720,
       "role": "ADMIN",
       "state": "NOTICE_RECORDED",
-      "sha256": "f73c2f846ea121c7e7d31abaa2dcedc36e0b77c49485d8b3a6eb68bbc64a77d9"
+      "sha256": "bfb2e3fd5c55114f4f37bb3ffa8c7bb7f5b88db2a7eacabab2cddb0f653868c2"
     },
     {
       "file": "rider-login-390x844.png",
@@ -25,7 +25,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "LOGIN",
-      "sha256": "0dcd9c49b7969979ed81719892cbfe29387b3b1af2153148443ff58388a9387e"
+      "sha256": "bd82cc8dbedb249f49e27e780958607891023712bf1784cb7496614b2bc42372"
     },
     {
       "file": "rider-source-route-current-390x844.png",
@@ -33,7 +33,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "RIDER_ROUTE",
-      "sha256": "5d381379d970ee54f6105a85feb7b7c33fec6beecb402f89a1809bf30328eef2"
+      "sha256": "3b5563a1234183a32e076b562c8893c1431e82a3f203cb2467a456aa775c49a7"
     },
     {
       "file": "rider-source-review-390x844.png",
@@ -41,7 +41,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "c435fb076ad5a2c77e4914aff2dc8ea9d2eba4a6e06798df47923c98a4d37577"
+      "sha256": "c442632b8ff765002cea497ceb375d18da4a811d8be80dc954b48adcd4928089"
     },
     {
       "file": "rider-recipient-review-360x800.png",
@@ -49,7 +49,7 @@
       "height": 800,
       "role": "RECIPIENT",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "c7c6edbfc389c4bd2f55ff30ad96f8be2c5463f3d7aea8f698e89b9493405e69"
+      "sha256": "ae3647fdddbff46bc091a8a2e45f842f2d14481ac4fb88492dc24ca85fcd6552"
     }
   ]
 }

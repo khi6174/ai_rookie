@@ -1,6 +1,6 @@
 {
   "schemaVersion": "accessibility-summary-v1",
-  "capturedAt": "2026-07-25T10:16:04.037Z",
+  "capturedAt": "2026-07-27T01:32:28.930Z",
   "dataMode": "Demo fixture",
   "browser": "Chromium 149.0.7827.55",
   "scope": [
@@ -55,7 +55,7 @@
       "horizontalOverflow": false,
       "demoModeLabelVisible": true,
       "checkedTouchTargets": 4,
-      "minimumTouchHeightPx": 52,
+      "minimumTouchHeightPx": 49,
       "requiredTouchHeightPx": 44,
       "passed": true
     },

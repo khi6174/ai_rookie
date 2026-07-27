@@ -1,15 +1,20 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-07-25T04:40:25.136Z",
+  "capturedAt": "2026-07-27T01:32:53.992Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 32,
-  "testCount": 272,
-  "passed": 272,
+  "testFileCount": 33,
+  "testCount": 275,
+  "passed": 275,
   "failed": 0,
   "pending": 0,
   "success": true,
   "files": [
+    {
+      "file": "a100-operations-documents.test.ts",
+      "status": "passed",
+      "assertionCount": 3
+    },
     {
       "file": "approved-plan-cache.test.ts",
       "status": "passed",
