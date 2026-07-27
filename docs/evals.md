@@ -668,3 +668,47 @@ artifacts/evals/
 - 사용자 평가 모집·동의·녹화 방식
 - G2 지도 SDK 후보별 성능 예산과 국내 지도·3D·라이선스 조건
 - G3 PWA 실제 인증·위치·푸시·서버 동기화 평가 환경
+
+## 21. `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS` Gate
+
+새 최종 Goal은 기존 본선 Demo Gate를 포함하고 다음 실행 증거를 추가로 요구한다.
+
+### 21.1 운영 입력
+
+- 정상 합성 패키지 25명 전원 strict 검증 통과
+- schema·날짜·중복 ID·참조·시간·합계·PII 오류 fixture 각각 차단
+- 같은 패키지 hash에서 동일 snapshot·fleet evaluation 재현
+- 입력 한 필드 변경 시 관련 기사 결과만 승인된 방향으로 변경
+
+### 21.2 다기사 평가와 복수 decision
+
+- 스냅샷의 모든 활성 기사 평가 누락 0건
+- 지원 큐의 decision·기사·계획·snapshot 참조 불일치 0건
+- 같은 기사 중복 열린 decision, 수신 기사 충돌, stale snapshot, planVersion 충돌 차단
+- 서로 충돌하지 않는 decision은 독립적으로 진행 가능
+- 위험전가·무동의·불안전 적용 0건
+
+### 21.3 서비스 복구와 내보내기
+
+- 새로고침·재접속 뒤 활성 운영일·decision·감사 상태 복구
+- 적용 결과 CSV/JSON의 계획·순서·ETA가 권위 저장 상태와 일치
+- 외부 AI·Kakao timeout·malformed·error에서도 계산·동의·승인·내보내기 가능
+- 빈 운영일, 일부 오류, 모두 안전, 복수 지원, 동시 충돌 상태 E2E
+
+### 21.4 사람과 심사 증거
+
+- 관리자 독립 검토 최소 3명, 핵심 과업 성공과 중대 오인 0건
+- 기사 독립 검토 최소 5명, 동의·수정·거절·비징벌성 중대 오인 0건
+- 창의성·혁신성·추진성·성장성·실효성·가치성 각각 서비스 실행 증거와 SHA-256 연결
+- 기존 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`은 이 Gate를 대신할 수 없음
+
+#### 실행 파일
+
+- `artifacts/evals/operations-scale-summary.json`: 24·96·240명 전체 평가와 표본 결정 생성 시간, 불안전 추천 수
+- `artifacts/evals/upstage-smoke-latest.json`: 실제 Upstage 계정의 고정 역할별 설명 검증
+- `artifacts/evals/kakao-directions-smoke-latest.json`: 실제 Kakao Mobility 합성 경로 길찾기 검증
+- `e2e/operations-service.spec.ts`: 관리자 → 별도 기사 화면 → 응답 저장 → 관리자 재로딩 → 승인·적용 → 내보내기 → 새로고침 복구
+- `e2e/operations-accessibility.spec.ts`, `e2e/operations-rider.spec.ts`: 지정 관리자·기사 해상도, 키보드, 레이블, 터치영역, 수평 overflow
+- 공개 검토 도구: `/tools/operations-service-review/`
+- 사람 결과는 `artifacts/human-review/operations-service/`에 모아 `pnpm run eval:operations:human`으로 집계한다.
+- 사람 검증이 없으면 자동 테스트가 모두 통과해도 최종 Goal은 완료가 아니다.

@@ -243,13 +243,20 @@ export function stopEventExposure(stop: DeliveryStop) {
   );
 }
 
-function weatherAt(timeline: WeatherState[], at: string) {
+function weatherAt(
+  timeline: WeatherState[],
+  at: string,
+  areaId: string,
+) {
   const target = Date.parse(at);
+  const localized = timeline.filter(
+    (weather) => weather.areaId === areaId,
+  );
   return (
-    [...timeline]
+    localized
       .sort((left, right) => Date.parse(left.observedOrForecastAt) - Date.parse(right.observedOrForecastAt))
       .filter((weather) => Date.parse(weather.observedOrForecastAt) <= target)
-      .at(-1) ?? timeline[0]
+      .at(-1) ?? localized[0]
   );
 }
 
@@ -297,12 +304,11 @@ function horizonPenalty(minutes: number) {
   );
 }
 
-export function evaluateSafetyBudget(
-  rawFixture: ScenarioFixture,
+function evaluateSafetyBudgetFromFixture(
+  fixture: ScenarioFixture,
   courierId: string,
   options: SafetyEvaluationOptions = {},
 ): SafetyBudgetSnapshot {
-  const fixture = ScenarioFixtureSchema.parse(rawFixture);
   const courier = fixture.couriers.find((item) => item.courierId === courierId);
   const workload = fixture.workloads.find((item) => item.courierId === courierId);
   if (!courier || !workload) {
@@ -427,7 +433,11 @@ export function evaluateSafetyBudget(
       const interval = Math.min(safetyModelConfig.forecast.intervalMinutes, remaining);
       const intervalStart = elapsedMinutes;
       const at = addMinutes(fixture.evaluatedAt, elapsedMinutes + interval / 2);
-      const weather = weatherAt(fixture.weatherTimeline, at);
+      const weather = weatherAt(
+        fixture.weatherTimeline,
+        at,
+        segment.areaRiskProfileId,
+      );
       const area = areaById.get(segment.areaRiskProfileId);
       if (!weather || !area) {
         throw new Error(`Missing weather or area risk for segment ${segment.segmentId}`);
@@ -569,4 +579,28 @@ export function evaluateSafetyBudget(
     assumptions,
     provenance,
   };
+}
+
+export function evaluateSafetyBudget(
+  rawFixture: ScenarioFixture,
+  courierId: string,
+  options: SafetyEvaluationOptions = {},
+): SafetyBudgetSnapshot {
+  return evaluateSafetyBudgetFromFixture(
+    ScenarioFixtureSchema.parse(rawFixture),
+    courierId,
+    options,
+  );
+}
+
+/**
+ * Evaluates a fixture that already crossed the strict ScenarioFixture schema
+ * boundary. This avoids reparsing the full fleet once per courier.
+ */
+export function evaluateValidatedSafetyBudget(
+  fixture: ScenarioFixture,
+  courierId: string,
+  options: SafetyEvaluationOptions = {},
+): SafetyBudgetSnapshot {
+  return evaluateSafetyBudgetFromFixture(fixture, courierId, options);
 }

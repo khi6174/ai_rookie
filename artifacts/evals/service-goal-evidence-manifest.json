@@ -1,0 +1,100 @@
+{
+  "schemaVersion": "service-goal-evidence-manifest-v1",
+  "capturedAt": "2026-07-27T11:39:00.052Z",
+  "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
+  "dataMode": "SYNTHETIC",
+  "credentialsStored": false,
+  "rawProviderResponsesStored": false,
+  "artifacts": [
+    {
+      "path": "docs/service-goal-2026-08-14.md",
+      "bytes": 7986,
+      "sha256": "251edcee82f1fa0a97e29e92772afaf6e0c7b4f46700241fd70e710d19e85107"
+    },
+    {
+      "path": "docs/product-spec.md",
+      "bytes": 38479,
+      "sha256": "ad6824c123972dca542e2e9c062be7ab170027b4f91a87808ac227fffceaeb50"
+    },
+    {
+      "path": "docs/data-contracts.md",
+      "bytes": 59724,
+      "sha256": "47b0033f367996dde3899dcbd19e248c4207eefa892d138f42043d1773e403c7"
+    },
+    {
+      "path": "docs/architecture.md",
+      "bytes": 30694,
+      "sha256": "a21a23a513d4d8a6fcd81c4f397f2221808047f17fdcda0fb71424a87c3d5993"
+    },
+    {
+      "path": "docs/evals.md",
+      "bytes": 68811,
+      "sha256": "d3e02fe3d2c440ed520de2481039da1d354b479423a20489a9d6b3064da8be87"
+    },
+    {
+      "path": "docs/decisions.md",
+      "bytes": 116679,
+      "sha256": "60f721710edc84610ebbba26e95664c658681015753b5e2d32117f05817e97d4"
+    },
+    {
+      "path": "artifacts/evals/operations-service-evidence.json",
+      "bytes": 844,
+      "sha256": "9278e207f6d64d365a986ded9e90656d3cc2e057624d4d1c84a0f53bd740af6f"
+    },
+    {
+      "path": "artifacts/evals/operations-scale-summary.json",
+      "bytes": 1170,
+      "sha256": "4c841c298b6bd73d5edf0aa0b4680ef86f02d8faa1d16241a43979879e006c96"
+    },
+    {
+      "path": "artifacts/evals/upstage-smoke-latest.json",
+      "bytes": 3262,
+      "sha256": "796969cf2be0075b10f6b489c2bf3ec40c49165825f9572600accdba11bffc6c"
+    },
+    {
+      "path": "artifacts/evals/kakao-directions-smoke-latest.json",
+      "bytes": 326,
+      "sha256": "d20d3f456deb4cb54c83eb3968da43f76b42fc2cd79f77098eb7101fde9f443b"
+    },
+    {
+      "path": "artifacts/evals/operations-human-review-summary.json",
+      "bytes": 427,
+      "sha256": "e1e732bc6f85fa7b62599344ec064ccdfcdc813e00e4041efc7ebfcf2d191bad"
+    },
+    {
+      "path": "artifacts/evals/screenshots/operations-service-1440x900.png",
+      "bytes": 203816,
+      "sha256": "61513209df0d4e016a4d015b3af31b229587289a780cfc380792cb98337f40d8"
+    },
+    {
+      "path": "artifacts/evals/screenshots/operations-service-1280x720.png",
+      "bytes": 198844,
+      "sha256": "5efb20ecdf87678c932ed65b7e6c4cac23549a5016398fd59f66fdd69696900e"
+    },
+    {
+      "path": "artifacts/evals/screenshots/operations-rider-390x844.png",
+      "bytes": 63604,
+      "sha256": "0c1d05a0799fa72181505d1f9c4e96f9913125a17d3a6f4b79b021b403ade332"
+    },
+    {
+      "path": "artifacts/evals/screenshots/operations-rider-360x800.png",
+      "bytes": 61892,
+      "sha256": "1f493638a845ab5f16602faf59a2d2f48151b019d62e6c9cb07d59514f832af9"
+    },
+    {
+      "path": "e2e/operations-service.spec.ts",
+      "bytes": 7218,
+      "sha256": "c7367e4b858fd3ef81e3f6cddeceaca0d0596db35d3743a43de67a8fb6aa8dec"
+    },
+    {
+      "path": "e2e/operations-accessibility.spec.ts",
+      "bytes": 3209,
+      "sha256": "4cb88494dca982decf8e877a6493167b503524a4f6abaf45e1cc46a2b9a4c99d"
+    },
+    {
+      "path": "e2e/operations-rider.spec.ts",
+      "bytes": 3026,
+      "sha256": "3f1581517ac6d0e398361566e9b6bfc3f9f2c91e6ce5f158458696f22b1c4c89"
+    }
+  ]
+}

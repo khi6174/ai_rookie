@@ -1,6 +1,7 @@
 const KAKAO_DIRECTIONS_URL =
   "https://apis-navi.kakaomobility.com/v1/directions";
 const PROFILE = "rider-demo";
+const OPERATIONS_PROFILE = "operations-demo";
 const MAX_PROVIDER_BYTES = 1_500_000;
 const MAX_PATH_POINTS = 500;
 
@@ -48,7 +49,7 @@ function isValidPoint(candidate) {
   );
 }
 
-function normalizedPath(route) {
+function normalizedPath(route, fallbackRoute) {
   const rawPoints = [];
   for (const section of route.sections ?? []) {
     for (const road of section.roads ?? []) {
@@ -62,13 +63,57 @@ function normalizedPath(route) {
     }
   }
   if (rawPoints.length < 2) {
-    return [DEMO_ROUTE.origin, DEMO_ROUTE.rest, DEMO_ROUTE.destination];
+    return [
+      fallbackRoute.origin,
+      fallbackRoute.rest,
+      fallbackRoute.destination,
+    ];
   }
   const stride = Math.max(1, Math.ceil(rawPoints.length / MAX_PATH_POINTS));
   const sampled = rawPoints.filter((_, index) => index % stride === 0);
   const last = rawPoints[rawPoints.length - 1];
   if (sampled[sampled.length - 1] !== last) sampled.push(last);
   return sampled;
+}
+
+function requestRoute(requestUrl) {
+  const profile = requestUrl.searchParams.get("profile");
+  if (profile === PROFILE) {
+    if (
+      [...requestUrl.searchParams.keys()].some((key) => key !== "profile")
+    ) {
+      return undefined;
+    }
+    return { profile, route: DEMO_ROUTE };
+  }
+  if (profile !== OPERATIONS_PROFILE) return undefined;
+  const allowedKeys = new Set([
+    "profile",
+    "source",
+    "origin",
+    "waypoint",
+    "destination",
+  ]);
+  if (
+    requestUrl.searchParams.get("source") !==
+      "deterministic-synthetic-operations" ||
+    [...requestUrl.searchParams.keys()].some((key) => !allowedKeys.has(key))
+  ) {
+    return undefined;
+  }
+  const parse = (name) => {
+    const values = requestUrl.searchParams.get(name)?.split(",") ?? [];
+    const candidate = point(values[1], values[0]);
+    return isValidPoint(candidate) ? candidate : undefined;
+  };
+  const origin = parse("origin");
+  const rest = parse("waypoint");
+  const destination = parse("destination");
+  if (!origin || !rest || !destination) return undefined;
+  return {
+    profile,
+    route: { origin, rest, destination },
+  };
 }
 
 export async function handleKakaoDirectionsRequest(
@@ -82,10 +127,8 @@ export async function handleKakaoDirectionsRequest(
 ) {
   if (request.method !== "GET") return fallback("METHOD_NOT_ALLOWED", 405);
   const requestUrl = new URL(request.url);
-  if (
-    requestUrl.searchParams.get("profile") !== PROFILE ||
-    [...requestUrl.searchParams.keys()].some((key) => key !== "profile")
-  ) {
+  const requested = requestRoute(requestUrl);
+  if (!requested) {
     return fallback("INVALID_DEMO_PROFILE", 400);
   }
   if (!enabled || !apiKey?.trim()) {
@@ -95,15 +138,15 @@ export async function handleKakaoDirectionsRequest(
   const endpoint = new URL(KAKAO_DIRECTIONS_URL);
   endpoint.searchParams.set(
     "origin",
-    `${DEMO_ROUTE.origin.longitude},${DEMO_ROUTE.origin.latitude}`,
+    `${requested.route.origin.longitude},${requested.route.origin.latitude}`,
   );
   endpoint.searchParams.set(
     "destination",
-    `${DEMO_ROUTE.destination.longitude},${DEMO_ROUTE.destination.latitude}`,
+    `${requested.route.destination.longitude},${requested.route.destination.latitude}`,
   );
   endpoint.searchParams.set(
     "waypoints",
-    `${DEMO_ROUTE.rest.longitude},${DEMO_ROUTE.rest.latitude}`,
+    `${requested.route.rest.longitude},${requested.route.rest.latitude}`,
   );
   endpoint.searchParams.set("priority", "RECOMMEND");
   endpoint.searchParams.set("summary", "false");
@@ -160,11 +203,11 @@ export async function handleKakaoDirectionsRequest(
         schemaVersion: "kakao-directions-preview-v1",
         status: "LIVE",
         provider: "KAKAO_MOBILITY",
-        profile: PROFILE,
+        profile: requested.profile,
         capturedAt: nowIso(),
         distanceMeters: summary.distance,
         durationSeconds: summary.duration,
-        path: normalizedPath(route),
+        path: normalizedPath(route, requested.route),
         isDemo: true,
         coordinateSource: "DETERMINISTIC_SYNTHETIC_FIXTURE",
         safetyEngineInputApproved: false,

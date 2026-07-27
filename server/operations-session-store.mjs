@@ -1,0 +1,210 @@
+const MAX_SESSION_BYTES = 2_000_000;
+const WORKSPACE_ID = /^operations-workspace-[a-f0-9-]{36}$/;
+const PII_PATTERN =
+  /01[016789][-\s]?\d{3,4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/;
+
+function json(body, status = 200) {
+  return new Response(JSON.stringify(body), {
+    status,
+    headers: {
+      "Content-Type": "application/json; charset=utf-8",
+      "Cache-Control": "no-store",
+    },
+  });
+}
+
+function sessionIdFromUrl(request) {
+  const path = new URL(request.url).pathname;
+  const match = path.match(/^\/api\/operations\/sessions\/([^/]+)$/);
+  if (!match) return undefined;
+  return decodeURIComponent(match[1]);
+}
+
+async function ensureSchema(database) {
+  await database.batch([
+    database
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS operations_sessions (
+          workspace_id TEXT PRIMARY KEY,
+          snapshot_id TEXT NOT NULL,
+          operation_date TEXT NOT NULL,
+          payload_json TEXT NOT NULL,
+          updated_at TEXT NOT NULL
+        )`,
+      ),
+    database
+      .prepare(
+        `CREATE INDEX IF NOT EXISTS operations_sessions_updated_at_idx
+         ON operations_sessions(updated_at)`,
+      ),
+  ]);
+}
+
+function validatePayload(workspaceId, value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    return "세션 payload는 객체여야 합니다.";
+  }
+  if (value.schemaVersion !== "operations-persisted-session-v1") {
+    return "지원하지 않는 세션 계약입니다.";
+  }
+  if (value.workspaceId !== workspaceId) {
+    return "경로와 세션 workspace ID가 다릅니다.";
+  }
+  if (value.operationsPackage?.dataMode !== "SYNTHETIC") {
+    return "합성 운영 데이터만 저장할 수 있습니다.";
+  }
+  const serialized = JSON.stringify(value);
+  if (PII_PATTERN.test(serialized)) {
+    return "이메일 또는 휴대전화번호 형태의 값은 저장할 수 없습니다.";
+  }
+  if (new TextEncoder().encode(serialized).byteLength > MAX_SESSION_BYTES) {
+    return "세션 크기가 2MB 제한을 초과했습니다.";
+  }
+  return undefined;
+}
+
+export function createMemoryOperationsSessionStore() {
+  return new Map();
+}
+
+export async function handleOperationsSessionRequest(
+  request,
+  options = {},
+) {
+  const workspaceId = sessionIdFromUrl(request);
+  if (!workspaceId) return undefined;
+  if (!WORKSPACE_ID.test(workspaceId)) {
+    return json({ error: "유효하지 않은 합성 workspace ID입니다." }, 400);
+  }
+  if (!["GET", "PUT"].includes(request.method)) {
+    return json({ error: "지원하지 않는 요청 방식입니다." }, 405);
+  }
+
+  const database = options.database;
+  const memoryStore = options.memoryStore;
+  if (!database && !memoryStore) {
+    return json(
+      {
+        error:
+          "운영 상태 저장소가 연결되지 않았습니다. 계산과 내보내기는 계속 사용할 수 있습니다.",
+      },
+      503,
+    );
+  }
+
+  if (request.method === "GET") {
+    if (database) {
+      await ensureSchema(database);
+      const row = await database
+        .prepare(
+          `SELECT payload_json, updated_at
+           FROM operations_sessions
+           WHERE workspace_id = ?1`,
+        )
+        .bind(workspaceId)
+        .first();
+      if (!row) return json({ error: "저장된 운영 세션이 없습니다." }, 404);
+      return json({
+        session: JSON.parse(row.payload_json),
+        updatedAt: row.updated_at,
+        storage: "D1",
+      });
+    }
+    const session = memoryStore.get(workspaceId);
+    if (!session) return json({ error: "저장된 운영 세션이 없습니다." }, 404);
+    return json({
+      session,
+      updatedAt: session.savedAt,
+      storage: "MEMORY_DEV",
+    });
+  }
+
+  let payload;
+  try {
+    payload = await request.json();
+  } catch {
+    return json({ error: "JSON 세션을 읽지 못했습니다." }, 400);
+  }
+  const validationError = validatePayload(workspaceId, payload);
+  if (validationError) return json({ error: validationError }, 400);
+
+  const serialized = JSON.stringify(payload);
+  if (database) {
+    await ensureSchema(database);
+    const existing = await database
+      .prepare(
+        `SELECT updated_at
+         FROM operations_sessions
+         WHERE workspace_id = ?1`,
+      )
+      .bind(workspaceId)
+      .first();
+    const expectedSavedAt = request.headers.get(
+      "x-saferoute-base-saved-at",
+    );
+    if (
+      (existing && expectedSavedAt !== existing.updated_at) ||
+      (!existing && expectedSavedAt)
+    ) {
+      return json(
+        {
+          error:
+            "다른 화면에서 운영 상태가 갱신되었습니다. 최신 상태를 다시 불러오세요.",
+          code: "SESSION_CONFLICT",
+          updatedAt: existing?.updated_at,
+        },
+        409,
+      );
+    }
+    await database
+      .prepare(
+        `INSERT INTO operations_sessions (
+          workspace_id,
+          snapshot_id,
+          operation_date,
+          payload_json,
+          updated_at
+        ) VALUES (?1, ?2, ?3, ?4, ?5)
+        ON CONFLICT(workspace_id) DO UPDATE SET
+          snapshot_id = excluded.snapshot_id,
+          operation_date = excluded.operation_date,
+          payload_json = excluded.payload_json,
+          updated_at = excluded.updated_at`,
+      )
+      .bind(
+        workspaceId,
+        payload.snapshotIdentity.snapshotId,
+        payload.operationsPackage.operationDate,
+        serialized,
+        payload.savedAt,
+      )
+      .run();
+  } else {
+    const existing = memoryStore.get(workspaceId);
+    const expectedSavedAt = request.headers.get(
+      "x-saferoute-base-saved-at",
+    );
+    if (
+      (existing && expectedSavedAt !== existing.savedAt) ||
+      (!existing && expectedSavedAt)
+    ) {
+      return json(
+        {
+          error:
+            "다른 화면에서 운영 상태가 갱신되었습니다. 최신 상태를 다시 불러오세요.",
+          code: "SESSION_CONFLICT",
+          updatedAt: existing?.savedAt,
+        },
+        409,
+      );
+    }
+    memoryStore.set(workspaceId, payload);
+  }
+  return json({
+    saved: true,
+    workspaceId,
+    snapshotId: payload.snapshotIdentity.snapshotId,
+    updatedAt: payload.savedAt,
+    storage: database ? "D1" : "MEMORY_DEV",
+  });
+}

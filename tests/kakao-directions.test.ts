@@ -155,6 +155,34 @@ describe("Kakao Mobility directions server boundary", () => {
       safetyEngineInputApproved: false,
     });
   });
+
+  it("accepts only explicitly marked deterministic operations coordinates", async () => {
+    let requestedUrl = "";
+    const response = await handleKakaoDirectionsRequest(
+      new Request(
+        "https://demo.example/api/kakao-directions?profile=operations-demo&source=deterministic-synthetic-operations&origin=127.01%2C37.59&waypoint=127.02%2C37.60&destination=127.03%2C37.61",
+      ),
+      {
+        apiKey: secret,
+        fetchImplementation: async (input) => {
+          requestedUrl = String(input);
+          return new Response(JSON.stringify(providerResponse), {
+            status: 200,
+          });
+        },
+      },
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({
+      profile: "operations-demo",
+      coordinateSource: "DETERMINISTIC_SYNTHETIC_FIXTURE",
+      safetyEngineInputApproved: false,
+    });
+    const requested = new URL(requestedUrl);
+    expect(requested.searchParams.get("origin")).toBe("127.01,37.59");
+    expect(requested.searchParams.get("waypoints")).toBe("127.02,37.6");
+    expect(requested.searchParams.get("destination")).toBe("127.03,37.61");
+  });
 });
 
 describe("Kakao directions browser contract", () => {
@@ -211,5 +239,36 @@ describe("Kakao directions browser contract", () => {
     expect(decodeURIComponent(url)).toContain("합성 현재 위치");
     expect(decodeURIComponent(url)).toContain("합성 휴식 지점");
     expect(decodeURIComponent(url)).toContain("합성 17번째 배송지");
+  });
+
+  it("serializes the selected operations route as a same-origin request", async () => {
+    const model: RiderCompactMapModel = {
+      decisionId: "operations-map-demo-courier-003",
+      current: { latitude: 37.59, longitude: 127.01 },
+      rest: { latitude: 37.6, longitude: 127.02 },
+      next: { latitude: 37.61, longitude: 127.03 },
+      path: [],
+    };
+    let requested = "";
+    await fetchKakaoDirectionsPreview({
+      model,
+      fetchImplementation: async (input) => {
+        requested = String(input);
+        return new Response(
+          JSON.stringify({
+            ...livePreview,
+            profile: "operations-demo",
+          }),
+          { status: 200 },
+        );
+      },
+    });
+    const query = new URL(requested, "https://demo.example");
+    expect(query.pathname).toBe("/api/kakao-directions");
+    expect(query.searchParams.get("profile")).toBe("operations-demo");
+    expect(query.searchParams.get("source")).toBe(
+      "deterministic-synthetic-operations",
+    );
+    expect(query.searchParams.get("origin")).toBe("127.01,37.59");
   });
 });

@@ -1,0 +1,23 @@
+{
+  "schemaVersion": "operations-service-evidence-v1",
+  "dataMode": "SYNTHETIC",
+  "capturedAt": "2026-07-27T11:38:56.783Z",
+  "packageId": "daily-operations-2026-07-25-bundled-v1",
+  "packageHash": "c19542bbff64cef2d6f938914cf36670fbfcc3e6471e03b555d572590929c66e",
+  "snapshotId": "daily-operations-2026-07-25-bundled-v1-c19542bbff64cef2",
+  "activeCourierCount": 25,
+  "remainingStopCount": 284,
+  "supportDecisionCount": 15,
+  "monitorCount": 9,
+  "stableCount": 1,
+  "initializedDecisionCount": 15,
+  "unsafeRecommendedCount": 0,
+  "conflictCount": 105,
+  "completedDecisionStatus": "NOTICE_RECORDED",
+  "recordedCustomerNoticeCount": 1,
+  "applyStatus": "APPLIED",
+  "pendingCustomerNoticeCount": 0,
+  "exportDecisionCount": 1,
+  "exportSha256": "b92368cf9b7e993016b4c1794cac58cf1b8b899b3d7a61631438e5451f8dd297",
+  "status": "PASSED"
+}

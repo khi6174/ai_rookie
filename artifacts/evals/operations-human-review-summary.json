@@ -1,0 +1,17 @@
+{
+  "schemaVersion": "operations-service-human-review-summary-v1",
+  "studyId": "operations-service-human-review-v1",
+  "dataMode": "SYNTHETIC",
+  "capturedAt": "2026-07-27T11:12:06.976Z",
+  "status": "NOT_RUN",
+  "reviewerCount": 0,
+  "adminReviewerCount": 0,
+  "riderReviewerCount": 0,
+  "fullyCorrectReviewerCount": 0,
+  "criticalMisconceptionCount": 0,
+  "required": {
+    "admin": 3,
+    "rider": 5
+  },
+  "results": []
+}

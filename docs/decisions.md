@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-27
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -709,6 +709,25 @@
 - 경계: frozen 재실행·v1.5 튜닝·후처리 승격을 하지 않는다. 실제 운영문서 성능, 모델 학습 완료, 현장 안전효과를 주장하지 않는다. 후속 SFT·LoRA는 SKT 멘토의 structured-output·데이터 규모·라이선스 권고 후 새 계획과 새 split으로만 진행한다.
 - 기각한 대안: 지시를 따르지 않았다는 이유만으로 injection PASS 처리, 전체 85%만 보고 적격 승격, frozen 결과로 prompt 수정, 실패 3건 제외 후 17/17 주장.
 - 영향 파일: `artifacts/evals/local-model-runs/operations-documents-frozen-v1.4.0-run1/`, `artifacts/evals/local-model-runs/operations-documents-comparison.json`, `scripts/summarize-local-model-operations-documents.py`, `docs/a100-operations-document-mentor-brief.md`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`
+
+### ADR-073 — 최종 Goal을 합성 운영 유료 파일럿 준비 서비스로 상향한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 2026-08-14 최종 Goal을 `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS`로 상향한다. 기존 단일 Demo 폐루프는 회귀 기준으로 보존하지만 최종 완료로 계산하지 않는다. 표준 합성 운영 패키지에서 불변 일일 스냅샷을 만들고 모든 활성 기사를 평가해 복수 지원 decision을 생성하며, 각 decision은 Risk Transfer Guard·영향 기사 동의·관리자 승인·최신 재검증·원자적 계획 적용·고객안내 초안·감사·내보내기까지 완결해야 한다.
+- 이유: 전국대회 최종 발표에서 고정 fixture 재생만으로는 실효성·추진성·성장성을 충분히 입증할 수 없다. 실제 확보할 수 없는 개인정보·TMS 계약을 꾸며내지 않으면서도, 합성 입력이 실제 서비스 경계를 통과해 결과를 만드는 운영 제품이 필요하다.
+- 경계: Safety 공식·Risk Transfer Guard·기사 동의·거절·이의제기 권리를 약화하지 않는다. 실제 개인정보·정밀 GPS·실제 알림 발송·비공개 TMS 쓰기·사고감소 효과는 포함하지 않는다. AI는 문서·설명 계층만 소유하고 모든 수치·추천·실행 가능성은 결정론적 코드가 소유한다. 원문 파일의 외부 저장, 실제 인증과 권한, 새 유료 API·secret은 기존 재승인 규칙을 유지한다.
+- 기각한 대안: 디자인 Demo만 완성하는 방식, 날짜별 난수로 대시보드 값을 바꾸는 방식, 모든 외부 연동을 기다린 뒤 시작하는 방식, LLM이 다기사 우선순위나 Safety 결과를 생성하는 방식.
+- 영향 파일: `docs/service-goal-2026-08-14.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/evals.md`, 운영 패키지·스냅샷·fleet evaluation·decision workspace 구현과 테스트
+
+### ADR-074 — 기사 응답을 관리자 화면에서 분리하고 운영 세션에 낙관적 동시성 검사를 적용한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 관리자는 기사 대신 응답하지 않는다. 합성 운영 서비스는 동일 decision ID를 여는 별도 기사 화면을 제공하고, 기사·관리자 탭의 저장 기준시각이 다르면 stale 저장을 `409 SESSION_CONFLICT`로 차단한다.
+- 이유: 한 화면의 버튼만으로 기사 권리를 재현하면 역할 분리와 실제 서비스 가능성을 입증할 수 없고, D1의 last-write-wins는 기사 응답을 오래된 관리자 상태로 덮을 수 있다.
+- 기각한 대안: 관리자의 대리 응답, 충돌 없는 마지막 저장 우선, 현재 승인 범위 밖의 실제 인증 즉시 도입.
+- 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/OperationsRiderService.tsx`, `src/application/operations/persistOperationsSession.ts`, `server/operations-session-store.mjs`, 운영 E2E와 사람 검토 도구
 
 ## 4. 심사기준 연결
 

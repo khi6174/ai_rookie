@@ -48,3 +48,4 @@ export function createUpstageMockProvider(
 }
 
 export * from "./demoDocument";
+export * from "./proxy";

@@ -1,10 +1,26 @@
-import { StrictMode } from "react";
+import { lazy, StrictMode, Suspense } from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./ui/App";
-import { RedesignPreview } from "./ui/RedesignPreview";
 import { registerSafeRouteServiceWorker } from "./pwa/registerServiceWorker";
 import "./ui/styles.css";
 import "./ui/redesign.css";
+import "./ui/operations.css";
+
+const OperationsService = lazy(() =>
+  import("./ui/OperationsService").then((module) => ({
+    default: module.OperationsService,
+  })),
+);
+const OperationsRiderService = lazy(() =>
+  import("./ui/OperationsRiderService").then((module) => ({
+    default: module.OperationsRiderService,
+  })),
+);
+const RedesignPreview = lazy(() =>
+  import("./ui/RedesignPreview").then((module) => ({
+    default: module.RedesignPreview,
+  })),
+);
 
 const root = document.getElementById("root");
 
@@ -14,11 +30,23 @@ if (!root) {
 
 createRoot(root).render(
   <StrictMode>
-    {window.location.pathname.startsWith("/design-preview") ? (
-      <RedesignPreview />
-    ) : (
-      <App />
-    )}
+    <Suspense
+      fallback={
+        <main className="app-loading" role="status" aria-live="polite">
+          SafeRoute 화면을 불러오는 중입니다.
+        </main>
+      }
+    >
+      {window.location.pathname.startsWith("/operations/rider") ? (
+        <OperationsRiderService />
+      ) : window.location.pathname.startsWith("/operations") ? (
+        <OperationsService />
+      ) : window.location.pathname.startsWith("/design-preview") ? (
+        <RedesignPreview />
+      ) : (
+        <App />
+      )}
+    </Suspense>
   </StrictMode>,
 );
 

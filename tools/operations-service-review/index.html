@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>SafeRoute 합성 운영 서비스 독립 검토</title>
+    <style>
+      :root { font-family: Pretendard, system-ui, sans-serif; color: #101828; background: #f4f7fc; }
+      * { box-sizing: border-box; }
+      body { margin: 0; }
+      main { width: min(1100px, calc(100% - 32px)); margin: 32px auto 80px; }
+      header, section { margin-bottom: 18px; padding: 24px; border: 1px solid #d7deef; border-radius: 16px; background: #fff; }
+      h1, h2, p { margin-top: 0; }
+      .boundary { padding: 12px 14px; border-radius: 10px; color: #92400e; background: #fff4e2; }
+      .role { display: flex; flex-wrap: wrap; gap: 10px; }
+      button, select, input { min-height: 44px; padding: 10px 14px; border: 1px solid #c7d7fe; border-radius: 10px; background: #fff; font: inherit; }
+      button[aria-pressed="true"], button.primary { color: #fff; background: #2563eb; }
+      .stimulus { max-height: 660px; overflow: auto; border: 1px solid #d7deef; border-radius: 12px; background: #eef4ff; }
+      .stimulus img { display: block; width: 100%; height: auto; }
+      .stimulus.rider img { width: min(390px, 100%); margin: 0 auto; }
+      fieldset { display: grid; gap: 10px; margin: 18px 0; padding: 18px; border: 1px solid #d7deef; border-radius: 12px; }
+      legend { padding: 0 6px; font-weight: 750; }
+      label { display: flex; gap: 10px; align-items: flex-start; line-height: 1.45; }
+      label input { min-height: auto; margin-top: 3px; }
+      .hidden { display: none; }
+      #status { min-height: 24px; color: #087334; font-weight: 700; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <header>
+        <p>SafeRoute AI · 2026-08-14 서비스 Gate</p>
+        <h1>합성 운영 서비스 독립 이해도 검토</h1>
+        <p class="boundary">실제 기사·고객·GPS 데이터와 사고감소 효과를 평가하는 조사가 아닙니다. 합성 화면의 의미와 권리 경계를 이해하는지만 확인합니다.</p>
+      </header>
+      <section>
+        <h2>검토 역할</h2>
+        <div class="role">
+          <button type="button" data-role="ADMIN" aria-pressed="true">관리자 검토</button>
+          <button type="button" data-role="RIDER" aria-pressed="false">기사 검토</button>
+        </div>
+      </section>
+      <section>
+        <h2 id="stimulus-title">관리자 운영 화면</h2>
+        <p>화면을 충분히 살펴본 뒤 아래 문항에 답해 주세요.</p>
+        <div id="stimulus" class="stimulus">
+          <img id="stimulus-image" src="../../artifacts/evals/screenshots/operations-service-1440x900.png" alt="SafeRoute 합성 운영 관리자 화면 전체" />
+        </div>
+      </section>
+      <form id="review-form">
+        <section>
+          <label>익명 검토 코드 <input id="reviewer-code" required maxlength="24" pattern="[A-Za-z0-9_-]{3,24}" placeholder="예: admin-01" /></label>
+          <div id="questions"></div>
+          <button class="primary" type="submit">검토 결과 JSON 내려받기</button>
+          <p id="status" role="status"></p>
+        </section>
+      </form>
+    </main>
+    <script src="./app.js?study=operations-service-review-v1"></script>
+  </body>
+</html>

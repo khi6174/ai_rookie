@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-20
+- 최종 갱신: 2026-07-27
 - 계약 버전: `contracts-v1.4.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
@@ -1567,3 +1567,88 @@ type CachedApprovedDemoPlan = {
 - 오프라인 기사 응답의 서버 동기화·충돌 해결 규칙. G3-B는 오프라인 응답을 저장하지 않는다.
 
 위 미결 필드명과 enum은 별도 Approved 결정이 기록되기 전까지 구현의 확정 계약이 아니다.
+
+## 28. DailyOperationsPackage와 DailyOperationsSnapshot
+
+2026-08-14 합성 운영 서비스는 문서 파일 자체와 Safety 엔진 입력을 직접 연결하지 않는다. 등록된 문서는 먼저 strict 입력 패키지로 정규화하고, 교차 참조 검증을 통과한 경우에만 불변 스냅샷으로 승격한다.
+
+```ts
+type DailyOperationsPackage = {
+  schemaVersion: "daily-operations-package-v1";
+  packageId: string;
+  operationDate: string;
+  evaluatedAt: IsoDateTime;
+  timeZone: "Asia/Seoul";
+  dataMode: "SYNTHETIC";
+  source: "BUNDLED_SAMPLE" | "USER_UPLOADED";
+  records: SyntheticOperationsParentRecord[];
+};
+
+type OperationsValidationIssue = {
+  issueId: string;
+  severity: "ERROR" | "WARNING";
+  code:
+    | "SCHEMA_INVALID"
+    | "DATE_MISMATCH"
+    | "DUPLICATE_ID"
+    | "MISSING_REFERENCE"
+    | "TIME_ORDER_INVALID"
+    | "COUNT_MISMATCH"
+    | "LOAD_MISMATCH"
+    | "UNSUPPORTED_DATA_MODE";
+  recordId?: string;
+  fieldPath?: string;
+  message: string;
+};
+
+type DailyOperationsSnapshot = {
+  schemaVersion: "daily-operations-snapshot-v1";
+  snapshotId: string;
+  snapshotVersion: string;
+  packageId: string;
+  packageHash: string;
+  operationDate: string;
+  evaluatedAt: IsoDateTime;
+  timeZone: "Asia/Seoul";
+  dataMode: "SYNTHETIC";
+  status: "ACTIVE" | "SUPERSEDED";
+  courierIds: CourierId[];
+  planIds: PlanId[];
+  fixture: ScenarioFixture;
+  createdAt: IsoDateTime;
+  provenance: Provenance[];
+};
+```
+
+### 28.1 패키지 검증
+
+- 패키지는 strict schema이며 `SYNTHETIC`만 허용한다.
+- `operationDate`는 모든 record의 근무·계획 기준일과 일치해야 한다.
+- `parentRecordId`, 기사·근무·계획·차량·배송지 ID는 패키지 안에서 중복될 수 없다.
+- 근무 시작 ≤ 평가시각 < 예정 종료이고, 모든 남은 배송 ETA는 평가시각 이후여야 한다.
+- 전체·완료·남은 배송 수와 남은 중량은 배송지 목록에서 재계산한 값과 일치해야 한다.
+- 오류가 하나라도 있으면 스냅샷을 만들지 않는다. 경고는 표시하고 감사기록에 포함한다.
+- 문서 추출 결과는 이 계약을 통과하기 전까지 Safety 엔진에 전달하지 않는다.
+
+### 28.2 스냅샷 불변성
+
+- `packageHash`는 정규화된 전체 패키지에서 계산한 SHA-256이다.
+- 같은 package hash·설정 버전·평가시각은 같은 fixture와 Safety 결과를 만든다.
+- 새 업로드는 기존 스냅샷을 수정하지 않고 새 `snapshotVersion`을 만든다.
+- decision은 생성 당시 `snapshotId`, `snapshotVersion`, `planVersion`을 보존한다.
+- 적용 직전 활성 스냅샷 또는 계획 버전이 달라지면 `REVALIDATION_REQUIRED`로 전환한다.
+
+### 28.3 개인정보와 저장
+
+- 합성 ID·거친 구역·합성 좌표만 허용한다.
+- 이름·전화번호·이메일·전체 주소·정밀 GPS·생체정보 필드를 거부한다.
+- 원문 파일 저장은 별도 R2·보존 승인이 있기 전까지 수행하지 않는다.
+- 서비스 저장소에는 정규화 패키지, 스냅샷, 결정 상태, 감사 이벤트와 내보내기 메타데이터만 둔다.
+
+### 28.4 운영 세션과 동시성
+
+- `OperationsPersistedSession`은 원본 합성 패키지, 스냅샷 해시·버전, 지원 큐, 결정 상태, 현재 적용 계획과 감사 이벤트를 저장한다.
+- 원본 스냅샷 평가는 패키지와 해시로 재생성하고 중복 저장하지 않는다.
+- 브라우저에는 무작위 합성 `workspaceId`만 보존하며 운영 상태는 Sites D1 또는 개발 메모리 어댑터가 보존한다.
+- PUT은 `X-SafeRoute-Base-Saved-At`를 사용한다. 저장된 `updated_at`과 다르면 `409 SESSION_CONFLICT`로 거부하고 최신 상태 재로딩을 요구한다.
+- 기사 응답과 관리자 승인은 같은 세션·decision ID를 사용하며 stale 화면의 last-write-wins 덮어쓰기를 허용하지 않는다.

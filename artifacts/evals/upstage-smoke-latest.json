@@ -1,9 +1,9 @@
 {
   "status": "COMPLETED",
   "run": {
-    "runId": "upstage-smoke-20260716075628",
-    "startedAt": "2026-07-16T07:56:28.087Z",
-    "finishedAt": "2026-07-16T07:56:45.316Z",
+    "runId": "upstage-smoke-20260727105343",
+    "startedAt": "2026-07-27T10:53:43.105Z",
+    "finishedAt": "2026-07-27T10:54:01.134Z",
     "providerMode": "LIVE",
     "model": "solar-pro3",
     "promptVersion": "explanation-ko-v1.1.0",
@@ -14,7 +14,7 @@
         "role": "ADMIN",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1615,
+        "latencyMs": 2052,
         "citedFactCount": 4,
         "citationCount": 1
       },
@@ -23,7 +23,7 @@
         "role": "COURIER",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1749,
+        "latencyMs": 1850,
         "citedFactCount": 4,
         "citationCount": 1
       },
@@ -32,7 +32,7 @@
         "role": "COURIER",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1559,
+        "latencyMs": 1949,
         "citedFactCount": 4,
         "citationCount": 1
       },
@@ -41,7 +41,7 @@
         "role": "CUSTOMER",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1225,
+        "latencyMs": 1560,
         "citedFactCount": 2,
         "citationCount": 0
       },
@@ -50,26 +50,25 @@
         "role": "REPORT",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1321,
+        "latencyMs": 1287,
         "citedFactCount": 3,
         "citationCount": 1
       },
       {
         "taskId": "upstage-smoke-admin-blocked-006",
         "role": "ADMIN",
-        "status": "FALLBACK",
-        "passed": false,
-        "latencyMs": 1452,
+        "status": "LIVE",
+        "passed": true,
+        "latencyMs": 1339,
         "citedFactCount": 3,
-        "citationCount": 1,
-        "fallbackCode": "MALFORMED_RESPONSE"
+        "citationCount": 1
       },
       {
         "taskId": "upstage-smoke-courier-confidence-007",
         "role": "COURIER",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1244,
+        "latencyMs": 1234,
         "citedFactCount": 2,
         "citationCount": 0
       },
@@ -78,7 +77,7 @@
         "role": "ADMIN",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1680,
+        "latencyMs": 1682,
         "citedFactCount": 3,
         "citationCount": 1
       },
@@ -87,7 +86,7 @@
         "role": "ADMIN",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1188,
+        "latencyMs": 1290,
         "citedFactCount": 2,
         "citationCount": 1
       },
@@ -96,7 +95,7 @@
         "role": "CUSTOMER",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1116,
+        "latencyMs": 1034,
         "citedFactCount": 1,
         "citationCount": 0
       },
@@ -105,7 +104,7 @@
         "role": "ADMIN",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1577,
+        "latencyMs": 1596,
         "citedFactCount": 2,
         "citationCount": 1
       },
@@ -114,20 +113,18 @@
         "role": "REPORT",
         "status": "LIVE",
         "passed": true,
-        "latencyMs": 1500,
+        "latencyMs": 1153,
         "citedFactCount": 2,
         "citationCount": 1
       }
     ],
     "metrics": {
-      "passed": 11,
-      "failed": 1,
-      "fallback": 1,
-      "averageLatencyMs": 1436,
-      "p95LatencyMs": 1749,
-      "fallbackCodes": {
-        "MALFORMED_RESPONSE": 1
-      }
+      "passed": 12,
+      "failed": 0,
+      "fallback": 0,
+      "averageLatencyMs": 1502,
+      "p95LatencyMs": 2052,
+      "fallbackCodes": {}
     }
   }
 }

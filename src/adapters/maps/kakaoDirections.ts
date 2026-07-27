@@ -10,7 +10,7 @@ export const KakaoDirectionsPreviewSchema = z.object({
   schemaVersion: z.literal("kakao-directions-preview-v1"),
   status: z.literal("LIVE"),
   provider: z.literal("KAKAO_MOBILITY"),
-  profile: z.literal("rider-demo"),
+  profile: z.enum(["rider-demo", "operations-demo"]),
   capturedAt: z.string().datetime({ offset: true }),
   distanceMeters: z.number().int().positive().max(1_500_000),
   durationSeconds: z.number().int().positive().max(172_800),
@@ -55,14 +55,27 @@ const FallbackEnvelopeSchema = z.object({
 export async function fetchKakaoDirectionsPreview({
   fetchImplementation = fetch,
   signal,
+  model,
 }: {
   fetchImplementation?: typeof fetch;
   signal?: AbortSignal;
+  model?: RiderCompactMapModel;
 } = {}) {
   let response: Response;
   try {
+    const query = new URLSearchParams(
+      model
+        ? {
+            profile: "operations-demo",
+            source: "deterministic-synthetic-operations",
+            origin: `${model.current.longitude},${model.current.latitude}`,
+            waypoint: `${model.rest.longitude},${model.rest.latitude}`,
+            destination: `${model.next.longitude},${model.next.latitude}`,
+          }
+        : { profile: "rider-demo" },
+    );
     response = await fetchImplementation(
-      "/api/kakao-directions?profile=rider-demo",
+      `/api/kakao-directions?${query.toString()}`,
       {
         method: "GET",
         headers: { Accept: "application/json" },

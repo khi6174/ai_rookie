@@ -4,7 +4,7 @@ import {
   type MapSelection,
   type MultiRegionMapFixture,
 } from "../../domain/contracts";
-import { summarizeMultiRegionMapFixture } from "../fixtures";
+import { summarizeMultiRegionMapFixture } from "../fixtures/multiRegionMapFixture";
 
 export {
   createDecisionSpatialScene,

@@ -2388,6 +2388,7 @@ const ScenarioFixtureBaseSchema = z
       "RAINY_HILLY_LONG_SHIFT",
       "HEAT_HEAVY_STAIRS",
       "NOVICE_NIGHT_UNFAMILIAR",
+      "DAILY_MULTI_COURIER_OPERATIONS",
     ]),
     description: z.string().min(1),
     timeZone: IanaTimeZoneSchema,

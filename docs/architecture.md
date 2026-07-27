@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-21
+- 최종 갱신: 2026-07-27
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -328,6 +328,27 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 11. G0 위치·지도·PWA 계약 승인
 12. G1 다지역 합성 fixture와 공급자 독립 projection
 13. G2 2D 지도 → G3 기사 PWA → G4 Demo 이동 → 조건부 G5 3D
+14. 합성 운영 패키지 검증과 불변 일일 스냅샷
+15. 전체 기사 Safety 평가와 복수 지원 decision orchestration
+16. 운영 상태 영속성·내보내기와 배포 복구
+
+### 12.1 합성 운영 서비스 계층
+
+`DailyOperationsPackage`는 UI 업로드 또는 번들 샘플에서 Application 계층으로 들어온다. Contracts 계층이 schema·참조·시간·합계·개인정보를 검증하고, 통과한 패키지만 Domain `ScenarioFixture`로 투영한다. 원문 문서나 LLM 출력은 Domain 입력이 아니다.
+
+`OperationsSnapshotService`는 package hash와 설정 버전을 포함한 불변 `DailyOperationsSnapshot`을 만든다. `FleetEvaluationService`는 스냅샷의 모든 활성 기사를 평가하고 임계치 초과가 예측되거나 승인된 지원 규칙에 해당하는 기사마다 별도 decision을 만든다. `DecisionWorkspaceService`는 열린 decision 간 수신 기사·계획·스냅샷 충돌을 확인한다.
+
+초기 서비스 저장은 정규화 패키지·스냅샷·decision·감사 이벤트를 구조화 저장소에 보존한다. 합성 원문 업로드 바이트 저장은 별도 보존 승인이 있기 전까지 하지 않는다. 브라우저 저장소는 화면 선택과 임시 작성 상태만 소유하며 권위 있는 운영 상태가 될 수 없다.
+
+관리자와 기사 UI는 이 Application 서비스의 projection만 읽는다. 기존 `DemoSession`은 회귀·복구 시나리오로 유지하지만 신규 운영 화면의 권위 소스가 아니다.
+
+### 12.2 배포 런타임 경계
+
+- `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답
+- `/api/upstage-explanation`: 검증된 합성 결정 사실만 Upstage로 전달하고 공급자 원문 대신 strict JSON만 반환
+- `/api/kakao-directions`: 고정 Demo 또는 `deterministic-synthetic-operations`로 표시된 국내 범위 합성 좌표만 Kakao Mobility에 전달
+- `/operations`: 관리자 전체 운영·지원 큐·승인·내보내기
+- `/operations/rider`: 동일 decision의 별도 기사 응답 화면
 
 ## 13. 심사기준과 아키텍처 증거
 

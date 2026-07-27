@@ -1,0 +1,47 @@
+{
+  "schemaVersion": "operations-scale-evaluation-v1",
+  "dataMode": "SYNTHETIC",
+  "capturedAt": "2026-07-27T11:38:46.750Z",
+  "profiles": [
+    {
+      "courierCount": 24,
+      "stopCount": 276,
+      "evaluatedCourierCount": 24,
+      "supportDecisionCount": 14,
+      "sampledDecisionCount": 3,
+      "unsafeRecommendedCount": 0,
+      "snapshotReadyMs": 54,
+      "fleetReadyMs": 135,
+      "totalReadyMs": 1340,
+      "maximumMs": 5000,
+      "passed": true
+    },
+    {
+      "courierCount": 96,
+      "stopCount": 1086,
+      "evaluatedCourierCount": 96,
+      "supportDecisionCount": 56,
+      "sampledDecisionCount": 3,
+      "unsafeRecommendedCount": 0,
+      "snapshotReadyMs": 155,
+      "fleetReadyMs": 403,
+      "totalReadyMs": 4868,
+      "maximumMs": 15000,
+      "passed": true
+    },
+    {
+      "courierCount": 240,
+      "stopCount": 2725,
+      "evaluatedCourierCount": 240,
+      "supportDecisionCount": 143,
+      "sampledDecisionCount": 3,
+      "unsafeRecommendedCount": 0,
+      "snapshotReadyMs": 613,
+      "fleetReadyMs": 1262,
+      "totalReadyMs": 14677,
+      "maximumMs": 40000,
+      "passed": true
+    }
+  ],
+  "status": "PASSED"
+}

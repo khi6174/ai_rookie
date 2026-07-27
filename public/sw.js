@@ -8,8 +8,10 @@ const SHELL_URLS = [
 const HUMAN_REVIEW_PREFIXES = [
   "/tools/g5-spatial-review/",
   "/tools/rider-reference-review/",
+  "/tools/operations-service-review/",
   "/artifacts/evals/screenshots/g5-",
   "/artifacts/evals/screenshots/rider-",
+  "/artifacts/evals/screenshots/operations-",
 ];
 
 self.addEventListener("install", (event) => {

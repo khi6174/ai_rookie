@@ -9,6 +9,14 @@ const directionsProxySource = resolve(
   root,
   "server/kakao-directions-proxy.mjs",
 );
+const operationsSessionStoreSource = resolve(
+  root,
+  "server/operations-session-store.mjs",
+);
+const upstageExplanationProxySource = resolve(
+  root,
+  "server/upstage-explanation-proxy.mjs",
+);
 const metadataDirectory = resolve(root, "dist/.openai");
 const publicReviewDirectory = resolve(clientDirectory, "tools");
 const publicReviewEvidenceDirectory = resolve(
@@ -26,6 +34,8 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
 }
 
 const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
+import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
+import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
 
 const securityHeaders = {
   "Referrer-Policy": "no-referrer",
@@ -48,6 +58,20 @@ function secure(response) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const operationsResponse = await handleOperationsSessionRequest(request, {
+      database: env.DB,
+    });
+    if (operationsResponse) {
+      return secure(operationsResponse);
+    }
+    const upstageResponse = await handleUpstageExplanationRequest(request, {
+      apiKey: env.UPSTAGE_API_KEY,
+      model: env.UPSTAGE_MODEL,
+      timeoutMs: env.UPSTAGE_TIMEOUT_MS,
+    });
+    if (upstageResponse) {
+      return secure(upstageResponse);
+    }
     if (url.pathname === "/api/kakao-directions") {
       return secure(await handleKakaoDirectionsRequest(request, {
         apiKey: env.KAKAO_MOBILITY_REST_API_KEY,
@@ -99,11 +123,20 @@ await cp(
   resolve(publicReviewDirectory, "rider-reference-review"),
   { recursive: true },
 );
+await cp(
+  resolve(root, "tools/operations-service-review"),
+  resolve(publicReviewDirectory, "operations-service-review"),
+  { recursive: true },
+);
 await mkdir(publicReviewScreenshotDirectory, { recursive: true });
 for (const screenshot of [
   "g5-round4-admin-decision-2d-1280x720.png",
   "g5-round4-admin-decision-2-5d-1280x720.png",
   "rider-source-route-round2-390x844.png",
+  "operations-service-1440x900.png",
+  "operations-service-1280x720.png",
+  "operations-rider-390x844.png",
+  "operations-rider-360x800.png",
 ]) {
   await copyFile(
     resolve(root, "artifacts/evals/screenshots", screenshot),
@@ -125,6 +158,14 @@ await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");
 await copyFile(
   directionsProxySource,
   resolve(workerDirectory, "kakao-directions-proxy.mjs"),
+);
+await copyFile(
+  operationsSessionStoreSource,
+  resolve(workerDirectory, "operations-session-store.mjs"),
+);
+await copyFile(
+  upstageExplanationProxySource,
+  resolve(workerDirectory, "upstage-explanation-proxy.mjs"),
 );
 await copyFile(hostingPath, resolve(metadataDirectory, "hosting.json"));
 

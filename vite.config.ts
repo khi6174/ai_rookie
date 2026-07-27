@@ -1,11 +1,37 @@
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import { handleKakaoDirectionsRequest } from "./server/kakao-directions-proxy.mjs";
+import {
+  createMemoryOperationsSessionStore,
+  handleOperationsSessionRequest,
+} from "./server/operations-session-store.mjs";
+import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
 import react from "@vitejs/plugin-react";
+
+async function readIncomingBody(
+  request: AsyncIterable<Uint8Array | string>,
+) {
+  const chunks: Uint8Array[] = [];
+  let length = 0;
+  for await (const chunk of request) {
+    const bytes =
+      typeof chunk === "string" ? new TextEncoder().encode(chunk) : chunk;
+    chunks.push(bytes);
+    length += bytes.byteLength;
+  }
+  const body = new Uint8Array(length);
+  let offset = 0;
+  for (const chunk of chunks) {
+    body.set(chunk, offset);
+    offset += chunk.byteLength;
+  }
+  return body;
+}
 
 function kakaoDirectionsDevProxy(mode: string): Plugin {
   const environment = {
     ...loadEnv(mode, ".", ""),
   };
+  const operationsSessionStore = createMemoryOperationsSessionStore();
   return {
     name: "saferoute-kakao-directions-dev-proxy",
     configureServer(server) {
@@ -13,11 +39,75 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
         const incoming = request as unknown as {
           url?: string;
           method?: string;
+          headers: Record<string, string | string[] | undefined>;
         };
         const requestUrl = new URL(
           incoming.url ?? "/",
           "http://127.0.0.1",
         );
+        const method = incoming.method ?? "GET";
+        const body =
+          method === "PUT" || method === "POST"
+            ? await readIncomingBody(
+                request as unknown as AsyncIterable<Uint8Array | string>,
+              )
+            : undefined;
+        const operationsResponse = await handleOperationsSessionRequest(
+          new Request(requestUrl, {
+            method,
+            headers: {
+              "content-type":
+                String(incoming.headers["content-type"] ?? "application/json"),
+              ...(incoming.headers["x-saferoute-base-saved-at"]
+                ? {
+                    "x-saferoute-base-saved-at": String(
+                      incoming.headers["x-saferoute-base-saved-at"],
+                    ),
+                  }
+                : {}),
+            },
+            body,
+          }),
+          { memoryStore: operationsSessionStore },
+        );
+        if (operationsResponse) {
+          response.statusCode = operationsResponse.status;
+          operationsResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await operationsResponse.text());
+          return;
+        }
+        const upstageResponse = await handleUpstageExplanationRequest(
+          new Request(requestUrl, {
+            method,
+            headers: {
+              "content-type":
+                String(incoming.headers["content-type"] ?? "application/json"),
+              ...(incoming.headers["x-saferoute-base-saved-at"]
+                ? {
+                    "x-saferoute-base-saved-at": String(
+                      incoming.headers["x-saferoute-base-saved-at"],
+                    ),
+                  }
+                : {}),
+            },
+            body,
+          }),
+          {
+            apiKey: environment.UPSTAGE_API_KEY,
+            model: environment.UPSTAGE_MODEL,
+            timeoutMs: environment.UPSTAGE_TIMEOUT_MS,
+          },
+        );
+        if (upstageResponse) {
+          response.statusCode = upstageResponse.status;
+          upstageResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await upstageResponse.text());
+          return;
+        }
         if (requestUrl.pathname !== "/api/kakao-directions") {
           next();
           return;

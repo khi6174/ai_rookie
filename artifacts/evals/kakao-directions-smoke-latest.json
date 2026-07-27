@@ -1,0 +1,13 @@
+{
+  "schemaVersion": "kakao-directions-smoke-v1",
+  "checkedAt": "2026-07-27T10:54:31.875Z",
+  "httpStatus": 200,
+  "status": "LIVE",
+  "provider": "KAKAO_MOBILITY",
+  "profile": "rider-demo",
+  "distanceMeters": 1738,
+  "durationSeconds": 441,
+  "pathPointCount": 84,
+  "isDemo": true,
+  "safetyEngineInputApproved": false
+}
