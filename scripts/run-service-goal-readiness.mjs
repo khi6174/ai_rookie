@@ -155,6 +155,7 @@ const checks = {
     evidence.deployed.storage === "D1" &&
     evidence.deployed.restored === true &&
     evidence.deployed.conflictProtected === true &&
+    evidence.deployed.upstageExplanationLive === true &&
     evidence.deployed.actualPersonalDataCount === 0,
   roleSeparation:
     (

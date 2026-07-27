@@ -24,6 +24,7 @@ if (
 const workspaceId =
   "operations-workspace-00000000-0000-4000-8000-000000000617";
 const endpoint = `${siteUrl}/api/operations/sessions/${workspaceId}`;
+const explanationEndpoint = `${siteUrl}/api/upstage-explanation`;
 const outputDirectory = path.join(root, "artifacts", "evals");
 const outputPath = path.join(
   outputDirectory,
@@ -115,6 +116,46 @@ try {
     }),
   });
   const staleBody = await staleResponse.json().catch(() => ({}));
+  const explanationInput = {
+    requestId: "operations-explanation-deployed-smoke-000000000617",
+    role: "ADMIN",
+    language: "ko",
+    dataMode: "DEMO",
+    numericFacts: [
+      {
+        factId: "current-budget",
+        label: "현재 안전여유",
+        value: 52.1,
+        unit: "budget_points",
+        displayValue: "52.1",
+      },
+      {
+        factId: "minimum-budget",
+        label: "조정 후 최저",
+        value: 54,
+        unit: "budget_points",
+        displayValue: "54.0",
+      },
+    ],
+    stateFacts: [
+      {
+        factId: "decision-state",
+        label: "결정 상태",
+        value: "기사 응답 대기",
+      },
+    ],
+    allowedCitations: [],
+    allowedActions: ["기사 동의 상태 확인"],
+    prohibitedTopics: ["기사 평가", "징계", "사고확률"],
+  };
+  const explanationResponse = await fetch(explanationEndpoint, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(explanationInput),
+  });
+  const explanationBody = await explanationResponse
+    .json()
+    .catch(() => ({}));
   const restored =
     loadResponse.status === 200 &&
     loadBody.storage === "D1" &&
@@ -124,11 +165,20 @@ try {
   const conflictProtected =
     staleResponse.status === 409 &&
     staleBody.code === "SESSION_CONFLICT";
+  const upstageExplanationLive =
+    explanationResponse.status === 200 &&
+    explanationBody.status === "LIVE" &&
+    explanationBody.provider === "UPSTAGE" &&
+    explanationBody.model === "solar-pro3" &&
+    explanationBody.output?.requestId === explanationInput.requestId &&
+    explanationBody.output?.role === explanationInput.role &&
+    explanationBody.output?.dataModeLabel === "Demo fixture";
   const passed =
     saveResponse.status === 200 &&
     saveBody.storage === "D1" &&
     restored &&
-    conflictProtected;
+    conflictProtected &&
+    upstageExplanationLive;
   const artifact = {
     schemaVersion: "operations-deployed-smoke-v1",
     capturedAt: new Date().toISOString(),
@@ -141,9 +191,17 @@ try {
     saveStatus: saveResponse.status,
     loadStatus: loadResponse.status,
     staleWriteStatus: staleResponse.status,
+    explanationStatus: explanationResponse.status,
     storage: saveBody.storage,
     restored,
     conflictProtected,
+    upstageExplanationLive,
+    upstageExplanationOutputSha256:
+      explanationBody.output === undefined
+        ? undefined
+        : createHash("sha256")
+            .update(JSON.stringify(explanationBody.output))
+            .digest("hex"),
     snapshotId: snapshot.snapshotId,
     packageHash: snapshot.packageHash,
     supportDecisionCount: fleet.supportDecisionCount,
@@ -155,7 +213,7 @@ try {
   };
   await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   console.log(
-    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected}`,
+    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected} upstage=${upstageExplanationLive}`,
   );
   console.log(`JSON: ${outputPath}`);
   if (!passed) process.exitCode = 1;

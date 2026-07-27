@@ -1,0 +1,18 @@
+{
+  "schemaVersion": "operations-service-human-review-study-manifest-v1",
+  "studyId": "operations-service-human-review-v1",
+  "dataMode": "SYNTHETIC",
+  "development": false,
+  "releaseCommit": "dddf200825dd773877572fa87ff808cb6d4de56c",
+  "stimuli": {
+    "ADMIN": {
+      "path": "/artifacts/evals/screenshots/operations-service-1440x900.png",
+      "sha256": "9716c7a522a35de93937428804f37d797fa7a43d30837d71df90345b130996ed"
+    },
+    "RIDER": {
+      "path": "/artifacts/evals/screenshots/operations-rider-390x844.png",
+      "sha256": "c742fd9c0ee372c09695619cb300c5499c73f0fc4793b9e4357c3d88069a8cba"
+    }
+  },
+  "manifestSha256": "474758686139aa40559e2352d577d5a9b28ab015d9d23cb8fb050f6ab4a0a2b4"
+}

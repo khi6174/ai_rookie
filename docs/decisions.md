@@ -774,6 +774,15 @@
 - 기각한 대안: HTTP 200만으로 통과, Solar가 만든 수치의 허용 오차 비교, 원시 제공자 응답이나 추출값 전체 저장, 불일치 값을 코드에서 자동 보정.
 - 영향 파일: `scripts/run-upstage-operations-document-live.mjs`, `artifacts/evals/upstage-operations-document-live-latest.json`, `scripts/run-service-goal-readiness.mjs`, `docs/evals.md`
 
+### ADR-080 — 공개 배포 Gate는 D1과 서버 전용 Upstage 설명을 함께 검증한다
+
+- 날짜: 2026-07-27
+- 상태: Approved
+- 결정: 공개 Sites 실연동 Gate는 같은 배포에서 D1 저장·재조회·snapshot 복구·stale 쓰기 409뿐 아니라, 합성 결정 사실을 사용하는 `/api/upstage-explanation`의 `LIVE`·공급자·모델·요청 ID·역할·Demo 라벨까지 확인해야 통과한다. 설명 원문은 증거에 저장하지 않고 출력 SHA-256만 남긴다.
+- 이유: 로컬 Upstage 성공과 D1 성공만으로는 배포 환경의 secret·모델·Worker 라우팅이 실제로 연결됐는지 증명할 수 없다.
+- 기각한 대안: 환경변수 키 존재만 확인, 브라우저의 버튼 표시만 확인, 설명 결과 전체 저장, D1과 Upstage 중 하나만 통과해도 배포 완료 처리.
+- 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `scripts/run-service-goal-readiness.mjs`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

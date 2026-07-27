@@ -1,8 +1,8 @@
 {
   "schemaVersion": "service-goal-readiness-v1",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
-  "capturedAt": "2026-07-27T12:33:22.237Z",
-  "status": "EXTERNAL_API_VALIDATION_REQUIRED",
+  "capturedAt": "2026-07-27T13:17:49.582Z",
+  "status": "HUMAN_VALIDATION_REQUIRED",
   "dataMode": "SYNTHETIC",
   "commands": [
     {
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 1741,
+      "durationMs": 1693,
       "summary": "$ tsc --noEmit --pretty false"
     },
     {
@@ -18,31 +18,31 @@
       "command": "pnpm run test",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 11652,
-      "summary": "      Tests  296 passed (296) |    Start at  21:30:14 |    Duration  10.33s (transform 12.39s, setup 0ms, import 36.01s, tests 27.24s, environment 7ms)"
+      "durationMs": 10902,
+      "summary": "      Tests  299 passed (299) |    Start at  22:14:55 |    Duration  9.55s (transform 11.63s, setup 0ms, import 31.39s, tests 25.24s, environment 7ms)"
     },
     {
       "id": "FULL_E2E",
       "command": "pnpm run test:e2e",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 134333,
-      "summary": "  ok 32 e2e\\spatial-scene.spec.ts:39:1 › G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은 decision의 2D와 보조 2.5D 자극을 고정한다 (2.5s) |   ok 33 e2e\\spatial-scene.spec.ts:217:1 › G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D 구조화 대안을 유지한다 (1.7s) |   33 passed (2.2m)"
+      "durationMs": 124318,
+      "summary": "  ok 32 e2e\\spatial-scene.spec.ts:39:1 › G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은 decision의 2D와 보조 2.5D 자극을 고정한다 (2.4s) |   ok 33 e2e\\spatial-scene.spec.ts:217:1 › G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D 구조화 대안을 유지한다 (1.7s) |   33 passed (2.0m)"
     },
     {
       "id": "OPERATIONS_SCALE",
       "command": "pnpm run eval:operations:scale",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 28111,
-      "summary": "Operations scale evaluation: PASSED 24=1591ms 96=5564ms 240=16941ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
+      "durationMs": 26012,
+      "summary": "Operations scale evaluation: PASSED 24=1500ms 96=5306ms 240=15095ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
     },
     {
       "id": "OPERATIONS_EVIDENCE",
       "command": "pnpm run eval:operations:evidence",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 11622,
+      "durationMs": 11292,
       "summary": "Operations service evidence: PASSED couriers=25 decisions=15 conflicts=105 | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-service-evidence.json"
     },
     {
@@ -50,8 +50,8 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2816,
-      "summary": "dist/assets/index-DxOjqkbk.js                   288.48 kB │ gzip: 88.24 kB | \u001b[32m✓ built in 436ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
+      "durationMs": 2631,
+      "summary": "dist/assets/index-DxOjqkbk.js                   288.48 kB │ gzip: 88.24 kB | \u001b[32m✓ built in 394ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
     }
   ],
   "checks": {
@@ -60,10 +60,10 @@
     "safetyIntegrity": true,
     "scale": true,
     "upstageLive": true,
-    "upstageDocumentLive": false,
+    "upstageDocumentLive": true,
     "kakaoLive": true,
     "persistence": true,
-    "deployedService": false,
+    "deployedService": true,
     "roleSeparation": true,
     "human": false
   },
@@ -89,7 +89,7 @@
     {
       "id": "EXECUTION",
       "nameKo": "추진성",
-      "passed": false,
+      "passed": true,
       "evidence": [
         "artifacts/evals/upstage-smoke-latest.json",
         "artifacts/evals/upstage-operations-document-live-latest.json",
@@ -128,14 +128,10 @@
     }
   ],
   "blocker": {
-    "code": "UPSTAGE_DOCUMENT_PARSE_LIVE_NOT_COMPLETE",
-    "currentStatus": "CONFIGURED_NOT_RUN",
-    "command": "pnpm run eval:upstage:operations-documents:live",
-    "paidApiApprovalRequired": true,
-    "humanReviewAlsoPending": {
-      "admin": "0/3",
-      "rider": "0/5"
-    }
+    "code": "INDEPENDENT_HUMAN_REVIEW_NOT_COMPLETE",
+    "admin": "0/3",
+    "rider": "0/5",
+    "reviewPath": "/tools/operations-service-review/"
   },
   "limitations": [
     "No actual courier, customer, precise GPS, biometric, or private TMS data is processed.",
