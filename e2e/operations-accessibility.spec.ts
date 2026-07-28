@@ -37,7 +37,10 @@ for (const viewport of [
     ).toHaveAttribute("aria-selected", "true");
     await page.getByRole("tab", { name: "경로" }).click();
     await expect(
-      page.getByRole("heading", { name: "Kakao 지도·길찾기" }),
+      page.getByRole("heading", { name: "기사 위치·배송 진행" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("합성 스냅샷 · Live 0명", { exact: true }),
     ).toBeVisible();
     await page.getByRole("tab", { name: "지원 상황" }).click();
     await expect(

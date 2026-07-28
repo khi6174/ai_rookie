@@ -991,6 +991,19 @@ export function OperationsService() {
             </section>
             )}
 
+            {adminTab === "SUPPORT" && (
+            <OperationsMap
+              operationsPackage={operationsPackage}
+              supportCourierIds={supportCourierIds}
+              onSelectCourier={(courierId) => {
+                const queueItem = fleet.supportQueue.find(
+                  (item) => item.courierId === courierId,
+                );
+                if (queueItem) openDecision(queueItem.decisionId);
+              }}
+            />
+            )}
+
             {adminTab === "ROUTE" && (
             <OperationsMap
               operationsPackage={operationsPackage}

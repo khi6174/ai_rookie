@@ -12,7 +12,8 @@ const hubCenters: Record<string, GeographicPoint> = {
 
 export type OperationsMapCourier = {
   courierId: string;
-  hubId: string;
+  completed: number;
+  total: number;
   current: GeographicPoint;
   route: GeographicPoint[];
 };
@@ -53,7 +54,8 @@ export function createOperationsMapCouriers(
     }));
     return {
       courierId: record.courier.courierId,
-      hubId: record.hub.hubId,
+      completed: record.plan.completedStopCount,
+      total: record.plan.totalStopCount,
       current,
       route,
     };

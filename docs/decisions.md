@@ -810,6 +810,15 @@
 - 기각한 대안: 미리보기 탭만 유지, 앵커 링크에 활성색만 추가, 기능별 별도 저장소·별도 decision 복제, 기사 응답을 관리자 화면 안에 다시 합치기.
 - 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/OperationsRiderService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/product-spec.md`, `docs/design-system.md`
 
+### ADR-084 — 지원 상황 지도는 합성 위치·배송 진행 스냅샷만 표시한다
+
+- 날짜: 2026-07-28
+- 상태: Approved
+- 결정: 관리자 `지원 상황` 탭은 같은 운영 패키지 평가시각의 25명 합성 위치와 `완료/전체 배송 건수` 진행률을 기사별 마커로 표시한다. 지원 대상 마커만 decision 선택 행동을 제공한다. 화면에는 `합성 스냅샷 · Live 0명`과 실제 GPS가 아니라는 설명을 고정하며, 지도 좌표는 Safety 계산이나 추천을 변경하지 않는다. 기존 허브 집계 마커 코드를 기사 진행 마커로 대체해 별도 런타임 의존성 없이 G5-B 추가 gzip JS 50KiB 예산을 유지한다.
+- 이유: 지원 큐만으로는 여러 기사의 공간적 분포와 배송 진행을 함께 파악하기 어렵지만, 현재 제품에는 실제 위치 feed·동의·보존 계약이 없다. 합성 위치를 명확히 한 지도는 데모의 운영 이해도를 높이면서 실제 정밀 위치를 수집하거나 Live로 오인시키지 않는다.
+- 기각한 대안: 합성 위치를 실시간으로 표시, 브라우저 Geolocation을 즉시 수집, 관리자에게 실제 정밀 궤적을 노출, 권역 집계만 유지하고 기사 진행률을 지도와 분리.
+- 영향 파일: `src/ui/OperationsMap.tsx`, `src/ui/OperationsService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

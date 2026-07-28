@@ -473,6 +473,11 @@
   background: var(--color-amber-100);
 }
 
+.operations-map-header > span.is-synthetic {
+  color: var(--color-blue-700);
+  background: var(--color-blue-100);
+}
+
 .operations-map-stage {
   position: relative;
   min-height: 300px;
@@ -493,7 +498,7 @@
   inset: 0;
 }
 
-.operations-map-fallback button:not(.operations-map-hub),
+.operations-map-fallback button,
 .operations-map-marker {
   position: absolute;
   min-width: 30px;
@@ -509,12 +514,48 @@
   cursor: pointer;
 }
 
-.operations-map-fallback button:not(.operations-map-hub).needs-support,
+.operations-map-courier-marker {
+  display: grid;
+  grid-template-columns: auto auto;
+  align-items: center;
+  gap: 5px;
+  min-width: 48px;
+  min-height: 34px;
+  padding: 4px 7px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: var(--color-navy-800);
+  box-shadow: 0 3px 10px rgba(15, 23, 42, 0.26);
+  font: inherit;
+  cursor: default;
+}
+
+.operations-map-courier-marker strong {
+  font-size: 0.68rem;
+}
+
+.operations-map-courier-marker small {
+  color: inherit;
+  font-size: 0.62rem;
+  font-weight: 800;
+}
+
+.operations-map-courier-marker:disabled {
+  opacity: 1;
+}
+
+.operations-map-courier-marker.needs-support {
+  background: var(--color-amber-700);
+  cursor: pointer;
+}
+
+.operations-map-fallback button.needs-support,
 .operations-map-marker.needs-support {
   background: var(--color-amber-700);
 }
 
-.operations-map-fallback button:not(.operations-map-hub).selected,
+.operations-map-fallback button.selected,
 .operations-map-marker.selected {
   min-width: 38px;
   min-height: 38px;
@@ -522,38 +563,8 @@
   background: var(--color-teal-800);
 }
 
-.operations-map-fallback button:not(.operations-map-hub):focus-visible,
+.operations-map-fallback button:focus-visible,
 .operations-map-marker:focus-visible {
-  outline: 3px solid var(--color-blue-700);
-  outline-offset: 3px;
-}
-
-.operations-map-hub {
-  position: absolute;
-  display: grid;
-  min-width: 118px;
-  min-height: 52px;
-  transform: translate(-50%, -50%);
-  place-items: center;
-  padding: 7px 12px;
-  border: 2px solid #fff;
-  border-radius: 12px;
-  color: #fff;
-  background: #344054;
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.22);
-  cursor: pointer;
-}
-
-.operations-map-hub strong {
-  font-size: 0.78rem;
-}
-
-.operations-map-hub small {
-  color: #fff;
-  font-size: 0.68rem;
-}
-
-.operations-map-hub:focus-visible {
   outline: 3px solid var(--color-blue-700);
   outline-offset: 3px;
 }

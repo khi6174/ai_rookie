@@ -97,6 +97,11 @@ describe("daily synthetic operations package", () => {
     );
     expect(couriers).toHaveLength(25);
     expect(new Set(couriers.map((item) => item.courierId)).size).toBe(25);
+    expect(couriers[0]).toMatchObject({
+      completed:
+        bundledDailyOperationsPackage.records[0].plan.completedStopCount,
+      total: bundledDailyOperationsPackage.records[0].plan.totalStopCount,
+    });
     const route = createOperationsRiderMapModel(
       bundledDailyOperationsPackage,
       "demo-courier-003",

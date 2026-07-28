@@ -18,6 +18,15 @@ import type { DailyOperationsPackage } from "../domain/operations";
 
 type MapStatus = "LOADING" | "READY" | "FALLBACK";
 
+function courierProgressLabel(
+  courierId: string,
+  completed: number,
+  total: number,
+  needsSupport: boolean,
+) {
+  return `${courierId} 합성 위치 · 배송 ${completed}/${total}건 완료 · ${needsSupport ? "지원 필요" : "지원 없음"}`;
+}
+
 export function OperationsMap({
   operationsPackage,
   selectedCourierId,
@@ -51,39 +60,6 @@ export function OperationsMap({
         : undefined,
     [operationsPackage, selectedCourierId],
   );
-  const hubs = useMemo(
-    () =>
-      [...new Set(couriers.map((courier) => courier.hubId))].map(
-        (hubId) => {
-          const members = couriers.filter(
-            (courier) => courier.hubId === hubId,
-          );
-          const supportMembers = members.filter((courier) =>
-            supportCourierIds.has(courier.courierId),
-          );
-          return {
-            hubId,
-            point: {
-              latitude:
-                members.reduce(
-                  (total, member) => total + member.current.latitude,
-                  0,
-                ) / members.length,
-              longitude:
-                members.reduce(
-                  (total, member) => total + member.current.longitude,
-                  0,
-                ) / members.length,
-            },
-            courierCount: members.length,
-            supportCount: supportMembers.length,
-            firstSupportCourierId: supportMembers[0]?.courierId,
-          };
-        },
-      ),
-    [couriers, supportCourierIds],
-  );
-
   useEffect(() => {
     const container = containerRef.current;
     const javaScriptKey =
@@ -114,31 +90,39 @@ export function OperationsMap({
           bounds.extend(value);
           return value;
         };
-        for (const hub of hubs) {
-          const node = document.createElement("button");
-          node.type = "button";
-          node.className = "operations-map-hub";
-          node.innerHTML = `<strong>${hub.hubId.replace("demo-hub-", "허브 ")}</strong><small>지원 ${hub.supportCount} · 전체 ${hub.courierCount}</small>`;
-          node.disabled = !hub.firstSupportCourierId;
-          node.setAttribute(
-            "aria-label",
-            `${hub.hubId} 합성 권역 · 지원 ${hub.supportCount}명 · 전체 ${hub.courierCount}명`,
-          );
-          if (hub.firstSupportCourierId) {
-            node.addEventListener("click", () =>
-              onSelectCourier(hub.firstSupportCourierId!),
+        if (!selectedModel) {
+          for (const courier of couriers) {
+            const needsSupport = supportCourierIds.has(courier.courierId);
+            const node = document.createElement("button");
+            node.type = "button";
+            node.className = `operations-map-courier-marker${needsSupport ? " needs-support" : ""}`;
+            node.innerHTML = `<strong>${courier.courierId.replace("demo-courier-", "")}</strong><small>${courier.completed}/${courier.total}</small>`;
+            node.disabled = !needsSupport;
+            node.setAttribute(
+              "aria-label",
+              courierProgressLabel(
+                courier.courierId,
+                courier.completed,
+                courier.total,
+                needsSupport,
+              ),
+            );
+            if (needsSupport) {
+              node.addEventListener("click", () =>
+                onSelectCourier(courier.courierId),
+              );
+            }
+            overlays.push(
+              new maps.CustomOverlay({
+                map,
+                position: addPoint(courier.current),
+                content: node,
+                xAnchor: 0.5,
+                yAnchor: 0.5,
+                zIndex: needsSupport ? 4 : 2,
+              }),
             );
           }
-          overlays.push(
-            new maps.CustomOverlay({
-              map,
-              position: addPoint(hub.point),
-              content: node,
-              xAnchor: 0.5,
-              yAnchor: 0.5,
-              zIndex: 2,
-            }),
-          );
         }
         if (selectedModel) {
           const path = selectedModel.path.map(addPoint);
@@ -185,7 +169,6 @@ export function OperationsMap({
     };
   }, [
     couriers,
-    hubs,
     onSelectCourier,
     selectedCourierId,
     selectedModel,
@@ -228,58 +211,81 @@ export function OperationsMap({
       <div className="operations-map-header">
         <div>
           <p className="operations-section-label">합성 운영 위치</p>
-          <h2 id="operations-map-heading">Kakao 지도·길찾기</h2>
+          <h2 id="operations-map-heading">
+            {selectedModel ? "Kakao 지도·길찾기" : "기사 위치·배송 진행"}
+          </h2>
         </div>
-        <span className={mapStatus === "READY" ? "is-live" : "is-fallback"}>
-          {mapStatus === "READY"
-            ? "Kakao map · 합성 좌표"
-            : mapStatus === "LOADING"
-              ? "Kakao 지도 확인 중"
-              : "Schematic Fallback · 합성 좌표"}
+        <span
+          className={
+            !selectedModel
+              ? "is-synthetic"
+              : mapStatus === "READY"
+                ? "is-live"
+                : "is-fallback"
+          }
+        >
+          {!selectedModel
+            ? "합성 스냅샷 · Live 0명"
+            : mapStatus === "READY"
+              ? "Kakao map · 합성 좌표"
+              : mapStatus === "LOADING"
+                ? "Kakao 지도 확인 중"
+                : "Schematic Fallback · 합성 좌표"}
         </span>
       </div>
       <div className="operations-map-stage">
         <div
           ref={containerRef}
           className="operations-kakao-map"
-          aria-label="25명 합성 기사의 권역 위치와 선택 경로"
+          aria-label="25명 합성 기사의 위치·배송 진행과 선택 경로"
         />
         {mapStatus !== "READY" && (
           <div
             className="operations-map-fallback"
             aria-label="지도 없이 보는 합성 기사 위치"
           >
-            {hubs.map((hub) => {
-              const left =
-                12 +
-                ((hub.point.longitude - Math.min(...longitudes)) /
-                  longitudeSpan) *
-                  76;
-              const top =
-                12 +
-                ((Math.max(...latitudes) - hub.point.latitude) /
-                  latitudeSpan) *
-                  76;
-              return (
-                <button
-                  key={hub.hubId}
-                  type="button"
-                  className="operations-map-hub"
-                  style={{ left: `${left}%`, top: `${top}%` }}
-                  disabled={!hub.firstSupportCourierId}
-                  aria-label={`${hub.hubId} 합성 권역 · 지원 ${hub.supportCount}명 · 전체 ${hub.courierCount}명`}
-                  onClick={() =>
-                    hub.firstSupportCourierId &&
-                    onSelectCourier(hub.firstSupportCourierId)
-                  }
-                >
-                  <strong>{hub.hubId.replace("demo-hub-", "허브 ")}</strong>
-                  <small>
-                    지원 {hub.supportCount} · 전체 {hub.courierCount}
-                  </small>
-                </button>
-              );
-            })}
+            {!selectedModel &&
+              couriers.map((courier) => {
+                  const needsSupport = supportCourierIds.has(
+                    courier.courierId,
+                  );
+                  const left =
+                    12 +
+                    ((courier.current.longitude -
+                      Math.min(...longitudes)) /
+                      longitudeSpan) *
+                      76;
+                  const top =
+                    12 +
+                    ((Math.max(...latitudes) - courier.current.latitude) /
+                      latitudeSpan) *
+                      76;
+                  return (
+                    <button
+                      key={courier.courierId}
+                      type="button"
+                      className={`operations-map-courier-marker${needsSupport ? " needs-support" : ""}`}
+                      style={{ left: `${left}%`, top: `${top}%` }}
+                      disabled={!needsSupport}
+                      aria-label={courierProgressLabel(
+                        courier.courierId,
+                        courier.completed,
+                        courier.total,
+                        needsSupport,
+                      )}
+                      onClick={() =>
+                        needsSupport && onSelectCourier(courier.courierId)
+                      }
+                    >
+                      <strong>
+                        {courier.courierId.replace("demo-courier-", "")}
+                      </strong>
+                      <small>
+                        {courier.completed}/{courier.total}
+                      </small>
+                    </button>
+                  );
+                })}
             {selectedModel &&
               selectedModel.path.map((point, index) => {
                 const left =
@@ -309,20 +315,25 @@ export function OperationsMap({
         )}
       </div>
       <div className="operations-directions-status" role="status">
-        {!selectedModel && (
-          <span>지원 건을 선택하면 해당 합성 경로의 길찾기를 확인합니다.</span>
-        )}
-        {directions.status === "LOADING" && (
+        {!selectedModel ? (
+          <>
+            <span>
+              합성 {couriers.length}명 · 지원 {supportCourierIds.size}명 · 실제
+              위치 0명
+            </span>
+          </>
+        ) : null}
+        {selectedModel && directions.status === "LOADING" && (
           <span>Kakao Mobility 선택 경로 확인 중…</span>
         )}
-        {directions.status === "LIVE" && (
+        {selectedModel && directions.status === "LIVE" && (
           <span>
             Kakao Mobility Live ·{" "}
             {(directions.preview.distanceMeters / 1_000).toFixed(1)}km ·{" "}
             {Math.ceil(directions.preview.durationSeconds / 60)}분
           </span>
         )}
-        {directions.status === "FALLBACK" && (
+        {selectedModel && directions.status === "FALLBACK" && (
           <span>
             길찾기 Fallback · {directions.code} · 기존 합성 계획을 유지합니다.
           </span>
@@ -338,8 +349,9 @@ export function OperationsMap({
         )}
       </div>
       <p className="operations-map-disclosure">
-        결정론적 합성 좌표만 전송합니다. 지도·길찾기 결과는 시각화와 ETA 비교
-        보조이며 Safety Budget 계산 입력을 덮어쓰지 않습니다.
+        {!selectedModel
+          ? "합성 위치·배송 진행 스냅샷입니다. 실제 GPS가 아니며 자동 이동하지 않습니다."
+          : "합성 좌표만 전송합니다. 지도·길찾기 결과는 시각화와 ETA 비교 보조이며 Safety Budget 계산 입력을 덮어쓰지 않습니다."}
       </p>
     </section>
   );

@@ -62,6 +62,31 @@ test.describe("synthetic operations service", () => {
     );
     await expect(supportCount).toHaveText(/\d+건/);
     expect(Number((await supportCount.textContent())?.replace(/\D/g, ""))).toBeGreaterThan(1);
+    await expect(
+      page.getByRole("heading", { name: "기사 위치·배송 진행" }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("합성 스냅샷 · Live 0명", { exact: true }),
+    ).toBeVisible();
+    const courierMarkers = page.locator(".operations-map-courier-marker");
+    await expect(courierMarkers).toHaveCount(25);
+    await expect(courierMarkers.first()).toHaveAttribute(
+      "aria-label",
+      /합성 위치 · 배송 \d+\/\d+건 완료/,
+    );
+    const supportMarkers = page.locator(
+      ".operations-map-courier-marker:not([disabled])",
+    );
+    await expect(supportMarkers).toHaveCount(
+      Number((await supportCount.textContent())?.replace(/\D/g, "")),
+    );
+    await supportMarkers.first().focus();
+    await expect(supportMarkers.first()).toBeFocused();
+    await supportMarkers.first().press("Enter");
+    await expect(
+      page.getByRole("tab", { name: "개입 검토" }),
+    ).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("tab", { name: "지원 상황" }).click();
 
     const supportRows = page.locator(
       ".operations-courier-row:not([disabled])",
