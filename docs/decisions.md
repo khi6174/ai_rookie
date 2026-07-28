@@ -828,6 +828,15 @@
 - 기각한 대안: `문서 번들·JSON 선택`과 `Upstage 근거 설명 생성` 유지, 버튼 폭만 확대, 작은 글자로 축소, 강제 두 줄 배치.
 - 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/design-system.md`
 
+### ADR-086 — 경로 탭은 불변 기준 계획과 승인된 활성 계획을 직접 비교한다
+
+- 날짜: 2026-07-28
+- 상태: Approved
+- 결정: 관리자 `경로` 탭은 불변 `DailyOperationsSnapshot.fixture`를 적용 전 계획, `OperationsDecisionWorkspace.store.activePlan`을 적용 후 계획으로 사용한다. 같은 기사 workload의 계획 버전, 남은 배송, 배송순서와 예상 종료시각을 비교하고 `NOTICE_RECORDED` 이후에만 승인 적용 완료로 표시한다. 배송지별 ETA는 같은 활성 계획·고객안내·CSV에 유지한다. stop ID에 결속한 결정론적 합성 좌표로 승인 후 경로를 투영하며 Kakao 미리보기는 적용된 활성 계획을 읽되 계획·Safety 계산을 변경하지 않는다. lazy 화면은 브라우저 기본 ESM 로딩을 사용하고 module-preload 폴리필을 포함하지 않아 추가 gzip JS 50KiB Gate를 유지한다.
+- 이유: 계획 적용 엔진과 CSV·감사에는 승인 결과가 존재했지만 경로 탭은 원본 운영 패키지만 읽어 사용자가 적용 전후를 지도와 순서에서 확인할 수 없었다. 동일한 저장 상태를 직접 읽으면 별도 UI 계산 없이 원자 적용 결과를 폐루프 안에서 검증할 수 있다.
+- 기각한 대안: 승인 후에도 원래 경로만 표시, 후보 평가값으로 적용 결과를 추정, Kakao 응답으로 배송순서·ETA를 다시 계산, 활성 계획과 무관한 UI 로컬 상태 생성.
+- 영향 파일: `src/application/operations/createOperationsMapModel.ts`, `src/ui/OperationsMap.tsx`, `src/ui/OperationsService.tsx`, 운영 서비스 단위·Playwright, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

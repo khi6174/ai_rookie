@@ -1008,6 +1008,8 @@ export function OperationsService() {
             <OperationsMap
               operationsPackage={operationsPackage}
               selectedCourierId={selectedQueueItem?.courierId}
+              baselinePlan={snapshot.fixture}
+              activePlan={workspace.store.activePlan}
               supportCourierIds={supportCourierIds}
               onSelectCourier={(courierId) => {
                 const queueItem = fleet.supportQueue.find(

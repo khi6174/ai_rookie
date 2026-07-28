@@ -139,6 +139,14 @@ test.describe("synthetic operations service", () => {
     await expect(
       page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
     ).toBeVisible();
+    await expect(
+      page.getByRole("heading", {
+        name: "조정 전·후 경로·배송순서·ETA",
+      }),
+    ).toBeVisible();
+    await expect(
+      page.getByText("현재 계획 유지", { exact: true }),
+    ).toBeVisible();
     await page.getByRole("tab", { name: "개입 검토" }).click();
     await expect(page.locator(".operations-persistence")).toContainText(
       "개발 저장소에 저장됨",
@@ -199,6 +207,16 @@ test.describe("synthetic operations service", () => {
       "개발 저장소에 저장됨",
       { timeout: 15_000 },
     );
+    await page.getByRole("tab", { name: "경로" }).click();
+    await expect(
+      page.getByRole("tab", { name: "경로" }),
+    ).toHaveAttribute("aria-selected", "true");
+    await expect(
+      page.getByText("승인 적용 완료", { exact: true }).first(),
+    ).toBeVisible();
+    await expect(
+      page.getByRole("region", { name: "경로 계획 비교" }),
+    ).toBeVisible();
     await page.getByRole("tab", { name: "감사·내보내기" }).click();
     const downloadPromise = page.waitForEvent("download");
     await page.getByRole("button", { name: "적용 계획 CSV" }).click();

@@ -133,6 +133,9 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
 
 export default defineConfig(({ mode }) => ({
   plugins: [react(), kakaoDirectionsDevProxy(mode)],
+  build: {
+    modulePreload: false,
+  },
   test: {
     include: ["tests/**/*.test.ts"],
   },

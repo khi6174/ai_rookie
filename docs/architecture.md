@@ -243,6 +243,8 @@ BASELINE_EVALUATED
 
 `applyPlan`은 승인된 스냅샷 버전과 현재 계획 버전이 일치할 때만 실행한다. 경로·배송순서·기사별 작업목록·ETA를 새 계획 객체로 완성한 뒤 한 번에 활성 계획 참조를 교체한다. 중간 실패 시 기존 활성 계획을 유지하고 `APPLY_FAILED`를 기록한다.
 
+운영 서비스의 경로 비교 프레젠테이션은 별도 계획을 계산하지 않는다. 기준선은 `DailyOperationsSnapshot.fixture`, 적용 결과는 `OperationsDecisionWorkspace.store.activePlan`에서 읽고, 동일 기사 workload의 `remainingStopIds`, `projectedEndAt`, `planVersion`을 그대로 비교한다. 합성 지도 좌표는 원본 stop ID에 결정론적으로 결속해 순서변경·이관 후에도 같은 배송지가 같은 위치를 유지한다. `planVersion`이 같으면 적용 전 상태, 다르면 승인 적용 상태로 표시한다.
+
 ## 8. 국내 AI 트랙 아키텍처
 
 ### 8.1 오프라인 합성데이터 계층

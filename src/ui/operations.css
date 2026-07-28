@@ -623,10 +623,41 @@
   box-shadow: 0 2px 6px rgba(15, 23, 42, 0.2);
 }
 
+.operations-route-point.active {
+  background: var(--color-teal-700);
+}
+
 .operations-route-point.current {
   width: 20px;
   height: 20px;
   background: var(--color-blue-700);
+}
+
+.operations-route-comparison {
+  margin-top: 14px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: #f8fafc;
+}
+
+.operations-route-comparison h3 {
+  margin: 0;
+  font-size: 1rem;
+}
+
+.operations-route-comparison > strong {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--color-teal-800);
+}
+
+.operations-route-comparison > p {
+  margin: 8px 0 0;
+  color: var(--color-text-muted);
+  overflow-wrap: anywhere;
+  font-size: 0.76rem;
+  line-height: 1.5;
 }
 
 .operations-directions-status {

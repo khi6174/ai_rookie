@@ -12,8 +12,10 @@ import {
 } from "../adapters/maps/kakao";
 import {
   createOperationsMapCouriers,
+  createOperationsRouteComparison,
   createOperationsRiderMapModel,
 } from "../application/operations";
+import type { ScenarioFixture } from "../domain/contracts";
 import type { DailyOperationsPackage } from "../domain/operations";
 
 type MapStatus = "LOADING" | "READY" | "FALLBACK";
@@ -30,11 +32,15 @@ function courierProgressLabel(
 export function OperationsMap({
   operationsPackage,
   selectedCourierId,
+  baselinePlan,
+  activePlan,
   supportCourierIds,
   onSelectCourier,
 }: {
   operationsPackage: DailyOperationsPackage;
   selectedCourierId?: string;
+  baselinePlan?: ScenarioFixture;
+  activePlan?: ScenarioFixture;
   supportCourierIds: ReadonlySet<string>;
   onSelectCourier(courierId: string): void;
 }) {
@@ -50,15 +56,29 @@ export function OperationsMap({
     () => createOperationsMapCouriers(operationsPackage),
     [operationsPackage],
   );
-  const selectedModel = useMemo(
+  const routeComparison = useMemo(
     () =>
-      selectedCourierId
-        ? createOperationsRiderMapModel(
+      selectedCourierId && baselinePlan && activePlan
+        ? createOperationsRouteComparison(
             operationsPackage,
+            baselinePlan,
+            activePlan,
             selectedCourierId,
           )
         : undefined,
-    [operationsPackage, selectedCourierId],
+    [activePlan, baselinePlan, operationsPackage, selectedCourierId],
+  );
+  const selectedModel = useMemo(
+    () =>
+      routeComparison
+        ? routeComparison.mapModel
+        : selectedCourierId
+          ? createOperationsRiderMapModel(
+              operationsPackage,
+              selectedCourierId,
+            )
+          : undefined,
+    [operationsPackage, routeComparison, selectedCourierId],
   );
   useEffect(() => {
     const container = containerRef.current;
@@ -128,8 +148,7 @@ export function OperationsMap({
           const path = selectedModel.path.map(addPoint);
           const node = document.createElement("div");
           node.className = "operations-map-marker selected";
-          node.textContent =
-            selectedCourierId?.replace("demo-courier-", "") ?? "선택";
+          node.textContent = selectedCourierId!.replace("demo-courier-", "");
           node.setAttribute(
             "aria-label",
             `${selectedCourierId} 선택된 합성 위치`,
@@ -205,7 +224,9 @@ export function OperationsMap({
     Math.max(...latitudes) - Math.min(...latitudes) || 0.001;
   const longitudeSpan =
     Math.max(...longitudes) - Math.min(...longitudes) || 0.001;
-
+  const routeApplied =
+    routeComparison?.baseline.planVersion !==
+    routeComparison?.active.planVersion;
   return (
     <section className="operations-map-card" aria-labelledby="operations-map-heading">
       <div className="operations-map-header">
@@ -301,11 +322,7 @@ export function OperationsMap({
                 return (
                   <span
                     key={`${point.latitude}-${point.longitude}`}
-                    className={
-                      index === 0
-                        ? "operations-route-point current"
-                        : "operations-route-point"
-                    }
+                    className={`operations-route-point active${index === 0 ? " current" : ""}`}
                     style={{ left: `${left}%`, top: `${top}%` }}
                     aria-hidden="true"
                   />
@@ -314,15 +331,30 @@ export function OperationsMap({
           </div>
         )}
       </div>
+      {routeComparison && (
+        <section
+          className="operations-route-comparison"
+          aria-label="경로 계획 비교"
+        >
+          <h3>조정 전·후 경로·배송순서·ETA</h3>
+          <strong>{routeApplied ? "승인 적용 완료" : "현재 계획 유지"}</strong>
+          <p>
+            계획 {routeComparison.baseline.planVersion} → {routeComparison.active.planVersion}
+            {" · "}남은 배송 {routeComparison.baseline.remainingStopIds.length}건 → {routeComparison.active.remainingStopIds.length}건
+            {" · "}예상 종료 {routeComparison.baseline.projectedEndAt.slice(11, 16)} → {routeComparison.active.projectedEndAt.slice(11, 16)}
+          </p>
+          <p><strong>적용 전 순서</strong> {routeComparison.baseline.remainingStopIds.join(" → ")}</p>
+          {routeApplied && (
+            <p><strong>적용 후 순서</strong> {routeComparison.active.remainingStopIds.join(" → ")}</p>
+          )}
+        </section>
+      )}
       <div className="operations-directions-status" role="status">
-        {!selectedModel ? (
-          <>
-            <span>
-              합성 {couriers.length}명 · 지원 {supportCourierIds.size}명 · 실제
-              위치 0명
-            </span>
-          </>
-        ) : null}
+        {!selectedModel && (
+          <span>
+            합성 {couriers.length}명 · 지원 {supportCourierIds.size}명 · 실제 위치 0명
+          </span>
+        )}
         {selectedModel && directions.status === "LOADING" && (
           <span>Kakao Mobility 선택 경로 확인 중…</span>
         )}
@@ -349,9 +381,7 @@ export function OperationsMap({
         )}
       </div>
       <p className="operations-map-disclosure">
-        {!selectedModel
-          ? "합성 위치·배송 진행 스냅샷입니다. 실제 GPS가 아니며 자동 이동하지 않습니다."
-          : "합성 좌표만 전송합니다. 지도·길찾기 결과는 시각화와 ETA 비교 보조이며 Safety Budget 계산 입력을 덮어쓰지 않습니다."}
+        합성 좌표입니다. Kakao 결과는 계획·Safety 계산을 변경하지 않습니다.
       </p>
     </section>
   );

@@ -15,6 +15,7 @@ import {
   createOperationsExportBundle,
   createDailyOperationsSnapshot,
   createOperationsMapCouriers,
+  createOperationsRouteComparison,
   createOperationsRiderMapModel,
   createScenarioFixtureFromOperationsPackage,
   detectDecisionWorkspaceConflicts,
@@ -112,6 +113,34 @@ describe("daily synthetic operations package", () => {
         bundledDailyOperationsPackage,
         "demo-courier-003",
       ),
+    );
+  });
+
+  it("keeps the route comparison unchanged before an approved plan exists", async () => {
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      {
+        createdAt: "2026-07-27T00:00:00.000Z",
+      },
+    );
+    const comparison = createOperationsRouteComparison(
+      bundledDailyOperationsPackage,
+      snapshot.fixture,
+      snapshot.fixture,
+      "demo-courier-003",
+    );
+    expect(comparison).toMatchObject({
+    });
+    expect(comparison.baseline.planVersion).toBe(
+      comparison.active.planVersion,
+    );
+    expect(comparison.baseline.remainingStopIds).toEqual(
+      comparison.active.remainingStopIds,
+    );
+    expect(comparison.baseline.remainingStopIds).toHaveLength(
+      snapshot.fixture.workloads.find(
+        (workload) => workload.courierId === "demo-courier-003",
+      )!.remainingStopIds.length,
     );
   });
 
@@ -397,6 +426,27 @@ describe("multi-decision operations workspace", () => {
         (workload) => workload.planId === completed.baselinePlanId,
       )?.planVersion,
     ).not.toBe(baselineVersion);
+    const routeComparison = createOperationsRouteComparison(
+      bundledDailyOperationsPackage,
+      snapshot.fixture,
+      applied.workspace.store.activePlan,
+      initial.queueItem.courierId,
+    );
+    const sourceImpact = applied.workspace.decisions[0].selectedEvaluation
+      .courierImpacts.find((impact) => impact.role === "SOURCE");
+    expect(routeComparison.active.planVersion).not.toBe(
+      routeComparison.baseline.planVersion,
+    );
+    expect(routeComparison.active.planVersion).toBe(
+      completed.appliedPlanVersion,
+    );
+    expect(
+      routeComparison.active.remainingStopIds.length -
+        routeComparison.baseline.remainingStopIds.length,
+    ).toBe(sourceImpact?.stopCountDelta);
+    expect(routeComparison.mapModel.path).toHaveLength(
+      routeComparison.active.remainingStopIds.length + 1,
+    );
 
     const planCsv = createAppliedPlanCsv(snapshot, applied.workspace);
     const auditCsv = createAuditCsv(snapshot, applied.workspace);

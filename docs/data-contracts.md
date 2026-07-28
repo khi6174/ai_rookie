@@ -400,6 +400,24 @@ type KakaoDirectionsPreview = {
 - 오류·오프라인·키 미설정에서는 기존 합성 경로와 구조화 목록으로 전환한다.
 - 이 결과는 Safety Budget, Time-to-Breach, 개입 순위, 동의·승인 또는 적용 계획을 변경할 수 없다.
 
+### 4.4 운영 경로 적용 비교 파생 모델
+
+`OperationsRouteComparison`은 저장 계약이 아니라 불변 기준 계획과 현재 활성 계획에서 매 렌더링 시 만드는 읽기 전용 파생 모델이다.
+
+```ts
+type OperationsRouteComparison = {
+  baseline: CourierWorkload;
+  active: CourierWorkload;
+  mapModel: RiderCompactMapModel;
+};
+```
+
+- `baseline`은 `DailyOperationsSnapshot.fixture`, `active`는 `OperationsDecisionWorkspace.store.activePlan`에서만 읽는다.
+- 적용 여부는 같은 기사 workload의 기준·활성 `planVersion` 비교에서만 파생한다.
+- stop 좌표는 원본 합성 운영 패키지의 stop ID에 결정론적으로 결속하며 실제 GPS가 아니다.
+- 순서와 예상 종료시각은 active workload 값을 그대로 표시하고, 배송지별 ETA는 active plan·고객안내·CSV에 유지한다. 지도 또는 Kakao 응답으로 어느 값도 다시 계산하지 않는다.
+- 승인 전에는 baseline과 active가 같아야 하며 변경된 적용 결과처럼 표시하지 않는다.
+
 ## 5. CourierState
 
 기사 개인의 현재 운영상 상태를 나타낸다. 실제 이름, 연락처, 고용평가와 원시 생체정보를 포함하지 않는다.
