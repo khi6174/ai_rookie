@@ -1,6 +1,6 @@
 {
   "schemaVersion": "operations-deployed-smoke-v1",
-  "capturedAt": "2026-07-28T04:06:00.553Z",
+  "capturedAt": "2026-07-28T05:16:56.280Z",
   "status": "LIVE_PASS",
   "dataMode": "SYNTHETIC",
   "siteUrl": "https://saferoute-ai-demo.khiyw.chatgpt.site",
@@ -18,13 +18,13 @@
   "conflictProtected": true,
   "upstageExplanationLive": true,
   "publicReviewManifestVerified": true,
-  "deployedReleaseCommit": "4c08cb31035dd8bb2f19a7517a2f48c600880068",
-  "reviewManifestSha256": "eb23bb1cb2febe22ed4734328d643d2ed995c97512b925b0427a9e330938e936",
-  "upstageExplanationOutputSha256": "b67714d06be6924ea3f8183c3c3fca2851574cf3a714a7628c9c72a53f0ad13e",
+  "deployedReleaseCommit": "857e546282708607408ab442b4f42bbe49503acc",
+  "reviewManifestSha256": "0df6e9dcc4627639b8b76f89e1e936f53bf93439075b274bcc7adfc026cba004",
+  "upstageExplanationOutputSha256": "0fab744ed6a517315095eddcfe3d02f2bf16856c7d56dab91abbff12911b4175",
   "snapshotId": "daily-operations-documents-2026-07-25-bundled-v1-normalized-e8ac8e2af3e5e836",
   "packageHash": "e8ac8e2af3e5e8360ec6dbaf0c4067e98affc6e2e8914253dd98473e62a18a8d",
   "supportDecisionCount": 15,
-  "persistedPayloadSha256": "10c0c01f8a3f0f515d774b9286f3e9e466b3382eaf82c79bc1935ecd10a0f861",
+  "persistedPayloadSha256": "1e497af71c729c126d7b6aff97433dffddb221bc48f45e3f2a60c3cd42fb49fb",
   "rawSessionStoredInEvidence": false,
   "actualPersonalDataCount": 0
 }
