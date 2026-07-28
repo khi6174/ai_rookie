@@ -760,13 +760,6 @@ export function OperationsService() {
             <small>운영 안전 코파일럿</small>
           </span>
         </a>
-        <div className="operations-runtime-summary" aria-label="현재 데이터 상태">
-          <span>
-            <span aria-hidden="true">◇</span> Demo fixture
-          </span>
-          <span>기상 데이터 Fallback</span>
-          <span>Live 0명</span>
-        </div>
         <div className="operations-account" aria-label="현재 데모 계정">
           <span aria-hidden="true">OP</span>
           <span>
