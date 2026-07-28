@@ -28,10 +28,16 @@ test.describe("synthetic operations service", () => {
       ),
     ).toBe("nowrap");
 
+    const documentBundleLink = page.getByRole("link", {
+      name: "합성 문서 번들 내려받기",
+    });
+    expect(
+      await documentBundleLink.evaluate(
+        (element) => window.getComputedStyle(element).whiteSpace,
+      ),
+    ).toBe("nowrap");
     const documentBundleDownload = page.waitForEvent("download");
-    await page
-      .getByRole("link", { name: "합성 문서 번들 내려받기" })
-      .click();
+    await documentBundleLink.click();
     const downloadedBundle = await documentBundleDownload;
     const downloadedBundlePath = await downloadedBundle.path();
     expect(downloadedBundlePath).not.toBeNull();
