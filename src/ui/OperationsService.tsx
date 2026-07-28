@@ -62,7 +62,7 @@ const adminTabs: Array<{
     hash: "operations-day",
     title: "오늘의 운영자료를 확정합니다",
     subtitle:
-      "합성 근무표·배송 작업표·경로표의 출처와 참조를 검증한 뒤 전체 기사를 같은 시각으로 계산합니다.",
+      "합성 근무표·작업표·경로표를 검증하고 모든 기사를 같은 시각으로 계산합니다.",
   },
   {
     value: "SUPPORT",
@@ -70,35 +70,31 @@ const adminTabs: Array<{
     label: "지원 상황",
     hash: "support-situations",
     title: "향후 60분 안에 어떤 지원이 필요한가?",
-    subtitle:
-      "모든 활성 기사의 Time-to-Breach와 안전지원 큐를 확인하고 검토할 결정을 선택합니다.",
+    subtitle: "Time-to-Breach와 지원 큐에서 결정을 선택합니다.",
   },
   {
     value: "ROUTE",
     icon: "⌖",
     label: "경로",
     hash: "route-review",
-    title: "지원 결정의 경로와 도착 영향을 확인합니다",
-    subtitle:
-      "Kakao 지도와 구조화 대안에서 합성 위치·경로를 확인합니다. 지도는 Safety 계산을 변경하지 않습니다.",
+    title: "경로와 도착 영향 확인",
+    subtitle: "Kakao 지도와 구조화 대안으로 합성 경로를 확인합니다.",
   },
   {
     value: "INTERVENTIONS",
     icon: "⚖",
     label: "개입 검토",
     hash: "intervention-review",
-    title: "안전한 개입안을 비교하고 승인합니다",
-    subtitle:
-      "안전 하드 제약과 Risk Transfer Guard를 통과한 후보만 기사 동의와 관리자 승인으로 진행합니다.",
+    title: "안전 개입안 비교·승인",
+    subtitle: "Risk Transfer Guard를 통과한 후보만 동의·승인합니다.",
   },
   {
     value: "AUDIT",
     icon: "▦",
     label: "감사·내보내기",
     hash: "audit-export",
-    title: "적용 결과와 감사 근거를 확인합니다",
-    subtitle:
-      "불변 스냅샷, 적용 계획, 고객안내 초안과 감사 이벤트를 같은 결정 근거로 내보냅니다.",
+    title: "적용 결과·감사 근거",
+    subtitle: "스냅샷·계획·안내·감사 이벤트를 같은 근거로 내보냅니다.",
   },
 ];
 
@@ -294,8 +290,8 @@ export function OperationsService() {
       label: "운영 상태 저장 중",
     });
     const timer = window.setTimeout(() => {
-      persistenceQueueRef.current = persistenceQueueRef.current
-        .then(async () => {
+      persistenceQueueRef.current = persistenceQueueRef.current.then(
+        async () => {
           const session = createOperationsPersistedSession({
             workspaceId,
             operationsPackage,
@@ -331,15 +327,8 @@ export function OperationsService() {
                         : "운영 상태를 저장하지 못했습니다.",
                 },
           );
-        })
-        .catch(() => {
-          if (persistenceVersion === persistenceVersionRef.current) {
-            setPersistenceState({
-              status: "UNAVAILABLE",
-              label: "운영 상태를 저장하지 못했습니다.",
-            });
-          }
-        });
+        },
+      );
     }, 350);
     return () => window.clearTimeout(timer);
   }, [
