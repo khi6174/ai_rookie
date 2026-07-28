@@ -277,24 +277,51 @@
 
 .operations-ai-explanation {
   display: grid;
-  gap: 10px;
+  gap: 14px;
   margin-top: 14px;
-  padding: 16px;
+  padding: 18px;
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  background: #f8fafc;
+  background: #fff;
 }
 
-.operations-ai-explanation > div:first-child {
+.operations-ai-header {
   display: flex;
-  align-items: baseline;
+  align-items: flex-start;
   justify-content: space-between;
-  gap: 12px;
+  gap: 18px;
 }
 
-.operations-ai-explanation h3,
-.operations-ai-explanation p {
+.operations-ai-heading {
+  min-width: 0;
+}
+
+.operations-ai-heading h3,
+.operations-ai-heading p,
+.operations-ai-result p {
   margin: 0;
+}
+
+.operations-ai-heading > p:last-child {
+  margin-top: 5px;
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  line-height: 1.5;
+}
+
+.operations-ai-header .button {
+  display: inline-flex;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+}
+
+.operations-ai-result {
+  display: grid;
+  gap: 9px;
+  padding-top: 13px;
+  border-top: 1px solid var(--color-border);
 }
 
 .operations-ai-explanation small {
@@ -353,9 +380,17 @@
 
 .operations-import-actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
   gap: 10px;
+}
+
+.operations-import-actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .operations-notice {
@@ -943,8 +978,20 @@
 .operations-consent-list > div > span:last-child,
 .operations-admin-actions {
   display: flex;
+  align-items: center;
   flex-wrap: wrap;
   gap: 6px;
+}
+
+.operations-consent-actions {
+  justify-content: flex-end;
+}
+
+.operations-consent-actions .button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
 }
 
 .operations-rider-link-pending {
@@ -1423,8 +1470,21 @@
   }
 
   .operations-header-actions,
-  .operations-import-actions {
+  .operations-admin-actions {
     justify-content: flex-start;
+  }
+
+  .operations-import-actions {
+    justify-content: center;
+  }
+
+  .operations-ai-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .operations-ai-header .button {
+    align-self: center;
   }
 
   .operations-summary {

@@ -92,7 +92,7 @@ for (const viewport of [
     ).toHaveAttribute("aria-selected", "true");
     await expect(page.getByText("기사 응답 대기", { exact: true })).toBeVisible();
     await expect(
-      page.getByRole("button", { name: "Upstage 근거 설명 생성" }),
+      page.getByRole("button", { name: "AI 근거 설명 생성" }),
     ).toBeVisible();
     await page.screenshot({
       path: `artifacts/evals/screenshots/operations-service-${viewport.label}.png`,

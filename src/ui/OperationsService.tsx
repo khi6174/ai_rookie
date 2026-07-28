@@ -877,11 +877,11 @@ export function OperationsService() {
               className="visually-hidden"
               type="file"
               accept="application/json,.json"
-              aria-label="합성 운영 문서 번들 또는 정규화 패키지 선택"
+              aria-label="합성 운영 문서 또는 정규화 JSON 첨부"
               onChange={(event) => void onPackageFile(event.currentTarget.files?.[0])}
             />
             <label className="button button-neutral" htmlFor="operations-package-file">
-              문서 번들·JSON 선택
+              운영 문서 첨부
             </label>
             <button
               type="button"
@@ -1190,24 +1190,31 @@ export function OperationsService() {
                       className="operations-ai-explanation"
                       aria-labelledby="operations-ai-heading"
                     >
-                      <div>
-                        <p className="operations-section-label">AI 설명 계층</p>
-                        <h3 id="operations-ai-heading">검증된 근거 설명</h3>
+                      <div className="operations-ai-header">
+                        <div className="operations-ai-heading">
+                          <p className="operations-section-label">AI 근거 설명</p>
+                          <h3 id="operations-ai-heading">
+                            검증된 결정 근거를 설명합니다
+                          </h3>
+                          <p>
+                            결정론적 수치와 허용된 문서 근거만 사용합니다.
+                          </p>
+                        </div>
+                        {!selectedExplanation && (
+                          <button
+                            type="button"
+                            className="button button-neutral button-small"
+                            disabled={explanationLoading}
+                            onClick={() => void explainDecision()}
+                          >
+                            {explanationLoading
+                              ? "AI 설명 확인 중…"
+                              : "AI 근거 설명 생성"}
+                          </button>
+                        )}
                       </div>
-                      {!selectedExplanation && (
-                        <button
-                          type="button"
-                          className="button button-neutral button-small"
-                          disabled={explanationLoading}
-                          onClick={() => void explainDecision()}
-                        >
-                          {explanationLoading
-                            ? "Upstage 확인 중…"
-                            : "Upstage 근거 설명 생성"}
-                        </button>
-                      )}
                       {selectedExplanation && (
-                        <>
+                        <div className="operations-ai-result">
                           <span
                             className={`operations-ai-status ${
                               selectedExplanation.status === "FALLBACK"
@@ -1226,7 +1233,7 @@ export function OperationsService() {
                             AI는 수치·추천·실행 가능 여부를 계산하거나 변경하지
                             않으며, 허용된 결정 사실만 설명합니다.
                           </small>
-                        </>
+                        </div>
                       )}
                     </section>
                     <div className="operations-next-step">
@@ -1257,7 +1264,7 @@ export function OperationsService() {
                                     </small>
                                   </span>
                                   {requirement.status === "PENDING" && (
-                                    <span>
+                                    <span className="operations-consent-actions">
                                       {persistenceState.status === "SAVED" ? (
                                         <a
                                           className="button button-primary button-small"

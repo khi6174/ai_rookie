@@ -819,6 +819,15 @@
 - 기각한 대안: 합성 위치를 실시간으로 표시, 브라우저 Geolocation을 즉시 수집, 관리자에게 실제 정밀 궤적을 노출, 권역 집계만 유지하고 기사 진행률을 지도와 분리.
 - 영향 파일: `src/ui/OperationsMap.tsx`, `src/ui/OperationsService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
+### ADR-085 — 운영 서비스의 주요 행동은 사용자 역할 중심 명칭을 사용한다
+
+- 날짜: 2026-07-28
+- 상태: Approved
+- 결정: 일일 운영의 JSON 파일 입력은 `운영 문서 첨부`, 개입 검토의 설명 생성은 `AI 근거 설명 생성`으로 표시한다. Upstage 같은 공급자 이름과 Live·Mock·Fallback 상태는 결과 상태와 감사 근거에서 유지하되 주요 행동 이름으로 사용하지 않는다. 파일 첨부, AI 설명 생성과 기사 화면 열기 행동은 버튼 안에서 줄바꿈하지 않고 가운데 정렬한다.
+- 이유: 내부 문서 형식과 공급자 이름을 행동 이름에 직접 노출하면 사용자가 무엇을 해야 하는지보다 구현 세부사항이 먼저 보이고, 좁은 패널에서 짧은 행동 문구도 두 줄로 깨져 정보계층이 흐려진다.
+- 기각한 대안: `문서 번들·JSON 선택`과 `Upstage 근거 설명 생성` 유지, 버튼 폭만 확대, 작은 글자로 축소, 강제 두 줄 배치.
+- 영향 파일: `src/ui/OperationsService.tsx`, `src/ui/operations.css`, 운영 서비스 Playwright, `docs/design-system.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

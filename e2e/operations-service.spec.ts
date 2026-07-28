@@ -20,6 +20,13 @@ test.describe("synthetic operations service", () => {
     ).toHaveCount(5);
     await expect(page.getByText("활성 기사 25명")).toBeVisible();
     await expect(page.getByText("입력 합성 문서 100개")).toBeVisible();
+    const documentAttach = page.getByText("운영 문서 첨부", { exact: true });
+    await expect(documentAttach).toBeVisible();
+    expect(
+      await documentAttach.evaluate(
+        (element) => window.getComputedStyle(element).whiteSpace,
+      ),
+    ).toBe("nowrap");
 
     const documentBundleDownload = page.waitForEvent("download");
     await page
@@ -45,7 +52,7 @@ test.describe("synthetic operations service", () => {
     expect(documentBundle.documents).toHaveLength(100);
     expect(documentBundle.extractedRecords).toHaveLength(25);
     await page
-      .getByLabel("합성 운영 문서 번들 또는 정규화 패키지 선택")
+      .getByLabel("합성 운영 문서 또는 정규화 JSON 첨부")
       .setInputFiles(downloadedBundlePath!);
     await expect(
       page.getByText("추출 상태 SAFEROUTE DETERMINISTIC · strict 추출 통과"),
@@ -110,9 +117,15 @@ test.describe("synthetic operations service", () => {
         }),
       });
     });
-    await page
-      .getByRole("button", { name: "Upstage 근거 설명 생성" })
-      .click();
+    const explanationButton = page.getByRole("button", {
+      name: "AI 근거 설명 생성",
+    });
+    expect(
+      await explanationButton.evaluate(
+        (element) => window.getComputedStyle(element).whiteSpace,
+      ),
+    ).toBe("nowrap");
+    await explanationButton.click();
     await expect(
       page.getByText("Fallback 템플릿 · RATE_LIMITED", { exact: true }),
     ).toBeVisible();
@@ -126,6 +139,11 @@ test.describe("synthetic operations service", () => {
       { timeout: 15_000 },
     );
     const riderLinks = page.getByRole("link", { name: "기사 화면 열기" });
+    expect(
+      await riderLinks.first().evaluate(
+        (element) => window.getComputedStyle(element).whiteSpace,
+      ),
+    ).toBe("nowrap");
     let responseCount = 0;
     while ((await riderLinks.count()) > 0 && responseCount < 3) {
       const popupPromise = page.waitForEvent("popup");
