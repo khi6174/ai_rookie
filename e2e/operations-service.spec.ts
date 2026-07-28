@@ -131,6 +131,17 @@ test.describe("synthetic operations service", () => {
         (element) => window.getComputedStyle(element).whiteSpace,
       ),
     ).toBe("nowrap");
+    const explanationCard = page.locator(".operations-ai-explanation");
+    const affectedCourierCard = page.locator(".operations-next-step");
+    const [explanationBox, affectedCourierBox] = await Promise.all([
+      explanationCard.boundingBox(),
+      affectedCourierCard.boundingBox(),
+    ]);
+    expect(explanationBox).not.toBeNull();
+    expect(affectedCourierBox).not.toBeNull();
+    expect(
+      Math.abs(explanationBox!.width - affectedCourierBox!.width),
+    ).toBeLessThanOrEqual(1);
     await explanationButton.click();
     await expect(
       page.getByText("Fallback 템플릿 · RATE_LIMITED", { exact: true }),

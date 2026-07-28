@@ -286,10 +286,10 @@
 .operations-ai-explanation {
   display: grid;
   gap: 14px;
-  margin-top: 14px;
-  padding: 18px;
+  margin: 14px 18px 10px;
+  padding: 14px 16px;
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: 12px;
   background: #fff;
 }
 
