@@ -51,6 +51,7 @@ const adminTabs: Array<{
   value: OperationsAdminTab;
   icon: string;
   label: string;
+  shortLabel: string;
   hash: string;
   title: string;
   subtitle: string;
@@ -59,6 +60,7 @@ const adminTabs: Array<{
     value: "DAY",
     icon: "▤",
     label: "일일 운영",
+    shortLabel: "운영",
     hash: "operations-day",
     title: "오늘의 운영자료를 확정합니다",
     subtitle:
@@ -68,6 +70,7 @@ const adminTabs: Array<{
     value: "SUPPORT",
     icon: "◈",
     label: "지원 상황",
+    shortLabel: "지원",
     hash: "support-situations",
     title: "향후 60분 안에 어떤 지원이 필요한가?",
     subtitle: "Time-to-Breach와 지원 큐에서 결정을 선택합니다.",
@@ -76,6 +79,7 @@ const adminTabs: Array<{
     value: "ROUTE",
     icon: "⌖",
     label: "경로",
+    shortLabel: "경로",
     hash: "route-review",
     title: "경로와 도착 영향 확인",
     subtitle: "Kakao 지도와 구조화 대안으로 합성 경로를 확인합니다.",
@@ -84,6 +88,7 @@ const adminTabs: Array<{
     value: "INTERVENTIONS",
     icon: "⚖",
     label: "개입 검토",
+    shortLabel: "검토",
     hash: "intervention-review",
     title: "안전 개입안 비교·승인",
     subtitle: "Risk Transfer Guard를 통과한 후보만 동의·승인합니다.",
@@ -92,6 +97,7 @@ const adminTabs: Array<{
     value: "AUDIT",
     icon: "▦",
     label: "감사·내보내기",
+    shortLabel: "감사",
     hash: "audit-export",
     title: "적용 결과·감사 근거",
     subtitle: "스냅샷·계획·안내·감사 이벤트를 같은 근거로 내보냅니다.",
@@ -746,14 +752,30 @@ export function OperationsService() {
       <a className="skip-link" href="#operations-main">
         본문으로 건너뛰기
       </a>
-      <aside className="operations-sidebar" aria-label="SafeRoute 서비스 메뉴">
+      <header className="operations-global-header">
         <a className="operations-brand" href="/operations">
           <span aria-hidden="true">SR</span>
           <span>
-            <strong>SafeRoute AI</strong>
-            <small>합성 운영 서비스</small>
+            <strong>SafeRoute</strong>
+            <small>운영 안전 코파일럿</small>
           </span>
         </a>
+        <div className="operations-runtime-summary" aria-label="현재 데이터 상태">
+          <span>
+            <span aria-hidden="true">◇</span> Demo fixture
+          </span>
+          <span>기상 데이터 Fallback</span>
+          <span>Live 0명</span>
+        </div>
+        <div className="operations-account" aria-label="현재 데모 계정">
+          <span aria-hidden="true">OP</span>
+          <span>
+            <strong>운영 관리자 · OP-01</strong>
+            <small>합성 Demo 계정</small>
+          </span>
+        </div>
+      </header>
+      <aside className="operations-sidebar" aria-label="SafeRoute 서비스 메뉴">
         <nav role="tablist" aria-label="관리자 운영 화면">
           {adminTabs.map((tab) => (
             <button
@@ -763,6 +785,8 @@ export function OperationsService() {
               role="tab"
               aria-selected={adminTab === tab.value}
               aria-controls={`operations-panel-${tab.value.toLowerCase()}`}
+              aria-label={tab.label}
+              title={tab.label}
               className={adminTab === tab.value ? "active" : undefined}
               onClick={() => selectAdminTab(tab.value)}
               onKeyDown={(event) => {
@@ -793,21 +817,21 @@ export function OperationsService() {
                 });
               }}
             >
-              <span aria-hidden="true">{tab.icon}</span> {tab.label}
+              <span aria-hidden="true">{tab.icon}</span>
+              <span>{tab.shortLabel}</span>
             </button>
           ))}
         </nav>
-        <div className="operations-boundary">
-          <strong>합성 운영 모드</strong>
-          <p>실제 기사·고객·GPS 데이터는 포함하지 않습니다.</p>
+        <div className="operations-sidebar-footer">
+          <span title="실제 기사·고객·GPS 데이터가 없는 합성 Demo">합성</span>
+          <a className="operations-demo-link" href="/" title="기존 P0 데모 열기">
+            P0
+          </a>
         </div>
-        <a className="operations-demo-link" href="/">
-          기존 P0 데모 열기
-        </a>
       </aside>
 
       <main id="operations-main" className="operations-main" tabIndex={-1}>
-        <header className="operations-header">
+        <header className="operations-page-header">
           <div>
             <p className="operations-kicker">PAID PILOT READY · SYNTHETIC OPERATIONS</p>
             <h1>{activeTab.title}</h1>
@@ -828,19 +852,20 @@ export function OperationsService() {
               </span>
               {persistenceState.label}
             </span>
-            <span className="operations-mode">
-              <span aria-hidden="true">◇</span> SYNTHETIC · MOCK
-            </span>
-            <button type="button" className="button button-neutral" onClick={downloadPackage}>
-              정규화 패키지 내려받기
-            </button>
-            <a
-              className="button button-neutral"
-              href={bundledDocumentTemplateUrl}
-              download="daily-operations-documents-2026-07-25-bundled-v1.json"
-            >
-              합성 문서 번들 내려받기
-            </a>
+            {adminTab === "DAY" && (
+              <>
+                <button type="button" className="button button-neutral" onClick={downloadPackage}>
+                  정규화 패키지 내려받기
+                </button>
+                <a
+                  className="button button-neutral"
+                  href={bundledDocumentTemplateUrl}
+                  download="daily-operations-documents-2026-07-25-bundled-v1.json"
+                >
+                  합성 문서 번들 내려받기
+                </a>
+              </>
+            )}
           </div>
         </header>
 
@@ -1118,6 +1143,18 @@ export function OperationsService() {
                           selectedArtifacts.decision.status}
                       </span>
                     </div>
+                    <section className="operations-decision-hero" aria-label="현재 결정 질문">
+                      <p className="operations-section-label">지금 답할 질문</p>
+                      <h3>
+                        {selectedArtifacts.queueItem.timeToBreachMinutes !== undefined
+                          ? `약 ${Math.round(selectedArtifacts.queueItem.timeToBreachMinutes)}분 후 안전한계 도달 예상`
+                          : "현재 계획의 안전지원 개입이 필요합니다"}
+                      </h3>
+                      <p>
+                        추천 개입안이 모든 영향 기사의 안전기준을 충족하는지 확인하세요.
+                        기사 동의 전에는 현재 계획이 바뀌지 않습니다.
+                      </p>
+                    </section>
                     <div className="operations-decision-metrics">
                       <div>
                         <span>현재 안전여유</span>
@@ -1137,6 +1174,30 @@ export function OperationsService() {
                         <span>신뢰도</span>
                         <strong>{selectedArtifacts.queueItem.confidence}</strong>
                       </div>
+                    </div>
+                    <div className="operations-impact-grid" aria-label="추천 개입 영향 기사">
+                      {selectedArtifacts.selectedEvaluation.courierImpacts.map((impact) => (
+                        <article key={`${impact.role}-${impact.courierId}`}>
+                          <div>
+                            <span className="operations-section-label">
+                              {impact.role === "SOURCE"
+                                ? "지원받는 기사"
+                                : "배송을 나눠 맡는 기사"}
+                            </span>
+                            <strong>{impact.courierId}</strong>
+                          </div>
+                          <dl>
+                            <div>
+                              <dt>현재 계획 최저</dt>
+                              <dd>{formatBudget(impact.baselineMinimumBudget)}</dd>
+                            </div>
+                            <div>
+                              <dt>조정 후 최저</dt>
+                              <dd>{formatBudget(impact.candidateMinimumBudget)}</dd>
+                            </div>
+                          </dl>
+                        </article>
+                      ))}
                     </div>
                     <div className="operations-candidate-list">
                       {selectedArtifacts.evaluations.map((evaluation) => {

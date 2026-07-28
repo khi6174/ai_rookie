@@ -20,6 +20,10 @@ const allowedRuntimeHosts = [
   "opendata.koroad.or.kr",
 ];
 const allowedDistributionHosts = ["download.pytorch.org"];
+const allowedOperationalHosts = [
+  "local.test",
+  "saferoute-ai-demo.khiyw.chatgpt.site",
+];
 const expectedDomesticModels = [
   "A.X-K1",
   "skt/A.X-4.0-Light",
@@ -126,7 +130,8 @@ const runtimeHosts = extractHttpsHosts(combinedAuditText);
 const unexpectedRuntimeHosts = runtimeHosts.filter(
   (host) =>
     !allowedRuntimeHosts.includes(host) &&
-    !allowedDistributionHosts.includes(host),
+    !allowedDistributionHosts.includes(host) &&
+    !allowedOperationalHosts.includes(host),
 );
 
 const packageJson = JSON.parse(
@@ -315,6 +320,7 @@ const result = {
   ],
   allowedRuntimeHosts,
   allowedDistributionHosts,
+  allowedOperationalHosts,
   observedRuntimeHosts: runtimeHosts,
   checks,
   declaredNonRuntimeReferences,
