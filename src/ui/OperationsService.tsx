@@ -213,6 +213,8 @@ export function OperationsService() {
   const persistenceBaseSavedAtRef = useRef<string | undefined>(
     undefined,
   );
+  const persistenceQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const persistenceVersionRef = useRef(0);
   const activeTab =
     adminTabs.find((tab) => tab.value === adminTab) ?? adminTabs[0];
 
@@ -286,48 +288,58 @@ export function OperationsService() {
       skipNextPersistenceRef.current = false;
       return;
     }
+    const persistenceVersion = ++persistenceVersionRef.current;
     setPersistenceState({
       status: "SAVING",
       label: "운영 상태 저장 중",
     });
     const timer = window.setTimeout(() => {
-      const persist = async () => {
-        const session = createOperationsPersistedSession({
+      persistenceQueueRef.current = persistenceQueueRef.current
+        .then(async () => {
+          const session = createOperationsPersistedSession({
             workspaceId,
             operationsPackage,
             snapshot,
             fleet,
             workspace,
           });
-        const result = await saveOperationsPersistedSession(
-          session,
-          {
+          const result = await saveOperationsPersistedSession(session, {
             baseSavedAt: persistenceBaseSavedAtRef.current,
-          },
-        );
-        if (result.status === "SAVED") {
-          persistenceBaseSavedAtRef.current = result.updatedAt;
-        }
-        setPersistenceState(
-          result.status === "SAVED"
-            ? {
-                status: "SAVED",
-                label:
-                  result.storage === "D1"
-                    ? "서비스 저장소에 저장됨"
-                    : "개발 저장소에 저장됨",
-              }
-            : {
-                status: "UNAVAILABLE",
-                label: result.status === "CONFLICT"
-                  ? "다른 화면의 변경 있음 · 새로고침 필요"
-                  : "message" in result
-                    ? result.message
-                    : "운영 상태를 저장하지 못했습니다.",
-              },
-        );
-      };
-      void persist();
+          });
+          if (result.status === "SAVED") {
+            persistenceBaseSavedAtRef.current = result.updatedAt;
+          }
+          if (persistenceVersion !== persistenceVersionRef.current) {
+            return;
+          }
+          setPersistenceState(
+            result.status === "SAVED"
+              ? {
+                  status: "SAVED",
+                  label:
+                    result.storage === "D1"
+                      ? "서비스 저장소에 저장됨"
+                      : "개발 저장소에 저장됨",
+                }
+              : {
+                  status: "UNAVAILABLE",
+                  label:
+                    result.status === "CONFLICT"
+                      ? "다른 화면의 변경 있음 · 새로고침 필요"
+                      : "message" in result
+                        ? result.message
+                        : "운영 상태를 저장하지 못했습니다.",
+                },
+          );
+        })
+        .catch(() => {
+          if (persistenceVersion === persistenceVersionRef.current) {
+            setPersistenceState({
+              status: "UNAVAILABLE",
+              label: "운영 상태를 저장하지 못했습니다.",
+            });
+          }
+        });
     }, 350);
     return () => window.clearTimeout(timer);
   }, [
@@ -397,6 +409,7 @@ export function OperationsService() {
   };
 
   const calculateOperationsDay = async () => {
+    persistenceVersionRef.current += 1;
     setLoadState({
       status: "LOADING",
       message: `${operationsPackage.records.length}명 입력을 검증하고 전체 계획을 계산하고 있습니다.`,
@@ -453,6 +466,7 @@ export function OperationsService() {
     ) {
       return;
     }
+    persistenceVersionRef.current += 1;
     setPersistenceState({
       status: "SAVING",
       label: "운영 상태 저장 중",
