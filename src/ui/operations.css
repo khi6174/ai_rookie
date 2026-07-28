@@ -166,7 +166,6 @@
 }
 
 .operations-sidebar nav button.active {
-  box-shadow: inset 3px 0 0 var(--operations-brand);
   font-weight: 800;
 }
 
