@@ -1,10 +1,10 @@
 {
   "schemaVersion": "domestic-track-compliance-v1",
-  "capturedAt": "2026-07-27T01:32:54.056Z",
+  "capturedAt": "2026-07-28T05:49:34.886Z",
   "status": "PASSED",
   "scope": {
     "competitionTrack": "DOMESTIC_AI",
-    "auditedTrackedFileCount": 109,
+    "auditedTrackedFileCount": 137,
     "auditedAreas": [
       "runtime adapters",
       "evaluation scripts",
@@ -69,6 +69,10 @@
   "allowedDistributionHosts": [
     "download.pytorch.org"
   ],
+  "allowedOperationalHosts": [
+    "local.test",
+    "saferoute-ai-demo.khiyw.chatgpt.site"
+  ],
   "observedRuntimeHosts": [
     "api.friendli.ai",
     "api.upstage.ai",
@@ -76,8 +80,10 @@
     "awf-gw.adot.ai",
     "dapi.kakao.com",
     "download.pytorch.org",
+    "local.test",
     "map.kakao.com",
-    "opendata.koroad.or.kr"
+    "opendata.koroad.or.kr",
+    "saferoute-ai-demo.khiyw.chatgpt.site"
   ],
   "checks": [
     {
@@ -88,7 +94,7 @@
     {
       "id": "RUNTIME_HOST_ALLOWLIST",
       "passed": true,
-      "details": "AI, public-data, and distribution HTTPS hosts are classified: api.friendli.ai, api.upstage.ai, apihub.kma.go.kr, awf-gw.adot.ai, dapi.kakao.com, download.pytorch.org, map.kakao.com, opendata.koroad.or.kr"
+      "details": "AI, public-data, and distribution HTTPS hosts are classified: api.friendli.ai, api.upstage.ai, apihub.kma.go.kr, awf-gw.adot.ai, dapi.kakao.com, download.pytorch.org, local.test, map.kakao.com, opendata.koroad.or.kr, saferoute-ai-demo.khiyw.chatgpt.site"
     },
     {
       "id": "DOMESTIC_PROVIDER_REGISTRY",

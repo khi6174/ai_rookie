@@ -12,3 +12,16 @@ playwright-report/
 test-results/
 __pycache__/
 *.py[cod]
+
+# Reproducible local evidence runs and deployment packages
+artifacts/demo-screenshots/
+artifacts/design-preview/
+artifacts/evals/core-evidence-runs/
+artifacts/evals/domestic-ai-api-runs/
+artifacts/evals/final-readiness-runs/
+artifacts/evals/public-data-runs/
+artifacts/saferoute-web-demo/
+artifacts/saferoute-web-demo-site*.tar.gz
+artifacts/sites/
+artifacts/submission/*.zip
+design-export/
