@@ -891,7 +891,7 @@
 - 이유: 사용자가 카드와 시뮬레이션을 함께 볼 때 시각적 피로가 크다고 판단하고, 기사 식별과 위치 확인이라는 두 행동만 한눈에 보이는 구성을 승인했다.
 - 경계: 이 변경은 제품 전체의 Time-to-Breach·향후 60분·개입 폐루프를 삭제하는 결정이 아니다. 기존 `/stage`와 `/operations`의 승인된 Safety 기능은 유지하며, `/dashboard-demo`만 더 단순한 관제 시안으로 사용한다. 합성 사진은 실제 기사나 실제 운영 데이터를 뜻하지 않는다.
 - 기각한 대안: 카드에 사진과 Safety Budget을 함께 표시, 타임라인 접기만 제공, 작은 타임라인 유지, 실제 기사 사진 사용, 프로필마다 별도 대용량 이미지 로드.
-- 영향 파일: `public/assets/synthetic-courier-profiles-v1.jpg`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
+- 영향 파일: `src/assets/synthetic-courier-profiles-v1.jpg`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
 
 ## 4. 심사기준 연결
 

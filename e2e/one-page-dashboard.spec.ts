@@ -19,7 +19,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     .first()
     .evaluate((element) => {
       const image = getComputedStyle(element).backgroundImage;
-      return image.includes("synthetic-courier-profiles-v1.jpg");
+      return image.includes("synthetic-courier-profiles-v1");
     });
   expect(profileAssetLoaded).toBe(true);
 
