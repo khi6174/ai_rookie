@@ -1,0 +1,96 @@
+import { expect, test } from "@playwright/test";
+
+test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상태를 공유한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/dashboard-demo");
+
+  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
+  await expect(page.getByRole("heading", { name: "향후 60분" })).toBeVisible();
+  await expect(page.getByText("합성 위치 · 14:32")).toBeVisible();
+  await expect(page.getByText("Live 0")).toBeVisible();
+
+  const openOverflow = await page.evaluate(() => ({
+    horizontal:
+      document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    vertical:
+      document.documentElement.scrollHeight - document.documentElement.clientHeight,
+  }));
+  expect(openOverflow.horizontal).toBeLessThanOrEqual(1);
+  expect(openOverflow.vertical).toBeLessThanOrEqual(1);
+  await page.screenshot({
+    path: "test-results/dashboard-demo-1280x720.png",
+    fullPage: false,
+  });
+
+  const sourceCard = page.locator('[data-courier-card="R-008"]');
+  await sourceCard.click();
+  await expect(sourceCard).toHaveAttribute("aria-pressed", "true");
+  await expect(page.locator('[data-map-marker="R-008"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator('[data-timeline-row="R-008"]')).toHaveClass(
+    /is-selected/,
+  );
+
+  await page.getByRole("button", { name: "백승기 기사 외 1명 묶음" }).click();
+  await expect(page.locator('[data-courier-card="R-011"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator('[data-map-marker="R-011"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  const collapse = page.getByRole("button", {
+    name: "60분 시뮬레이션 접기",
+  });
+  await collapse.click();
+  await expect(
+    page.getByRole("button", { name: "60분 시뮬레이션 펼치기" }),
+  ).toBeVisible();
+
+  const overflow = await page.evaluate(() => ({
+    horizontal:
+      document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    vertical:
+      document.documentElement.scrollHeight - document.documentElement.clientHeight,
+  }));
+  expect(overflow.horizontal).toBeLessThanOrEqual(1);
+  expect(overflow.vertical).toBeLessThanOrEqual(1);
+});
+
+test("1440×900에서도 핵심 세 영역이 한 화면에 유지된다", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/dashboard-demo");
+  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
+
+  const regions = await page.locator("main.onepage-demo > section").evaluateAll(
+    (sections) =>
+      sections.map((section) => {
+        const rect = section.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom };
+      }),
+  );
+  expect(regions).toHaveLength(3);
+  expect(regions.every((region) => region.top >= 0 && region.bottom <= 900)).toBe(
+    true,
+  );
+
+  const overflow = await page.evaluate(() => ({
+    horizontal:
+      document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    vertical:
+      document.documentElement.scrollHeight - document.documentElement.clientHeight,
+  }));
+  expect(overflow.horizontal).toBeLessThanOrEqual(1);
+  expect(overflow.vertical).toBeLessThanOrEqual(1);
+  await page.screenshot({
+    path: "test-results/dashboard-demo-1440x900.png",
+    fullPage: false,
+  });
+});

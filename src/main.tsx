@@ -21,6 +21,11 @@ const RedesignPreview = lazy(() =>
     default: module.RedesignPreview,
   })),
 );
+const OnePageDashboardDemo = lazy(() =>
+  import("./ui/OnePageDashboardDemo").then((module) => ({
+    default: module.OnePageDashboardDemo,
+  })),
+);
 
 const root = document.getElementById("root");
 
@@ -37,7 +42,9 @@ createRoot(root).render(
         </main>
       }
     >
-      {window.location.pathname.startsWith("/stage") ? (
+      {window.location.pathname.startsWith("/dashboard-demo") ? (
+        <OnePageDashboardDemo />
+      ) : window.location.pathname.startsWith("/stage") ? (
         <App stageMode />
       ) : window.location.pathname.startsWith("/operations/rider") ? (
         <OperationsRiderService />
