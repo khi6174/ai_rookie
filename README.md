@@ -67,6 +67,8 @@ pnpm run package:submission
 pnpm run typecheck
 pnpm run build
 pnpm dev
+# 1280×720 제출 영상용 한 페이지 Stage Mode
+# http://127.0.0.1:5173/stage
 # G5-B Round 4 독립 검토자 3명이 차례로 사용하는 로컬 익명 평가 화면
 pnpm run review:g5
 # 검토 화면에서 내려받은 완료 JSON을 기계 판정

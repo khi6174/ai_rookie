@@ -75,6 +75,7 @@ type RiderTab = "ROUTE" | "SUPPORT" | "PROFILE";
 type AppProps = {
   initialSession?: DemoSession;
   initialExplanation?: ExplanationResult;
+  stageMode?: boolean;
 };
 
 const formatBudget = (value: number) => value.toFixed(1);
@@ -1294,6 +1295,7 @@ function AdminDashboard({
   session,
   explanation,
   explanationLoading,
+  stageMode,
   role,
   onRoleChange,
   onReset,
@@ -1304,6 +1306,7 @@ function AdminDashboard({
   session: DemoSession;
   explanation: ExplanationResult | null;
   explanationLoading: boolean;
+  stageMode: boolean;
   role: Role;
   onRoleChange: (role: Role) => void;
   onReset: () => void;
@@ -1343,15 +1346,23 @@ function AdminDashboard({
     () => createFixtureMapAdapter(mapFixture),
     [mapFixture],
   );
-  const [mapSelection, setMapSelection] = useState<MapSelection>({});
+  const [mapSelection, setMapSelection] = useState<MapSelection>(
+    () => stageMode
+      ? mapAdapter.selectionForDecision(session.decision.decisionId)
+      : {},
+  );
   const [mapAvailable, setMapAvailable] = useState(true);
 
   useEffect(() => {
-    setMapSelection({});
+    setMapSelection(
+      stageMode
+        ? mapAdapter.selectionForDecision(session.decision.decisionId)
+        : {},
+    );
     setMapAvailable(true);
     setMovementFrameIndex(0);
     setMovementPlaying(false);
-  }, [session.decision.decisionId]);
+  }, [mapAdapter, session.decision.decisionId, stageMode]);
 
   useEffect(() => {
     if (!movementPlaying) return;
@@ -1373,12 +1384,15 @@ function AdminDashboard({
   };
 
   return (
-    <div className="admin-layout design-react-shell" id="control-tower" data-decision-status={session.decision.status}>
+    <div className={`admin-layout design-react-shell ${stageMode ? "is-stage-mode" : ""}`} id="control-tower" data-decision-status={session.decision.status}>
       <AdminNavigation />
       <main id="main-content" className="admin-main">
         <header className="admin-dashboard-header">
           <div className="admin-context">
-            <div><p className="section-kicker">2026년 7월 14일 · Asia/Seoul</p><h1>향후 60분 안에 어떤 지원이 필요한가?</h1></div>
+            <div>
+              <p className="section-kicker">{stageMode ? "SafeRoute AI · 3분 제출 Demo" : "2026년 7월 14일 · Asia/Seoul"}</p>
+              <h1>{stageMode ? "52분 후 17번째 배송지 전, 지금 지원이 필요합니다" : "향후 60분 안에 어떤 지원이 필요한가?"}</h1>
+            </div>
             <div className="weather-summary"><span aria-hidden="true">☂</span><span><strong>강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</strong><small>Demo Fallback · 시정 {(currentWeather.visibilityMeters / 1_000).toFixed(1)} km</small></span></div>
           </div>
           <div className="admin-dashboard-actions">
@@ -1395,13 +1409,22 @@ function AdminDashboard({
           <span>{session.announcement}</span>
           <code>{session.decision.decisionId}</code>
         </div>
-        <WeatherDataBoundary />
-        <div className="kpi-strip" aria-label="운영 요약">
-          <div><span>지원 필요 상황</span><strong>{applied ? "0건" : "1건"}</strong><small>{applied ? "조정 완료" : "현재 선택된 결정"}</small></div>
-          <div><span>60분 내 임계치 예상</span><strong>{applied ? "0건" : "1건"}</strong><small>{applied ? "예상 초과 해소" : "약 52분 후"}</small></div>
-          <div><span>차단된 대안</span><strong>1건</strong><small>12건 이관</small></div>
-          <div><span>승인 대기</span><strong>{session.decision.status === "ADMIN_APPROVAL_REQUIRED" ? "1건" : "0건"}</strong><small>{decisionStatusLabels[session.decision.status]}</small></div>
-        </div>
+        {stageMode ? (
+          <div className="stage-mode-disclosure" role="note">
+            <strong>합성 Demo · Simulation result</strong>
+            <span>실제 사고확률이나 사고감소 효과가 아닙니다 · Live 0명 · Weather Fallback</span>
+          </div>
+        ) : (
+          <>
+            <WeatherDataBoundary />
+            <div className="kpi-strip" aria-label="운영 요약">
+              <div><span>지원 필요 상황</span><strong>{applied ? "0건" : "1건"}</strong><small>{applied ? "조정 완료" : "현재 선택된 결정"}</small></div>
+              <div><span>60분 내 임계치 예상</span><strong>{applied ? "0건" : "1건"}</strong><small>{applied ? "예상 초과 해소" : "약 52분 후"}</small></div>
+              <div><span>차단된 대안</span><strong>1건</strong><small>12건 이관</small></div>
+              <div><span>승인 대기</span><strong>{session.decision.status === "ADMIN_APPROVAL_REQUIRED" ? "1건" : "0건"}</strong><small>{decisionStatusLabels[session.decision.status]}</small></div>
+            </div>
+          </>
+        )}
         <div className="admin-grid">
           <MultiRegionControlMap
             applied={applied}
@@ -2116,7 +2139,7 @@ function ApprovalDialog({
   );
 }
 
-export function App({ initialSession, initialExplanation }: AppProps) {
+export function App({ initialSession, initialExplanation, stageMode = false }: AppProps) {
   const [role, setRole] = useState<Role>("ADMIN");
   const [riderEntry, setRiderEntry] = useState<Record<"SOURCE" | "RECIPIENT", boolean>>({
     SOURCE: false,
@@ -2193,6 +2216,7 @@ export function App({ initialSession, initialExplanation }: AppProps) {
           session={session}
           explanation={explanation}
           explanationLoading={explanationLoading}
+          stageMode={stageMode}
           role={role}
           onRoleChange={setRole}
           onReset={reset}

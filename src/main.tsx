@@ -37,7 +37,9 @@ createRoot(root).render(
         </main>
       }
     >
-      {window.location.pathname.startsWith("/operations/rider") ? (
+      {window.location.pathname.startsWith("/stage") ? (
+        <App stageMode />
+      ) : window.location.pathname.startsWith("/operations/rider") ? (
         <OperationsRiderService />
       ) : window.location.pathname.startsWith("/operations") ? (
         <OperationsService />

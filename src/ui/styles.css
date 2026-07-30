@@ -5577,6 +5577,80 @@ body {
   margin-top: 14px;
 }
 
+.admin-layout.design-react-shell.is-stage-mode {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.design-react-shell.is-stage-mode .admin-nav {
+  display: none;
+}
+
+.design-react-shell.is-stage-mode .admin-main {
+  padding: 14px 20px 24px;
+}
+
+.is-stage-mode .admin-dashboard-header .admin-context h1 {
+  max-width: 760px;
+  font-size: clamp(1.5rem, 2.5vw, 2rem);
+  line-height: 1.2;
+}
+
+.is-stage-mode .admin-main > .demo-flow-steps {
+  margin-top: 10px;
+  padding: 10px 18px;
+}
+
+.is-stage-mode .design-react-shell .global-announcement,
+.design-react-shell.is-stage-mode .global-announcement {
+  margin-top: 8px;
+}
+
+.stage-mode-disclosure {
+  display: flex;
+  min-height: 36px;
+  margin-top: 8px;
+  padding: 8px 12px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  border: 1px solid #f4cc91;
+  border-radius: 12px;
+  color: #7c2d12;
+  background: var(--design-caution-tint);
+  font-size: 0.76rem;
+}
+
+.stage-mode-disclosure strong {
+  color: #92400e;
+}
+
+.stage-mode-disclosure span {
+  color: #7c5a25;
+  text-align: right;
+}
+
+.design-react-shell.is-stage-mode .admin-grid {
+  grid-template-columns: minmax(0, 1.38fr) minmax(420px, 0.92fr);
+  margin-top: 10px;
+}
+
+.design-react-shell.is-stage-mode .map-movement-toolbar {
+  display: none;
+}
+
+.design-react-shell.is-stage-mode .control-map-canvas {
+  min-height: 360px;
+}
+
+.design-react-shell.is-stage-mode .map-panel,
+.design-react-shell.is-stage-mode .intervention-queue {
+  scroll-margin-top: 12px;
+}
+
+.design-react-shell.is-stage-mode .admin-lower-grid {
+  margin-top: 12px;
+}
+
 .design-react-shell .admin-lower-grid {
   gap: 14px;
   margin-top: 14px;
@@ -6137,6 +6211,10 @@ body {
 
   .design-react-shell .admin-grid {
     grid-template-columns: minmax(0, 1.42fr) minmax(310px, 1fr);
+  }
+
+  .design-react-shell.is-stage-mode .admin-grid {
+    grid-template-columns: minmax(0, 1.3fr) minmax(390px, 0.92fr);
   }
 }
 
