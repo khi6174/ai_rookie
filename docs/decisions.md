@@ -893,6 +893,16 @@
 - 기각한 대안: 카드에 사진과 Safety Budget을 함께 표시, 타임라인 접기만 제공, 작은 타임라인 유지, 실제 기사 사진 사용, 프로필마다 별도 대용량 이미지 로드.
 - 영향 파일: `src/assets/synthetic-courier-profiles-v1.jpg`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
 
+### ADR-093 — 기사 카드는 사진 중심 세로형으로 확장한다
+
+- 날짜: 2026-07-30
+- 상태: Approved
+- 결정: `/dashboard-demo`의 기사 카드를 큰 정사각형 합성 사진 위에 이름과 지정구역을 쌓는 세로형으로 확장한다. 1280×720에서 카드 높이는 206px 이상을 유지하고, 가로 레일로 7명 안팎을 한 번에 보여준다. 선택은 파란 외곽선으로만 표현한다.
+- 이유: 사용자가 제공한 세로형 프로필 카드 레퍼런스처럼 얼굴을 먼저 인식하게 하면 작은 가로 카드보다 기사 식별이 빠르고 텍스트 밀도가 낮아진다.
+- 경계: 레퍼런스의 팔로워 수, 인증 배지, 소개문, Follow 행동은 관제 목적과 무관하므로 사용하지 않는다. 실제 기사 사진이나 소셜 평가 인상도 도입하지 않는다.
+- 기각한 대안: 기존 가로형 유지, 사진을 카드 전체 배경으로 사용, 카드에 Safety Budget·상태 배지를 재추가, 소셜 프로필 요소 모사.
+- 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

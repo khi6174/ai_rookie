@@ -23,6 +23,16 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     });
   expect(profileAssetLoaded).toBe(true);
 
+  const firstCardSize = await page
+    .locator("[data-courier-card]")
+    .first()
+    .evaluate((element) => {
+      const rect = element.getBoundingClientRect();
+      return { width: rect.width, height: rect.height };
+    });
+  expect(firstCardSize.height).toBeGreaterThan(190);
+  expect(firstCardSize.height).toBeGreaterThan(firstCardSize.width);
+
   const openOverflow = await page.evaluate(() => ({
     horizontal:
       document.documentElement.scrollWidth - document.documentElement.clientWidth,
