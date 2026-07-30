@@ -98,25 +98,28 @@ function CourierCard({
       onClick={onSelect}
       type="button"
     >
-      <span
-        className="onepage-profile-photo"
-        aria-hidden="true"
-        style={{
-          backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
-        }}
-      />
-      <span className="onepage-card-copy">
-        <span className="onepage-card-name">{courier.name}</span>
-        <span className="onepage-card-details">
+      <span className="onepage-card-identity">
+        <span
+          className="onepage-profile-photo"
+          aria-hidden="true"
+          style={{
+            backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
+          }}
+        />
+        <span className="onepage-card-copy">
+          <span className="onepage-card-name">{courier.name}</span>
           <span className="onepage-card-area">
+            <small>지정구역</small>
             <strong>{courier.area}</strong>
           </span>
-          <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-            <small>안전여유</small>
-            <b>{courier.budget.toFixed(1)}</b>
-            <em>{stateLabel[state]}</em>
-          </span>
         </span>
+      </span>
+      <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
+        <span className="onepage-card-safety-heading">
+            <small>안전여유</small>
+            <em>{stateLabel[state]}</em>
+        </span>
+        <b>{courier.budget.toFixed(1)}</b>
       </span>
     </button>
   );
