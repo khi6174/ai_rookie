@@ -15,6 +15,7 @@ const outputPath = path.join(
   "templates",
   "daily-operations-documents-2026-07-25-bundled-v1.json",
 );
+const normalizeText = (value) => value.replace(/\r\n?/g, "\n");
 const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
 const extractedRecords = await Promise.all(
   manifest.parents.map(async (parent) =>
@@ -30,7 +31,9 @@ const documents = await Promise.all(
     sourceFormat: "MARKDOWN",
     mediaType: "text/markdown",
     dataMode: "SYNTHETIC",
-    content: await readFile(path.join(root, document.relativePath), "utf8"),
+    content: normalizeText(
+      await readFile(path.join(root, document.relativePath), "utf8"),
+    ),
     sha256: document.sha256,
   })),
 );

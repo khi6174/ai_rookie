@@ -1,3 +1,5 @@
 scripts/local-model-operations-documents*.py text eol=lf
 artifacts/evals/a100-operations-documents/*.json text eol=lf
+data/synthetic/operations/documents/*.md text eol=lf
+public/templates/*.json text eol=lf
 *.pdf binary

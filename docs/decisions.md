@@ -865,6 +865,14 @@
 - 기각한 대안: CDN 캐시가 자연 만료될 때까지 대기, 배포 manifest를 사람 summary와 직접 비교해 배포·사람 실패를 한 상태로 유지, 화면 변경 후에도 이전 독립 검토 결과를 재사용.
 - 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `artifacts/evals/service-goal-readiness-latest.json`
 
+### ADR-090 — 합성 운영문서 bundle은 OS 줄바꿈과 무관하게 재현한다
+
+- 상태: Approved
+- 결정: 합성 Markdown 원문과 공개 JSON template은 Git에서 LF로 고정하고, bundle 생성기는 입력의 CRLF·CR을 LF로 정규화한 뒤 직렬화한다.
+- 이유: Windows clean worktree에서 Markdown이 CRLF로 checkout되면 JSON `content` 문자열만 달라져, 같은 commit도 `OPERATIONS_DOCUMENT_TEMPLATE_DRIFT`로 제출 패키지 build가 실패했다. 문서 의미와 SHA 계약을 바꾸지 않고 운영체제별 checkout 차이만 제거해야 한다.
+- 기각한 대안: 제출 패키지를 항상 현재 dirty 작업폴더에서 생성, drift 검사를 비활성화, 생성된 CRLF bundle을 새 기준으로 채택.
+- 영향 파일: `.gitattributes`, `scripts/build-operations-document-template.mjs`, `public/templates/daily-operations-documents-2026-07-25-bundled-v1.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
