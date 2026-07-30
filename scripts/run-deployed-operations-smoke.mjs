@@ -158,8 +158,14 @@ try {
   const explanationBody = await explanationResponse
     .json()
     .catch(() => ({}));
-  const reviewManifestResponse = await fetch(reviewManifestEndpoint, {
-    headers: { Accept: "application/json" },
+  const reviewManifestUrl = new URL(reviewManifestEndpoint);
+  reviewManifestUrl.searchParams.set("release-check", Date.now().toString());
+  const reviewManifestResponse = await fetch(reviewManifestUrl, {
+    cache: "no-store",
+    headers: {
+      Accept: "application/json",
+      "Cache-Control": "no-cache",
+    },
   });
   const reviewManifestBody = await reviewManifestResponse
     .json()

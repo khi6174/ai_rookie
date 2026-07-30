@@ -87,6 +87,9 @@ const evidence = {
   human: await json(
     "artifacts/evals/operations-human-review-summary.json",
   ),
+  humanStudy: await json(
+    "dist/client/tools/operations-service-review/study-manifest.json",
+  ),
   deployed: await json(
     "artifacts/evals/operations-deployed-smoke-latest.json",
   ),
@@ -158,9 +161,9 @@ const checks = {
     evidence.deployed.upstageExplanationLive === true &&
     evidence.deployed.publicReviewManifestVerified === true &&
     evidence.deployed.deployedReleaseCommit ===
-      evidence.human.releaseCommit &&
+      evidence.humanStudy.releaseCommit &&
     evidence.deployed.reviewManifestSha256 ===
-      evidence.human.studyManifestSha256 &&
+      evidence.humanStudy.manifestSha256 &&
     evidence.deployed.actualPersonalDataCount === 0,
   roleSeparation:
     (
@@ -177,6 +180,8 @@ const checks = {
     ).includes("기사 화면 열기"),
   human:
     evidence.human.status === "PASSED" &&
+    evidence.human.releaseCommit === evidence.humanStudy.releaseCommit &&
+    evidence.human.studyManifestSha256 === evidence.humanStudy.manifestSha256 &&
     evidence.human.adminReviewerCount >= 3 &&
     evidence.human.riderReviewerCount >= 5 &&
     evidence.human.criticalMisconceptionCount === 0,

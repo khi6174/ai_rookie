@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v2",
-  "capturedAt": "2026-07-30T04:10:51.006Z",
+  "capturedAt": "2026-07-30T04:30:42.471Z",
   "status": "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
   "objective": "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
   "releasePolicy": {
@@ -190,33 +190,33 @@
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 8832,
-      "sha256": "f7c83c76d73ee0479ae50a5e27e4d8df649f4adb1831902220e475f370873cdd"
+      "bytes": 8831,
+      "sha256": "2856813c8c2b54f8a2fdc0cc7280feeb985b2225c91b8b41fc1da70445945ebc"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "4c728c683067fc4eb68e21b0b9d4555c5af7460f69d6cf26e66a232c2abc8fd6"
+      "sha256": "8866eb664d391c11ec318ebd46ea4773ee6ef8482bc0f36939be4a80a58f683b"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "85f43beba8f3541faceebad8099eff7aee2e8765f41cf6ebc6f1d7542a64d0cb"
+      "sha256": "34ad21db14b7245862d8b889637d1d1b5390ed85407686b21e6615a0a8b1a578"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "de5dc04df5f08a1c5aa78cf32d820a5940bb9c56856675d4e92d666ba1dc1fa1"
+      "sha256": "573265b467374a04b8cf25c3fb004f628e6de111de165561b1388347a00bde19"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "15e8457d726e738860e22e70bbe840f9353e8de96ce63529a68b3b003ca22d3d"
+      "sha256": "997ca38aa3ff2a7da7203284258b88c552aa4afb00618bf7946b142557df3290"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
       "bytes": 2319,
-      "sha256": "14b6fb4a775c1014ea61984fa8a5064a2bfc0ff15c9b27cbce21b00e6f78e931"
+      "sha256": "e0259402f60744327aa90475e15b9e5720bc7178eba3109ba322b91b0ac88dec"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -278,8 +278,8 @@
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 136471,
-      "sha256": "1c87ef1e3737a64364d207a90a757188424d8e988eb6d8d1d34516f45490d0ff"
+      "bytes": 137828,
+      "sha256": "7b5b7b2ae6232d24ca7716f2859f998b7a8a30fb50c11b3200e71f8b5655f838"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",

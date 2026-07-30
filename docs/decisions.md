@@ -857,6 +857,14 @@
 - 기각한 대안: 음성 STT·새 로컬 모델·추가 지도 기능 구현, 24명 지도 이동을 본편 도입부에서 재생, 2.5D를 기본 화면으로 승격, 다섯 관리자 탭을 순서대로 소개, 코드·평가 수치를 본편 대부분에 설명, 기능 완성도를 위해 3분 메시지를 늘리는 방식.
 - 영향 파일: `docs/demo-script.md`, `docs/design-system.md`, 루트 관리자 Control Tower와 기사 Demo UI, 제출 영상 스토리보드·내레이션·서류
 
+### ADR-089 — 공개 배포 검증과 현재 릴리스 사람 검토를 별도 Gate로 판정한다
+
+- 상태: Approved
+- 결정: 공개 smoke는 캐시를 우회해 배포된 검토 manifest를 읽고, 배포 commit·manifest hash를 같은 빌드의 study manifest와 비교한다. 독립 사람 검토는 별도 `human` Gate에서 결과 summary의 commit·manifest hash가 현재 study manifest와 같은지 확인한다. 공개 API·D1·충돌 보호·설명 계층이 정상이어도 이전 릴리스의 사람 검토를 현재 릴리스 통과로 재사용하지 않는다.
+- 이유: 배포 가용성과 사람 이해도는 실패 원인과 복구 방법이 다르다. 두 조건을 하나의 `deployedService` 판정으로 묶으면 정상 배포를 `DEPLOYMENT_VALIDATION_REQUIRED`로 오분류하고, 반대로 오래된 사람 결과가 현재 화면을 승인한 것처럼 보일 수 있다.
+- 기각한 대안: CDN 캐시가 자연 만료될 때까지 대기, 배포 manifest를 사람 summary와 직접 비교해 배포·사람 실패를 한 상태로 유지, 화면 변경 후에도 이전 독립 검토 결과를 재사용.
+- 영향 파일: `scripts/run-deployed-operations-smoke.mjs`, `scripts/run-service-goal-readiness.mjs`, `artifacts/evals/operations-deployed-smoke-latest.json`, `artifacts/evals/service-goal-readiness-latest.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -1,9 +1,9 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-30T04:10:13.008Z",
+  "capturedAt": "2026-07-30T04:30:24.868Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
-  "baseCommit": "d00b16919528e9107967ab1eed94805268ef8b30",
+  "baseCommit": "6234d8aee98a610f1ac613a2023b360af6d0a494",
   "workingTreeDirty": true,
   "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
   "credentialsStored": false,
@@ -131,7 +131,7 @@
     {
       "file": "unit-summary.json",
       "bytes": 4374,
-      "sha256": "1de3a12c0ae164f9fe42abb169c83a26a95fffa598a64c99b725a744db101962"
+      "sha256": "457f911ed3903c47d94a4ba016fdec9e728fb23e3c0ec4982abec109757190e5"
     },
     {
       "file": "scenario-results.csv",
@@ -151,7 +151,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "4c728c683067fc4eb68e21b0b9d4555c5af7460f69d6cf26e66a232c2abc8fd6"
+      "sha256": "8866eb664d391c11ec318ebd46ea4773ee6ef8482bc0f36939be4a80a58f683b"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -161,7 +161,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "85f43beba8f3541faceebad8099eff7aee2e8765f41cf6ebc6f1d7542a64d0cb"
+      "sha256": "34ad21db14b7245862d8b889637d1d1b5390ed85407686b21e6615a0a8b1a578"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -171,12 +171,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "de5dc04df5f08a1c5aa78cf32d820a5940bb9c56856675d4e92d666ba1dc1fa1"
+      "sha256": "573265b467374a04b8cf25c3fb004f628e6de111de165561b1388347a00bde19"
     },
     {
       "file": "domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "15e8457d726e738860e22e70bbe840f9353e8de96ce63529a68b3b003ca22d3d"
+      "sha256": "997ca38aa3ff2a7da7203284258b88c552aa4afb00618bf7946b142557df3290"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -211,17 +211,17 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 2568,
-      "sha256": "4a6796eecaa23e00299363a9a0a4200ac4dbefd3d1e29b14bc0da8bb1e5f5536"
+      "sha256": "3556458683a44406492ffbb47e418847fec8ade81a692b9d5fdbfe9bca4a1fa5"
     },
     {
       "file": "map-performance-summary.json",
       "bytes": 2319,
-      "sha256": "14b6fb4a775c1014ea61984fa8a5064a2bfc0ff15c9b27cbce21b00e6f78e931"
+      "sha256": "e0259402f60744327aa90475e15b9e5720bc7178eba3109ba322b91b0ac88dec"
     },
     {
       "file": "spatial-scene-summary.json",
       "bytes": 1191,
-      "sha256": "5ad687e26d8949fe055a06141eb1db5fb7c800ffe832655a11e92314f04ff940"
+      "sha256": "177fa182ce51c9be20940dbf1df5811ccd9f024f65581f107167613c5f556566"
     },
     {
       "file": "rider-reference-round2-stimulus-manifest.json",

@@ -1,8 +1,8 @@
 {
   "schemaVersion": "service-goal-readiness-v1",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
-  "capturedAt": "2026-07-30T04:13:48.135Z",
-  "status": "DEPLOYMENT_VALIDATION_REQUIRED",
+  "capturedAt": "2026-07-30T04:27:22.038Z",
+  "status": "HUMAN_VALIDATION_REQUIRED",
   "dataMode": "SYNTHETIC",
   "commands": [
     {
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 1321,
+      "durationMs": 1360,
       "summary": "$ tsc --noEmit --pretty false"
     },
     {
@@ -18,31 +18,31 @@
       "command": "pnpm run test",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 9094,
-      "summary": "      Tests  300 passed (300) |    Start at  13:10:59 |    Duration  8.00s (transform 9.90s, setup 0ms, import 26.04s, tests 21.63s, environment 6ms)"
+      "durationMs": 9642,
+      "summary": "      Tests  300 passed (300) |    Start at  13:24:33 |    Duration  8.49s (transform 13.06s, setup 0ms, import 29.63s, tests 23.53s, environment 5ms)"
     },
     {
       "id": "FULL_E2E",
       "command": "pnpm run test:e2e",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 122719,
-      "summary": "  ok 34 e2e\\stage-mode.spec.ts:3:1 › 제출용 Stage Mode는 한 페이지에서 대표 decision과 데이터 경계를 먼저 보여준다 (1.1s) |   ok 35 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (2.9s) |   35 passed (2.0m)"
+      "durationMs": 124003,
+      "summary": "  ok 34 e2e\\stage-mode.spec.ts:3:1 › 제출용 Stage Mode는 한 페이지에서 대표 decision과 데이터 경계를 먼저 보여준다 (1.3s) |   ok 35 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (3.0s) |   35 passed (2.0m)"
     },
     {
       "id": "OPERATIONS_SCALE",
       "command": "pnpm run eval:operations:scale",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 25122,
-      "summary": "Operations scale evaluation: PASSED 24=1304ms 96=4860ms 240=14690ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
+      "durationMs": 23624,
+      "summary": "Operations scale evaluation: PASSED 24=1292ms 96=4777ms 240=13325ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
     },
     {
       "id": "OPERATIONS_EVIDENCE",
       "command": "pnpm run eval:operations:evidence",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 10475,
+      "durationMs": 10630,
       "summary": "Operations service evidence: PASSED couriers=25 decisions=15 conflicts=105 | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-service-evidence.json"
     },
     {
@@ -50,7 +50,7 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2156,
+      "durationMs": 2144,
       "summary": "dist/assets/index-jJpQhf-l.js                   288.24 kB │ gzip: 88.03 kB | \u001b[32m✓ built in 279ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
     }
   ],
@@ -63,7 +63,7 @@
     "upstageDocumentLive": true,
     "kakaoLive": true,
     "persistence": true,
-    "deployedService": false,
+    "deployedService": true,
     "roleSeparation": true,
     "human": false
   },
@@ -89,7 +89,7 @@
     {
       "id": "EXECUTION",
       "nameKo": "추진성",
-      "passed": false,
+      "passed": true,
       "evidence": [
         "artifacts/evals/upstage-smoke-latest.json",
         "artifacts/evals/upstage-operations-document-live-latest.json",
@@ -129,10 +129,10 @@
     }
   ],
   "blocker": {
-    "code": "PRODUCTION_D1_RUNTIME_NOT_VERIFIED",
-    "currentStatus": "LIVE_PASS",
-    "command": "pnpm run eval:operations:deployed:live",
-    "siteUrl": "https://saferoute-ai-demo.khiyw.chatgpt.site"
+    "code": "INDEPENDENT_HUMAN_REVIEW_NOT_COMPLETE",
+    "admin": "0/3",
+    "rider": "0/5",
+    "reviewPath": "/tools/operations-service-review/"
   },
   "limitations": [
     "No actual courier, customer, precise GPS, biometric, or private TMS data is processed.",

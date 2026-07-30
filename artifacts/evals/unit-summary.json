@@ -1,6 +1,6 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-07-30T04:10:13.008Z",
+  "capturedAt": "2026-07-30T04:30:24.868Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
   "testFileCount": 37,
