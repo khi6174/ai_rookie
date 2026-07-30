@@ -38,6 +38,11 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     });
   expect(firstCardSize.height).toBeGreaterThan(190);
   expect(firstCardSize.height).toBeGreaterThan(firstCardSize.width);
+  const safetyValueFontSize = await page
+    .locator(".onepage-card-safety b")
+    .first()
+    .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
+  expect(safetyValueFontSize).toBeGreaterThanOrEqual(20);
 
   const openOverflow = await page.evaluate(() => ({
     horizontal:

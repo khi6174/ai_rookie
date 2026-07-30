@@ -274,8 +274,9 @@
 }
 
 .onepage-card-safety b {
-  font-size: 13px;
-  line-height: 1;
+  font-size: 20px;
+  line-height: .95;
+  letter-spacing: -.04em;
   font-variant-numeric: tabular-nums;
 }
 
