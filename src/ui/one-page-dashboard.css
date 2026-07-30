@@ -241,6 +241,18 @@
   color: var(--muted);
 }
 
+.onepage-card-details,
+.onepage-card-safety {
+  display: flex;
+  align-items: baseline;
+}
+
+.onepage-card-details {
+  min-width: 0;
+  justify-content: space-between;
+  gap: 6px;
+}
+
 .onepage-card-area strong {
   overflow: hidden;
   font-size: 11px;
@@ -249,6 +261,32 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.onepage-card-safety {
+  flex: 0 0 auto;
+  gap: 4px;
+}
+
+.onepage-card-safety small {
+  color: var(--muted);
+  font-size: 9px;
+  font-weight: 800;
+}
+
+.onepage-card-safety b {
+  font-size: 13px;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.onepage-card-safety i {
+  font-style: normal;
+}
+
+.onepage-card-safety.state-breach { color: var(--red); }
+.onepage-card-safety.state-support { color: var(--amber); }
+.onepage-card-safety.state-caution { color: var(--yellow); }
+.onepage-card-safety.state-stable { color: var(--teal); }
 
 .onepage-map-section {
   min-height: 0;

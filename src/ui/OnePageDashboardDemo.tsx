@@ -94,13 +94,14 @@ function CourierCard({
 }) {
   const photoColumn = photoIndex % 5;
   const photoRow = Math.floor(photoIndex / 5);
+  const state = supportState(courier.budget);
   return (
     <button
       ref={cardRef}
       className={`onepage-courier-card ${selected ? "is-selected" : ""}`}
       data-courier-card={courier.id}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전여유 ${courier.budget}, ${stateLabel[state]}`}
       onClick={onSelect}
       type="button"
     >
@@ -113,8 +114,14 @@ function CourierCard({
       />
       <span className="onepage-card-copy">
         <span className="onepage-card-name">{courier.name}</span>
-        <span className="onepage-card-area">
-          <strong>{courier.area}</strong>
+        <span className="onepage-card-details">
+          <span className="onepage-card-area">
+            <strong>{courier.area}</strong>
+          </span>
+          <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
+            <small>안전여유</small>
+            <b><i aria-hidden="true">{stateSymbol[state]}</i> {courier.budget.toFixed(1)}</b>
+          </span>
         </span>
       </span>
     </button>

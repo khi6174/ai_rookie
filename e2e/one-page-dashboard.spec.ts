@@ -12,6 +12,12 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await expect(page.getByText("합성 위치 · 14:32")).toBeVisible();
   await expect(page.getByText("Live 0")).toBeVisible();
   await expect(page.getByText("역삼 A")).toBeVisible();
+  await expect(page.getByText("안전여유")).toHaveCount(20);
+  await expect(
+    page.getByRole("button", {
+      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 초과",
+    }),
+  ).toBeVisible();
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
 
   const profileAssetLoaded = await page
