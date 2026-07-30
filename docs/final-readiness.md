@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-25
+- 최종 갱신: 2026-07-30
 - 대체 문서: `docs/midpoint-review.md`
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/evals.md`, `docs/demo-script.md`, `docs/design-system.md`, `docs/domestic-ai-track-compliance.md`, `docs/submission-package.md`
 
@@ -29,8 +29,8 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 | 영역 | 최종 확인 결과 |
 |---|---|
-| 단위·계약 | Vitest 32개 파일, 272/272 통과 |
-| 브라우저 폐루프 | Playwright 21/21 통과, Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
+| 단위·계약 | Vitest 37개 파일, 300/300 통과 |
+| 브라우저 폐루프 | Playwright 35/35 통과, 제출 Stage Mode·7장 스토리보드·Demo 이동·G4-B 부하·G5-A 2.5D·G5-B 익명 검토·기사 제품 경계 검토 도구·bounded 지도 pan·실제 offline reload·캐시 만료 포함 |
 | 지도 부하 | Fallback 2D 24·96·240명 3/3, 권역 최대 80명·동시 경로 24개·5초 갱신 예산 통과 |
 | 공간 장면 | 공급자 독립 Demo 2.5D, 식별자·route point·표시 수치 불일치 0건, 전환·키보드·reduced-motion·Fallback 예산 통과 |
 | G5-B 사람 이해도 | Round 3 `DO_NOT_PROMOTE` 보존. Round 4는 일정상 미실시하며 `DISCLOSED_VALIDATION_GAP`으로 제출물에 표시 |
@@ -52,7 +52,7 @@ SafeRoute AI의 AI ROOKIE 본선용 결정론적 P0 데모는 최종준비 단�
 
 ### 3.1 자동 최종 릴리스 게이트
 
-`pnpm run verify:final`은 build, Playwright 21개, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 공개 빌드 Gate는 Sites용 `dist/client`의 HTML·worker뿐 아니라 `sw.js`, manifest, 192·512 아이콘의 패키징까지 확인해 SPA fallback HTML이 service worker로 배포되는 회귀를 차단한다. 별도 `PUBLIC_HUMAN_REVIEW_KIT`은 G5 Round 4·기사 Round 2 도구, 고정 자극, study ID, 결과 파일명과 외부 전송 API 부재를 확인한다. 사람 평가 도구와 고정 자극 경로는 PWA shell의 cache-first 대상에서 제외해 이전 round의 스크립트·이미지가 새 평가에 재사용되지 않도록 한다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 유지한다. 실행별 측정값은 `spatial-scene-summary.json`에 보존하고 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
+`pnpm run verify:final`은 build, 전체 Playwright 통과 수, clean-start 3회, 핵심 평가, 국내트랙 감사와 공개 정적 Demo 빌드를 외부 API 호출 없이 다시 실행한다. 공개 빌드 Gate는 Sites용 `dist/client`의 HTML·worker뿐 아니라 `sw.js`, manifest, 192·512 아이콘의 패키징까지 확인해 SPA fallback HTML이 service worker로 배포되는 회귀를 차단한다. 별도 `PUBLIC_HUMAN_REVIEW_KIT`은 G5 Round 4·기사 Round 2 도구, 고정 자극의 정확한 1280×720·390×844 크기, study ID, 결과 파일명과 외부 전송 API 부재를 확인한다. PNG 압축 결과의 바이트 수만으로 화질을 판정하지 않으며 최소 파일 크기와 실제 픽셀 크기를 함께 검사한다. 사람 평가 도구와 고정 자극 경로는 PWA shell의 cache-first 대상에서 제외해 이전 round의 스크립트·이미지가 새 평가에 재사용되지 않도록 한다. G5-A는 첫 표시 1,000ms 이하, 2D 복귀 300ms 이하, rAF P95 100ms 이하, gzip JS 증가 50KiB 이하와 식별자·수치 불일치 0건 Gate를 유지한다. 실행별 측정값은 `spatial-scene-summary.json`에 보존하고 전체 묶음의 최신 결과와 사람 확인 항목은 `artifacts/evals/final-readiness-latest.json`에서 추적한다.
 
 이 기술 `PASSED`는 사람 이해도 완료 판정이 아니다. `pnpm run audit:goal`은 여섯 기준과 사람 Gate를 별도로 판정한다. 일반 `READY_FOR_FINAL_SUBMISSION` 외에 승인된 마감 정책이 있을 때만 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`을 허용하며, 제출 ZIP에 관리자 이해도 미검증을 강제로 기록한다.
 

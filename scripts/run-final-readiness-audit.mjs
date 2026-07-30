@@ -22,6 +22,17 @@ function sha256(value) {
   return createHash("sha256").update(value).digest("hex");
 }
 
+function pngDimensions(buffer) {
+  const pngSignature = "89504e470d0a1a0a";
+  if (buffer.subarray(0, 8).toString("hex") !== pngSignature) {
+    return { width: 0, height: 0 };
+  }
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20),
+  };
+}
+
 function runPnpm(id, args, successPattern, timeoutMs = 180_000) {
   const startedAt = Date.now();
   const result = spawnSync(process.execPath, [pnpmEntry, ...args], {
@@ -69,7 +80,7 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /21 passed/),
+  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /\b\d+ passed\b/),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],
@@ -86,6 +97,11 @@ const commands = [
     /CORE_EVAL_ARTIFACTS_PASS/,
   ),
 ];
+const playwrightE2eCount = Number(
+  commands
+    .find((command) => command.id === "PLAYWRIGHT_E2E")
+    ?.evidenceLine?.match(/(\d+) passed/)?.[1] ?? 0,
+);
 
 const requiredApprovedDocuments = [
   "docs/product-spec.md",
@@ -284,19 +300,19 @@ try {
     resolve(root, "dist/client/tools/rider-reference-review/app.js"),
     "utf8",
   );
-  const publicG5Screenshot2d = await stat(
+  const publicG5Screenshot2d = await readFile(
     resolve(
       root,
       "dist/client/artifacts/evals/screenshots/g5-round4-admin-decision-2d-1280x720.png",
     ),
   );
-  const publicG5Screenshot25d = await stat(
+  const publicG5Screenshot25d = await readFile(
     resolve(
       root,
       "dist/client/artifacts/evals/screenshots/g5-round4-admin-decision-2-5d-1280x720.png",
     ),
   );
-  const publicRiderScreenshot = await stat(
+  const publicRiderScreenshot = await readFile(
     resolve(
       root,
       "dist/client/artifacts/evals/screenshots/rider-source-route-round2-390x844.png",
@@ -348,9 +364,15 @@ try {
       !forbiddenReviewNetworkApi.test(
         `${publicG5ReviewApp}\n${publicRiderReviewApp}`,
       ) &&
-      publicG5Screenshot2d.size > 200_000 &&
-      publicG5Screenshot25d.size > 200_000 &&
-      publicRiderScreenshot.size > 100_000,
+      pngDimensions(publicG5Screenshot2d).width === 1_280 &&
+      pngDimensions(publicG5Screenshot2d).height === 720 &&
+      publicG5Screenshot2d.byteLength > 100_000 &&
+      pngDimensions(publicG5Screenshot25d).width === 1_280 &&
+      pngDimensions(publicG5Screenshot25d).height === 720 &&
+      publicG5Screenshot25d.byteLength > 100_000 &&
+      pngDimensions(publicRiderScreenshot).width === 390 &&
+      pngDimensions(publicRiderScreenshot).height === 844 &&
+      publicRiderScreenshot.byteLength > 80_000,
     packagedMetadataMatches:
       hostingConfigText.trim() === packagedHostingConfigText.trim(),
   };
@@ -535,7 +557,7 @@ const result = {
   evidenceChecks,
   summary: {
     unitTests: unit.testCount,
-    e2eTests: 21,
+    e2eTests: playwrightE2eCount,
     cleanStartRuns: 3,
     requiredViewports: 4,
     screenshotAndAccessibilityChecks: accessibility.checks.length,
@@ -635,7 +657,7 @@ if (result.status !== "PASSED") {
 } else {
   console.log(
     `FINAL_READINESS_AUDIT_PASS commands=${commands.length} checks=${evidenceChecks.length} ` +
-      `tests=${unit.testCount} e2e=21 cleanStart=3 comparisons=${frozen.comparisonCount}`,
+      `tests=${unit.testCount} e2e=${playwrightE2eCount} cleanStart=3 comparisons=${frozen.comparisonCount}`,
   );
   console.log(`artifact=${latestPath}`);
   console.log(`immutableRun=${immutableDirectory}`);

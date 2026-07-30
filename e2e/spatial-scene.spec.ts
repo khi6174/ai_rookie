@@ -168,7 +168,9 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
       ),
     )
   ).reduce((total, bytes) => total + bytes, 0);
-  const previousG4BGzipJsBytes = 127_195;
+  // ADR-088 Stage Mode is part of the non-spatial app baseline. The 2.5D
+  // scene keeps the original 50 KiB incremental cap.
+  const previousG4BGzipJsBytes = 127_752;
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
   );

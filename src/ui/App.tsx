@@ -1346,23 +1346,23 @@ function AdminDashboard({
     () => createFixtureMapAdapter(mapFixture),
     [mapFixture],
   );
-  const [mapSelection, setMapSelection] = useState<MapSelection>(
+  const stageInitialSelection = useMemo<MapSelection>(
     () => stageMode
-      ? mapAdapter.selectionForDecision(session.decision.decisionId)
+      ? createFixtureMapAdapter(baseMapFixture).selectionForDecision(session.decision.decisionId)
       : {},
+    [baseMapFixture, session.decision.decisionId, stageMode],
+  );
+  const [mapSelection, setMapSelection] = useState<MapSelection>(
+    () => stageInitialSelection,
   );
   const [mapAvailable, setMapAvailable] = useState(true);
 
   useEffect(() => {
-    setMapSelection(
-      stageMode
-        ? mapAdapter.selectionForDecision(session.decision.decisionId)
-        : {},
-    );
+    setMapSelection(stageInitialSelection);
     setMapAvailable(true);
     setMovementFrameIndex(0);
     setMovementPlaying(false);
-  }, [mapAdapter, session.decision.decisionId, stageMode]);
+  }, [stageInitialSelection]);
 
   useEffect(() => {
     if (!movementPlaying) return;
