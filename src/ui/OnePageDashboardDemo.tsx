@@ -62,13 +62,6 @@ const stateLabel: Record<SupportState, string> = {
   STABLE: "안정",
 };
 
-const stateSymbol: Record<SupportState, string> = {
-  BREACH: "!",
-  SUPPORT: "◒",
-  CAUTION: "△",
-  STABLE: "✓",
-};
-
 const roads = [
   { left: -6, top: 26, width: 116, rotate: 5, kind: "major" },
   { left: -2, top: 60, width: 108, rotate: -7, kind: "major" },
@@ -120,7 +113,8 @@ function CourierCard({
           </span>
           <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
             <small>안전여유</small>
-            <b><i aria-hidden="true">{stateSymbol[state]}</i> {courier.budget.toFixed(1)}</b>
+            <b>{courier.budget.toFixed(1)}</b>
+            <em>{stateLabel[state]}</em>
           </span>
         </span>
       </span>
@@ -303,7 +297,7 @@ export function OnePageDashboardDemo() {
 
           <div className="onepage-selected-strip" aria-live="polite">
             <span className={`onepage-selected-state state-${supportState(selectedCourier.budget).toLowerCase()}`}>
-              {stateSymbol[supportState(selectedCourier.budget)]}
+              {stateLabel[supportState(selectedCourier.budget)]}
             </span>
             <strong>{selectedCourier.name}</strong>
             <span>{selectedCourier.id}</span>

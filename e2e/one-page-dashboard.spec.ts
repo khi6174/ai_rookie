@@ -42,7 +42,13 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     .locator(".onepage-card-safety b")
     .first()
     .evaluate((element) => Number.parseFloat(getComputedStyle(element).fontSize));
-  expect(safetyValueFontSize).toBeGreaterThanOrEqual(20);
+  expect(safetyValueFontSize).toBeGreaterThanOrEqual(24);
+  await expect(
+    page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
+  ).not.toContainText("!");
+  await expect(
+    page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
+  ).toContainText("초과");
 
   const openOverflow = await page.evaluate(() => ({
     horizontal:
