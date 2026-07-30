@@ -19,7 +19,7 @@
   min-height: 640px;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 54px 300px minmax(300px, 1fr);
+  grid-template-rows: 54px 272px minmax(300px, 1fr);
   background: var(--paper);
   color: var(--navy);
   font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
@@ -184,7 +184,7 @@
 
 .onepage-courier-card {
   position: relative;
-  height: 232px;
+  height: 204px;
   min-width: 0;
   display: grid;
   grid-template-rows: 78px 1fr;
@@ -196,7 +196,7 @@
   border-radius: 14px;
   color: var(--navy);
   background: var(--surface);
-  box-shadow: 0 5px 16px rgba(15,33,52,.06);
+  box-shadow: none;
   cursor: pointer;
   scroll-snap-align: start;
   text-align: left;
@@ -204,7 +204,8 @@
 
 .onepage-courier-card.is-selected {
   border-color: #063bc7;
-  box-shadow: 0 0 0 3px rgba(6,59,199,.16), 0 10px 28px rgba(15,33,52,.12);
+  outline: 2px solid rgba(6,59,199,.18);
+  outline-offset: 0;
 }
 
 .onepage-profile-photo {
@@ -255,7 +256,7 @@
 }
 
 .onepage-card-safety,
-.onepage-card-safety-heading {
+.onepage-card-safety-value {
   display: flex;
   align-items: center;
 }
@@ -267,8 +268,8 @@
   flex-direction: column;
   justify-content: space-between;
   align-items: stretch;
-  gap: 3px;
-  padding: 10px 12px 11px;
+  gap: 2px;
+  padding: 8px 10px 9px;
   border-left: 4px solid var(--state-color);
   border-radius: 12px;
   color: var(--state-color);
@@ -284,8 +285,9 @@
   white-space: nowrap;
 }
 
-.onepage-card-safety-heading {
-  justify-content: space-between;
+.onepage-card-safety-value {
+  align-items: baseline;
+  gap: 8px;
 }
 
 .onepage-card-safety small {
@@ -295,7 +297,7 @@
 }
 
 .onepage-card-safety b {
-  font-size: 38px;
+  font-size: 36px;
   line-height: 1;
   letter-spacing: -.05em;
   font-variant-numeric: tabular-nums;
@@ -557,7 +559,7 @@
 
 @media (max-height: 760px) {
   .onepage-demo {
-    grid-template-rows: 50px 270px minmax(300px, 1fr);
+    grid-template-rows: 50px 244px minmax(300px, 1fr);
   }
 
   .onepage-header {
@@ -581,7 +583,7 @@
   }
 
   .onepage-courier-card {
-    height: 220px;
+    height: 194px;
     grid-template-rows: 72px 1fr;
   }
 
@@ -595,7 +597,7 @@
   }
 
   .onepage-card-safety b {
-    font-size: 36px;
+    font-size: 34px;
   }
 
   .onepage-map-section {

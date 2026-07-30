@@ -115,11 +115,11 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <span className="onepage-card-safety-heading">
-            <small>안전여유</small>
-            <em>{stateLabel[state]}</em>
+        <small>안전여유</small>
+        <span className="onepage-card-safety-value">
+          <b>{courier.budget.toFixed(1)}</b>
+          <em>{stateLabel[state]}</em>
         </span>
-        <b>{courier.budget.toFixed(1)}</b>
       </span>
     </button>
   );
