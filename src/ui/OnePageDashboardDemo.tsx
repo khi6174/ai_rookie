@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
@@ -81,38 +81,41 @@ const roads = [
 
 function CourierCard({
   courier,
+  photoIndex,
   selected,
   onSelect,
   cardRef,
 }: {
   courier: Courier;
+  photoIndex: number;
   selected: boolean;
   onSelect: () => void;
   cardRef: (node: HTMLButtonElement | null) => void;
 }) {
-  const state = supportState(courier.budget);
+  const photoColumn = photoIndex % 5;
+  const photoRow = Math.floor(photoIndex / 5);
   return (
     <button
       ref={cardRef}
-      className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
+      className={`onepage-courier-card ${selected ? "is-selected" : ""}`}
       data-courier-card={courier.id}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, ${stateLabel[state]}, Safety Budget ${courier.budget}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}`}
       onClick={onSelect}
       type="button"
     >
-      <span className="onepage-card-band" aria-hidden="true" />
-      <span className="onepage-avatar" aria-hidden="true">{courier.name.slice(0, 1)}</span>
+      <span
+        className="onepage-profile-photo"
+        aria-hidden="true"
+        style={{
+          backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
+        }}
+      />
       <span className="onepage-card-copy">
         <span className="onepage-card-name">{courier.name}</span>
-        <span className="onepage-card-meta">{courier.id} · {courier.area}</span>
-        <span className="onepage-delivery-progress" aria-label={`배송 ${courier.completed}건 완료, 전체 ${courier.total}건`}>
-          <span style={{ width: `${(courier.completed / courier.total) * 100}%` }} />
+        <span className="onepage-card-area">
+          <strong>{courier.area}</strong>
         </span>
-      </span>
-      <span className="onepage-score">
-        <strong>{courier.budget.toFixed(1)}</strong>
-        <small><span aria-hidden="true">{stateSymbol[state]}</span> {stateLabel[state]}</small>
       </span>
     </button>
   );
@@ -146,27 +149,11 @@ function MapMarker({
 
 export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState(couriers[0].id);
-  const [simulationMinute, setSimulationMinute] = useState(0);
-  const [playing, setPlaying] = useState(true);
-  const [timelineOpen, setTimelineOpen] = useState(true);
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
   const selectedCourier =
     couriers.find((courier) => courier.id === selectedId) ?? couriers[0];
-  const urgentCouriers = useMemo(
-    () => couriers.filter((courier) => courier.budget < 45),
-    [],
-  );
-
-  useEffect(() => {
-    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (!playing || reduceMotion) return;
-    const interval = window.setInterval(() => {
-      setSimulationMinute((minute) => (minute >= 60 ? 0 : minute + 1));
-    }, 420);
-    return () => window.clearInterval(interval);
-  }, [playing]);
 
   const selectCourier = (id: string, revealCard = false) => {
     setSelectedId(id);
@@ -191,7 +178,7 @@ export function OnePageDashboardDemo() {
   const selectedIsClustered = clusteredIds.has(selectedId);
 
   return (
-    <main className={`onepage-demo ${timelineOpen ? "" : "is-timeline-collapsed"}`}>
+    <main className="onepage-demo">
       <header className="onepage-header">
         <div className="onepage-brand" aria-label="SafeRoute AI">
           <span aria-hidden="true">S</span>
@@ -217,10 +204,11 @@ export function OnePageDashboardDemo() {
           </div>
         </div>
         <div className="onepage-card-rail" ref={cardRailRef}>
-          {couriers.map((courier) => (
+          {couriers.map((courier, index) => (
             <CourierCard
               key={courier.id}
               courier={courier}
+              photoIndex={index}
               selected={selectedId === courier.id}
               onSelect={() => selectCourier(courier.id)}
               cardRef={(node) => {
@@ -314,88 +302,6 @@ export function OnePageDashboardDemo() {
             <span>{selectedCourier.id}</span>
             <b>{selectedCourier.budget.toFixed(1)}</b>
             <span>{selectedCourier.completed}/{selectedCourier.total}</span>
-          </div>
-        </div>
-      </section>
-
-      <section className="onepage-timeline-section" aria-labelledby="timeline-title">
-        <div className="onepage-timeline-header">
-          <div>
-            <button
-              className="onepage-simulation-toggle"
-              type="button"
-              aria-label={playing ? "60분 시뮬레이션 일시정지" : "60분 시뮬레이션 재생"}
-              aria-pressed={playing}
-              onClick={() => setPlaying((value) => !value)}
-            >
-              {playing ? "Ⅱ" : "▶"}
-            </button>
-            <h2 id="timeline-title">향후 60분</h2>
-            <output aria-label={`시뮬레이션 ${simulationMinute}분`}>+{simulationMinute}분</output>
-          </div>
-          <div className="onepage-timeline-actions">
-            <span><i className="timeline-support-swatch" /> 45↓</span>
-            <span><i className="timeline-breach-swatch" /> 30↓</span>
-            <button
-              type="button"
-              aria-expanded={timelineOpen}
-              aria-controls="onepage-timeline-content"
-              aria-label={timelineOpen ? "60분 시뮬레이션 접기" : "60분 시뮬레이션 펼치기"}
-              onClick={() => setTimelineOpen((value) => !value)}
-            >
-              {timelineOpen ? "⌄" : "⌃"}
-            </button>
-          </div>
-        </div>
-
-        <div id="onepage-timeline-content" className="onepage-timeline-content">
-          <div className="onepage-timeline-axis" aria-hidden="true">
-            <span>지금</span><span>+15</span><span>+30</span><span>+45</span><span>+60</span>
-          </div>
-          <div className="onepage-timeline-grid">
-            <span className="onepage-timeline-overlay" aria-hidden="true">
-              <span
-                className="onepage-playhead"
-                style={{ left: `${simulationMinute * (100 / 60)}%` }}
-              />
-              {[0, 25, 50, 75, 100].map((left) => (
-                <span key={left} className="onepage-gridline" style={{ left: `${left}%` }} />
-              ))}
-            </span>
-            {urgentCouriers.map((courier) => {
-              const state = supportState(courier.budget);
-              const criticalStart = courier.criticalMinute ?? 60;
-              const selected = selectedId === courier.id;
-              return (
-                <div
-                  key={courier.id}
-                  className={`onepage-timeline-row ${selected ? "is-selected" : ""}`}
-                  data-timeline-row={courier.id}
-                  aria-label={`${courier.name}, ${stateLabel[state]}, ${
-                    criticalStart === 0 ? "현재 한계 초과" : `${criticalStart}분 후 한계 초과 예상`
-                  }`}
-                >
-                  <span className="onepage-row-name">{courier.name}</span>
-                  <span className="onepage-row-track">
-                    {criticalStart > 0 ? (
-                      <i className="onepage-support-segment" style={{ width: `${(criticalStart / 60) * 100}%` }} />
-                    ) : null}
-                    <i
-                      className="onepage-breach-segment"
-                      style={{
-                        left: `${(criticalStart / 60) * 100}%`,
-                        width: `${100 - (criticalStart / 60) * 100}%`,
-                      }}
-                    />
-                  </span>
-                  <b>{criticalStart === 0 ? "현재" : `${criticalStart}분`}</b>
-                </div>
-              );
-            })}
-          </div>
-          <div className="onepage-stable-summary">
-            <span aria-hidden="true">✓</span>
-            11
           </div>
         </div>
       </section>

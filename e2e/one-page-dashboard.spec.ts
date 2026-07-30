@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상태를 공유한다", async ({
+test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태를 공유한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
@@ -8,9 +8,20 @@ test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상
 
   await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.getByRole("heading", { name: "향후 60분" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "향후 60분" })).toHaveCount(0);
   await expect(page.getByText("합성 위치 · 14:32")).toBeVisible();
   await expect(page.getByText("Live 0")).toBeVisible();
+  await expect(page.getByText("역삼 A")).toBeVisible();
+  await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
+
+  const profileAssetLoaded = await page
+    .locator(".onepage-profile-photo")
+    .first()
+    .evaluate((element) => {
+      const image = getComputedStyle(element).backgroundImage;
+      return image.includes("synthetic-courier-profiles-v1.jpg");
+    });
+  expect(profileAssetLoaded).toBe(true);
 
   const openOverflow = await page.evaluate(() => ({
     horizontal:
@@ -32,9 +43,6 @@ test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상
     "aria-pressed",
     "true",
   );
-  await expect(page.locator('[data-timeline-row="R-008"]')).toHaveClass(
-    /is-selected/,
-  );
 
   await page.getByRole("button", { name: "백승기 기사 외 1명 묶음" }).click();
   await expect(page.locator('[data-courier-card="R-011"]')).toHaveAttribute(
@@ -46,14 +54,6 @@ test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상
     "true",
   );
 
-  const collapse = page.getByRole("button", {
-    name: "60분 시뮬레이션 접기",
-  });
-  await collapse.click();
-  await expect(
-    page.getByRole("button", { name: "60분 시뮬레이션 펼치기" }),
-  ).toBeVisible();
-
   const overflow = await page.evaluate(() => ({
     horizontal:
       document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -64,7 +64,7 @@ test("단일 대시보드는 기사·지도·60분 시뮬레이션의 선택 상
   expect(overflow.vertical).toBeLessThanOrEqual(1);
 });
 
-test("1440×900에서도 핵심 세 영역이 한 화면에 유지된다", async ({ page }) => {
+test("1440×900에서도 프로필과 지도가 한 화면에 유지된다", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/dashboard-demo");
   await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
@@ -76,7 +76,7 @@ test("1440×900에서도 핵심 세 영역이 한 화면에 유지된다", async
         return { top: rect.top, bottom: rect.bottom };
       }),
   );
-  expect(regions).toHaveLength(3);
+  expect(regions).toHaveLength(2);
   expect(regions.every((region) => region.top >= 0 && region.bottom <= 900)).toBe(
     true,
   );
