@@ -1,9 +1,9 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-27T01:32:53.992Z",
+  "capturedAt": "2026-07-30T04:10:13.008Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
-  "baseCommit": "8b3d793a4f3e10a0c12b298a7abdab28fca0351c",
+  "baseCommit": "d00b16919528e9107967ab1eed94805268ef8b30",
   "workingTreeDirty": true,
   "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
   "credentialsStored": false,
@@ -16,7 +16,7 @@
     },
     {
       "file": "scripts/run-domestic-track-audit.mjs",
-      "sha256": "2c73e50b3930163c4ddee121c635a86be6defbc390f3d66c9926bdf0948dec16"
+      "sha256": "6713dfe2280683b3d78601f874ac103dc68d814c7a82e0895ff4992c0e331af4"
     },
     {
       "file": "src/evals/frozenBenchmark.ts",
@@ -60,7 +60,7 @@
     },
     {
       "file": "src/domain/safety/engine.ts",
-      "sha256": "0f9c396eb34b5d6add2802eff1025806211c73777e8e88bbe4936694254b9bb7"
+      "sha256": "54f85700a4a9e03b4afbe6d921e5018e0325e1cae59a54d6870ab613386dc481"
     },
     {
       "file": "src/domain/interventions/config.ts",
@@ -72,7 +72,7 @@
     },
     {
       "file": "src/adapters/fixtures/index.ts",
-      "sha256": "24fc758ae27026ad007dd786edee687f048e6a081806d5aa35879f8355924759"
+      "sha256": "2ac95bd093d3a4abbe07dcca65b5cd6c7c3fa976104fbe0705df29e1c17f87a0"
     },
     {
       "file": "src/adapters/fixtures/multiRegionMapFixture.ts",
@@ -80,7 +80,7 @@
     },
     {
       "file": "src/adapters/maps/index.ts",
-      "sha256": "760f1076e6ffc06314143629a80946da562b7322d31853f377d86d33fc94e20c"
+      "sha256": "1dc20f6433891ae62a8dab32035ac5854342bb818f14f40781856e55c299ad56"
     },
     {
       "file": "src/adapters/maps/spatialScene.ts",
@@ -100,7 +100,7 @@
     },
     {
       "file": "e2e/spatial-scene.spec.ts",
-      "sha256": "c3d08abfecfddd7ca48d006ef1c23858fd4193520fc71fd55d1d79b703f6133a"
+      "sha256": "457858081422f582e5a9c88dd6296c7f4938343b60bb5245926fb0e4a5a0f71e"
     },
     {
       "file": "e2e/saferoute-demo.spec.ts",
@@ -130,8 +130,8 @@
   "artifacts": [
     {
       "file": "unit-summary.json",
-      "bytes": 3918,
-      "sha256": "f43f374b1dc4a134f3978257eae9ca97bb0698837a6b8d7df09b43de93614d43"
+      "bytes": 4374,
+      "sha256": "1de3a12c0ae164f9fe42abb169c83a26a95fffa598a64c99b725a744db101962"
     },
     {
       "file": "scenario-results.csv",
@@ -151,7 +151,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "a13a728728f12d8f9659ba46b4836f223e768c2f28c0b7b321d99254161f5aae"
+      "sha256": "4c728c683067fc4eb68e21b0b9d4555c5af7460f69d6cf26e66a232c2abc8fd6"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -161,7 +161,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "b10f2d4d06439b1dadb5b64afa54e737aaf7c2381fcda1c0908e66b7b7463ea7"
+      "sha256": "85f43beba8f3541faceebad8099eff7aee2e8765f41cf6ebc6f1d7542a64d0cb"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -171,12 +171,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "47bdda97412778342e5a4d2899548b8bc76bc18c20753e403ceffc203ff173ce"
+      "sha256": "de5dc04df5f08a1c5aa78cf32d820a5940bb9c56856675d4e92d666ba1dc1fa1"
     },
     {
       "file": "domestic-track-compliance-latest.json",
-      "bytes": 4920,
-      "sha256": "d7f6a8fcf288a42faa97f610ce96a98f3e2fdd978726517444a5968ed5f0e8eb"
+      "bytes": 5129,
+      "sha256": "15e8457d726e738860e22e70bbe840f9353e8de96ce63529a68b3b003ca22d3d"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -185,8 +185,8 @@
     },
     {
       "file": "upstage-roundtrip.csv",
-      "bytes": 1368,
-      "sha256": "7b90d84c4b9224067deea7684216be2f59a0fc59dbe87e39a6ab04035147f8d0"
+      "bytes": 1345,
+      "sha256": "ab50606b4b926ed064325459006656a9a4447792f06ae333cba90c9f8ed8ff4f"
     },
     {
       "file": "upstage-document-roundtrip-mock-latest.json",
@@ -211,17 +211,17 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 2568,
-      "sha256": "c49062310d8c972c3f7acab88d6c7cb76af9343375c21851d2679b53cba29b05"
+      "sha256": "4a6796eecaa23e00299363a9a0a4200ac4dbefd3d1e29b14bc0da8bb1e5f5536"
     },
     {
       "file": "map-performance-summary.json",
-      "bytes": 2318,
-      "sha256": "6503879944fa6686baa3b9c3babf125eb88847652d60feae92ad401355fc3090"
+      "bytes": 2319,
+      "sha256": "14b6fb4a775c1014ea61984fa8a5064a2bfc0ff15c9b27cbce21b00e6f78e931"
     },
     {
       "file": "spatial-scene-summary.json",
-      "bytes": 1193,
-      "sha256": "daaee296da53798ec93747db6bee8749a036852b9602a874b097d0615452573a"
+      "bytes": 1191,
+      "sha256": "5ad687e26d8949fe055a06141eb1db5fb7c800ffe832655a11e92314f04ff940"
     },
     {
       "file": "rider-reference-round2-stimulus-manifest.json",

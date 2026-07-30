@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-07-28T03:29:05.896Z",
+  "capturedAt": "2026-07-30T04:13:48.135Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -13,18 +13,18 @@
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 40150,
-      "sha256": "117fe0783ebe3de3230cdcdf551194d68f0ab6136b70507bb4cf160e1ed4444f"
+      "bytes": 40770,
+      "sha256": "3a295469ca9a0b27f6446995c01c891f5012e487e9e3ee898445632bc157ab2a"
     },
     {
       "path": "docs/data-contracts.md",
-      "bytes": 61293,
-      "sha256": "78524fbd908a9973f17fd9a5041e38333cbb348f58d4c64ff0d78e051dff9c91"
+      "bytes": 62350,
+      "sha256": "7e68c2cefb5862bf33034da7d47b08e2b4b9a4c4fd1a9d271332f70d6ad394d7"
     },
     {
       "path": "docs/architecture.md",
-      "bytes": 31662,
-      "sha256": "939dd8ad592d4b1dce6b2ca1fd9d9f55ac128a28e12c51fce5f6e7c68ccc034e"
+      "bytes": 32238,
+      "sha256": "efb3a44fe0a8081c109ae29919a0b175aab02dbacd9d4f4bf4e0d75d5a4c0673"
     },
     {
       "path": "docs/evals.md",
@@ -38,18 +38,18 @@
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 129519,
-      "sha256": "500801266e93652d2f4874fc68f2cf60a1cfa43d4680b0a48342a439ddc4fa0c"
+      "bytes": 136471,
+      "sha256": "1c87ef1e3737a64364d207a90a757188424d8e988eb6d8d1d34516f45490d0ff"
     },
     {
       "path": "artifacts/evals/operations-service-evidence.json",
       "bytes": 1342,
-      "sha256": "0b620e29765e83350ff31d442febb0f368e5031745e31ec30e168346b7b57493"
+      "sha256": "e551fea4e8e109258b77790f34b794551b155c9baf6bcee52593f7f95dfd9a7f"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1169,
-      "sha256": "051c5038aa288ec068beae1608fac3fe9b59317a2e926f76563f9c54ac3d7b0b"
+      "bytes": 1170,
+      "sha256": "e46e017cb4315c0b8ee6f9a182f38d638140c80bf42781eccd342e3ff53b5a01"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -84,7 +84,7 @@
     {
       "path": "artifacts/evals/operations-deployed-smoke-latest.json",
       "bytes": 1319,
-      "sha256": "256bf598417ebefb61a9fce336f93680363ef65a6f4a8729021b26d105924333"
+      "sha256": "706d80cd3d823097c6bc9ba060c1eb606e15902104b7beaf0f316c6ef1a6a616"
     },
     {
       "path": "artifacts/evals/human-review-stimuli/0fbb16d73701ae9d9324a4b3a6c4da9fec0d32e1105d06babfe07b6d44f2b7ad.png",
@@ -98,13 +98,13 @@
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1440x900.png",
-      "bytes": 110063,
-      "sha256": "0fbb16d73701ae9d9324a4b3a6c4da9fec0d32e1105d06babfe07b6d44f2b7ad"
+      "bytes": 149163,
+      "sha256": "1b912d3b7ba50c9f74449a565951f54aaeb2c4fcced0874578adfbdfd33563f6"
     },
     {
       "path": "artifacts/evals/screenshots/operations-service-1280x720.png",
-      "bytes": 110177,
-      "sha256": "c37c3c5373a6577130132d705555d85b3a772a28106dda06aaa3a7ef9a190cae"
+      "bytes": 139706,
+      "sha256": "873ef6d0b68537713e905e69ab39dec55c503c9651699245ba473e6f23f2b408"
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-390x844.png",
@@ -118,13 +118,13 @@
     },
     {
       "path": "e2e/operations-service.spec.ts",
-      "bytes": 11379,
-      "sha256": "5a8d6aab364fb3ea8c3cb541af072ccc7246066108b0362eded586b5ad93f39d"
+      "bytes": 13315,
+      "sha256": "1ff4209065cc9f2e454dbc470b22e472c81a1c2bcc3fdd06c2eeb2e1f35ecf16"
     },
     {
       "path": "e2e/operations-accessibility.spec.ts",
-      "bytes": 4012,
-      "sha256": "30840105526ec3f08001b1979f848be2537a030bf5ae0c06ec75be0bf2a24d10"
+      "bytes": 4007,
+      "sha256": "6c1ed82c2d3c1576193e40b663fa6a90bc34480c98b4c13fedba65d85d0673c5"
     },
     {
       "path": "e2e/operations-rider.spec.ts",

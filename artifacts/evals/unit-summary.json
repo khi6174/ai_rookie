@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-07-27T01:32:53.992Z",
+  "capturedAt": "2026-07-30T04:10:13.008Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 33,
-  "testCount": 275,
-  "passed": 275,
+  "testFileCount": 37,
+  "testCount": 300,
+  "passed": 300,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -33,7 +33,7 @@
     {
       "file": "decision-workflow.test.ts",
       "status": "passed",
-      "assertionCount": 12
+      "assertionCount": 13
     },
     {
       "file": "domestic-ai-benchmark.test.ts",
@@ -63,7 +63,7 @@
     {
       "file": "kakao-directions.test.ts",
       "status": "passed",
-      "assertionCount": 7
+      "assertionCount": 9
     },
     {
       "file": "kakao-map.test.ts",
@@ -99,6 +99,21 @@
       "file": "multi-region-map-fixture.test.ts",
       "status": "passed",
       "assertionCount": 11
+    },
+    {
+      "file": "operations-human-review-gate.test.ts",
+      "status": "passed",
+      "assertionCount": 3
+    },
+    {
+      "file": "operations-service.test.ts",
+      "status": "passed",
+      "assertionCount": 14
+    },
+    {
+      "file": "operations-session-store.test.ts",
+      "status": "passed",
+      "assertionCount": 2
     },
     {
       "file": "pwa-assets.test.ts",
@@ -164,6 +179,11 @@
       "file": "upstage-live-adapter.test.ts",
       "status": "passed",
       "assertionCount": 8
+    },
+    {
+      "file": "upstage-runtime-proxy.test.ts",
+      "status": "passed",
+      "assertionCount": 3
     },
     {
       "file": "upstage-smoke.test.ts",
