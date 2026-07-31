@@ -225,6 +225,23 @@
   font-variant-numeric: tabular-nums;
 }
 
+.onepage-filter-tabs button.is-danger-filter {
+  color: var(--red);
+}
+
+.onepage-filter-tabs button.is-danger-filter b {
+  color: var(--red);
+}
+
+.onepage-filter-tabs button.is-danger-filter[aria-pressed="true"] {
+  color: #fff;
+  background: var(--red);
+}
+
+.onepage-filter-tabs button.is-danger-filter[aria-pressed="true"] b {
+  color: #fff;
+}
+
 .onepage-scroll-controls {
   justify-self: end;
   gap: 5px;
@@ -390,6 +407,38 @@
 .onepage-card-safety.state-support { --state-color: var(--amber); --state-soft: var(--amber-soft); }
 .onepage-card-safety.state-caution { --state-color: var(--yellow); --state-soft: var(--yellow-soft); }
 .onepage-card-safety.state-stable { --state-color: var(--teal); --state-soft: var(--teal-soft); }
+
+.onepage-courier-card.has-danger-signal {
+  border-color: var(--red);
+  color: #fff;
+  background: var(--red);
+  box-shadow: none;
+}
+
+.onepage-courier-card.has-danger-signal.is-selected {
+  border-color: var(--brand);
+}
+
+.onepage-courier-card.has-danger-signal .onepage-profile-photo {
+  border-color: rgba(255, 255, 255, .86);
+}
+
+.onepage-courier-card.has-danger-signal .onepage-card-area,
+.onepage-courier-card.has-danger-signal .onepage-card-area small,
+.onepage-courier-card.has-danger-signal .onepage-card-area strong {
+  color: rgba(255, 255, 255, .9);
+}
+
+.onepage-courier-card.has-danger-signal .onepage-card-safety {
+  color: #fff;
+  background: transparent;
+  box-shadow: none;
+  filter: none;
+}
+
+.onepage-courier-card.has-danger-signal .onepage-card-safety small {
+  color: #fff;
+}
 
 .onepage-workspace {
   min-height: 0;

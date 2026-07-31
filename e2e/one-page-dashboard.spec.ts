@@ -40,9 +40,63 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await expect(page.locator(".onepage-card-safety small")).toHaveCount(20);
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 긴급",
+      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 긴급, 기사앱 위험 신호",
     }),
   ).toBeVisible();
+  const initialSignalCard = page.locator('[data-courier-card="R-014"]');
+  await expect(initialSignalCard).toHaveAttribute(
+    "data-rider-danger-signal",
+    "active",
+  );
+  await expect(initialSignalCard).toContainText("기사앱 위험 신호");
+  const initialSignalStyle = await initialSignalCard.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      background: style.backgroundColor,
+      color: style.color,
+      boxShadow: style.boxShadow,
+      borderWidths: [
+        style.borderTopWidth,
+        style.borderRightWidth,
+        style.borderBottomWidth,
+        style.borderLeftWidth,
+      ],
+    };
+  });
+  expect(initialSignalStyle.background).toBe("rgb(220, 38, 38)");
+  expect(initialSignalStyle.color).toBe("rgb(255, 255, 255)");
+  expect(initialSignalStyle.boxShadow).toBe("none");
+  expect(new Set(initialSignalStyle.borderWidths).size).toBe(1);
+  await expect(page.locator('[data-courier-card="R-022"]')).toHaveAttribute(
+    "data-rider-danger-signal",
+    "inactive",
+  );
+  await expect(
+    page.getByRole("button", { name: "위험신호 1" }),
+  ).toBeVisible();
+
+  await page.evaluate(() => {
+    window.dispatchEvent(
+      new CustomEvent("saferoute:rider-danger-signal", {
+        detail: {
+          courierId: "R-022",
+          label: "긴급 지원 요청",
+          receivedAt: "14:32",
+        },
+      }),
+    );
+  });
+  await expect(page.locator('[data-courier-card="R-022"]')).toHaveAttribute(
+    "data-rider-danger-signal",
+    "active",
+  );
+  await expect(
+    page.getByRole("button", { name: "위험신호 2" }),
+  ).toBeVisible();
+  await page.getByRole("button", { name: "위험신호 2" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(2);
+  await page.getByRole("button", { name: "전체 20" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
   await expect(page.locator(".onepage-map-marker-photo").first()).toBeVisible();
   await expect(page.locator(".onepage-hub")).toContainText("강남 허브");

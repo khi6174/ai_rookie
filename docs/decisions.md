@@ -1044,6 +1044,16 @@
 - 기각한 대안: 기존 장문 유지, 지도마다 `합성 위치` 반복, `개입`·`임계치` 같은 내부 용어 유지, Demo·Live 표기까지 함께 제거.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-108 — 기사 앱의 명시적 위험 신호는 카드 전체 빨강으로 구분한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`는 기사 앱에서 명시적인 현재 위험 신호가 들어온 기사만 카드 전체를 빨간색으로 바꾸고, 카드 안에 `기사앱 위험 신호` 문구를 함께 표시한다. `위험신호` 필터와 동적 건수를 제공하며 Demo 초기 상태는 강태현 기사 1명의 신호로 시작한다. 같은 화면의 로컬 Demo 이벤트 경계는 신호 추가와 해제를 즉시 반영한다.
+- 이유: 관제사가 기사 앱의 긴급 신호를 낮은 Safety Budget 상태와 혼동하지 않고 즉시 발견하면서도, 색을 구분하기 어려운 경우에는 문구와 필터로 같은 의미를 읽게 하기 위해서다.
+- 경계: 낮은 Safety Budget, 기사 순서 또는 성과를 이유로 카드 전체를 빨갛게 만들지 않는다. 신호는 합성 Demo이며 실제 기사 앱 알림, 개인식별정보, 정밀 위치 수집이나 외부 전송을 추가하지 않는다. 카드에는 그림자·필터·한쪽 강조선을 사용하지 않고 Safety Budget 계산, Risk Transfer Guard와 사람의 동의·수정·거절·승인 권한을 변경하지 않는다.
+- 기각한 대안: Safety Budget 45 미만 카드 전체를 모두 빨강으로 표시, 색만 변경하고 신호 문구 생략, 위험 신호를 기사 순위로 표시, 실제 외부 알림 연동을 Demo 변경에 포함.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

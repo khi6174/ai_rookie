@@ -7,7 +7,7 @@ import {
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
-type CourierFilter = "ALL" | "SUPPORT" | "CAUTION" | "STABLE";
+type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "LIVE" | "FALLBACK";
 type InterventionStage =
   | "COMPARE"
@@ -39,6 +39,12 @@ type Courier = {
   criticalMinute: number | null;
 };
 
+type RiderDangerSignal = {
+  courierId: string;
+  label: string;
+  receivedAt: string;
+};
+
 const couriers: Courier[] = [
   { id: "R-014", name: "강태현", budget: 24.1, area: "역삼 A", completed: 14, total: 31, shift: "08:30", mapX: 29, mapY: 38, criticalMinute: 0 },
   { id: "R-022", name: "윤재호", budget: 27.6, area: "논현 B", completed: 18, total: 34, shift: "08:10", mapX: 37, mapY: 29, criticalMinute: 0 },
@@ -61,6 +67,14 @@ const couriers: Courier[] = [
   { id: "R-009", name: "한서웅", budget: 68.6, area: "세곡 A", completed: 18, total: 28, shift: "08:45", mapX: 60, mapY: 78, criticalMinute: null },
   { id: "R-032", name: "유정민", budget: 72.4, area: "자곡 B", completed: 24, total: 36, shift: "07:35", mapX: 51, mapY: 82, criticalMinute: null },
 ];
+
+const initialDangerSignals: Record<string, RiderDangerSignal> = {
+  "R-014": {
+    courierId: "R-014",
+    label: "긴급 지원 요청",
+    receivedAt: "14:31",
+  },
+};
 
 const clusters = [
   { id: "cluster-west", x: 42, y: 42, memberIds: ["R-011", "R-029"] },
@@ -93,6 +107,18 @@ function supportState(budget: number): SupportState {
   return "STABLE";
 }
 
+function matchesCourierFilter(
+  courier: Courier,
+  filter: CourierFilter,
+  dangerSignals: Record<string, RiderDangerSignal>,
+) {
+  const state = supportState(courier.budget);
+  if (filter === "ALL") return true;
+  if (filter === "SIGNAL") return Boolean(dangerSignals[courier.id]);
+  if (filter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
+  return state === filter;
+}
+
 const stateLabel: Record<SupportState, string> = {
   BREACH: "긴급",
   SUPPORT: "지원",
@@ -114,12 +140,14 @@ function CourierCard({
   courier,
   photoIndex,
   selected,
+  dangerSignal,
   onSelect,
   cardRef,
 }: {
   courier: Courier;
   photoIndex: number;
   selected: boolean;
+  dangerSignal?: RiderDangerSignal;
   onSelect: () => void;
   cardRef: (node: HTMLButtonElement | null) => void;
 }) {
@@ -129,10 +157,11 @@ function CourierCard({
   return (
     <button
       ref={cardRef}
-      className={`onepage-courier-card ${selected ? "is-selected" : ""}`}
+      className={`onepage-courier-card ${selected ? "is-selected" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
       data-courier-card={courier.id}
+      data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전여유 ${courier.budget}, ${stateLabel[state]}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전여유 ${courier.budget}, ${stateLabel[state]}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -153,7 +182,7 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <small>안전여유</small>
+        <small>{dangerSignal ? "기사앱 위험 신호" : "안전여유"}</small>
         <span className="onepage-card-safety-value">
           <b>{courier.budget.toFixed(1)}</b>
           <em>{stateLabel[state]}</em>
@@ -618,6 +647,8 @@ export function OnePageDashboardDemo() {
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const [interventionOpen, setInterventionOpen] = useState(false);
   const [appliedPlans, setAppliedPlans] = useState<Record<string, string>>({});
+  const [dangerSignals, setDangerSignals] =
+    useState<Record<string, RiderDangerSignal>>(initialDangerSignals);
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
@@ -627,12 +658,65 @@ export function OnePageDashboardDemo() {
     (courier) => courier.id === selectedCourier.id,
   );
   const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
-  const filteredCouriers = couriers.filter((courier) => {
-    const state = supportState(courier.budget);
-    if (filter === "ALL") return true;
-    if (filter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
-    return state === filter;
-  });
+  const dangerSignalCount = Object.keys(dangerSignals).length;
+  const selectedDangerSignal = dangerSignals[selectedCourier.id];
+  const filteredCouriers = couriers.filter((courier) =>
+    matchesCourierFilter(courier, filter, dangerSignals),
+  );
+
+  useEffect(() => {
+    const handleRiderDangerSignal = (event: Event) => {
+      const detail = (
+        event as CustomEvent<
+          Partial<RiderDangerSignal> & { active?: boolean }
+        >
+      ).detail;
+      if (
+        !detail ||
+        typeof detail.courierId !== "string" ||
+        !couriers.some((courier) => courier.id === detail.courierId)
+      ) {
+        return;
+      }
+
+      setDangerSignals((current) => {
+        if (detail.active === false) {
+          const next = { ...current };
+          delete next[detail.courierId!];
+          return next;
+        }
+        return {
+          ...current,
+          [detail.courierId!]: {
+            courierId: detail.courierId!,
+            label: detail.label?.trim() || "긴급 지원 요청",
+            receivedAt: detail.receivedAt?.trim() || "14:32",
+          },
+        };
+      });
+    };
+
+    window.addEventListener(
+      "saferoute:rider-danger-signal",
+      handleRiderDangerSignal,
+    );
+    return () => {
+      window.removeEventListener(
+        "saferoute:rider-danger-signal",
+        handleRiderDangerSignal,
+      );
+    };
+  }, []);
+
+  useEffect(() => {
+    if (filter !== "SIGNAL" || dangerSignals[selectedId]) return;
+    const nextCourier = couriers.find((courier) => dangerSignals[courier.id]);
+    if (nextCourier) {
+      setSelectedId(nextCourier.id);
+    } else {
+      setFilter("ALL");
+    }
+  }, [dangerSignals, filter, selectedId]);
 
   const selectCourier = (id: string, revealCard = false) => {
     if (!filteredCouriers.some((courier) => courier.id === id)) {
@@ -659,12 +743,9 @@ export function OnePageDashboardDemo() {
 
   const changeFilter = (nextFilter: CourierFilter) => {
     setFilter(nextFilter);
-    const nextCouriers = couriers.filter((courier) => {
-      const state = supportState(courier.budget);
-      if (nextFilter === "ALL") return true;
-      if (nextFilter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
-      return state === nextFilter;
-    });
+    const nextCouriers = couriers.filter((courier) =>
+      matchesCourierFilter(courier, nextFilter, dangerSignals),
+    );
     if (!nextCouriers.some((courier) => courier.id === selectedId)) {
       setSelectedId(nextCouriers[0]?.id ?? couriers[0].id);
     }
@@ -711,6 +792,7 @@ export function OnePageDashboardDemo() {
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
               ["ALL", "전체", 20],
+              ["SIGNAL", "위험신호", dangerSignalCount],
               ["SUPPORT", "지원", 9],
               ["CAUTION", "주의", 7],
               ["STABLE", "안정", 4],
@@ -718,6 +800,7 @@ export function OnePageDashboardDemo() {
               <button
                 key={value}
                 type="button"
+                className={value === "SIGNAL" ? "is-danger-filter" : undefined}
                 aria-pressed={filter === value}
                 onClick={() => changeFilter(value)}
               >
@@ -737,6 +820,7 @@ export function OnePageDashboardDemo() {
               courier={courier}
               photoIndex={couriers.findIndex((item) => item.id === courier.id)}
               selected={selectedId === courier.id}
+              dangerSignal={dangerSignals[courier.id]}
               onSelect={() => selectCourier(courier.id)}
               cardRef={(node) => {
                 if (node) cardRefs.current.set(courier.id, node);
@@ -895,9 +979,11 @@ export function OnePageDashboardDemo() {
               </div>
             </div>
             <p>
-              {appliedPlans[selectedCourier.id]
-                ? `적용됨 · ${appliedPlans[selectedCourier.id]}`
-                : "승인 전까지 현재 계획 유지"}
+              {selectedDangerSignal
+                ? `기사앱 위험 신호 · ${selectedDangerSignal.receivedAt}${appliedPlans[selectedCourier.id] ? ` · 적용됨 · ${appliedPlans[selectedCourier.id]}` : ""}`
+                : appliedPlans[selectedCourier.id]
+                  ? `적용됨 · ${appliedPlans[selectedCourier.id]}`
+                  : "승인 전까지 현재 계획 유지"}
               <span>{selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
             <button
