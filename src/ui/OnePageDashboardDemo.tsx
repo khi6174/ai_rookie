@@ -157,7 +157,7 @@ function CourierCard({
   return (
     <button
       ref={cardRef}
-      className={`onepage-courier-card ${selected ? "is-selected" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
+      className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
       data-courier-card={courier.id}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}

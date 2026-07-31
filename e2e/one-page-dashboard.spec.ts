@@ -160,14 +160,18 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
       return {
         fontSize: Number.parseFloat(getComputedStyle(value).fontSize),
         panelHeight: panel.height,
+        cardPadding: Number.parseFloat(getComputedStyle(card).paddingTop),
+        cardRowGap: Number.parseFloat(getComputedStyle(card).rowGap),
         cardShadow: getComputedStyle(card).boxShadow,
         panelShadow: getComputedStyle(element).boxShadow,
         panelFilter: getComputedStyle(element).filter,
         panelLeftBorder: getComputedStyle(element).borderLeftWidth,
       };
     });
-  expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(34);
+  expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(46);
   expect(safetyStyle.panelHeight).toBeLessThanOrEqual(100);
+  expect(safetyStyle.cardPadding).toBeLessThanOrEqual(7);
+  expect(safetyStyle.cardRowGap).toBeLessThanOrEqual(4);
   expect(safetyStyle.cardShadow).toBe("none");
   expect(safetyStyle.panelShadow).toBe("none");
   expect(safetyStyle.panelFilter).toBe("none");
@@ -191,7 +195,8 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
         safetyBelowIdentity: safety.top > identity.bottom,
       };
     });
-  expect(cardLayout.photoWidth).toBeLessThanOrEqual(74);
+  expect(cardLayout.photoWidth).toBeGreaterThanOrEqual(84);
+  expect(cardLayout.photoWidth).toBeLessThanOrEqual(90);
   expect(cardLayout.photoBeforeName).toBe(true);
   expect(cardLayout.safetyBelowIdentity).toBe(true);
 

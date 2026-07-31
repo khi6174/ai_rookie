@@ -1054,6 +1054,16 @@
 - 기각한 대안: Safety Budget 45 미만 카드 전체를 모두 빨강으로 표시, 색만 변경하고 신호 문구 생략, 위험 신호를 기사 순위로 표시, 실제 외부 알림 연동을 Demo 변경에 포함.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-109 — 기사 카드는 큰 사진·밀착 정보·대형 안전여유의 단일 면으로 구성한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo` 기사 카드는 상단 왼쪽의 84~90px 합성 사진과 오른쪽 이름·지정구역, 하단의 46px 이상 안전여유 숫자로 구성한다. 카드 내부 패딩은 6~7px, 상·하단 간격은 약 4px로 줄이고 별도 안전여유 박스 대신 상태별 옅은 배경색을 카드 전체에 적용한다.
+- 이유: 사용자가 제시한 세로형 카드 구조를 따라 사진·인적사항·안전여유의 읽기 순서를 명확히 하면서 카드 내부의 비어 보이는 공간을 줄이고, 안전여유 숫자를 관제 화면에서 가장 강한 데이터로 만들기 위해서다.
+- 경계: 기사 앱의 명시적 위험 신호 카드는 ADR-108의 진한 빨강과 흰색 문구를 유지한다. 낮은 Safety Budget만으로 진한 빨강을 사용하지 않으며 카드·사진·안전여유 면에 그림자, 필터 또는 한쪽 강조선을 추가하지 않는다. 합성 사진과 기사 순위 금지 경계도 유지한다.
+- 기각한 대안: 기존 상하 분리 박스 유지, 사진을 다시 74px 이하로 축소, 카드 높이 확대 때문에 지도를 줄이는 방식, 사진 위에 안전여유 숫자를 겹쳐 표시.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
