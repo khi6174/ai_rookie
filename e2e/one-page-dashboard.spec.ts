@@ -148,7 +148,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
       const rect = element.getBoundingClientRect();
       return { width: rect.width, height: rect.height };
     });
-  expect(firstCardSize.height).toBeGreaterThan(190);
+  expect(firstCardSize.height).toBeGreaterThanOrEqual(216);
   expect(firstCardSize.height).toBeGreaterThan(firstCardSize.width);
   const safetyStyle = await page
     .locator(".onepage-card-safety")
@@ -174,8 +174,8 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
       };
     });
   expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(46);
-  expect(safetyStyle.panelHeight).toBeLessThanOrEqual(100);
-  expect(safetyStyle.labelToValueGap).toBeLessThanOrEqual(2);
+  expect(safetyStyle.panelHeight).toBeGreaterThanOrEqual(110);
+  expect(safetyStyle.labelToValueGap).toBeGreaterThanOrEqual(24);
   expect(safetyStyle.cardPadding).toBeLessThanOrEqual(7);
   expect(safetyStyle.cardRowGap).toBeLessThanOrEqual(4);
   expect(safetyStyle.cardShadow).toBe("none");
@@ -187,7 +187,13 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   ).not.toContainText("!");
   await expect(
     page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
-  ).toContainText("긴급");
+  ).not.toContainText("긴급");
+  const cardSafetyTexts = await page
+    .locator(".onepage-card-safety")
+    .allTextContents();
+  expect(
+    cardSafetyTexts.every((text) => !/긴급|지원|주의|안정/.test(text)),
+  ).toBe(true);
   const cardLayout = await page
     .locator('[data-courier-card="R-014"]')
     .evaluate((card) => {
@@ -223,7 +229,10 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await sourceCard.click();
   await expect(sourceCard).toHaveAttribute("aria-pressed", "true");
   await expect(sourceCard.locator(".onepage-card-safety")).toContainText(
-    /31\.8\s*지원/,
+    "31.8",
+  );
+  await expect(sourceCard.locator(".onepage-card-safety")).not.toContainText(
+    "지원",
   );
   expect(
     await sourceCard.evaluate((element) => getComputedStyle(element).boxShadow),

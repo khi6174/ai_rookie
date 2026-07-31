@@ -19,7 +19,7 @@
   min-height: 640px;
   overflow: hidden;
   display: grid;
-  grid-template-rows: 54px 272px minmax(300px, 1fr);
+  grid-template-rows: 54px 296px minmax(300px, 1fr);
   background: var(--paper);
   color: var(--navy);
   font-family: "Pretendard", "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
@@ -277,7 +277,7 @@
 .onepage-courier-card {
   --card-soft: var(--surface);
   position: relative;
-  height: 204px;
+  height: 228px;
   min-width: 0;
   display: grid;
   grid-template-rows: 90px 1fr;
@@ -364,7 +364,7 @@
   --state-soft: var(--teal-soft);
   min-width: 0;
   flex-direction: column;
-  justify-content: flex-start;
+  justify-content: space-between;
   align-items: stretch;
   gap: 0;
   padding: 2px 5px 1px;
@@ -402,12 +402,6 @@
   line-height: 1;
   letter-spacing: -.05em;
   font-variant-numeric: tabular-nums;
-}
-
-.onepage-card-safety em {
-  font-size: 11px;
-  font-weight: 850;
-  font-style: normal;
 }
 
 .onepage-card-safety.state-breach { --state-color: var(--red); --state-soft: var(--red-soft); }
@@ -1382,7 +1376,7 @@
 
 @media (max-height: 760px) {
   .onepage-demo {
-    grid-template-rows: 50px 244px minmax(300px, 1fr);
+    grid-template-rows: 50px 266px minmax(300px, 1fr);
   }
 
   .onepage-header {
@@ -1406,7 +1400,7 @@
   }
 
   .onepage-courier-card {
-    height: 194px;
+    height: 216px;
     grid-template-rows: 84px 1fr;
     padding: 6px;
   }

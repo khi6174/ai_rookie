@@ -185,7 +185,6 @@ function CourierCard({
         <small>{dangerSignal ? "기사앱 위험 신호" : "안전여유"}</small>
         <span className="onepage-card-safety-value">
           <b>{courier.budget.toFixed(1)}</b>
-          <em>{stateLabel[state]}</em>
         </span>
       </span>
     </button>
