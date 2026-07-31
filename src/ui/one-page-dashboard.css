@@ -288,21 +288,21 @@
 .onepage-card-identity {
   min-width: 0;
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr);
+  grid-template-columns: 64px minmax(0, 1fr);
   align-items: center;
   gap: 10px;
 }
 
 .onepage-avatar {
   position: relative;
-  width: 54px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
   display: block;
 }
 
 .onepage-profile-photo {
-  width: 54px;
-  height: 54px;
+  width: 64px;
+  height: 64px;
   display: block;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
@@ -315,8 +315,8 @@
   position: absolute;
   right: -2px;
   bottom: -2px;
-  width: 12px;
-  height: 12px;
+  width: 14px;
+  height: 14px;
   border: 2px solid var(--surface);
   border-radius: var(--r-pill);
   background: var(--green);
@@ -1279,8 +1279,8 @@
   .onepage-courier-card { height: 128px; padding: 10px; }
   .onepage-card-rail { padding-bottom: 4px; }
   .onepage-avatar,
-  .onepage-profile-photo { width: 48px; height: 48px; }
-  .onepage-card-identity { grid-template-columns: 48px minmax(0, 1fr); }
+  .onepage-profile-photo { width: 56px; height: 56px; }
+  .onepage-card-identity { grid-template-columns: 56px minmax(0, 1fr); }
   .onepage-workspace { margin-block: 10px 8px; }
   .onepage-map-section { grid-template-rows: 44px minmax(0, 1fr); }
   .onepage-support-panel { grid-template-rows: 44px auto minmax(0, 1fr) auto; }

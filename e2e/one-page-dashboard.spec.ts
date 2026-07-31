@@ -94,8 +94,8 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
     };
   });
   expect(cardLayout.height).toBeGreaterThanOrEqual(128);
-  expect(cardLayout.photoWidth).toBeGreaterThanOrEqual(48);
-  expect(cardLayout.photoWidth).toBeLessThanOrEqual(54);
+  expect(cardLayout.photoWidth).toBeGreaterThanOrEqual(56);
+  expect(cardLayout.photoWidth).toBeLessThanOrEqual(64);
   expect(cardLayout.safetyBelowIdentity).toBe(true);
 
   const profileAssetLoaded = await page
