@@ -835,7 +835,7 @@
   justify-content: space-between;
   gap: 8px;
   padding: 7px 8px;
-  border: 0;
+  border: 1px solid transparent;
   border-radius: 9px;
   color: var(--navy);
   background: transparent;
@@ -853,7 +853,8 @@
 }
 
 .onepage-support-list button[aria-pressed="true"] {
-  box-shadow: inset 3px 0 0 #2d62eb;
+  border-color: #2d62eb;
+  box-shadow: none;
 }
 
 .onepage-support-list button > span {

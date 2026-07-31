@@ -133,6 +133,33 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     .locator(".onepage-support-list button")
     .filter({ hasText: "노현우" });
   await queueCourier.click();
+  const queueSelectionStyle = await queueCourier.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      boxShadow: style.boxShadow,
+      borderTopWidth: style.borderTopWidth,
+      borderRightWidth: style.borderRightWidth,
+      borderBottomWidth: style.borderBottomWidth,
+      borderLeftWidth: style.borderLeftWidth,
+      borderTopColor: style.borderTopColor,
+      borderRightColor: style.borderRightColor,
+      borderBottomColor: style.borderBottomColor,
+      borderLeftColor: style.borderLeftColor,
+    };
+  });
+  expect(queueSelectionStyle.boxShadow).toBe("none");
+  expect(new Set([
+    queueSelectionStyle.borderTopWidth,
+    queueSelectionStyle.borderRightWidth,
+    queueSelectionStyle.borderBottomWidth,
+    queueSelectionStyle.borderLeftWidth,
+  ]).size).toBe(1);
+  expect(new Set([
+    queueSelectionStyle.borderTopColor,
+    queueSelectionStyle.borderRightColor,
+    queueSelectionStyle.borderBottomColor,
+    queueSelectionStyle.borderLeftColor,
+  ]).size).toBe(1);
   await expect(page.locator('[data-courier-card="R-027"]')).toHaveAttribute(
     "aria-pressed",
     "true",

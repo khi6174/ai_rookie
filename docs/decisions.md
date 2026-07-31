@@ -973,6 +973,16 @@
 - 기각한 대안: 기존 다섯 탭 전체를 단일 화면에 복제, 하단 시뮬레이션 재도입, 지도 축소 없이 지원 큐를 지도 위에 겹치기, 장식 KPI 카드만 추가.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
 
+### ADR-101 — 카드 측면의 상태·선택 강조선을 전역 금지한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: 기사 카드, 지원 큐와 선택 카드에서 좌우 한쪽만 강조하는 색상 `border`, 띠와 `inset box-shadow`를 사용하지 않는다. 선택 상태는 사방의 동일한 1px 경계와 옅은 배경색으로만 표현한다.
+- 이유: 사용자가 안전여유 면의 왼쪽 상태선을 반복 제거하도록 요청했는데 통합 지원 큐에 동일한 시각 문법을 다시 적용했다. 이 패턴은 그림자처럼 보이며 사용자의 명시적 디자인 선호와 승인된 디자인 시스템을 모두 위반한다.
+- 경계: 키보드 `focus-visible` 외곽선, 지도 마커의 목적 있는 선택 링과 사방이 동일한 카드 경계는 유지할 수 있다. 상태명·수치·배경색을 함께 사용해 색상만으로 상태를 전달하지 않는다.
+- 기각한 대안: 왼쪽 inset 폭 축소, 색만 연하게 변경, 해당 컴포넌트만 예외적으로 유지.
+- 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/lessons/card-selection-styling.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
