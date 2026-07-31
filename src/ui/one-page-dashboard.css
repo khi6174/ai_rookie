@@ -270,7 +270,7 @@
   align-items: stretch;
   gap: 2px;
   padding: 8px 10px 9px;
-  border-left: 4px solid var(--state-color);
+  border: 0;
   border-radius: 12px;
   color: var(--state-color);
   background: var(--state-soft);

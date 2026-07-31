@@ -51,6 +51,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
         cardShadow: getComputedStyle(card).boxShadow,
         panelShadow: getComputedStyle(element).boxShadow,
         panelFilter: getComputedStyle(element).filter,
+        panelLeftBorder: getComputedStyle(element).borderLeftWidth,
       };
     });
   expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(34);
@@ -58,6 +59,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   expect(safetyStyle.cardShadow).toBe("none");
   expect(safetyStyle.panelShadow).toBe("none");
   expect(safetyStyle.panelFilter).toBe("none");
+  expect(safetyStyle.panelLeftBorder).toBe("0px");
   await expect(
     page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
   ).not.toContainText("!");
