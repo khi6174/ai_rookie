@@ -10,7 +10,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   const dashboardPalette = await page.locator("main.onepage-demo").evaluate((main) => {
     const header = main.querySelector(".onepage-header")!;
     const brandMark = main.querySelector(".onepage-brand-mark")!;
-    const action = main.querySelector(".onepage-support-focus > a")!;
+    const action = main.querySelector(".onepage-open-intervention")!;
     return {
       page: getComputedStyle(main).backgroundColor,
       header: getComputedStyle(header).backgroundColor,
@@ -26,10 +26,8 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   });
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
   await expect(page.getByRole("heading", { name: "안전지원 판단" })).toBeVisible();
-  await expect(page.getByRole("link", { name: "개입 검토 열기" })).toHaveAttribute(
-    "href",
-    "/operations",
-  );
+  const interventionTrigger = page.getByRole("button", { name: "개입 검토 열기" });
+  await expect(interventionTrigger).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "향후 60분 시뮬레이션" }),
   ).toHaveCount(0);
@@ -45,6 +43,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     }),
   ).toBeVisible();
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
+  await expect(page.locator(".onepage-map-marker-photo").first()).toBeVisible();
 
   const profileAssetLoaded = await page
     .locator(".onepage-profile-photo")
@@ -201,6 +200,41 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     "aria-pressed",
     "true",
   );
+
+  await interventionTrigger.click();
+  const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
+  await expect(dialog).toBeVisible();
+  const dialogRect = await dialog.evaluate((element) => {
+    const rect = element.getBoundingClientRect();
+    return {
+      left: rect.left,
+      top: rect.top,
+      right: rect.right,
+      bottom: rect.bottom,
+    };
+  });
+  expect(dialogRect.left).toBeGreaterThanOrEqual(0);
+  expect(dialogRect.top).toBeGreaterThanOrEqual(0);
+  expect(dialogRect.right).toBeLessThanOrEqual(1280);
+  expect(dialogRect.bottom).toBeLessThanOrEqual(720);
+  await expect(dialog.getByText("개입안 선택")).toBeVisible();
+  await expect(dialog.getByRole("button", { name: /10분 휴식/ })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
+  await expect(dialog.getByText("응답을 선택하세요")).toBeVisible();
+  await dialog.getByRole("button", { name: "동의 확인" }).click();
+  await expect(dialog.getByText("기사 동의 확인")).toBeVisible();
+  await dialog.getByRole("button", { name: "관리자 승인 및 적용" }).click();
+  await expect(dialog.getByText("10분 휴식 반영")).toBeVisible();
+  await expect(dialog.getByText("경로·배송순서·ETA·고객 안내를 함께 갱신했습니다."))
+    .toBeVisible();
+  await dialog.getByRole("button", { name: "완료" }).click();
+  await expect(dialog).toHaveCount(0);
+  await expect(interventionTrigger).toBeFocused();
+  await expect(page.getByText("적용 완료 · 10분 휴식")).toBeVisible();
+  expect(new URL(page.url()).pathname).toBe("/dashboard-demo");
 
   const overflow = await page.evaluate(() => ({
     horizontal:

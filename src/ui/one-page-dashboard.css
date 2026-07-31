@@ -579,33 +579,43 @@
 
 .onepage-map-marker {
   --marker: var(--teal);
-  width: 44px;
-  height: 44px;
+  width: 50px;
+  height: 50px;
+  display: block;
+  padding: 3px;
+  border: 3px solid var(--marker);
+  border-radius: 50%;
+  color: #fff;
+  background: #fff;
+  box-shadow: none;
+}
+
+.onepage-map-marker-photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+  border-radius: 50%;
+  background-image: url("../assets/synthetic-courier-profiles-v1.jpg");
+  background-repeat: no-repeat;
+  background-size: 500% 400%;
+}
+
+.onepage-map-marker-score {
+  position: absolute;
+  right: -8px;
+  bottom: -5px;
+  min-width: 27px;
+  height: 19px;
   display: grid;
-  grid-template-columns: 1fr auto;
-  align-items: center;
-  padding: 0 7px 0 9px;
-  border: 3px solid #fff;
-  border-radius: 50% 50% 50% 12px;
-  rotate: -45deg;
+  place-items: center;
+  padding-inline: 4px;
+  border: 2px solid #fff;
+  border-radius: 999px;
   color: #fff;
   background: var(--marker);
-  box-shadow: 0 7px 18px rgba(15,33,52,.2);
-}
-
-.onepage-map-marker > span,
-.onepage-map-marker > small {
-  rotate: 45deg;
-}
-
-.onepage-map-marker > span {
-  font-size: 12px;
-  font-weight: 900;
-}
-
-.onepage-map-marker > small {
   font-size: 8px;
   font-weight: 850;
+  font-variant-numeric: tabular-nums;
 }
 
 .onepage-map-marker.state-breach { --marker: var(--red); }
@@ -615,7 +625,9 @@
 
 .onepage-map-marker.is-selected {
   z-index: 8;
-  box-shadow: 0 0 0 6px rgba(6,59,199,.25), 0 8px 24px rgba(15,33,52,.28);
+  outline: 4px solid rgba(37,99,235,.3);
+  outline-offset: 3px;
+  box-shadow: none;
 }
 
 .onepage-map-cluster {
@@ -823,20 +835,366 @@
   font-weight: 800;
 }
 
-.onepage-support-focus > a {
+.onepage-open-intervention {
+  width: 100%;
   min-height: 34px;
   display: grid;
   place-items: center;
+  border: 0;
   border-radius: 9px;
   color: #fff;
   background: var(--brand);
-  text-decoration: none;
+  cursor: pointer;
   font-size: 10px;
   font-weight: 850;
 }
 
-.onepage-support-focus > a:hover {
+.onepage-open-intervention:hover {
   background: #1d4ed8;
+}
+
+.onepage-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(16, 24, 40, .62);
+}
+
+.onepage-intervention-dialog {
+  width: min(980px, 100%);
+  max-height: calc(100vh - 40px);
+  display: grid;
+  grid-template-rows: 68px minmax(0, 1fr) 64px;
+  overflow: hidden;
+  border: 1px solid #d8e1ee;
+  border-radius: 18px;
+  color: var(--navy);
+  background: #fff;
+  box-shadow: none;
+}
+
+.onepage-dialog-header,
+.onepage-dialog-footer,
+.onepage-dialog-person,
+.onepage-dialog-section-title,
+.onepage-before-after,
+.onepage-dialog-footer > div {
+  display: flex;
+  align-items: center;
+}
+
+.onepage-dialog-header {
+  justify-content: space-between;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.onepage-dialog-person {
+  min-width: 0;
+  gap: 11px;
+}
+
+.onepage-dialog-person .onepage-support-photo {
+  width: 44px;
+}
+
+.onepage-dialog-person > div {
+  min-width: 0;
+  display: grid;
+  gap: 2px;
+}
+
+.onepage-dialog-person small,
+.onepage-dialog-person span,
+.onepage-dialog-section-title small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.onepage-dialog-person h2,
+.onepage-dialog-section-title h3 {
+  margin: 0;
+}
+
+.onepage-dialog-person h2 {
+  font-size: 17px;
+}
+
+.onepage-dialog-close {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  color: var(--navy);
+  background: var(--paper);
+  cursor: pointer;
+  font-size: 24px;
+  line-height: 1;
+}
+
+.onepage-dialog-body {
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1.55fr) minmax(280px, .85fr);
+}
+
+.onepage-intervention-candidates,
+.onepage-decision-summary {
+  min-height: 0;
+  padding: 16px;
+}
+
+.onepage-intervention-candidates {
+  border-right: 1px solid var(--line);
+}
+
+.onepage-dialog-section-title {
+  min-height: 38px;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.onepage-dialog-section-title > div {
+  display: grid;
+  gap: 2px;
+}
+
+.onepage-dialog-section-title h3 {
+  font-size: 14px;
+}
+
+.onepage-dialog-section-title > span {
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: var(--brand);
+  background: #eaf0ff;
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.onepage-candidate-list {
+  display: grid;
+  gap: 7px;
+  margin-top: 9px;
+}
+
+.onepage-candidate-list button {
+  width: 100%;
+  min-height: 62px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 82px 112px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--navy);
+  background: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  text-align: left;
+}
+
+.onepage-candidate-list button:hover {
+  background: #f7f9fd;
+}
+
+.onepage-candidate-list button[aria-pressed="true"] {
+  border-color: var(--brand);
+  background: #eaf0ff;
+}
+
+.onepage-candidate-list button > span {
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+
+.onepage-candidate-list button > span:nth-child(2) {
+  justify-items: end;
+}
+
+.onepage-candidate-list strong {
+  font-size: 12px;
+}
+
+.onepage-candidate-list b {
+  color: var(--teal);
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+}
+
+.onepage-candidate-list small {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.onepage-candidate-list em {
+  justify-self: end;
+  color: var(--teal);
+  font-size: 9px;
+  font-style: normal;
+  font-weight: 800;
+  text-align: right;
+}
+
+.onepage-decision-summary {
+  display: grid;
+  align-content: start;
+  gap: 13px;
+  background: #fbfcfe;
+}
+
+.onepage-before-after {
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: #fff;
+}
+
+.onepage-before-after > div {
+  min-width: 86px;
+  display: grid;
+  gap: 4px;
+}
+
+.onepage-before-after small,
+.onepage-decision-facts dt {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.onepage-before-after b {
+  font-size: 24px;
+  font-variant-numeric: tabular-nums;
+}
+
+.onepage-before-after > div:last-child {
+  color: var(--teal);
+  text-align: right;
+}
+
+.onepage-before-after > span {
+  color: var(--brand);
+  font-weight: 900;
+}
+
+.onepage-decision-facts {
+  display: grid;
+  gap: 1px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  background: var(--line);
+}
+
+.onepage-decision-facts > div {
+  min-height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.onepage-decision-facts dd {
+  margin: 0;
+  font-size: 10px;
+  font-weight: 850;
+  text-align: right;
+}
+
+.onepage-workflow-state {
+  min-height: 96px;
+  display: grid;
+  align-content: center;
+  gap: 5px;
+  padding: 13px;
+  border: 1px solid #d7e2f3;
+  border-radius: 12px;
+  background: #f1f5fb;
+}
+
+.onepage-workflow-state small {
+  color: var(--brand);
+  font-size: 9px;
+  font-weight: 850;
+}
+
+.onepage-workflow-state strong {
+  font-size: 13px;
+}
+
+.onepage-workflow-state span {
+  color: var(--muted);
+  font-size: 9px;
+  line-height: 1.45;
+}
+
+.onepage-workflow-state.is-consented,
+.onepage-workflow-state.is-applied {
+  border-color: #b8e3ca;
+  background: #edf9f2;
+}
+
+.onepage-workflow-state.is-consented small,
+.onepage-workflow-state.is-applied small {
+  color: var(--teal);
+}
+
+.onepage-workflow-state.is-declined,
+.onepage-workflow-state.is-modify {
+  border-color: #ecd8b7;
+  background: #fff8eb;
+}
+
+.onepage-workflow-state.is-declined small,
+.onepage-workflow-state.is-modify small {
+  color: var(--amber);
+}
+
+.onepage-dialog-footer {
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18px;
+  border-top: 1px solid var(--line);
+  background: #fff;
+}
+
+.onepage-dialog-footer > span {
+  color: var(--muted);
+  font-size: 9px;
+}
+
+.onepage-dialog-footer > div {
+  justify-content: flex-end;
+  gap: 7px;
+}
+
+.onepage-dialog-footer button {
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 9px;
+  color: var(--navy);
+  background: #fff;
+  box-shadow: none;
+  cursor: pointer;
+  font-size: 10px;
+  font-weight: 850;
+}
+
+.onepage-dialog-footer button.is-primary {
+  border-color: var(--brand);
+  color: #fff;
+  background: var(--brand);
 }
 
 .onepage-support-queue {
@@ -985,8 +1343,31 @@
     padding-block: 6px;
   }
 
-  .onepage-support-focus > a {
+  .onepage-open-intervention {
     min-height: 30px;
+  }
+
+  .onepage-modal-backdrop {
+    padding: 12px;
+  }
+
+  .onepage-intervention-dialog {
+    max-height: calc(100vh - 24px);
+    grid-template-rows: 60px minmax(0, 1fr) 56px;
+  }
+
+  .onepage-intervention-candidates,
+  .onepage-decision-summary {
+    padding: 12px;
+  }
+
+  .onepage-candidate-list {
+    gap: 5px;
+  }
+
+  .onepage-candidate-list button {
+    min-height: 53px;
+    padding-block: 7px;
   }
 
 }
@@ -1029,6 +1410,25 @@
 
   .onepage-workspace {
     grid-template-columns: minmax(0, 1fr) 260px;
+  }
+
+  .onepage-dialog-body {
+    grid-template-columns: 1fr;
+    overflow-y: auto;
+  }
+
+  .onepage-intervention-candidates {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .onepage-dialog-footer {
+    align-items: flex-end;
+    padding-block: 8px;
+  }
+
+  .onepage-dialog-footer > span {
+    display: none;
   }
 }
 

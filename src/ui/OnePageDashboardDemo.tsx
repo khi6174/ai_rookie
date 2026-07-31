@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   loadKakaoMapsSdk,
   type KakaoMapInstance,
@@ -9,6 +9,22 @@ import "./one-page-dashboard.css";
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "LIVE" | "FALLBACK";
+type InterventionStage =
+  | "COMPARE"
+  | "REQUESTED"
+  | "CONSENTED"
+  | "MODIFY"
+  | "DECLINED"
+  | "APPLIED";
+
+type InterventionOption = {
+  id: "REST" | "SAFE_ROUTE" | "TRANSFER" | "RESEQUENCE" | "SAFE_DELAY";
+  label: string;
+  detail: string;
+  budgetDelta: number;
+  etaDelta: number;
+  guard: string;
+};
 
 type Courier = {
   id: string;
@@ -55,6 +71,13 @@ const clusters = [
 
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
 const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
+const interventionOptions: InterventionOption[] = [
+  { id: "REST", label: "10분 휴식", detail: "가까운 휴식 거점 경유", budgetDelta: 18.4, etaDelta: 10, guard: "실행 가능" },
+  { id: "SAFE_ROUTE", label: "안전경로", detail: "위험 노출 구간 우회", budgetDelta: 13.6, etaDelta: 6, guard: "실행 가능" },
+  { id: "TRANSFER", label: "물량이관 6건", detail: "인접 기사에게 일부 이관", budgetDelta: 16.1, etaDelta: 4, guard: "위험전가 검사 통과" },
+  { id: "RESEQUENCE", label: "순서 변경", detail: "가까운 배송지부터 재배치", budgetDelta: 8.7, etaDelta: 2, guard: "실행 가능" },
+  { id: "SAFE_DELAY", label: "Safe Delay", detail: "고객 안내 후 안전 지연", budgetDelta: 12.5, etaDelta: 8, guard: "고객 안내 가능" },
+];
 
 function courierGeographicPoint(courier: Courier) {
   return {
@@ -142,14 +165,18 @@ function CourierCard({
 
 function MapMarker({
   courier,
+  photoIndex,
   selected,
   onSelect,
 }: {
   courier: Courier;
+  photoIndex: number;
   selected: boolean;
   onSelect: () => void;
 }) {
   const state = supportState(courier.budget);
+  const photoColumn = photoIndex % 5;
+  const photoRow = Math.floor(photoIndex / 5);
   return (
     <button
       className={`onepage-map-marker state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
@@ -160,8 +187,16 @@ function MapMarker({
       onClick={onSelect}
       type="button"
     >
-      <span aria-hidden="true">{courier.name.slice(0, 1)}</span>
-      <small aria-hidden="true">{courier.budget.toFixed(0)}</small>
+      <span
+        className="onepage-map-marker-photo"
+        aria-hidden="true"
+        style={{
+          backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
+        }}
+      />
+      <small className="onepage-map-marker-score" aria-hidden="true">
+        {courier.budget.toFixed(0)}
+      </small>
     </button>
   );
 }
@@ -209,14 +244,16 @@ function DashboardKakaoMap({
         map = new maps.Map(container, { center, level: 6 });
         const bounds = new maps.LatLngBounds();
 
-        couriers.forEach((courier) => {
+        couriers.forEach((courier, photoIndex) => {
           if (!map) return;
           const point = courierGeographicPoint(courier);
           const position = new maps.LatLng(point.latitude, point.longitude);
           const state = supportState(courier.budget);
           const button = document.createElement("button");
-          const initial = document.createElement("span");
+          const photo = document.createElement("span");
           const score = document.createElement("small");
+          const photoColumn = photoIndex % 5;
+          const photoRow = Math.floor(photoIndex / 5);
 
           button.type = "button";
           button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
@@ -225,11 +262,14 @@ function DashboardKakaoMap({
             "aria-label",
             `${courier.name} 기사 합성 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
           );
-          initial.setAttribute("aria-hidden", "true");
-          initial.textContent = courier.name.slice(0, 1);
+          photo.className = "onepage-map-marker-photo";
+          photo.setAttribute("aria-hidden", "true");
+          photo.style.backgroundPosition =
+            `${photoColumn * 25}% ${photoRow * (100 / 3)}%`;
+          score.className = "onepage-map-marker-score";
           score.setAttribute("aria-hidden", "true");
           score.textContent = courier.budget.toFixed(0);
-          button.append(initial, score);
+          button.append(photo, score);
           button.addEventListener("click", () => selectRef.current(courier.id));
           buttons.set(courier.id, button);
 
@@ -301,10 +341,281 @@ function DashboardKakaoMap({
   );
 }
 
+function InterventionDialog({
+  courier,
+  onClose,
+  onApplied,
+}: {
+  courier: Courier;
+  onClose: () => void;
+  onApplied: (label: string) => void;
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const [selectedOptionId, setSelectedOptionId] =
+    useState<InterventionOption["id"]>("REST");
+  const [stage, setStage] = useState<InterventionStage>("COMPARE");
+  const selectedOption =
+    interventionOptions.find((option) => option.id === selectedOptionId) ??
+    interventionOptions[0];
+  const projectedBudget = Math.min(
+    89.9,
+    courier.budget + selectedOption.budgetDelta,
+  );
+  const courierIndex = couriers.findIndex((item) => item.id === courier.id);
+
+  useEffect(() => {
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [onClose]);
+
+  const resetComparison = () => {
+    setStage("COMPARE");
+  };
+
+  const applyPlan = () => {
+    setStage("APPLIED");
+    onApplied(selectedOption.label);
+  };
+
+  return (
+    <div
+      className="onepage-modal-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={dialogRef}
+        className="onepage-intervention-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="intervention-dialog-title"
+      >
+        <header className="onepage-dialog-header">
+          <div className="onepage-dialog-person">
+            <span
+              className="onepage-support-photo"
+              aria-hidden="true"
+              style={{
+                backgroundPosition:
+                  `${(courierIndex % 5) * 25}% ${Math.floor(courierIndex / 5) * (100 / 3)}%`,
+              }}
+            />
+            <div>
+              <small>합성 Demo · 개입 검토</small>
+              <h2 id="intervention-dialog-title">
+                {courier.name} 기사 안전지원
+              </h2>
+              <span>{courier.area} · 배송 {courier.completed}/{courier.total}</span>
+            </div>
+          </div>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className="onepage-dialog-close"
+            aria-label="개입 검토 닫기"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </header>
+
+        <div className="onepage-dialog-body">
+          <section className="onepage-intervention-candidates" aria-labelledby="candidate-title">
+            <div className="onepage-dialog-section-title">
+              <div>
+                <small>안전한 후보만 비교</small>
+                <h3 id="candidate-title">개입안 선택</h3>
+              </div>
+              <span>5개 후보</span>
+            </div>
+            <div className="onepage-candidate-list">
+              {interventionOptions.map((option) => {
+                const after = Math.min(89.9, courier.budget + option.budgetDelta);
+                const isSelected = option.id === selectedOptionId;
+                return (
+                  <button
+                    key={option.id}
+                    type="button"
+                    aria-pressed={isSelected}
+                    onClick={() => {
+                      setSelectedOptionId(option.id);
+                      setStage("COMPARE");
+                    }}
+                  >
+                    <span>
+                      <strong>{option.label}</strong>
+                      <small>{option.detail}</small>
+                    </span>
+                    <span>
+                      <b>{after.toFixed(1)}</b>
+                      <small>ETA +{option.etaDelta}분</small>
+                    </span>
+                    <em>{option.guard}</em>
+                  </button>
+                );
+              })}
+            </div>
+          </section>
+
+          <aside className="onepage-decision-summary" aria-live="polite">
+            <div className="onepage-dialog-section-title">
+              <div>
+                <small>선택한 조치</small>
+                <h3>결정 요약</h3>
+              </div>
+            </div>
+            <div className="onepage-before-after">
+              <div>
+                <small>조정 전</small>
+                <b>{courier.budget.toFixed(1)}</b>
+              </div>
+              <span aria-hidden="true">→</span>
+              <div>
+                <small>조정 후</small>
+                <b>{projectedBudget.toFixed(1)}</b>
+              </div>
+            </div>
+            <dl className="onepage-decision-facts">
+              <div>
+                <dt>선택</dt>
+                <dd>{selectedOption.label}</dd>
+              </div>
+              <div>
+                <dt>고객 ETA</dt>
+                <dd>+{selectedOption.etaDelta}분</dd>
+              </div>
+              <div>
+                <dt>안전 제약</dt>
+                <dd>{selectedOption.guard}</dd>
+              </div>
+            </dl>
+
+            <div className={`onepage-workflow-state is-${stage.toLowerCase()}`}>
+              {stage === "COMPARE" && (
+                <>
+                  <small>1 · 비교 완료</small>
+                  <strong>기사 확인이 필요합니다</strong>
+                  <span>승인 전에는 현재 계획을 유지합니다.</span>
+                </>
+              )}
+              {stage === "REQUESTED" && (
+                <>
+                  <small>2 · 기사 확인</small>
+                  <strong>응답을 선택하세요</strong>
+                  <span>동의·수정 요청·거절에 불이익이 없습니다.</span>
+                </>
+              )}
+              {stage === "CONSENTED" && (
+                <>
+                  <small>3 · 관리자 승인</small>
+                  <strong>기사 동의 확인</strong>
+                  <span>최종 승인 후 계획과 고객 안내를 함께 갱신합니다.</span>
+                </>
+              )}
+              {stage === "MODIFY" && (
+                <>
+                  <small>기사 수정 요청</small>
+                  <strong>계획은 적용하지 않았습니다</strong>
+                  <span>후보를 다시 비교한 뒤 재요청할 수 있습니다.</span>
+                </>
+              )}
+              {stage === "DECLINED" && (
+                <>
+                  <small>기사 거절</small>
+                  <strong>현재 계획을 유지합니다</strong>
+                  <span>거절은 성과나 불이익 상태로 기록하지 않습니다.</span>
+                </>
+              )}
+              {stage === "APPLIED" && (
+                <>
+                  <small>4 · 적용 완료</small>
+                  <strong>{selectedOption.label} 반영</strong>
+                  <span>경로·배송순서·ETA·고객 안내를 함께 갱신했습니다.</span>
+                </>
+              )}
+            </div>
+          </aside>
+        </div>
+
+        <footer className="onepage-dialog-footer">
+          <span>모든 수치와 응답은 합성 Demo입니다.</span>
+          <div>
+            {stage === "COMPARE" && (
+              <button type="button" className="is-primary" onClick={() => setStage("REQUESTED")}>
+                기사 확인 요청
+              </button>
+            )}
+            {stage === "REQUESTED" && (
+              <>
+                <button type="button" onClick={() => setStage("DECLINED")}>거절</button>
+                <button type="button" onClick={() => setStage("MODIFY")}>수정 요청</button>
+                <button type="button" className="is-primary" onClick={() => setStage("CONSENTED")}>
+                  동의 확인
+                </button>
+              </>
+            )}
+            {(stage === "MODIFY" || stage === "DECLINED") && (
+              <button type="button" className="is-primary" onClick={resetComparison}>
+                후보 다시 비교
+              </button>
+            )}
+            {stage === "CONSENTED" && (
+              <button type="button" className="is-primary" onClick={applyPlan}>
+                관리자 승인 및 적용
+              </button>
+            )}
+            {stage === "APPLIED" && (
+              <button type="button" className="is-primary" onClick={onClose}>
+                완료
+              </button>
+            )}
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState(couriers[0].id);
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
+  const [interventionOpen, setInterventionOpen] = useState(false);
+  const [appliedPlans, setAppliedPlans] = useState<Record<string, string>>({});
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
@@ -358,6 +669,15 @@ export function OnePageDashboardDemo() {
   };
 
   const selectedIsClustered = clusteredIds.has(selectedId);
+  const closeIntervention = useCallback(() => {
+    setInterventionOpen(false);
+  }, []);
+  const recordAppliedPlan = useCallback((label: string) => {
+    setAppliedPlans((current) => ({
+      ...current,
+      [selectedId]: label,
+    }));
+  }, [selectedId]);
 
   return (
     <main className="onepage-demo">
@@ -482,6 +802,7 @@ export function OnePageDashboardDemo() {
                     <MapMarker
                       key={courier.id}
                       courier={courier}
+                      photoIndex={couriers.findIndex((item) => item.id === courier.id)}
                       selected={selectedId === courier.id}
                       onSelect={() => selectCourier(courier.id, true)}
                     />
@@ -510,6 +831,7 @@ export function OnePageDashboardDemo() {
                 {selectedIsClustered ? (
                   <MapMarker
                     courier={selectedCourier}
+                    photoIndex={selectedIndex}
                     selected
                     onSelect={() => selectCourier(selectedCourier.id, true)}
                   />
@@ -572,10 +894,18 @@ export function OnePageDashboardDemo() {
               </div>
             </div>
             <p>
-              승인 전까지 현재 계획 유지
+              {appliedPlans[selectedCourier.id]
+                ? `적용 완료 · ${appliedPlans[selectedCourier.id]}`
+                : "승인 전까지 현재 계획 유지"}
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </p>
-            <a href="/operations">개입 검토 열기</a>
+            <button
+              type="button"
+              className="onepage-open-intervention"
+              onClick={() => setInterventionOpen(true)}
+            >
+              개입 검토 열기
+            </button>
           </div>
 
           <div className="onepage-support-queue">
@@ -609,6 +939,14 @@ export function OnePageDashboardDemo() {
           </div>
         </aside>
       </section>
+      {interventionOpen ? (
+        <InterventionDialog
+          key={selectedCourier.id}
+          courier={selectedCourier}
+          onClose={closeIntervention}
+          onApplied={recordAppliedPlan}
+        />
+      ) : null}
     </main>
   );
 }

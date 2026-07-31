@@ -1003,6 +1003,17 @@
 - 기각한 대안: 실제 기사 위치 수집, 새 지도 공급자·SDK 도입, Kakao 오류 시 빈 지도 표시, Fallback 삭제, 지도 위 마커를 실제 Live 위치로 표현.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-104 — 단일 관제 데모의 기사 마커와 개입 폐루프를 한 화면에 통합한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 대체 관계: ADR-100의 `/operations` 이동형 `개입 검토 열기`를 `/dashboard-demo` 내부 모달형 폐루프로 대체한다.
+- 결정: 실제 Kakao 지도와 Fallback 지도의 개별 기사 마커는 이름 글자 대신 상단 카드와 같은 합성 프로필 사진을 사용한다. `개입 검토 열기`는 경로를 바꾸지 않고 현재 선택 기사에 대한 모달을 열며, 결정론적 합성 후보 5개 비교, 기사 동의·수정 요청·거절, 관리자 승인과 계획·배송순서·ETA·고객안내 적용 완료까지 같은 대시보드에서 진행한다.
+- 이유: 발표 데모가 여러 페이지로 분산되지 않게 하고 관제사가 `누가 → 어디 → 어떤 개입 → 사람 확인 → 적용`을 현재 화면의 선택 맥락을 잃지 않고 완료하도록 하기 위해서다. 지도에서는 이름 글자보다 카드와 동일한 얼굴 사진이 기사 식별을 더 빠르게 이어 준다.
+- 경계: 프로필은 계속 합성 sprite이며 실제 기사 사진·GPS·주소를 사용하지 않는다. 모달 수치와 응답은 합성 Demo이고 실제 기사에게 알림을 보내거나 실제 계획·고객 안내를 변경하지 않는다. Safety 임계값, 후보 실행 가능성, Risk Transfer Guard와 사람의 동의·수정·거절 권리를 약화하지 않는다. 모달·후보·마커에는 그림자나 한쪽 강조선을 사용하지 않는다.
+- 기각한 대안: `/operations`로 계속 이동, 새 탭·drawer 추가, 지도 마커에 이름 유지, 실제 기사 응답처럼 보이는 자동 동의, 관리자 단독 자동 적용, 기존 다른 페이지 삭제.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
