@@ -156,10 +156,15 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     .evaluate((element) => {
       const panel = element.getBoundingClientRect();
       const value = element.querySelector("b")!;
+      const label = element.querySelector("small")!.getBoundingClientRect();
+      const valueRow = element
+        .querySelector(".onepage-card-safety-value")!
+        .getBoundingClientRect();
       const card = element.closest(".onepage-courier-card")!;
       return {
         fontSize: Number.parseFloat(getComputedStyle(value).fontSize),
         panelHeight: panel.height,
+        labelToValueGap: valueRow.top - label.bottom,
         cardPadding: Number.parseFloat(getComputedStyle(card).paddingTop),
         cardRowGap: Number.parseFloat(getComputedStyle(card).rowGap),
         cardShadow: getComputedStyle(card).boxShadow,
@@ -170,6 +175,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     });
   expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(46);
   expect(safetyStyle.panelHeight).toBeLessThanOrEqual(100);
+  expect(safetyStyle.labelToValueGap).toBeLessThanOrEqual(2);
   expect(safetyStyle.cardPadding).toBeLessThanOrEqual(7);
   expect(safetyStyle.cardRowGap).toBeLessThanOrEqual(4);
   expect(safetyStyle.cardShadow).toBe("none");

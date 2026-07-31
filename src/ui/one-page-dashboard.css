@@ -364,7 +364,7 @@
   --state-soft: var(--teal-soft);
   min-width: 0;
   flex-direction: column;
-  justify-content: space-between;
+  justify-content: flex-start;
   align-items: stretch;
   gap: 0;
   padding: 2px 5px 1px;
@@ -394,6 +394,7 @@
   color: var(--navy);
   font-size: 9px;
   font-weight: 800;
+  line-height: 1;
 }
 
 .onepage-card-safety b {
