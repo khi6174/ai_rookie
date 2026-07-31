@@ -468,6 +468,39 @@
     linear-gradient(120deg, #f7f4ed, #eef1ea);
 }
 
+.onepage-kakao-layer {
+  position: absolute;
+  inset: 0;
+  z-index: -4;
+  opacity: 0;
+  transition: opacity .18s ease;
+}
+
+.onepage-map-canvas.has-kakao-map .onepage-kakao-layer {
+  z-index: 0;
+  opacity: 1;
+}
+
+.onepage-map-canvas.has-kakao-map::before {
+  display: none;
+}
+
+.onepage-kakao-layer .onepage-map-marker,
+.onepage-kakao-layer .onepage-hub {
+  position: relative;
+  left: auto;
+  top: auto;
+  translate: none;
+}
+
+.onepage-kakao-layer .onepage-map-marker {
+  appearance: none;
+}
+
+.onepage-kakao-hub {
+  pointer-events: none;
+}
+
 .onepage-map-canvas::before {
   content: "";
   position: absolute;

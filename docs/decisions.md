@@ -993,6 +993,16 @@
 - 기각한 대안: 다크 헤더 유지, 루트 레이아웃 전체 복제, 색상만 근사하게 조정, 기사 카드의 상태색 면 제거.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
 
+### ADR-103 — 단일 관제 데모는 승인된 Kakao 베이스맵 위에 합성 위치를 표시한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`의 CSS schematic 지도를 ADR-043의 기존 Kakao Maps JavaScript 어댑터와 연결한다. 지도 타일은 실제 강남 도로·지역 데이터를 사용하고, 기사 20명과 허브는 화면의 기존 결정론적 Demo 좌표를 강남권 합성 위도·경도로 투영해 `CustomOverlay`로 표시한다. 카드·지도·지원 큐는 같은 기사 선택 상태를 유지하며 지도 제목에 `Kakao 지도 · 합성 위치`를 명시한다.
+- 이유: 관제사가 도로와 지역 맥락 안에서 기사 간 공간 관계를 더 빠르게 파악하도록 하면서, 이미 승인·검증된 공급자 경계와 현재 단일 화면의 정보구조를 재사용하기 위해서다.
+- 경계: 실제 기사 GPS·배송주소·브라우저 위치 권한·지오코딩·TMS·Live 이동을 추가하지 않는다. 지도 데이터와 SDK 상태는 Safety Budget, 지원 대상, 개입 추천과 승인 상태를 계산하거나 변경하지 않는다. 키·도메인·네트워크 오류 또는 E2E에서는 기존 합성 Fallback 지도와 구조화 지원 큐를 유지한다. ADR-101의 카드 측면 강조선 금지도 그대로 적용한다.
+- 기각한 대안: 실제 기사 위치 수집, 새 지도 공급자·SDK 도입, Kakao 오류 시 빈 지도 표시, Fallback 삭제, 지도 위 마커를 실제 Live 위치로 표현.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

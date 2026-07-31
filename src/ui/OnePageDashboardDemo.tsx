@@ -1,8 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import {
+  loadKakaoMapsSdk,
+  type KakaoMapInstance,
+  type KakaoMapOverlay,
+} from "../adapters/maps/kakao";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SUPPORT" | "CAUTION" | "STABLE";
+type DashboardMapStatus = "LOADING" | "LIVE" | "FALLBACK";
 
 type Courier = {
   id: string;
@@ -48,6 +54,14 @@ const clusters = [
 ];
 
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
+const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
+
+function courierGeographicPoint(courier: Courier) {
+  return {
+    latitude: 37.54 - courier.mapY * 0.0008,
+    longitude: 127.01 + courier.mapX * 0.0009,
+  };
+}
 
 function supportState(budget: number): SupportState {
   if (budget < 30) return "BREACH";
@@ -152,9 +166,145 @@ function MapMarker({
   );
 }
 
+function DashboardKakaoMap({
+  selectedId,
+  onSelect,
+  onStatus,
+}: {
+  selectedId: string;
+  onSelect: (id: string) => void;
+  onStatus: (status: DashboardMapStatus) => void;
+}) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const markerButtonsRef = useRef(new Map<string, HTMLButtonElement>());
+  const selectRef = useRef(onSelect);
+  const javaScriptKey =
+    import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
+  const requested =
+    Boolean(javaScriptKey) &&
+    import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
+
+  selectRef.current = onSelect;
+
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !requested) {
+      onStatus("FALLBACK");
+      return;
+    }
+
+    let disposed = false;
+    let map: KakaoMapInstance | undefined;
+    const overlays: KakaoMapOverlay[] = [];
+    const buttons = markerButtonsRef.current;
+    onStatus("LOADING");
+
+    void loadKakaoMapsSdk(javaScriptKey)
+      .then((maps) => {
+        if (disposed) return;
+        const center = new maps.LatLng(
+          gangnamHubPoint.latitude,
+          gangnamHubPoint.longitude,
+        );
+        map = new maps.Map(container, { center, level: 6 });
+        const bounds = new maps.LatLngBounds();
+
+        couriers.forEach((courier) => {
+          if (!map) return;
+          const point = courierGeographicPoint(courier);
+          const position = new maps.LatLng(point.latitude, point.longitude);
+          const state = supportState(courier.budget);
+          const button = document.createElement("button");
+          const initial = document.createElement("span");
+          const score = document.createElement("small");
+
+          button.type = "button";
+          button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
+          button.dataset.mapMarker = courier.id;
+          button.setAttribute(
+            "aria-label",
+            `${courier.name} 기사 합성 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
+          );
+          initial.setAttribute("aria-hidden", "true");
+          initial.textContent = courier.name.slice(0, 1);
+          score.setAttribute("aria-hidden", "true");
+          score.textContent = courier.budget.toFixed(0);
+          button.append(initial, score);
+          button.addEventListener("click", () => selectRef.current(courier.id));
+          buttons.set(courier.id, button);
+
+          overlays.push(new maps.CustomOverlay({
+            map,
+            position,
+            content: button,
+            xAnchor: 0.5,
+            yAnchor: 0.5,
+            zIndex: courier.budget < 45 ? 8 : 6,
+          }));
+          bounds.extend(position);
+        });
+
+        const hubPosition = new maps.LatLng(
+          gangnamHubPoint.latitude,
+          gangnamHubPoint.longitude,
+        );
+        const hub = document.createElement("span");
+        const hubLabel = document.createElement("b");
+        hub.className = "onepage-hub onepage-kakao-hub";
+        hub.setAttribute("aria-label", "강남 합성 허브");
+        hubLabel.setAttribute("aria-hidden", "true");
+        hubLabel.textContent = "H";
+        hub.append(hubLabel);
+        overlays.push(new maps.CustomOverlay({
+          map,
+          position: hubPosition,
+          content: hub,
+          xAnchor: 0.5,
+          yAnchor: 0.5,
+          zIndex: 7,
+        }));
+        bounds.extend(hubPosition);
+        map.setBounds(bounds, 56, 56, 56, 56);
+
+        markerButtonsRef.current.forEach((button, id) => {
+          button.classList.toggle("is-selected", id === selectedId);
+          button.setAttribute("aria-pressed", String(id === selectedId));
+        });
+        onStatus("LIVE");
+      })
+      .catch(() => {
+        if (!disposed) onStatus("FALLBACK");
+      });
+
+    return () => {
+      disposed = true;
+      overlays.forEach((overlay) => overlay.setMap(null));
+      buttons.clear();
+      container.replaceChildren();
+      map = undefined;
+    };
+  }, [javaScriptKey, onStatus, requested]);
+
+  useEffect(() => {
+    markerButtonsRef.current.forEach((button, id) => {
+      button.classList.toggle("is-selected", id === selectedId);
+      button.setAttribute("aria-pressed", String(id === selectedId));
+    });
+  }, [selectedId]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="onepage-kakao-layer"
+      aria-label="Kakao 실제 지도 데이터 위 합성 기사 위치"
+    />
+  );
+}
+
 export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState(couriers[0].id);
   const [filter, setFilter] = useState<CourierFilter>("ALL");
+  const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
@@ -282,7 +432,13 @@ export function OnePageDashboardDemo() {
           <div className="onepage-map-toolbar">
             <div>
               <strong>강남 허브</strong>
-              <span>합성 위치 · 14:32</span>
+              <span>
+                {mapStatus === "LIVE"
+                  ? "Kakao 지도 · 합성 위치 · 14:32"
+                  : mapStatus === "LOADING"
+                    ? "지도 불러오는 중"
+                    : "Fallback 지도 · 합성 위치 · 14:32"}
+              </span>
             </div>
             <div className="onepage-map-legend" aria-label="지도 상태 범례">
               <span><i className="legend-breach" /> 초과 3</span>
@@ -291,65 +447,74 @@ export function OnePageDashboardDemo() {
               <span><i className="legend-stable" /> 안정 4</span>
             </div>
           </div>
-          <div className="onepage-map-canvas">
-            <div className="onepage-river" aria-hidden="true" />
-            {roads.map((road, index) => (
-              <span
-                key={index}
-                className={`onepage-road is-${road.kind}`}
-                aria-hidden="true"
-                style={{
-                  left: `${road.left}%`,
-                  top: `${road.top}%`,
-                  width: `${road.width}%`,
-                  rotate: `${road.rotate}deg`,
-                }}
-              />
-            ))}
-            <span className="onepage-district label-yeoksam">역삼</span>
-            <span className="onepage-district label-daechi">대치</span>
-            <span className="onepage-district label-dogok">도곡</span>
-            <span className="onepage-hub" aria-label="강남 합성 허브">
-              <b aria-hidden="true">H</b>
-            </span>
+          <div className={`onepage-map-canvas ${mapStatus === "LIVE" ? "has-kakao-map" : ""}`}>
+            <DashboardKakaoMap
+              selectedId={selectedId}
+              onSelect={(id) => selectCourier(id, true)}
+              onStatus={setMapStatus}
+            />
+            {mapStatus !== "LIVE" ? (
+              <>
+                <div className="onepage-river" aria-hidden="true" />
+                {roads.map((road, index) => (
+                  <span
+                    key={index}
+                    className={`onepage-road is-${road.kind}`}
+                    aria-hidden="true"
+                    style={{
+                      left: `${road.left}%`,
+                      top: `${road.top}%`,
+                      width: `${road.width}%`,
+                      rotate: `${road.rotate}deg`,
+                    }}
+                  />
+                ))}
+                <span className="onepage-district label-yeoksam">역삼</span>
+                <span className="onepage-district label-daechi">대치</span>
+                <span className="onepage-district label-dogok">도곡</span>
+                <span className="onepage-hub" aria-label="강남 합성 허브">
+                  <b aria-hidden="true">H</b>
+                </span>
 
-            {couriers
-              .filter((courier) => !clusteredIds.has(courier.id))
-              .map((courier) => (
-                <MapMarker
-                  key={courier.id}
-                  courier={courier}
-                  selected={selectedId === courier.id}
-                  onSelect={() => selectCourier(courier.id, true)}
-                />
-              ))}
+                {couriers
+                  .filter((courier) => !clusteredIds.has(courier.id))
+                  .map((courier) => (
+                    <MapMarker
+                      key={courier.id}
+                      courier={courier}
+                      selected={selectedId === courier.id}
+                      onSelect={() => selectCourier(courier.id, true)}
+                    />
+                  ))}
 
-            {clusters.map((cluster) => {
-              const members = cluster.memberIds
-                .map((id) => couriers.find((courier) => courier.id === id))
-                .filter((courier): courier is Courier => Boolean(courier));
-              const priority = [...members].sort((a, b) => a.budget - b.budget)[0];
-              return (
-                <button
-                  key={cluster.id}
-                  className="onepage-map-cluster"
-                  style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
-                  aria-label={`${priority.name} 기사 외 ${members.length - 1}명 묶음`}
-                  onClick={() => selectCourier(priority.id, true)}
-                  type="button"
-                >
-                  <strong>{members.length}</strong>
-                  <small>{priority.budget.toFixed(0)}</small>
-                </button>
-              );
-            })}
+                {clusters.map((cluster) => {
+                  const members = cluster.memberIds
+                    .map((id) => couriers.find((courier) => courier.id === id))
+                    .filter((courier): courier is Courier => Boolean(courier));
+                  const priority = [...members].sort((a, b) => a.budget - b.budget)[0];
+                  return (
+                    <button
+                      key={cluster.id}
+                      className="onepage-map-cluster"
+                      style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
+                      aria-label={`${priority.name} 기사 외 ${members.length - 1}명 묶음`}
+                      onClick={() => selectCourier(priority.id, true)}
+                      type="button"
+                    >
+                      <strong>{members.length}</strong>
+                      <small>{priority.budget.toFixed(0)}</small>
+                    </button>
+                  );
+                })}
 
-            {selectedIsClustered ? (
-              <MapMarker
-                courier={selectedCourier}
-                selected
-                onSelect={() => selectCourier(selectedCourier.id, true)}
-              />
+                {selectedIsClustered ? (
+                  <MapMarker
+                    courier={selectedCourier}
+                    selected
+                    onSelect={() => selectCourier(selectedCourier.id, true)}
+                  />
+                ) : null}
+              </>
             ) : null}
 
             <div className="onepage-selected-strip" aria-live="polite">
