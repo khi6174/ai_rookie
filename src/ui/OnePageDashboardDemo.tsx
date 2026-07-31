@@ -94,7 +94,7 @@ function supportState(budget: number): SupportState {
 }
 
 const stateLabel: Record<SupportState, string> = {
-  BREACH: "초과",
+  BREACH: "긴급",
   SUPPORT: "지원",
   CAUTION: "주의",
   STABLE: "안정",
@@ -260,7 +260,7 @@ function DashboardKakaoMap({
           button.dataset.mapMarker = courier.id;
           button.setAttribute(
             "aria-label",
-            `${courier.name} 기사 합성 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
+            `${courier.name} 기사 Demo 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
           );
           photo.className = "onepage-map-marker-photo";
           photo.setAttribute("aria-hidden", "true");
@@ -292,7 +292,7 @@ function DashboardKakaoMap({
         const hubIcon = document.createElement("span");
         const hubLabel = document.createElement("strong");
         hub.className = "onepage-hub onepage-kakao-hub";
-        hub.setAttribute("aria-label", "강남 허브 합성 위치");
+        hub.setAttribute("aria-label", "강남 허브 위치");
         hubIcon.className = "onepage-hub-icon";
         hubIcon.setAttribute("aria-hidden", "true");
         hubLabel.textContent = "강남 허브";
@@ -338,7 +338,7 @@ function DashboardKakaoMap({
     <div
       ref={containerRef}
       className="onepage-kakao-layer"
-      aria-label="Kakao 실제 지도 데이터 위 합성 기사 위치"
+      aria-label="Kakao 실제 지도 데이터 위 Demo 기사 위치"
     />
   );
 }
@@ -437,7 +437,7 @@ function InterventionDialog({
               }}
             />
             <div>
-              <small>합성 Demo · 개입 검토</small>
+              <small>합성 Demo · 지원안 검토</small>
               <h2 id="intervention-dialog-title">
                 {courier.name} 기사 안전지원
               </h2>
@@ -448,7 +448,7 @@ function InterventionDialog({
             ref={closeButtonRef}
             type="button"
             className="onepage-dialog-close"
-            aria-label="개입 검토 닫기"
+            aria-label="지원안 검토 닫기"
             onClick={onClose}
           >
             ×
@@ -460,7 +460,7 @@ function InterventionDialog({
             <div className="onepage-dialog-section-title">
               <div>
                 <small>안전한 후보만 비교</small>
-                <h3 id="candidate-title">개입안 선택</h3>
+                <h3 id="candidate-title">지원안 선택</h3>
               </div>
               <span>5개 후보</span>
             </div>
@@ -564,7 +564,7 @@ function InterventionDialog({
               )}
               {stage === "APPLIED" && (
                 <>
-                  <small>4 · 적용 완료</small>
+                  <small>4 · 적용됨</small>
                   <strong>{selectedOption.label} 반영</strong>
                   <span>경로·배송순서·ETA·고객 안내를 함께 갱신했습니다.</span>
                 </>
@@ -692,8 +692,7 @@ export function OnePageDashboardDemo() {
           </span>
         </div>
         <div className="onepage-page-title">
-          <small>Safety Control Tower</small>
-          <h1>향후 60분 지원 관제</h1>
+          <h1>Safety Control Tower</h1>
         </div>
         <div className="onepage-header-status">
           <span className="onepage-demo-badge">합성 Demo</span>
@@ -707,10 +706,9 @@ export function OnePageDashboardDemo() {
         <div className="onepage-section-rail">
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
-            <h2 id="courier-section-title">기사 상태</h2>
-            <small>지원 판단용 · 순위 아님</small>
+            <h2 id="courier-section-title">기사 현황</h2>
           </div>
-          <div className="onepage-filter-tabs" aria-label="기사 상태 필터">
+          <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
               ["ALL", "전체", 20],
               ["SUPPORT", "지원", 9],
@@ -749,21 +747,21 @@ export function OnePageDashboardDemo() {
         </div>
       </section>
 
-      <section className="onepage-workspace" aria-label="지도와 안전지원 큐">
-        <div className="onepage-map-section" aria-label="기사 합성 위치 지도">
+      <section className="onepage-workspace" aria-label="지도와 지원 필요 목록">
+        <div className="onepage-map-section" aria-label="기사 위치 지도">
           <div className="onepage-map-toolbar">
             <div>
               <strong>강남 허브</strong>
               <span>
                 {mapStatus === "LIVE"
-                  ? "Kakao 지도 · 합성 위치 · 14:32"
+                  ? "위치 기준 14:32"
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : "Fallback 지도 · 합성 위치 · 14:32"}
+                    : "위치 기준 14:32 · Fallback"}
               </span>
             </div>
             <div className="onepage-map-legend" aria-label="지도 상태 범례">
-              <span><i className="legend-breach" /> 초과 3</span>
+              <span><i className="legend-breach" /> 긴급 3</span>
               <span><i className="legend-support" /> 지원 6</span>
               <span><i className="legend-caution" /> 주의 7</span>
               <span><i className="legend-stable" /> 안정 4</span>
@@ -794,7 +792,7 @@ export function OnePageDashboardDemo() {
                 <span className="onepage-district label-yeoksam">역삼</span>
                 <span className="onepage-district label-daechi">대치</span>
                 <span className="onepage-district label-dogok">도곡</span>
-                <span className="onepage-hub" aria-label="강남 허브 합성 위치">
+                <span className="onepage-hub" aria-label="강남 허브 위치">
                   <span className="onepage-hub-icon" aria-hidden="true" />
                   <strong>강남 허브</strong>
                 </span>
@@ -857,10 +855,10 @@ export function OnePageDashboardDemo() {
         <aside className="onepage-support-panel" aria-labelledby="support-panel-title">
           <header>
             <div>
-              <small>현재 선택</small>
-              <h2 id="support-panel-title">안전지원 판단</h2>
+              <small>선택 기사</small>
+              <h2 id="support-panel-title">지원 검토</h2>
             </div>
-            <span>{urgentCouriers.length}명 확인</span>
+            <span>검토 {urgentCouriers.length}명</span>
           </header>
 
           <div className="onepage-support-focus" aria-live="polite">
@@ -886,35 +884,35 @@ export function OnePageDashboardDemo() {
                 <b>{selectedCourier.budget.toFixed(1)}</b>
               </div>
               <div>
-                <small>임계치</small>
+                <small>안전한계</small>
                 <strong>
                   {selectedCourier.criticalMinute === null
                     ? "예상 없음"
                     : selectedCourier.criticalMinute === 0
-                      ? "현재 초과"
+                      ? "한계 초과"
                       : `+${selectedCourier.criticalMinute}분`}
                 </strong>
               </div>
             </div>
             <p>
               {appliedPlans[selectedCourier.id]
-                ? `적용 완료 · ${appliedPlans[selectedCourier.id]}`
+                ? `적용됨 · ${appliedPlans[selectedCourier.id]}`
                 : "승인 전까지 현재 계획 유지"}
-              <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
+              <span>{selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
             <button
               type="button"
               className="onepage-open-intervention"
               onClick={() => setInterventionOpen(true)}
             >
-              개입 검토 열기
+              지원안 검토
             </button>
           </div>
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>지원 큐</strong>
-              <small>임계치 45 미만</small>
+              <strong>지원 필요</strong>
+              <small>지원 기준 45 미만</small>
             </div>
             <div className="onepage-support-list">
               {urgentCouriers.map((courier) => (

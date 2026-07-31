@@ -1034,6 +1034,16 @@
 - 기각한 대안: `H` 유지 후 범례 추가, 건물 이모지, 지도 공급자 기본 POI에 의존, 허브 표식 완전 제거.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-107 — 단일 관제 화면 문구는 짧은 운영 언어로 통일한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo` 상단 중앙은 `Safety Control Tower`만 표시하고 `향후 60분 지원 관제`를 제거한다. `기사 상태`는 `기사 현황`으로 바꾸고 `지원 판단용 · 순위 아님`은 삭제한다. 지도 안의 `합성 위치` 반복 표시는 `위치 기준 14:32`로 바꾸되 상단 `합성 Demo`와 `Live 0`은 유지한다. 우측 패널은 `선택 기사 / 지원 검토 / 검토 9명 / 안전여유 / 안전한계 / 한계 초과 / 지원안 검토 / 지원 필요 / 지원 기준 45 미만`을 사용한다. `초과` 상태어는 `긴급`, 적용 결과는 `적용됨`, 배송 진행은 `14/31 완료` 형식으로 표시한다.
+- 이유: 기술·내부 용어와 중복 문구를 줄여 한눈에 읽히는 운영 화면으로 만들고, `개입`보다 지원 중심의 비징벌적 언어를 사용하기 위해서다.
+- 경계: 문구 단축은 Demo 출처, Live 0, Safety Budget 수치, 임계값, Risk Transfer Guard와 사람의 동의·수정·거절·승인 권리를 숨기거나 변경하지 않는다. `합성 Demo` 전역 배지는 유지하며 실제 운영 화면처럼 표현하지 않는다.
+- 기각한 대안: 기존 장문 유지, 지도마다 `합성 위치` 반복, `개입`·`임계치` 같은 내부 용어 유지, Demo·Live 표기까지 함께 제거.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

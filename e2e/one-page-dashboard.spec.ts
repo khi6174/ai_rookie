@@ -6,7 +6,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/dashboard-demo");
 
-  await expect(page.getByRole("heading", { name: "향후 60분 지원 관제" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
   const dashboardPalette = await page.locator("main.onepage-demo").evaluate((main) => {
     const header = main.querySelector(".onepage-header")!;
     const brandMark = main.querySelector(".onepage-brand-mark")!;
@@ -25,13 +25,14 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     action: "rgb(37, 99, 235)",
   });
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.getByRole("heading", { name: "안전지원 판단" })).toBeVisible();
-  const interventionTrigger = page.getByRole("button", { name: "개입 검토 열기" });
+  await expect(page.getByRole("heading", { name: "지원 검토" })).toBeVisible();
+  const interventionTrigger = page.getByRole("button", { name: "지원안 검토" });
   await expect(interventionTrigger).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "향후 60분 시뮬레이션" }),
   ).toHaveCount(0);
-  await expect(page.getByText("합성 위치 · 14:32")).toBeVisible();
+  await expect(page.getByText("위치 기준 14:32")).toBeVisible();
+  await expect(page.getByText("지원 판단용 · 순위 아님")).toHaveCount(0);
   await expect(page.getByText("Live 0")).toBeVisible();
   await expect(
     page.locator('[data-courier-card="R-014"]').getByText("역삼 A"),
@@ -39,7 +40,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await expect(page.locator(".onepage-card-safety small")).toHaveCount(20);
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 초과",
+      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 긴급",
     }),
   ).toBeVisible();
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
@@ -122,7 +123,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   ).not.toContainText("!");
   await expect(
     page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
-  ).toContainText("초과");
+  ).toContainText("긴급");
   const cardLayout = await page
     .locator('[data-courier-card="R-014"]')
     .evaluate((card) => {
@@ -249,7 +250,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   expect(dialogRect.top).toBeGreaterThanOrEqual(0);
   expect(dialogRect.right).toBeLessThanOrEqual(1280);
   expect(dialogRect.bottom).toBeLessThanOrEqual(720);
-  await expect(dialog.getByText("개입안 선택")).toBeVisible();
+  await expect(dialog.getByText("지원안 선택")).toBeVisible();
   await expect(dialog.getByRole("button", { name: /10분 휴식/ })).toHaveAttribute(
     "aria-pressed",
     "true",
@@ -265,7 +266,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await dialog.getByRole("button", { name: "완료" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(interventionTrigger).toBeFocused();
-  await expect(page.getByText("적용 완료 · 10분 휴식")).toBeVisible();
+  await expect(page.getByText("적용됨 · 10분 휴식")).toBeVisible();
   expect(new URL(page.url()).pathname).toBe("/dashboard-demo");
 
   const overflow = await page.evaluate(() => ({
@@ -281,7 +282,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
 test("1440×900에서도 프로필과 지도가 한 화면에 유지된다", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/dashboard-demo");
-  await expect(page.getByRole("heading", { name: "향후 60분 지원 관제" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
 
   const regions = await page.locator("main.onepage-demo > section").evaluateAll(
     (sections) =>
