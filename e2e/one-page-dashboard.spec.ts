@@ -44,6 +44,31 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   ).toBeVisible();
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
   await expect(page.locator(".onepage-map-marker-photo").first()).toBeVisible();
+  const mapMarkerStyle = await page.locator(".onepage-map-marker").first().evaluate(
+    (element) => {
+      const rect = element.getBoundingClientRect();
+      const style = getComputedStyle(element);
+      return {
+        width: rect.width,
+        height: rect.height,
+        borderColor: style.borderTopColor,
+        borderWidths: [
+          style.borderTopWidth,
+          style.borderRightWidth,
+          style.borderBottomWidth,
+          style.borderLeftWidth,
+        ],
+        borderRadius: style.borderRadius,
+        boxShadow: style.boxShadow,
+      };
+    },
+  );
+  expect(mapMarkerStyle.width).toBe(42);
+  expect(mapMarkerStyle.height).toBe(42);
+  expect(mapMarkerStyle.borderColor).toBe("rgb(255, 255, 255)");
+  expect(new Set(mapMarkerStyle.borderWidths).size).toBe(1);
+  expect(mapMarkerStyle.borderRadius).toBe("50%");
+  expect(mapMarkerStyle.boxShadow).toBe("none");
 
   const profileAssetLoaded = await page
     .locator(".onepage-profile-photo")

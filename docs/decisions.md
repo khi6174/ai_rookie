@@ -1014,6 +1014,16 @@
 - 기각한 대안: `/operations`로 계속 이동, 새 탭·drawer 추가, 지도 마커에 이름 유지, 실제 기사 응답처럼 보이는 자동 동의, 관리자 단독 자동 적용, 기존 다른 페이지 삭제.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-105 — 기사 지도 마커는 소형 원형 사진과 분리된 상태 배지를 사용한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`의 Kakao·Fallback 개별 기사 마커를 42px 원형 합성 사진으로 축소하고 흰색 전체 테두리를 적용한다. 안전 상태는 사진을 덮지 않는 우상단 원형 상태점, Safety Budget은 우하단 네이비 숫자 배지, 선택은 사진 전체의 파란 외곽선으로 표시한다.
+- 이유: 사용자가 제시한 지도 레퍼런스처럼 도로명과 주변 지도 정보를 가리지 않으면서도 프로필 사진으로 기사를 빠르게 식별하고 안전 상태·수치를 함께 읽게 하기 위해서다.
+- 경계: 이름 글자를 마커에 다시 넣지 않는다. 상태는 색상만이 아니라 Safety Budget 숫자와 접근성 이름으로 제공한다. 사진·배지·선택 상태에 그림자, 한쪽 강조선이나 장식용 모션을 사용하지 않으며 합성 사진·Demo 좌표 경계는 유지한다.
+- 기각한 대안: 50px 이상의 큰 사진, 이름 말풍선 상시 표시, 사진 위 점수 중첩, 드롭 섀도, 상태색으로 사진 전체를 덮는 방식.
+- 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

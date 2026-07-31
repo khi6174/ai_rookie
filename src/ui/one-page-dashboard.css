@@ -579,15 +579,27 @@
 
 .onepage-map-marker {
   --marker: var(--teal);
-  width: 50px;
-  height: 50px;
+  width: 42px;
+  height: 42px;
   display: block;
-  padding: 3px;
-  border: 3px solid var(--marker);
+  padding: 2px;
+  border: 3px solid #fff;
   border-radius: 50%;
   color: #fff;
-  background: #fff;
+  background: var(--navy);
   box-shadow: none;
+}
+
+.onepage-map-marker::after {
+  content: "";
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid #fff;
+  border-radius: 50%;
+  background: var(--marker);
 }
 
 .onepage-map-marker-photo {
@@ -602,18 +614,19 @@
 
 .onepage-map-marker-score {
   position: absolute;
-  right: -8px;
-  bottom: -5px;
-  min-width: 27px;
-  height: 19px;
+  left: calc(100% - 5px);
+  bottom: -4px;
+  min-width: 25px;
+  height: 17px;
   display: grid;
   place-items: center;
-  padding-inline: 4px;
+  padding-inline: 5px;
   border: 2px solid #fff;
-  border-radius: 999px;
+  border-radius: 5px 8px 8px 8px;
   color: #fff;
-  background: var(--marker);
-  font-size: 8px;
+  background: var(--navy-2);
+  box-shadow: none;
+  font-size: 7px;
   font-weight: 850;
   font-variant-numeric: tabular-nums;
 }
@@ -625,8 +638,8 @@
 
 .onepage-map-marker.is-selected {
   z-index: 8;
-  outline: 4px solid rgba(37,99,235,.3);
-  outline-offset: 3px;
+  outline: 3px solid var(--brand);
+  outline-offset: 2px;
   box-shadow: none;
 }
 
