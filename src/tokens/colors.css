@@ -1,0 +1,24 @@
+:root {
+  --bg: var(--color-canvas);
+  --surface: var(--color-surface);
+  --surface-subtle: var(--color-surface-subtle);
+  --text: var(--color-text);
+  --muted: var(--color-text-muted);
+  --disabled: var(--color-text-disabled);
+  --line: var(--color-border);
+  --line-strong: var(--color-border-strong);
+  --blue: var(--color-blue-700);
+  --blue-strong: var(--color-blue-800);
+  --blue-t: var(--color-blue-100);
+  --blue-line: var(--color-blue-200);
+  --green: var(--color-teal-700);
+  --green-strong: var(--color-teal-800);
+  --green-t: var(--color-teal-100);
+  --amber: var(--color-amber-600);
+  --amber-strong: var(--color-amber-800);
+  --amber-t: var(--color-amber-100);
+  --red: var(--color-red-700);
+  --red-t: var(--color-red-100);
+  --sh-flat: var(--shadow-sm);
+  --sh-modal: var(--shadow-modal);
+}

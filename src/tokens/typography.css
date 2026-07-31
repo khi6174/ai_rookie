@@ -1,0 +1,23 @@
+:root {
+  --font-ui: "Pretendard Variable", Pretendard, "Noto Sans KR", "Apple SD Gothic Neo", sans-serif;
+  --type-10: 0.625rem;
+  --type-11: 0.6875rem;
+  --type-12: 0.75rem;
+  --type-14: 0.875rem;
+  --type-16: 1rem;
+  --type-18: 1.125rem;
+  --type-score: 1.8125rem;
+  --weight-medium: 600;
+  --weight-bold: 750;
+  --weight-heavy: 850;
+}
+
+html,
+body,
+button,
+input,
+select,
+textarea {
+  font-family: var(--font-ui);
+  font-variant-numeric: tabular-nums;
+}

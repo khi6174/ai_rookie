@@ -3,6 +3,9 @@ import { createRoot } from "react-dom/client";
 import { App } from "./ui/App";
 import { registerSafeRouteServiceWorker } from "./pwa/registerServiceWorker";
 import "./ui/styles.css";
+import "./tokens/colors.css";
+import "./tokens/typography.css";
+import "./tokens/radii.css";
 import "./ui/redesign.css";
 import "./ui/operations.css";
 

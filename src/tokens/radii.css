@@ -1,0 +1,7 @@
+:root {
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --r-card: var(--radius-card);
+  --r-pill: var(--radius-full);
+}

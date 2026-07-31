@@ -1,61 +1,72 @@
 import { expect, test } from "@playwright/test";
 
-test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태를 공유한다", async ({
+async function expectNoPageOverflow(page: import("@playwright/test").Page) {
+  const overflow = await page.evaluate(() => ({
+    horizontal:
+      document.documentElement.scrollWidth - document.documentElement.clientWidth,
+    vertical:
+      document.documentElement.scrollHeight - document.documentElement.clientHeight,
+  }));
+  expect(overflow.horizontal).toBeLessThanOrEqual(1);
+  expect(overflow.vertical).toBeLessThanOrEqual(1);
+}
+
+test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를 유지한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/dashboard-demo");
 
-  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
-  const dashboardPalette = await page.locator("main.onepage-demo").evaluate((main) => {
+  await expect(
+    page.getByRole("heading", { name: "Safety Control Tower" }),
+  ).toBeVisible();
+  await expect(page.getByText("합성 Demo", { exact: true })).toBeVisible();
+  await expect(page.getByText("Live 0명", { exact: true })).toBeVisible();
+  await expect(
+    page.getByText("안전여유 낮은 순 · 지원 시급성", { exact: true }),
+  ).toBeVisible();
+
+  const palette = await page.locator("main.onepage-demo").evaluate((main) => {
     const header = main.querySelector(".onepage-header")!;
-    const brandMark = main.querySelector(".onepage-brand-mark")!;
+    const brand = main.querySelector(".onepage-brand-mark")!;
     const action = main.querySelector(".onepage-open-intervention")!;
     return {
       page: getComputedStyle(main).backgroundColor,
       header: getComputedStyle(header).backgroundColor,
-      brand: getComputedStyle(brandMark).backgroundColor,
+      brand: getComputedStyle(brand).backgroundColor,
       action: getComputedStyle(action).backgroundColor,
+      font: getComputedStyle(main).fontFamily,
+      numeric: getComputedStyle(main).fontVariantNumeric,
     };
   });
-  expect(dashboardPalette).toEqual({
-    page: "rgb(244, 247, 252)",
-    header: "rgb(255, 255, 255)",
-    brand: "rgb(37, 99, 235)",
-    action: "rgb(37, 99, 235)",
-  });
+  expect(palette.page).toBe("rgb(244, 247, 252)");
+  expect(palette.header).toBe("rgb(255, 255, 255)");
+  expect(palette.brand).toBe("rgb(37, 99, 235)");
+  expect(palette.action).toBe("rgb(37, 99, 235)");
+  expect(palette.font).toContain("Pretendard Variable");
+  expect(palette.numeric).toContain("tabular-nums");
+
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.getByRole("heading", { name: "지원 검토" })).toBeVisible();
-  const interventionTrigger = page.getByRole("button", { name: "지원안 검토" });
-  await expect(interventionTrigger).toBeVisible();
-  await expect(
-    page.getByRole("heading", { name: "향후 60분 시뮬레이션" }),
-  ).toHaveCount(0);
-  await expect(page.getByText("위치 기준 14:32")).toBeVisible();
-  await expect(page.getByText("지원 판단용 · 순위 아님")).toHaveCount(0);
-  await expect(page.getByText("Live 0")).toBeVisible();
-  await expect(
-    page.locator('[data-courier-card="R-014"]').getByText("역삼 A"),
-  ).toBeVisible();
-  await expect(page.locator(".onepage-card-safety small")).toHaveCount(20);
+  await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
+  await expect(page.locator(".onepage-avatar-status")).toHaveCount(20);
+  await expect(page.locator(".onepage-state-pill").first()).toContainText("긴급");
   await expect(
     page.getByRole("button", {
       name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 긴급, 기사앱 위험 신호",
     }),
   ).toBeVisible();
-  const initialSignalCard = page.locator('[data-courier-card="R-014"]');
-  await expect(initialSignalCard).toHaveAttribute(
-    "data-rider-danger-signal",
-    "active",
-  );
-  await expect(initialSignalCard).toContainText("기사앱 위험 신호");
-  const initialSignalStyle = await initialSignalCard.evaluate((element) => {
-    const style = getComputedStyle(element);
+
+  const dangerCard = page.locator('[data-courier-card="R-014"]');
+  const dangerVisual = await dangerCard.evaluate((card) => {
+    const score = card.querySelector(".onepage-card-safety b")!;
+    const style = getComputedStyle(card);
     return {
       background: style.backgroundColor,
       color: style.color,
-      boxShadow: style.boxShadow,
-      borderWidths: [
+      scoreColor: getComputedStyle(score).color,
+      scoreSize: Number.parseFloat(getComputedStyle(score).fontSize),
+      shadow: style.boxShadow,
+      borders: [
         style.borderTopWidth,
         style.borderRightWidth,
         style.borderBottomWidth,
@@ -63,17 +74,118 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
       ],
     };
   });
-  expect(initialSignalStyle.background).toBe("rgb(220, 38, 38)");
-  expect(initialSignalStyle.color).toBe("rgb(255, 255, 255)");
-  expect(initialSignalStyle.boxShadow).toBe("none");
-  expect(new Set(initialSignalStyle.borderWidths).size).toBe(1);
-  await expect(page.locator('[data-courier-card="R-022"]')).toHaveAttribute(
-    "data-rider-danger-signal",
-    "inactive",
-  );
+  expect(dangerVisual.background).toBe("rgb(253, 238, 236)");
+  expect(dangerVisual.color).toBe("rgb(16, 24, 40)");
+  expect(dangerVisual.scoreColor).toBe("rgb(220, 38, 38)");
+  expect(dangerVisual.scoreSize).toBeCloseTo(29, 0);
+  expect(dangerVisual.shadow).not.toBe("none");
+  expect(new Set(dangerVisual.borders).size).toBe(1);
+
+  const cardLayout = await dangerCard.evaluate((card) => {
+    const rect = card.getBoundingClientRect();
+    const photo = card.querySelector(".onepage-profile-photo")!.getBoundingClientRect();
+    const score = card.querySelector(".onepage-card-safety")!.getBoundingClientRect();
+    const identity = card.querySelector(".onepage-card-identity")!.getBoundingClientRect();
+    return {
+      width: rect.width,
+      height: rect.height,
+      photoWidth: photo.width,
+      safetyBelowIdentity: score.top >= identity.bottom,
+    };
+  });
+  expect(cardLayout.height).toBeGreaterThanOrEqual(128);
+  expect(cardLayout.photoWidth).toBeGreaterThanOrEqual(48);
+  expect(cardLayout.photoWidth).toBeLessThanOrEqual(54);
+  expect(cardLayout.safetyBelowIdentity).toBe(true);
+
+  const profileAssetLoaded = await page
+    .locator(".onepage-profile-photo")
+    .first()
+    .evaluate((element) =>
+      getComputedStyle(element).backgroundImage.includes(
+        "synthetic-courier-profiles-v1",
+      ),
+    );
+  expect(profileAssetLoaded).toBe(true);
+
+  await expect(page.getByText("Demo overlay", { exact: true })).toBeVisible();
+  await expect(page.locator(".onepage-map-legend")).toContainText("긴급 3");
+  await expect(page.locator(".onepage-map-legend")).toContainText("지원 6");
+  await expect(page.locator(".onepage-map-legend")).toContainText("주의 7");
+  await expect(page.locator(".onepage-map-legend")).toContainText("안정 4");
+  await expect(page.locator(".onepage-map-marker-photo")).toHaveCount(0);
+
+  const markerVisual = await page
+    .locator(".onepage-map-marker")
+    .first()
+    .evaluate((marker) => {
+      const rect = marker.getBoundingClientRect();
+      const style = getComputedStyle(marker);
+      return {
+        width: rect.width,
+        height: rect.height,
+        background: style.backgroundColor,
+        border: style.borderTopColor,
+        radius: style.borderRadius,
+      };
+    });
+  expect(markerVisual.width).toBe(24);
+  expect(markerVisual.height).toBe(24);
+  expect(markerVisual.background).toBe("rgb(220, 38, 38)");
+  expect(markerVisual.border).toBe("rgb(255, 255, 255)");
+  expect(markerVisual.radius).toBe("999px");
+
+  await expect(page.getByText("Safety Margin", { exact: true })).toBeVisible();
+  await expect(page.getByText("30 한계", { exact: true })).toBeVisible();
+  await expect(page.getByText("45 기준", { exact: true })).toBeVisible();
+  await expect(page.locator(".onepage-support-list button")).toHaveCount(9);
+  await expect(page.locator(".onepage-list-rank")).toHaveCount(9);
+  await expect(page.locator(".onepage-eta-pill")).toHaveCount(9);
   await expect(
-    page.getByRole("button", { name: "위험신호 1" }),
+    page.getByText(
+      "순위는 지원 시급성이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.",
+      { exact: true },
+    ),
   ).toBeVisible();
+
+  await page.getByRole("button", { name: "지원 9" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
+  await expect(page.locator('[data-courier-card="R-014"]')).toHaveCSS(
+    "opacity",
+    "1",
+  );
+  await expect(page.locator('[data-courier-card="R-013"]')).toHaveCSS(
+    "opacity",
+    "0.38",
+  );
+
+  await page.getByRole("button", { name: "안정 4" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
+  await expect(page.locator('[data-courier-card="R-014"]')).toHaveCSS(
+    "opacity",
+    "0.38",
+  );
+  await expect(page.locator('[data-courier-card="R-013"]')).toHaveCSS(
+    "opacity",
+    "1",
+  );
+
+  const queueCourier = page
+    .locator(".onepage-support-list button")
+    .filter({ hasText: "노현우" });
+  await queueCourier.click();
+  await expect(page.locator('[data-courier-card="R-027"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator('[data-map-marker="R-027"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.getByRole("button", { name: "안정 4" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
 
   await page.evaluate(() => {
     window.dispatchEvent(
@@ -90,294 +202,95 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     "data-rider-danger-signal",
     "active",
   );
-  await expect(
-    page.getByRole("button", { name: "위험신호 2" }),
-  ).toBeVisible();
+  await expect(page.getByRole("button", { name: "위험신호 2" })).toBeVisible();
   await page.getByRole("button", { name: "위험신호 2" }).click();
-  await expect(page.locator("[data-courier-card]")).toHaveCount(2);
-  await page.getByRole("button", { name: "전체 20" }).click();
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
-  await expect(page.locator(".onepage-map-marker-photo").first()).toBeVisible();
-  await expect(page.locator(".onepage-hub")).toContainText("강남 허브");
-  await expect(page.locator(".onepage-hub")).not.toContainText(/^H$/);
-  expect(
-    await page.locator(".onepage-hub").evaluate(
-      (element) => getComputedStyle(element).boxShadow,
-    ),
-  ).toBe("none");
-  const mapMarkerStyle = await page.locator(".onepage-map-marker").first().evaluate(
-    (element) => {
-      const rect = element.getBoundingClientRect();
-      const style = getComputedStyle(element);
-      return {
-        width: rect.width,
-        height: rect.height,
-        borderColor: style.borderTopColor,
-        borderWidths: [
-          style.borderTopWidth,
-          style.borderRightWidth,
-          style.borderBottomWidth,
-          style.borderLeftWidth,
-        ],
-        borderRadius: style.borderRadius,
-        boxShadow: style.boxShadow,
-      };
-    },
+  await expect(page.locator('[data-courier-card="R-022"]')).toHaveCSS(
+    "opacity",
+    "1",
   );
-  expect(mapMarkerStyle.width).toBe(42);
-  expect(mapMarkerStyle.height).toBe(42);
-  expect(mapMarkerStyle.borderColor).toBe("rgb(255, 255, 255)");
-  expect(new Set(mapMarkerStyle.borderWidths).size).toBe(1);
-  expect(mapMarkerStyle.borderRadius).toBe("50%");
-  expect(mapMarkerStyle.boxShadow).toBe("none");
-
-  const profileAssetLoaded = await page
-    .locator(".onepage-profile-photo")
-    .first()
-    .evaluate((element) => {
-      const image = getComputedStyle(element).backgroundImage;
-      return image.includes("synthetic-courier-profiles-v1");
-    });
-  expect(profileAssetLoaded).toBe(true);
-
-  const firstCardSize = await page
-    .locator("[data-courier-card]")
-    .first()
-    .evaluate((element) => {
-      const rect = element.getBoundingClientRect();
-      return { width: rect.width, height: rect.height };
-    });
-  expect(firstCardSize.height).toBeGreaterThanOrEqual(216);
-  expect(firstCardSize.height).toBeGreaterThan(firstCardSize.width);
-  const safetyStyle = await page
-    .locator(".onepage-card-safety")
-    .first()
-    .evaluate((element) => {
-      const panel = element.getBoundingClientRect();
-      const value = element.querySelector("b")!;
-      const label = element.querySelector("small")!.getBoundingClientRect();
-      const valueRow = element
-        .querySelector(".onepage-card-safety-value")!
-        .getBoundingClientRect();
-      const card = element.closest(".onepage-courier-card")!;
-      return {
-        fontSize: Number.parseFloat(getComputedStyle(value).fontSize),
-        panelHeight: panel.height,
-        labelToValueGap: valueRow.top - label.bottom,
-        cardPadding: Number.parseFloat(getComputedStyle(card).paddingTop),
-        cardRowGap: Number.parseFloat(getComputedStyle(card).rowGap),
-        cardShadow: getComputedStyle(card).boxShadow,
-        panelShadow: getComputedStyle(element).boxShadow,
-        panelFilter: getComputedStyle(element).filter,
-        panelLeftBorder: getComputedStyle(element).borderLeftWidth,
-      };
-    });
-  expect(safetyStyle.fontSize).toBeGreaterThanOrEqual(46);
-  expect(safetyStyle.panelHeight).toBeGreaterThanOrEqual(110);
-  expect(safetyStyle.labelToValueGap).toBeGreaterThanOrEqual(24);
-  expect(safetyStyle.cardPadding).toBeLessThanOrEqual(7);
-  expect(safetyStyle.cardRowGap).toBeLessThanOrEqual(4);
-  expect(safetyStyle.cardShadow).toBe("none");
-  expect(safetyStyle.panelShadow).toBe("none");
-  expect(safetyStyle.panelFilter).toBe("none");
-  expect(safetyStyle.panelLeftBorder).toBe("0px");
-  await expect(
-    page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
-  ).not.toContainText("!");
-  await expect(
-    page.locator('[data-courier-card="R-014"] .onepage-card-safety'),
-  ).not.toContainText("긴급");
-  const cardSafetyTexts = await page
-    .locator(".onepage-card-safety")
-    .allTextContents();
-  expect(
-    cardSafetyTexts.every((text) => !/긴급|지원|주의|안정/.test(text)),
-  ).toBe(true);
-  const cardLayout = await page
-    .locator('[data-courier-card="R-014"]')
-    .evaluate((card) => {
-      const photo = card.querySelector(".onepage-profile-photo")!.getBoundingClientRect();
-      const name = card.querySelector(".onepage-card-name")!.getBoundingClientRect();
-      const identity = card.querySelector(".onepage-card-identity")!.getBoundingClientRect();
-      const safety = card.querySelector(".onepage-card-safety")!.getBoundingClientRect();
-      return {
-        photoWidth: photo.width,
-        photoBeforeName: photo.right < name.left,
-        safetyBelowIdentity: safety.top > identity.bottom,
-      };
-    });
-  expect(cardLayout.photoWidth).toBeGreaterThanOrEqual(84);
-  expect(cardLayout.photoWidth).toBeLessThanOrEqual(90);
-  expect(cardLayout.photoBeforeName).toBe(true);
-  expect(cardLayout.safetyBelowIdentity).toBe(true);
-
-  const openOverflow = await page.evaluate(() => ({
-    horizontal:
-      document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    vertical:
-      document.documentElement.scrollHeight - document.documentElement.clientHeight,
-  }));
-  expect(openOverflow.horizontal).toBeLessThanOrEqual(1);
-  expect(openOverflow.vertical).toBeLessThanOrEqual(1);
-  await page.screenshot({
-    path: "test-results/dashboard-demo-1280x720.png",
-    fullPage: false,
-  });
-
-  const sourceCard = page.locator('[data-courier-card="R-008"]');
-  await sourceCard.click();
-  await expect(sourceCard).toHaveAttribute("aria-pressed", "true");
-  await expect(sourceCard.locator(".onepage-card-safety")).toContainText(
-    "31.8",
-  );
-  await expect(sourceCard.locator(".onepage-card-safety")).not.toContainText(
-    "지원",
-  );
-  expect(
-    await sourceCard.evaluate((element) => getComputedStyle(element).boxShadow),
-  ).toBe("none");
-  await expect(page.locator('[data-map-marker="R-008"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
+  await expect(page.locator('[data-courier-card="R-008"]')).toHaveCSS(
+    "opacity",
+    "0.38",
   );
 
-  await page.getByRole("button", { name: "백승기 기사 외 1명 묶음" }).click();
-  await expect(page.locator('[data-courier-card="R-011"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(page.locator('[data-map-marker="R-011"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-
-  const queueCourier = page
-    .locator(".onepage-support-list button")
-    .filter({ hasText: "노현우" });
-  await queueCourier.click();
-  const queueSelectionStyle = await queueCourier.evaluate((element) => {
-    const style = getComputedStyle(element);
-    return {
-      boxShadow: style.boxShadow,
-      borderTopWidth: style.borderTopWidth,
-      borderRightWidth: style.borderRightWidth,
-      borderBottomWidth: style.borderBottomWidth,
-      borderLeftWidth: style.borderLeftWidth,
-      borderTopColor: style.borderTopColor,
-      borderRightColor: style.borderRightColor,
-      borderBottomColor: style.borderBottomColor,
-      borderLeftColor: style.borderLeftColor,
-    };
-  });
-  expect(queueSelectionStyle.boxShadow).toBe("none");
-  expect(await queueCourier.evaluate((element) => getComputedStyle(element).backgroundColor))
-    .toBe("rgb(234, 240, 255)");
-  expect(new Set([
-    queueSelectionStyle.borderTopWidth,
-    queueSelectionStyle.borderRightWidth,
-    queueSelectionStyle.borderBottomWidth,
-    queueSelectionStyle.borderLeftWidth,
-  ]).size).toBe(1);
-  expect(new Set([
-    queueSelectionStyle.borderTopColor,
-    queueSelectionStyle.borderRightColor,
-    queueSelectionStyle.borderBottomColor,
-    queueSelectionStyle.borderLeftColor,
-  ]).size).toBe(1);
-  await expect(page.locator('[data-courier-card="R-027"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-  await expect(page.locator('[data-map-marker="R-027"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-
-  await page.getByRole("button", { name: "지원 9" }).click();
-  await expect(page.locator("[data-courier-card]")).toHaveCount(9);
-  await page.getByRole("button", { name: "안정 4" }).click();
-  await expect(page.locator("[data-courier-card]")).toHaveCount(4);
   await page
     .locator(".onepage-support-list button")
     .filter({ hasText: "강태현" })
     .click();
-  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.locator('[data-courier-card="R-014"]')).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
-
+  const interventionTrigger = page.getByRole("button", { name: "지원안 검토" });
   await interventionTrigger.click();
   const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
   await expect(dialog).toBeVisible();
-  const dialogRect = await dialog.evaluate((element) => {
-    const rect = element.getBoundingClientRect();
-    return {
-      left: rect.left,
-      top: rect.top,
-      right: rect.right,
-      bottom: rect.bottom,
-    };
-  });
-  expect(dialogRect.left).toBeGreaterThanOrEqual(0);
-  expect(dialogRect.top).toBeGreaterThanOrEqual(0);
-  expect(dialogRect.right).toBeLessThanOrEqual(1280);
-  expect(dialogRect.bottom).toBeLessThanOrEqual(720);
   await expect(dialog.getByText("지원안 선택")).toBeVisible();
-  await expect(dialog.getByRole("button", { name: /10분 휴식/ })).toHaveAttribute(
-    "aria-pressed",
-    "true",
-  );
   await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
   await expect(dialog.getByText("응답을 선택하세요")).toBeVisible();
   await dialog.getByRole("button", { name: "동의 확인" }).click();
   await expect(dialog.getByText("기사 동의 확인")).toBeVisible();
   await dialog.getByRole("button", { name: "관리자 승인 및 적용" }).click();
   await expect(dialog.getByText("10분 휴식 반영")).toBeVisible();
-  await expect(dialog.getByText("경로·배송순서·ETA·고객 안내를 함께 갱신했습니다."))
-    .toBeVisible();
+  await expect(
+    dialog.getByText("경로·배송순서·ETA·고객 안내를 함께 갱신했습니다."),
+  ).toBeVisible();
   await dialog.getByRole("button", { name: "완료" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(interventionTrigger).toBeFocused();
   await expect(page.getByText("적용됨 · 10분 휴식")).toBeVisible();
-  expect(new URL(page.url()).pathname).toBe("/dashboard-demo");
 
-  const overflow = await page.evaluate(() => ({
-    horizontal:
-      document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    vertical:
-      document.documentElement.scrollHeight - document.documentElement.clientHeight,
-  }));
-  expect(overflow.horizontal).toBeLessThanOrEqual(1);
-  expect(overflow.vertical).toBeLessThanOrEqual(1);
+  await expectNoPageOverflow(page);
+  await page.screenshot({
+    path: "test-results/dashboard-demo-1280x720.png",
+    fullPage: false,
+  });
 });
 
-test("1440×900에서도 프로필과 지도가 한 화면에 유지된다", async ({ page }) => {
+test("1920 데스크톱은 62px 헤더·384px 패널·16px 간격을 유지한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1920, height: 1080 });
+  await page.goto("/dashboard-demo");
+  await expect(
+    page.getByRole("heading", { name: "Safety Control Tower" }),
+  ).toBeVisible();
+
+  const layout = await page.evaluate(() => {
+    const rect = (selector: string) =>
+      document.querySelector(selector)!.getBoundingClientRect();
+    const header = rect(".onepage-header");
+    const map = rect(".onepage-map-section");
+    const panel = rect(".onepage-support-panel");
+    const workspace = rect(".onepage-workspace");
+    return {
+      headerHeight: header.height,
+      mapWidth: map.width,
+      panelWidth: panel.width,
+      gap: panel.left - map.right,
+      workspaceBottom: workspace.bottom,
+    };
+  });
+  expect(layout.headerHeight).toBe(62);
+  expect(layout.panelWidth).toBe(384);
+  expect(layout.gap).toBe(16);
+  expect(layout.mapWidth).toBeGreaterThan(1200);
+  expect(layout.workspaceBottom).toBeLessThanOrEqual(1080);
+  await expectNoPageOverflow(page);
+  await page.screenshot({
+    path: "test-results/dashboard-demo-1920x1080.png",
+    fullPage: false,
+  });
+});
+
+test("1440×900에서도 카드·지도·지원 패널이 한 화면에 유지된다", async ({
+  page,
+}) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/dashboard-demo");
-  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
-
-  const regions = await page.locator("main.onepage-demo > section").evaluateAll(
-    (sections) =>
-      sections.map((section) => {
-        const rect = section.getBoundingClientRect();
-        return { top: rect.top, bottom: rect.bottom };
-      }),
-  );
-  expect(regions).toHaveLength(2);
-  expect(regions.every((region) => region.top >= 0 && region.bottom <= 900)).toBe(
-    true,
-  );
-
-  const overflow = await page.evaluate(() => ({
-    horizontal:
-      document.documentElement.scrollWidth - document.documentElement.clientWidth,
-    vertical:
-      document.documentElement.scrollHeight - document.documentElement.clientHeight,
-  }));
-  expect(overflow.horizontal).toBeLessThanOrEqual(1);
-  expect(overflow.vertical).toBeLessThanOrEqual(1);
+  await expect(
+    page.getByRole("heading", { name: "Safety Control Tower" }),
+  ).toBeVisible();
+  await expect(page.locator(".onepage-support-panel")).toBeVisible();
+  await expect(page.locator(".onepage-map-section")).toBeVisible();
+  await expectNoPageOverflow(page);
   await page.screenshot({
     path: "test-results/dashboard-demo-1440x900.png",
     fullPage: false,

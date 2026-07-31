@@ -140,6 +140,7 @@ function CourierCard({
   courier,
   photoIndex,
   selected,
+  dimmed,
   dangerSignal,
   onSelect,
   cardRef,
@@ -147,6 +148,7 @@ function CourierCard({
   courier: Courier;
   photoIndex: number;
   selected: boolean;
+  dimmed: boolean;
   dangerSignal?: RiderDangerSignal;
   onSelect: () => void;
   cardRef: (node: HTMLButtonElement | null) => void;
@@ -157,7 +159,7 @@ function CourierCard({
   return (
     <button
       ref={cardRef}
-      className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
+      className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
       data-courier-card={courier.id}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
@@ -166,18 +168,20 @@ function CourierCard({
       type="button"
     >
       <span className="onepage-card-identity">
-        <span
-          className="onepage-profile-photo"
-          aria-hidden="true"
-          style={{
-            backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
-          }}
-        />
+        <span className="onepage-avatar" aria-hidden="true">
+          <span
+            className="onepage-profile-photo"
+            style={{
+              backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
+            }}
+          />
+          <i className={`onepage-avatar-status state-${state.toLowerCase()}`} />
+        </span>
         <span className="onepage-card-copy">
           <span className="onepage-card-name">{courier.name}</span>
-          <span className="onepage-card-area">
-            <small>지정구역</small>
-            <strong>{courier.area}</strong>
+          <strong className="onepage-card-area">{courier.area}</strong>
+          <span className={`onepage-state-pill state-${state.toLowerCase()}`}>
+            {stateLabel[state]}
           </span>
         </span>
       </span>
@@ -193,18 +197,14 @@ function CourierCard({
 
 function MapMarker({
   courier,
-  photoIndex,
   selected,
   onSelect,
 }: {
   courier: Courier;
-  photoIndex: number;
   selected: boolean;
   onSelect: () => void;
 }) {
   const state = supportState(courier.budget);
-  const photoColumn = photoIndex % 5;
-  const photoRow = Math.floor(photoIndex / 5);
   return (
     <button
       className={`onepage-map-marker state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
@@ -215,17 +215,34 @@ function MapMarker({
       onClick={onSelect}
       type="button"
     >
-      <span
-        className="onepage-map-marker-photo"
-        aria-hidden="true"
-        style={{
-          backgroundPosition: `${photoColumn * 25}% ${photoRow * (100 / 3)}%`,
-        }}
-      />
-      <small className="onepage-map-marker-score" aria-hidden="true">
-        {courier.budget.toFixed(0)}
-      </small>
+      <span aria-hidden="true" />
     </button>
+  );
+}
+
+function SafetyMarginTrack({ value }: { value: number }) {
+  const markerPosition = Math.max(0, Math.min(100, value));
+  return (
+    <div className="onepage-safety-track" aria-label={`안전여유 ${value.toFixed(1)}, 30 한계, 45 기준`}>
+      <div className="onepage-safety-track-title">
+        <strong>Safety Margin</strong>
+        <span>0–100</span>
+      </div>
+      <div className="onepage-safety-track-bar" aria-hidden="true">
+        <span className="onepage-track-zone is-breach" />
+        <span className="onepage-track-zone is-support" />
+        <span className="onepage-track-zone is-caution" />
+        <span className="onepage-track-zone is-stable" />
+        <i style={{ left: `${markerPosition}%` }} />
+      </div>
+      <div className="onepage-safety-track-ticks" aria-hidden="true">
+        <span>0</span>
+        <span style={{ left: "30%" }}>30 한계</span>
+        <span style={{ left: "45%" }}>45 기준</span>
+        <span style={{ left: "60%" }}>60</span>
+        <span>100</span>
+      </div>
+    </div>
   );
 }
 
@@ -272,16 +289,13 @@ function DashboardKakaoMap({
         map = new maps.Map(container, { center, level: 6 });
         const bounds = new maps.LatLngBounds();
 
-        couriers.forEach((courier, photoIndex) => {
+        couriers.forEach((courier) => {
           if (!map) return;
           const point = courierGeographicPoint(courier);
           const position = new maps.LatLng(point.latitude, point.longitude);
           const state = supportState(courier.budget);
           const button = document.createElement("button");
-          const photo = document.createElement("span");
-          const score = document.createElement("small");
-          const photoColumn = photoIndex % 5;
-          const photoRow = Math.floor(photoIndex / 5);
+          const markerDot = document.createElement("span");
 
           button.type = "button";
           button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
@@ -290,14 +304,8 @@ function DashboardKakaoMap({
             "aria-label",
             `${courier.name} 기사 Demo 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
           );
-          photo.className = "onepage-map-marker-photo";
-          photo.setAttribute("aria-hidden", "true");
-          photo.style.backgroundPosition =
-            `${photoColumn * 25}% ${photoRow * (100 / 3)}%`;
-          score.className = "onepage-map-marker-score";
-          score.setAttribute("aria-hidden", "true");
-          score.textContent = courier.budget.toFixed(0);
-          button.append(photo, score);
+          markerDot.setAttribute("aria-hidden", "true");
+          button.append(markerDot);
           button.addEventListener("click", () => selectRef.current(courier.id));
           buttons.set(courier.id, button);
 
@@ -659,9 +667,6 @@ export function OnePageDashboardDemo() {
   const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
   const dangerSignalCount = Object.keys(dangerSignals).length;
   const selectedDangerSignal = dangerSignals[selectedCourier.id];
-  const filteredCouriers = couriers.filter((courier) =>
-    matchesCourierFilter(courier, filter, dangerSignals),
-  );
 
   useEffect(() => {
     const handleRiderDangerSignal = (event: Event) => {
@@ -718,9 +723,6 @@ export function OnePageDashboardDemo() {
   }, [dangerSignals, filter, selectedId]);
 
   const selectCourier = (id: string, revealCard = false) => {
-    if (!filteredCouriers.some((courier) => courier.id === id)) {
-      setFilter("ALL");
-    }
     setSelectedId(id);
     if (revealCard) {
       window.requestAnimationFrame(() => {
@@ -742,12 +744,6 @@ export function OnePageDashboardDemo() {
 
   const changeFilter = (nextFilter: CourierFilter) => {
     setFilter(nextFilter);
-    const nextCouriers = couriers.filter((courier) =>
-      matchesCourierFilter(courier, nextFilter, dangerSignals),
-    );
-    if (!nextCouriers.some((courier) => courier.id === selectedId)) {
-      setSelectedId(nextCouriers[0]?.id ?? couriers[0].id);
-    }
   };
 
   const selectedIsClustered = clusteredIds.has(selectedId);
@@ -765,10 +761,9 @@ export function OnePageDashboardDemo() {
     <main className="onepage-demo">
       <header className="onepage-header">
         <div className="onepage-brand" aria-label="SafeRoute AI">
-          <span className="onepage-brand-mark" aria-hidden="true">S</span>
+          <span className="onepage-brand-mark" aria-hidden="true">SR</span>
           <span className="onepage-brand-copy">
             <strong>SafeRoute AI</strong>
-            <small>운영 안전 코파일럿</small>
           </span>
         </div>
         <div className="onepage-page-title">
@@ -776,7 +771,7 @@ export function OnePageDashboardDemo() {
         </div>
         <div className="onepage-header-status">
           <span className="onepage-demo-badge">합성 Demo</span>
-          <span className="onepage-live-badge"><i aria-hidden="true" /> Live 0</span>
+          <span className="onepage-live-badge"><i aria-hidden="true" /> Live 0명</span>
           <span className="onepage-operator">운영 관리자</span>
           <time dateTime="2026-07-30T14:32:00+09:00">14:32</time>
         </div>
@@ -787,6 +782,7 @@ export function OnePageDashboardDemo() {
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
             <h2 id="courier-section-title">기사 현황</h2>
+            <small>안전여유 낮은 순 · 지원 시급성</small>
           </div>
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
@@ -813,12 +809,13 @@ export function OnePageDashboardDemo() {
           </div>
         </div>
         <div className="onepage-card-rail" ref={cardRailRef}>
-          {filteredCouriers.map((courier) => (
+          {couriers.map((courier) => (
             <CourierCard
               key={courier.id}
               courier={courier}
               photoIndex={couriers.findIndex((item) => item.id === courier.id)}
               selected={selectedId === courier.id}
+              dimmed={!matchesCourierFilter(courier, filter, dangerSignals)}
               dangerSignal={dangerSignals[courier.id]}
               onSelect={() => selectCourier(courier.id)}
               cardRef={(node) => {
@@ -842,12 +839,6 @@ export function OnePageDashboardDemo() {
                     ? "지도 불러오는 중"
                     : "위치 기준 14:32 · Fallback"}
               </span>
-            </div>
-            <div className="onepage-map-legend" aria-label="지도 상태 범례">
-              <span><i className="legend-breach" /> 긴급 3</span>
-              <span><i className="legend-support" /> 지원 6</span>
-              <span><i className="legend-caution" /> 주의 7</span>
-              <span><i className="legend-stable" /> 안정 4</span>
             </div>
           </div>
           <div className={`onepage-map-canvas ${mapStatus === "LIVE" ? "has-kakao-map" : ""}`}>
@@ -886,7 +877,6 @@ export function OnePageDashboardDemo() {
                     <MapMarker
                       key={courier.id}
                       courier={courier}
-                      photoIndex={couriers.findIndex((item) => item.id === courier.id)}
                       selected={selectedId === courier.id}
                       onSelect={() => selectCourier(courier.id, true)}
                     />
@@ -915,7 +905,6 @@ export function OnePageDashboardDemo() {
                 {selectedIsClustered ? (
                   <MapMarker
                     courier={selectedCourier}
-                    photoIndex={selectedIndex}
                     selected
                     onSelect={() => selectCourier(selectedCourier.id, true)}
                   />
@@ -923,14 +912,25 @@ export function OnePageDashboardDemo() {
               </>
             ) : null}
 
+            <div className="onepage-map-overlay-tools">
+              <span className="onepage-demo-overlay">Demo overlay</span>
+              <div className="onepage-map-legend" aria-label="지도 상태 범례">
+                <span className="state-breach"><i /> 긴급 3</span>
+                <span className="state-support"><i /> 지원 6</span>
+                <span className="state-caution"><i /> 주의 7</span>
+                <span className="state-stable"><i /> 안정 4</span>
+              </div>
+            </div>
+
             <div className="onepage-selected-strip" aria-live="polite">
-              <span className={`onepage-selected-state state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+              <span className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
                 {stateLabel[supportState(selectedCourier.budget)]}
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
+              <span>안전여유</span>
               <b>{selectedCourier.budget.toFixed(1)}</b>
-              <span>{selectedCourier.completed}/{selectedCourier.total}</span>
+              <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
           </div>
         </div>
@@ -957,7 +957,7 @@ export function OnePageDashboardDemo() {
                 <strong>{selectedCourier.name}</strong>
                 <span>{selectedCourier.area}</span>
               </div>
-              <em className={`state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+              <em className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
                 {stateLabel[supportState(selectedCourier.budget)]}
               </em>
             </div>
@@ -977,6 +977,7 @@ export function OnePageDashboardDemo() {
                 </strong>
               </div>
             </div>
+            <SafetyMarginTrack value={selectedCourier.budget} />
             <p>
               {selectedDangerSignal
                 ? `기사앱 위험 신호 · ${selectedDangerSignal.receivedAt}${appliedPlans[selectedCourier.id] ? ` · 적용됨 · ${appliedPlans[selectedCourier.id]}` : ""}`
@@ -1000,20 +1001,21 @@ export function OnePageDashboardDemo() {
               <small>지원 기준 45 미만</small>
             </div>
             <div className="onepage-support-list">
-              {urgentCouriers.map((courier) => (
+              {urgentCouriers.map((courier, index) => (
                 <button
                   key={courier.id}
                   type="button"
                   aria-pressed={selectedCourier.id === courier.id}
                   onClick={() => selectCourier(courier.id, true)}
                 >
+                  <span className="onepage-list-rank">{index + 1}</span>
                   <span>
                     <strong>{courier.name}</strong>
                     <small>{courier.area}</small>
                   </span>
                   <span>
                     <b>{courier.budget.toFixed(1)}</b>
-                    <small>
+                    <small className="onepage-eta-pill">
                       {courier.criticalMinute === 0
                         ? "지금"
                         : `+${courier.criticalMinute}분`}
@@ -1022,6 +1024,9 @@ export function OnePageDashboardDemo() {
                 </button>
               ))}
             </div>
+          </div>
+          <div className="onepage-tint-banner">
+            순위는 지원 시급성이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.
           </div>
         </aside>
       </section>
