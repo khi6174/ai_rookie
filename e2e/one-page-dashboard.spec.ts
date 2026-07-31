@@ -6,13 +6,22 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/dashboard-demo");
 
-  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "향후 60분 지원 관제" })).toBeVisible();
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
-  await expect(page.getByRole("heading", { name: "향후 60분" })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "안전지원 판단" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "개입 검토 열기" })).toHaveAttribute(
+    "href",
+    "/operations",
+  );
+  await expect(
+    page.getByRole("heading", { name: "향후 60분 시뮬레이션" }),
+  ).toHaveCount(0);
   await expect(page.getByText("합성 위치 · 14:32")).toBeVisible();
   await expect(page.getByText("Live 0")).toBeVisible();
-  await expect(page.getByText("역삼 A")).toBeVisible();
-  await expect(page.getByText("안전여유")).toHaveCount(20);
+  await expect(
+    page.locator('[data-courier-card="R-014"]').getByText("역삼 A"),
+  ).toBeVisible();
+  await expect(page.locator(".onepage-card-safety small")).toHaveCount(20);
   await expect(
     page.getByRole("button", {
       name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 초과",
@@ -120,6 +129,33 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     "true",
   );
 
+  const queueCourier = page
+    .locator(".onepage-support-list button")
+    .filter({ hasText: "노현우" });
+  await queueCourier.click();
+  await expect(page.locator('[data-courier-card="R-027"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await expect(page.locator('[data-map-marker="R-027"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
+  await page.getByRole("button", { name: "지원 9" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(9);
+  await page.getByRole("button", { name: "안정 4" }).click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(4);
+  await page
+    .locator(".onepage-support-list button")
+    .filter({ hasText: "강태현" })
+    .click();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(20);
+  await expect(page.locator('[data-courier-card="R-014"]')).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+
   const overflow = await page.evaluate(() => ({
     horizontal:
       document.documentElement.scrollWidth - document.documentElement.clientWidth,
@@ -133,7 +169,7 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
 test("1440×900에서도 프로필과 지도가 한 화면에 유지된다", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/dashboard-demo");
-  await expect(page.getByRole("heading", { name: "Safety Control Tower" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "향후 60분 지원 관제" })).toBeVisible();
 
   const regions = await page.locator("main.onepage-demo > section").evaluateAll(
     (sections) =>

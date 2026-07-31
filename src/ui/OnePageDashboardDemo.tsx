@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
+type CourierFilter = "ALL" | "SUPPORT" | "CAUTION" | "STABLE";
 
 type Courier = {
   id: string;
@@ -153,13 +154,27 @@ function MapMarker({
 
 export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState(couriers[0].id);
+  const [filter, setFilter] = useState<CourierFilter>("ALL");
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
   const selectedCourier =
     couriers.find((courier) => courier.id === selectedId) ?? couriers[0];
+  const selectedIndex = couriers.findIndex(
+    (courier) => courier.id === selectedCourier.id,
+  );
+  const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
+  const filteredCouriers = couriers.filter((courier) => {
+    const state = supportState(courier.budget);
+    if (filter === "ALL") return true;
+    if (filter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
+    return state === filter;
+  });
 
   const selectCourier = (id: string, revealCard = false) => {
+    if (!filteredCouriers.some((courier) => courier.id === id)) {
+      setFilter("ALL");
+    }
     setSelectedId(id);
     if (revealCard) {
       window.requestAnimationFrame(() => {
@@ -179,28 +194,66 @@ export function OnePageDashboardDemo() {
     });
   };
 
+  const changeFilter = (nextFilter: CourierFilter) => {
+    setFilter(nextFilter);
+    const nextCouriers = couriers.filter((courier) => {
+      const state = supportState(courier.budget);
+      if (nextFilter === "ALL") return true;
+      if (nextFilter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
+      return state === nextFilter;
+    });
+    if (!nextCouriers.some((courier) => courier.id === selectedId)) {
+      setSelectedId(nextCouriers[0]?.id ?? couriers[0].id);
+    }
+  };
+
   const selectedIsClustered = clusteredIds.has(selectedId);
 
   return (
     <main className="onepage-demo">
       <header className="onepage-header">
         <div className="onepage-brand" aria-label="SafeRoute AI">
-          <span aria-hidden="true">S</span>
-          <strong>SafeRoute</strong>
+          <span className="onepage-brand-mark" aria-hidden="true">S</span>
+          <span className="onepage-brand-copy">
+            <strong>SafeRoute</strong>
+            <small>운영 안전 코파일럿</small>
+          </span>
         </div>
-        <h1>Safety Control Tower</h1>
+        <div className="onepage-page-title">
+          <small>Safety Control Tower</small>
+          <h1>향후 60분 지원 관제</h1>
+        </div>
         <div className="onepage-header-status">
           <span className="onepage-demo-badge">합성 Demo</span>
           <span className="onepage-live-badge"><i aria-hidden="true" /> Live 0</span>
+          <span className="onepage-operator">운영 관리자</span>
           <time dateTime="2026-07-30T14:32:00+09:00">14:32</time>
         </div>
       </header>
 
       <section className="onepage-courier-section" aria-labelledby="courier-section-title">
         <div className="onepage-section-rail">
-          <div>
+          <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
-            <h2 id="courier-section-title">기사 20</h2>
+            <h2 id="courier-section-title">기사 상태</h2>
+            <small>지원 판단용 · 순위 아님</small>
+          </div>
+          <div className="onepage-filter-tabs" aria-label="기사 상태 필터">
+            {([
+              ["ALL", "전체", 20],
+              ["SUPPORT", "지원", 9],
+              ["CAUTION", "주의", 7],
+              ["STABLE", "안정", 4],
+            ] as const).map(([value, label, count]) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={filter === value}
+                onClick={() => changeFilter(value)}
+              >
+                {label} <b>{count}</b>
+              </button>
+            ))}
           </div>
           <div className="onepage-scroll-controls">
             <button type="button" aria-label="이전 기사 카드" onClick={() => scrollCards(-1)}>‹</button>
@@ -208,11 +261,11 @@ export function OnePageDashboardDemo() {
           </div>
         </div>
         <div className="onepage-card-rail" ref={cardRailRef}>
-          {couriers.map((courier, index) => (
+          {filteredCouriers.map((courier) => (
             <CourierCard
               key={courier.id}
               courier={courier}
-              photoIndex={index}
+              photoIndex={couriers.findIndex((item) => item.id === courier.id)}
               selected={selectedId === courier.id}
               onSelect={() => selectCourier(courier.id)}
               cardRef={(node) => {
@@ -224,90 +277,172 @@ export function OnePageDashboardDemo() {
         </div>
       </section>
 
-      <section className="onepage-map-section" aria-label="기사 합성 위치 지도">
-        <div className="onepage-map-toolbar">
-          <div>
-            <strong>강남 허브</strong>
-            <span>합성 위치 · 14:32</span>
+      <section className="onepage-workspace" aria-label="지도와 안전지원 큐">
+        <div className="onepage-map-section" aria-label="기사 합성 위치 지도">
+          <div className="onepage-map-toolbar">
+            <div>
+              <strong>강남 허브</strong>
+              <span>합성 위치 · 14:32</span>
+            </div>
+            <div className="onepage-map-legend" aria-label="지도 상태 범례">
+              <span><i className="legend-breach" /> 초과 3</span>
+              <span><i className="legend-support" /> 지원 6</span>
+              <span><i className="legend-caution" /> 주의 7</span>
+              <span><i className="legend-stable" /> 안정 4</span>
+            </div>
           </div>
-          <div className="onepage-map-legend" aria-label="지도 상태 범례">
-            <span><i className="legend-breach" /> 초과 3</span>
-            <span><i className="legend-support" /> 지원 6</span>
-            <span><i className="legend-caution" /> 주의 7</span>
-            <span><i className="legend-stable" /> 안정 4</span>
-          </div>
-        </div>
-        <div className="onepage-map-canvas">
-          <div className="onepage-river" aria-hidden="true" />
-          {roads.map((road, index) => (
-            <span
-              key={index}
-              className={`onepage-road is-${road.kind}`}
-              aria-hidden="true"
-              style={{
-                left: `${road.left}%`,
-                top: `${road.top}%`,
-                width: `${road.width}%`,
-                rotate: `${road.rotate}deg`,
-              }}
-            />
-          ))}
-          <span className="onepage-district label-yeoksam">역삼</span>
-          <span className="onepage-district label-daechi">대치</span>
-          <span className="onepage-district label-dogok">도곡</span>
-          <span className="onepage-hub" aria-label="강남 합성 허브">
-            <b aria-hidden="true">H</b>
-          </span>
-
-          {couriers
-            .filter((courier) => !clusteredIds.has(courier.id))
-            .map((courier) => (
-              <MapMarker
-                key={courier.id}
-                courier={courier}
-                selected={selectedId === courier.id}
-                onSelect={() => selectCourier(courier.id, true)}
+          <div className="onepage-map-canvas">
+            <div className="onepage-river" aria-hidden="true" />
+            {roads.map((road, index) => (
+              <span
+                key={index}
+                className={`onepage-road is-${road.kind}`}
+                aria-hidden="true"
+                style={{
+                  left: `${road.left}%`,
+                  top: `${road.top}%`,
+                  width: `${road.width}%`,
+                  rotate: `${road.rotate}deg`,
+                }}
               />
             ))}
-
-          {clusters.map((cluster) => {
-            const members = cluster.memberIds
-              .map((id) => couriers.find((courier) => courier.id === id))
-              .filter((courier): courier is Courier => Boolean(courier));
-            const priority = [...members].sort((a, b) => a.budget - b.budget)[0];
-            return (
-              <button
-                key={cluster.id}
-                className="onepage-map-cluster"
-                style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
-                aria-label={`${priority.name} 기사 외 ${members.length - 1}명 묶음`}
-                onClick={() => selectCourier(priority.id, true)}
-                type="button"
-              >
-                <strong>{members.length}</strong>
-                <small>{priority.budget.toFixed(0)}</small>
-              </button>
-            );
-          })}
-
-          {selectedIsClustered ? (
-            <MapMarker
-              courier={selectedCourier}
-              selected
-              onSelect={() => selectCourier(selectedCourier.id, true)}
-            />
-          ) : null}
-
-          <div className="onepage-selected-strip" aria-live="polite">
-            <span className={`onepage-selected-state state-${supportState(selectedCourier.budget).toLowerCase()}`}>
-              {stateLabel[supportState(selectedCourier.budget)]}
+            <span className="onepage-district label-yeoksam">역삼</span>
+            <span className="onepage-district label-daechi">대치</span>
+            <span className="onepage-district label-dogok">도곡</span>
+            <span className="onepage-hub" aria-label="강남 합성 허브">
+              <b aria-hidden="true">H</b>
             </span>
-            <strong>{selectedCourier.name}</strong>
-            <span>{selectedCourier.id}</span>
-            <b>{selectedCourier.budget.toFixed(1)}</b>
-            <span>{selectedCourier.completed}/{selectedCourier.total}</span>
+
+            {couriers
+              .filter((courier) => !clusteredIds.has(courier.id))
+              .map((courier) => (
+                <MapMarker
+                  key={courier.id}
+                  courier={courier}
+                  selected={selectedId === courier.id}
+                  onSelect={() => selectCourier(courier.id, true)}
+                />
+              ))}
+
+            {clusters.map((cluster) => {
+              const members = cluster.memberIds
+                .map((id) => couriers.find((courier) => courier.id === id))
+                .filter((courier): courier is Courier => Boolean(courier));
+              const priority = [...members].sort((a, b) => a.budget - b.budget)[0];
+              return (
+                <button
+                  key={cluster.id}
+                  className="onepage-map-cluster"
+                  style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
+                  aria-label={`${priority.name} 기사 외 ${members.length - 1}명 묶음`}
+                  onClick={() => selectCourier(priority.id, true)}
+                  type="button"
+                >
+                  <strong>{members.length}</strong>
+                  <small>{priority.budget.toFixed(0)}</small>
+                </button>
+              );
+            })}
+
+            {selectedIsClustered ? (
+              <MapMarker
+                courier={selectedCourier}
+                selected
+                onSelect={() => selectCourier(selectedCourier.id, true)}
+              />
+            ) : null}
+
+            <div className="onepage-selected-strip" aria-live="polite">
+              <span className={`onepage-selected-state state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+                {stateLabel[supportState(selectedCourier.budget)]}
+              </span>
+              <strong>{selectedCourier.name}</strong>
+              <span>{selectedCourier.area}</span>
+              <b>{selectedCourier.budget.toFixed(1)}</b>
+              <span>{selectedCourier.completed}/{selectedCourier.total}</span>
+            </div>
           </div>
         </div>
+
+        <aside className="onepage-support-panel" aria-labelledby="support-panel-title">
+          <header>
+            <div>
+              <small>현재 선택</small>
+              <h2 id="support-panel-title">안전지원 판단</h2>
+            </div>
+            <span>{urgentCouriers.length}명 확인</span>
+          </header>
+
+          <div className="onepage-support-focus" aria-live="polite">
+            <div className="onepage-support-person">
+              <span
+                className="onepage-support-photo"
+                aria-hidden="true"
+                style={{
+                  backgroundPosition: `${(selectedIndex % 5) * 25}% ${Math.floor(selectedIndex / 5) * (100 / 3)}%`,
+                }}
+              />
+              <div>
+                <strong>{selectedCourier.name}</strong>
+                <span>{selectedCourier.area}</span>
+              </div>
+              <em className={`state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+                {stateLabel[supportState(selectedCourier.budget)]}
+              </em>
+            </div>
+            <div className="onepage-support-metrics">
+              <div>
+                <small>안전여유</small>
+                <b>{selectedCourier.budget.toFixed(1)}</b>
+              </div>
+              <div>
+                <small>임계치</small>
+                <strong>
+                  {selectedCourier.criticalMinute === null
+                    ? "예상 없음"
+                    : selectedCourier.criticalMinute === 0
+                      ? "현재 초과"
+                      : `+${selectedCourier.criticalMinute}분`}
+                </strong>
+              </div>
+            </div>
+            <p>
+              승인 전까지 현재 계획 유지
+              <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
+            </p>
+            <a href="/operations">개입 검토 열기</a>
+          </div>
+
+          <div className="onepage-support-queue">
+            <div className="onepage-support-queue-title">
+              <strong>지원 큐</strong>
+              <small>임계치 45 미만</small>
+            </div>
+            <div className="onepage-support-list">
+              {urgentCouriers.map((courier) => (
+                <button
+                  key={courier.id}
+                  type="button"
+                  aria-pressed={selectedCourier.id === courier.id}
+                  onClick={() => selectCourier(courier.id, true)}
+                >
+                  <span>
+                    <strong>{courier.name}</strong>
+                    <small>{courier.area}</small>
+                  </span>
+                  <span>
+                    <b>{courier.budget.toFixed(1)}</b>
+                    <small>
+                      {courier.criticalMinute === 0
+                        ? "지금"
+                        : `+${courier.criticalMinute}분`}
+                    </small>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </aside>
       </section>
     </main>
   );
