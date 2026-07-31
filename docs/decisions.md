@@ -943,6 +943,16 @@
 - 기각한 대안: 기존 큰 안전여유 면 유지, 상태어를 우측 상단에 분리, 숫자 축소, 선택 그림자 유지.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
 
+### ADR-098 — 안전여유 면과 기본 카드의 광학적 그림자를 제거한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`의 안전여유 면에 `box-shadow: none`과 `filter: none`을 명시하고, 기본 카드의 중립 테두리를 투명하게 바꾼다. 선택 상태의 파란 테두리와 외곽선은 유지한다.
+- 이유: 사용자가 안전여유 면 아래와 옆에 남은 회색 경계를 그림자로 인지했다. 면과 카드의 광학적 깊이를 없애 더 평평하고 단정하게 보이도록 한다.
+- 경계: 안전여유 배경색, 왼쪽 상태 경계선, 숫자·상태어, 선택 표시와 계산 규칙은 변경하지 않는다.
+- 기각한 대안: CSS 그림자만 명시적으로 제거하고 회색 기본 테두리 유지, 안전여유 배경색 제거, 선택 테두리 제거.
+- 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
