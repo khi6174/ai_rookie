@@ -1024,6 +1024,16 @@
 - 기각한 대안: 50px 이상의 큰 사진, 이름 말풍선 상시 표시, 사진 위 점수 중첩, 드롭 섀도, 상태색으로 사진 전체를 덮는 방식.
 - 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-106 — 허브 지도 표식은 건물 아이콘과 전체 이름을 함께 표시한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`의 Kakao·Fallback 지도에서 단일 `H` 허브 마커를 제거하고, 네이비 건물 형태의 CSS 아이콘과 `강남 허브` 텍스트를 포함한 흰색 가로형 표식으로 교체한다. 접근성 이름은 `강남 허브 합성 위치`로 제공한다.
+- 이유: `H`만으로는 허브인지 기사 상태인지 즉시 알기 어려워 지도 이해를 방해한다. 아이콘과 전체 명칭을 함께 제공하면 발표 중 설명 없이도 운영 거점임을 읽을 수 있다.
+- 경계: 외부 아이콘·SVG·이모지를 추가하지 않고 CSS와 텍스트만 사용한다. 표식에는 그림자나 한쪽 강조선을 사용하지 않으며 실제 물류센터 주소·위치라고 표현하지 않는다.
+- 기각한 대안: `H` 유지 후 범례 추가, 건물 이모지, 지도 공급자 기본 POI에 의존, 허브 표식 완전 제거.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

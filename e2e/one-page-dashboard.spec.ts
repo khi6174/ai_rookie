@@ -44,6 +44,13 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   ).toBeVisible();
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
   await expect(page.locator(".onepage-map-marker-photo").first()).toBeVisible();
+  await expect(page.locator(".onepage-hub")).toContainText("강남 허브");
+  await expect(page.locator(".onepage-hub")).not.toContainText(/^H$/);
+  expect(
+    await page.locator(".onepage-hub").evaluate(
+      (element) => getComputedStyle(element).boxShadow,
+    ),
+  ).toBe("none");
   const mapMarkerStyle = await page.locator(".onepage-map-marker").first().evaluate(
     (element) => {
       const rect = element.getBoundingClientRect();

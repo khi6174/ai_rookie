@@ -289,12 +289,14 @@ function DashboardKakaoMap({
           gangnamHubPoint.longitude,
         );
         const hub = document.createElement("span");
-        const hubLabel = document.createElement("b");
+        const hubIcon = document.createElement("span");
+        const hubLabel = document.createElement("strong");
         hub.className = "onepage-hub onepage-kakao-hub";
-        hub.setAttribute("aria-label", "강남 합성 허브");
-        hubLabel.setAttribute("aria-hidden", "true");
-        hubLabel.textContent = "H";
-        hub.append(hubLabel);
+        hub.setAttribute("aria-label", "강남 허브 합성 위치");
+        hubIcon.className = "onepage-hub-icon";
+        hubIcon.setAttribute("aria-hidden", "true");
+        hubLabel.textContent = "강남 허브";
+        hub.append(hubIcon, hubLabel);
         overlays.push(new maps.CustomOverlay({
           map,
           position: hubPosition,
@@ -792,8 +794,9 @@ export function OnePageDashboardDemo() {
                 <span className="onepage-district label-yeoksam">역삼</span>
                 <span className="onepage-district label-daechi">대치</span>
                 <span className="onepage-district label-dogok">도곡</span>
-                <span className="onepage-hub" aria-label="강남 합성 허브">
-                  <b aria-hidden="true">H</b>
+                <span className="onepage-hub" aria-label="강남 허브 합성 위치">
+                  <span className="onepage-hub-icon" aria-hidden="true" />
+                  <strong>강남 허브</strong>
                 </span>
 
                 {couriers
