@@ -983,6 +983,16 @@
 - 기각한 대안: 왼쪽 inset 폭 축소, 색만 연하게 변경, 해당 컴포넌트만 예외적으로 유지.
 - 영향 파일: `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/lessons/card-selection-styling.md`
 
+### ADR-102 — 단일 관제 데모의 색감은 공개 루트 관리자 대시보드와 통일한다
+
+- 날짜: 2026-07-31
+- 상태: Approved
+- 결정: `/dashboard-demo`의 색상과 패널 문법을 공개 루트 `/` 관리자 대시보드에 맞춘다. 페이지 `#F4F7FC`, 패널 흰색, 경계 `#E6ECF5`, 주요 블루 `#2563EB`, 안전 그린 `#0B8F43`, 선택 배경 `#EAF0FF`를 공통 기준으로 사용하고 헤더를 흰색으로 전환한다.
+- 이유: 사용자가 말한 `기존 대시보드`는 `/operations`가 아니라 공개 루트 관리자 화면이었다. 단일 관제 화면의 기능 구성은 유지하되 서로 다른 제품처럼 보이던 다크 네이비·청록 색감을 제거해 같은 SafeRoute 제품군으로 인식되게 한다.
+- 경계: 카드–지도–지원 큐 정보구조와 동기화 기능은 변경하지 않는다. 루트 화면의 카드 그림자는 기사 카드와 지원 큐에 복제하지 않으며 ADR-101의 한쪽 강조선 금지를 유지한다.
+- 기각한 대안: 다크 헤더 유지, 루트 레이아웃 전체 복제, 색상만 근사하게 조정, 기사 카드의 상태색 면 제거.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

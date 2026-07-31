@@ -7,6 +7,23 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
   await page.goto("/dashboard-demo");
 
   await expect(page.getByRole("heading", { name: "향후 60분 지원 관제" })).toBeVisible();
+  const dashboardPalette = await page.locator("main.onepage-demo").evaluate((main) => {
+    const header = main.querySelector(".onepage-header")!;
+    const brandMark = main.querySelector(".onepage-brand-mark")!;
+    const action = main.querySelector(".onepage-support-focus > a")!;
+    return {
+      page: getComputedStyle(main).backgroundColor,
+      header: getComputedStyle(header).backgroundColor,
+      brand: getComputedStyle(brandMark).backgroundColor,
+      action: getComputedStyle(action).backgroundColor,
+    };
+  });
+  expect(dashboardPalette).toEqual({
+    page: "rgb(244, 247, 252)",
+    header: "rgb(255, 255, 255)",
+    brand: "rgb(37, 99, 235)",
+    action: "rgb(37, 99, 235)",
+  });
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
   await expect(page.getByRole("heading", { name: "안전지원 판단" })).toBeVisible();
   await expect(page.getByRole("link", { name: "개입 검토 열기" })).toHaveAttribute(
@@ -148,6 +165,8 @@ test("단일 대시보드는 합성 프로필 카드와 지도의 선택 상태�
     };
   });
   expect(queueSelectionStyle.boxShadow).toBe("none");
+  expect(await queueCourier.evaluate((element) => getComputedStyle(element).backgroundColor))
+    .toBe("rgb(234, 240, 255)");
   expect(new Set([
     queueSelectionStyle.borderTopWidth,
     queueSelectionStyle.borderRightWidth,

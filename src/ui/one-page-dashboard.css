@@ -1,19 +1,19 @@
 .onepage-demo {
-  --brand: #00bfff;
-  --navy: #0f2134;
-  --navy-2: #18324a;
-  --paper: #f4f7f9;
+  --brand: #2563eb;
+  --navy: #101828;
+  --navy-2: #243b5a;
+  --paper: #f4f7fc;
   --surface: #ffffff;
-  --line: #d9e2e8;
-  --muted: #617184;
-  --teal: #0b8f83;
-  --teal-soft: #dff4f0;
-  --amber: #d98a14;
-  --amber-soft: #fff2d9;
-  --yellow: #ad8610;
-  --yellow-soft: #fff8d7;
-  --red: #d84b4b;
-  --red-soft: #fde7e7;
+  --line: #e6ecf5;
+  --muted: #475467;
+  --teal: #0b8f43;
+  --teal-soft: #e6f8ee;
+  --amber: #d97706;
+  --amber-soft: #fff4e2;
+  --yellow: #a16207;
+  --yellow-soft: #fff7df;
+  --red: #dc2626;
+  --red-soft: #fdeeec;
   width: 100%;
   height: 100dvh;
   min-height: 640px;
@@ -44,9 +44,9 @@
   grid-template-columns: 210px 1fr auto;
   align-items: center;
   padding: 0 24px;
-  color: #fff;
-  background: var(--navy);
-  border-bottom: 3px solid var(--brand);
+  color: var(--navy);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
 }
 
 .onepage-brand,
@@ -81,7 +81,7 @@
   display: grid;
   place-items: center;
   border-radius: 8px;
-  color: var(--navy);
+  color: #fff;
   background: var(--brand);
   font-weight: 900;
 }
@@ -92,7 +92,7 @@
 }
 
 .onepage-brand small {
-  color: #b9d3e5;
+  color: var(--muted);
   font-size: 8px;
   font-weight: 700;
 }
@@ -103,7 +103,7 @@
 }
 
 .onepage-page-title small {
-  color: #8adfff;
+  color: var(--teal);
   font-size: 8px;
   font-weight: 800;
   letter-spacing: .08em;
@@ -128,12 +128,14 @@
   gap: 6px;
   padding: 0 10px;
   border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.22);
+  border: 1px solid var(--line);
+  background: #fff;
 }
 
 .onepage-demo-badge {
-  color: #ffe6a5;
-  background: rgba(217,138,20,.15);
+  color: #1d4ed8;
+  border-color: #c7d7fe !important;
+  background: #eaf0ff !important;
 }
 
 .onepage-live-badge i {
@@ -144,7 +146,9 @@
 }
 
 .onepage-operator {
-  color: #d7e5ef;
+  color: #1d4ed8;
+  border-color: #d8e2f6 !important;
+  background: #edf2fb !important;
 }
 
 .onepage-header time {
@@ -157,7 +161,7 @@
 .onepage-courier-section {
   min-width: 0;
   padding: 10px 20px 12px;
-  background: #edf2f5;
+  background: var(--paper);
   border-bottom: 1px solid var(--line);
 }
 
@@ -185,7 +189,7 @@
 }
 
 .onepage-section-icon {
-  color: var(--brand);
+  color: var(--teal);
   font-size: 10px;
 }
 
@@ -193,7 +197,8 @@
   gap: 3px;
   padding: 3px;
   border-radius: 10px;
-  background: #dde6eb;
+  border: 1px solid var(--line);
+  background: #edf2fb;
 }
 
 .onepage-filter-tabs button {
@@ -209,9 +214,9 @@
 }
 
 .onepage-filter-tabs button[aria-pressed="true"] {
-  color: var(--navy);
+  color: #1d4ed8;
   background: #fff;
-  box-shadow: 0 1px 3px rgba(15,33,52,.12);
+  box-shadow: none;
 }
 
 .onepage-filter-tabs b {
@@ -262,7 +267,7 @@
   gap: 9px;
   padding: 10px;
   overflow: hidden;
-  border: 1px solid transparent;
+  border: 1px solid var(--line);
   border-radius: 14px;
   color: var(--navy);
   background: var(--surface);
@@ -273,9 +278,8 @@
 }
 
 .onepage-courier-card.is-selected {
-  border-color: #063bc7;
-  outline: 2px solid rgba(6,59,199,.18);
-  outline-offset: 0;
+  border-color: var(--brand);
+  outline: none;
 }
 
 .onepage-profile-photo {
@@ -286,7 +290,8 @@
   background-image: url("../assets/synthetic-courier-profiles-v1.jpg");
   background-repeat: no-repeat;
   background-size: 500% 400%;
-  box-shadow: inset 0 0 0 1px rgba(15,33,52,.08);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .onepage-card-identity {
@@ -408,7 +413,7 @@
 .onepage-map-section {
   display: grid;
   grid-template-rows: 38px 1fr;
-  box-shadow: 0 9px 28px rgba(15,33,52,.07);
+  box-shadow: none;
 }
 
 .onepage-map-toolbar {
@@ -459,8 +464,8 @@
   overflow: hidden;
   isolation: isolate;
   background:
-    radial-gradient(circle at 25% 38%, rgba(0,191,255,.06), transparent 27%),
-    linear-gradient(120deg, #eef3f0, #e7eeea);
+    radial-gradient(circle at 25% 38%, rgba(37,99,235,.055), transparent 27%),
+    linear-gradient(120deg, #f7f4ed, #eef1ea);
 }
 
 .onepage-map-canvas::before {
@@ -612,16 +617,16 @@
   min-height: 40px;
   gap: 9px;
   padding: 6px 12px 6px 7px;
-  border: 1px solid rgba(255,255,255,.28);
+  border: 1px solid var(--line);
   border-radius: 12px;
-  color: #fff;
-  background: rgba(15,33,52,.91);
-  box-shadow: 0 10px 28px rgba(15,33,52,.24);
-  backdrop-filter: blur(8px);
+  color: var(--navy);
+  background: rgba(255,255,255,.96);
+  box-shadow: none;
+  backdrop-filter: none;
 }
 
 .onepage-selected-strip strong { font-size: 13px; }
-.onepage-selected-strip span { color: #cbd6df; font-size: 10px; }
+.onepage-selected-strip span { color: var(--muted); font-size: 10px; }
 .onepage-selected-strip b { font-size: 18px; font-variant-numeric: tabular-nums; }
 
 .onepage-selected-state {
@@ -693,9 +698,7 @@
   gap: 8px;
   padding: 11px 12px 12px;
   border-bottom: 1px solid var(--line);
-  background:
-    radial-gradient(circle at 100% 0, rgba(0,191,255,.08), transparent 42%),
-    #fff;
+  background: #fff;
 }
 
 .onepage-support-person {
@@ -711,7 +714,8 @@
   background-image: url("../assets/synthetic-courier-profiles-v1.jpg");
   background-repeat: no-repeat;
   background-size: 500% 400%;
-  box-shadow: inset 0 0 0 1px rgba(15,33,52,.08);
+  border: 1px solid var(--line);
+  box-shadow: none;
 }
 
 .onepage-support-person > div {
@@ -755,7 +759,7 @@
   gap: 3px;
   padding: 8px 9px;
   border-radius: 10px;
-  background: #f1f5f7;
+  background: var(--paper);
 }
 
 .onepage-support-metrics small {
@@ -792,14 +796,14 @@
   place-items: center;
   border-radius: 9px;
   color: #fff;
-  background: var(--navy);
+  background: var(--brand);
   text-decoration: none;
   font-size: 10px;
   font-weight: 850;
 }
 
 .onepage-support-focus > a:hover {
-  background: var(--navy-2);
+  background: #1d4ed8;
 }
 
 .onepage-support-queue {
@@ -849,11 +853,11 @@
 
 .onepage-support-list button:hover,
 .onepage-support-list button[aria-pressed="true"] {
-  background: #eaf1ff;
+  background: #eaf0ff;
 }
 
 .onepage-support-list button[aria-pressed="true"] {
-  border-color: #2d62eb;
+  border-color: var(--brand);
   box-shadow: none;
 }
 

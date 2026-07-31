@@ -215,7 +215,7 @@ export function OnePageDashboardDemo() {
         <div className="onepage-brand" aria-label="SafeRoute AI">
           <span className="onepage-brand-mark" aria-hidden="true">S</span>
           <span className="onepage-brand-copy">
-            <strong>SafeRoute</strong>
+            <strong>SafeRoute AI</strong>
             <small>운영 안전 코파일럿</small>
           </span>
         </div>
