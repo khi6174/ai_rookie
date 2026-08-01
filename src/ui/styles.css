@@ -4620,17 +4620,19 @@ summary {
 }
 
 .rider-truck-map-marker {
+  --rider-marker-size: 92px;
+
   display: grid;
   justify-items: center;
-  width: 96px;
+  width: var(--rider-marker-size);
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgb(15 23 42 / 20%));
 }
 
 .rider-truck-map-marker img {
   display: block;
-  width: 96px;
-  height: 96px;
+  width: var(--rider-marker-size);
+  height: var(--rider-marker-size);
   object-fit: contain;
 }
 
@@ -4649,6 +4651,8 @@ summary {
 }
 
 .rider-live-map-fallback > .rider-truck-map-marker {
+  --rider-marker-size: 92px;
+
   position: absolute;
   z-index: 3;
   top: 45%;

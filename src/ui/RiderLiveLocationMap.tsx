@@ -1,5 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRiderDeviceLocation, type RiderDeviceLocationState, type RiderLocationPoint } from "../application/riderLiveLocation";
+import {
+  interpolateRiderLocationPoint,
+  riderMapMarkerSizePx,
+  useRiderDeviceLocation,
+  type RiderDeviceLocationState,
+  type RiderLocationPoint,
+} from "../application/riderLiveLocation";
 import type { RiderProfile } from "../application/riderProfileRepository";
 import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapsNamespace } from "../adapters/maps/kakao";
 
@@ -45,10 +51,17 @@ function createTruckMarker() {
   return marker;
 }
 
+function updateTruckMarkerSize(marker: HTMLDivElement, map: KakaoMapInstance, container: HTMLDivElement) {
+  const size = riderMapMarkerSizePx(map.getLevel(), container.clientWidth);
+  marker.style.setProperty("--rider-marker-size", `${size}px`);
+  marker.dataset.markerSize = String(size);
+}
+
 export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfile; online: boolean }) {
   const { state, request } = useRiderDeviceLocation(profile.courierId);
   const fallbackPoint = useMemo(() => riderProfileMapPoint(profile), [profile]);
   const displayPoint = state.status === "CURRENT" || state.status === "STALE" ? state.point : fallbackPoint;
+  const hasDevicePoint = state.status === "CURRENT" || state.status === "STALE";
   const kakaoJavaScriptKey = import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
   const kakaoRequested = online && Boolean(kakaoJavaScriptKey) && import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
   const [mapStatus, setMapStatus] = useState<MapStatus>(kakaoRequested ? "LOADING" : "FALLBACK");
@@ -58,7 +71,12 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   const overlayRef = useRef<KakaoCustomOverlay | undefined>(undefined);
   const markerRef = useRef<HTMLDivElement | undefined>(undefined);
   const pointRef = useRef(displayPoint);
+  const renderedPointRef = useRef(displayPoint);
+  const renderedSourceRef = useRef<"DEVICE" | "ROUTE">(hasDevicePoint ? "DEVICE" : "ROUTE");
+  const pointSourceRef = useRef<"DEVICE" | "ROUTE">(hasDevicePoint ? "DEVICE" : "ROUTE");
+  const animationFrameRef = useRef<number | undefined>(undefined);
   pointRef.current = displayPoint;
+  pointSourceRef.current = hasDevicePoint ? "DEVICE" : "ROUTE";
 
   useEffect(() => {
     if (!kakaoRequested || !containerRef.current) {
@@ -67,6 +85,10 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
     }
     let active = true;
     let createdOverlay: KakaoCustomOverlay | undefined;
+    let createdMap: KakaoMapInstance | undefined;
+    let createdMaps: KakaoMapsNamespace | undefined;
+    let resizeObserver: ResizeObserver | undefined;
+    let updateMarkerSize: (() => void) | undefined;
     setMapStatus("LOADING");
     loadKakaoMapsSdk(kakaoJavaScriptKey)
       .then((maps) => {
@@ -74,6 +96,8 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
         const point = pointRef.current;
         const position = new maps.LatLng(point.latitude, point.longitude);
         const map = new maps.Map(containerRef.current, { center: position, level: 3 });
+        createdMap = map;
+        createdMaps = maps;
         const marker = createTruckMarker();
         createdOverlay = new maps.CustomOverlay({
           map,
@@ -87,6 +111,22 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
         mapRef.current = map;
         overlayRef.current = createdOverlay;
         markerRef.current = marker;
+        renderedPointRef.current = point;
+        renderedSourceRef.current = pointSourceRef.current;
+        marker.dataset.locationSource = renderedSourceRef.current;
+        updateMarkerSize = () => {
+          if (!containerRef.current) return;
+          updateTruckMarkerSize(marker, map, containerRef.current);
+        };
+        updateMarkerSize();
+        maps.event.addListener(map, "zoom_changed", updateMarkerSize);
+        if (typeof ResizeObserver !== "undefined") {
+          resizeObserver = new ResizeObserver(() => {
+            map.relayout();
+            updateMarkerSize?.();
+          });
+          resizeObserver.observe(containerRef.current);
+        }
         map.relayout();
         setMapStatus("READY");
       })
@@ -95,6 +135,14 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
       });
     return () => {
       active = false;
+      if (animationFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+      if (updateMarkerSize && createdMap && createdMaps) {
+        createdMaps.event.removeListener(createdMap, "zoom_changed", updateMarkerSize);
+      }
+      resizeObserver?.disconnect();
       createdOverlay?.setMap(null);
       overlayRef.current = undefined;
       markerRef.current = undefined;
@@ -108,19 +156,59 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
     const map = mapRef.current;
     const overlay = overlayRef.current;
     if (!maps || !map || !overlay) return;
-    const position = new maps.LatLng(displayPoint.latitude, displayPoint.longitude);
-    overlay.setPosition(position);
-    map.panTo(position);
-  }, [displayPoint.latitude, displayPoint.longitude]);
+    if (animationFrameRef.current !== undefined) {
+      window.cancelAnimationFrame(animationFrameRef.current);
+      animationFrameRef.current = undefined;
+    }
+
+    const source = hasDevicePoint ? "DEVICE" : "ROUTE";
+    const moveImmediately = renderedSourceRef.current !== "DEVICE"
+      || source !== "DEVICE"
+      || (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
+
+    if (moveImmediately) {
+      const position = new maps.LatLng(displayPoint.latitude, displayPoint.longitude);
+      overlay.setPosition(position);
+      map.panTo(position);
+      renderedPointRef.current = displayPoint;
+      renderedSourceRef.current = source;
+      return;
+    }
+
+    const from = renderedPointRef.current;
+    const startedAt = performance.now();
+    const durationMs = 900;
+    const animate = (time: number) => {
+      const progress = Math.min(1, (time - startedAt) / durationMs);
+      const easedProgress = 1 - (1 - progress) ** 3;
+      const point = interpolateRiderLocationPoint(from, displayPoint, easedProgress);
+      overlay.setPosition(new maps.LatLng(point.latitude, point.longitude));
+      renderedPointRef.current = point;
+      if (progress < 1) {
+        animationFrameRef.current = window.requestAnimationFrame(animate);
+        return;
+      }
+      animationFrameRef.current = undefined;
+      renderedPointRef.current = displayPoint;
+      renderedSourceRef.current = source;
+      map.panTo(new maps.LatLng(displayPoint.latitude, displayPoint.longitude));
+    };
+    animationFrameRef.current = window.requestAnimationFrame(animate);
+    return () => {
+      if (animationFrameRef.current !== undefined) {
+        window.cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = undefined;
+      }
+    };
+  }, [displayPoint.latitude, displayPoint.longitude, hasDevicePoint]);
 
   useEffect(() => {
     if (markerRef.current) {
       markerRef.current.dataset.locationSource = state.status === "CURRENT" || state.status === "STALE" ? "DEVICE" : "ROUTE";
     }
-  }, [state.status]);
+  }, [mapStatus, state.status]);
 
   const updateTime = updatedTimeLabel(state);
-  const hasDevicePoint = state.status === "CURRENT" || state.status === "STALE";
   const buttonLabel = state.status === "IDLE" ? "내 위치 표시" : "위치 다시 확인";
   const mapLabel = mapStatus === "READY" ? "카카오 지도" : mapStatus === "LOADING" ? "지도 준비 중" : "경로 위치";
 

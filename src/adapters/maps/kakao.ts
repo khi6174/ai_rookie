@@ -4,6 +4,7 @@ const kakaoMapsScriptSelector = "script[data-saferoute-kakao-map]";
 export type KakaoLatLng = object;
 
 export type KakaoMapInstance = {
+  getLevel(): number;
   relayout(): void;
   panTo(point: KakaoLatLng): void;
   setBounds(
@@ -52,6 +53,10 @@ export type KakaoMapsNamespace = {
     yAnchor?: number;
     zIndex?: number;
   }) => KakaoCustomOverlay;
+  event: {
+    addListener(target: object, type: string, handler: () => void): void;
+    removeListener(target: object, type: string, handler: () => void): void;
+  };
 };
 
 declare global {
