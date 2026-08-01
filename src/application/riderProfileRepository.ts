@@ -32,10 +32,30 @@ const riderResponseSchema = z.object({
   storage: z.enum(["D1", "MEMORY_DEV"]),
 });
 
+const ridersResponseSchema = z.object({
+  riders: z.array(riderProfileSchema).min(1).refine(
+    (profiles) => new Set(profiles.map((profile) => profile.courierId)).size === profiles.length,
+    { message: "기사 ID가 중복되었습니다." },
+  ),
+  storage: z.enum(["D1", "MEMORY_DEV"]),
+});
+
 export type RiderProfileLoadResult = {
   profile: RiderProfile;
   source: "SERVER" | "BUNDLED";
 };
+
+export type RiderProfilesLoadResult = {
+  profiles: RiderProfile[];
+  source: "SERVER" | "BUNDLED";
+};
+
+function orderProfiles(profiles: RiderProfile[]) {
+  const bundledOrder = new Map(riderProfiles.map((profile, index) => [profile.courierId, index]));
+  return [...profiles].sort((left, right) =>
+    (bundledOrder.get(left.courierId) ?? Number.MAX_SAFE_INTEGER)
+      - (bundledOrder.get(right.courierId) ?? Number.MAX_SAFE_INTEGER));
+}
 
 export function resolveRequestedRiderProfile(search: string): RiderProfile {
   const courierId = new URLSearchParams(search).get("courier") ?? defaultRiderProfile.courierId;
@@ -55,6 +75,18 @@ export async function loadRiderProfile(
   } catch (error) {
     if (error instanceof DOMException && error.name === "AbortError") throw error;
     return { profile: bundled, source: "BUNDLED" };
+  }
+}
+
+export async function loadRiderProfiles(signal?: AbortSignal): Promise<RiderProfilesLoadResult> {
+  try {
+    const response = await fetch("/api/riders", { signal });
+    if (!response.ok) throw new Error(`기사 목록 응답 오류: ${response.status}`);
+    const parsed = ridersResponseSchema.parse(await response.json());
+    return { profiles: orderProfiles(parsed.riders), source: "SERVER" };
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") throw error;
+    return { profiles: orderProfiles(riderProfiles), source: "BUNDLED" };
   }
 }
 

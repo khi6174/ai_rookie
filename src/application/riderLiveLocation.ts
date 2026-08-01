@@ -29,14 +29,6 @@ export function isValidRiderLocationPoint(point: RiderLocationPoint) {
     && point.longitude <= 180;
 }
 
-export function riderMapMarkerSizePx(level: number, viewportWidth: number) {
-  const normalizedLevel = Number.isFinite(level) ? Math.round(level) : 3;
-  const sizeByLevel = [108, 102, 92, 82, 72, 62, 54, 50];
-  const levelSize = sizeByLevel[Math.max(0, Math.min(sizeByLevel.length - 1, normalizedLevel - 1))];
-  const viewportScale = viewportWidth < 320 ? 0.88 : viewportWidth < 380 ? 0.94 : viewportWidth >= 520 ? 1.06 : 1;
-  return Math.round(Math.max(50, Math.min(108, levelSize * viewportScale)));
-}
-
 export function interpolateRiderLocationPoint(
   from: RiderLocationPoint,
   to: RiderLocationPoint,

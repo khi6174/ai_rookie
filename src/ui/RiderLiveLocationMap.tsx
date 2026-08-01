@@ -1,11 +1,15 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   interpolateRiderLocationPoint,
-  riderMapMarkerSizePx,
   useRiderDeviceLocation,
   type RiderDeviceLocationState,
   type RiderLocationPoint,
 } from "../application/riderLiveLocation";
+import {
+  riderMapMarkerScale,
+  riderMapMarkerSizePx,
+  riderRoutePosition,
+} from "../application/riderMapPresentation";
 import type { RiderProfile } from "../application/riderProfileRepository";
 import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapsNamespace } from "../adapters/maps/kakao";
 
@@ -20,13 +24,6 @@ const statusLabels: Record<RiderDeviceLocationState["status"], string> = {
   UNAVAILABLE: "위치 사용 불가",
   ERROR: "위치 확인 필요",
 };
-
-export function riderProfileMapPoint(profile: Pick<RiderProfile, "mapX" | "mapY">): RiderLocationPoint {
-  return {
-    latitude: 37.55 - profile.mapY * 0.00105,
-    longitude: 126.99 + profile.mapX * 0.00142,
-  };
-}
 
 function updatedTimeLabel(state: RiderDeviceLocationState) {
   if (state.status !== "CURRENT" && state.status !== "STALE") return undefined;
@@ -53,13 +50,23 @@ function createTruckMarker() {
 
 function updateTruckMarkerSize(marker: HTMLDivElement, map: KakaoMapInstance, container: HTMLDivElement) {
   const size = riderMapMarkerSizePx(map.getLevel(), container.clientWidth);
+  const scale = riderMapMarkerScale(map.getLevel());
   marker.style.setProperty("--rider-marker-size", `${size}px`);
   marker.dataset.markerSize = String(size);
+  marker.dataset.markerScale = scale;
+  marker.classList.toggle("is-street", scale === "STREET");
+  marker.classList.toggle("is-district", scale === "DISTRICT");
+  marker.classList.toggle("is-overview", scale === "OVERVIEW");
 }
 
 export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfile; online: boolean }) {
   const { state, request } = useRiderDeviceLocation(profile.courierId);
-  const fallbackPoint = useMemo(() => riderProfileMapPoint(profile), [profile]);
+  const [movementSecond, setMovementSecond] = useState(() => Math.floor(Date.now() / 1_000));
+  const routePoint = riderRoutePosition(profile, movementSecond);
+  const fallbackPoint: RiderLocationPoint = {
+    latitude: routePoint.latitude,
+    longitude: routePoint.longitude,
+  };
   const displayPoint = state.status === "CURRENT" || state.status === "STALE" ? state.point : fallbackPoint;
   const hasDevicePoint = state.status === "CURRENT" || state.status === "STALE";
   const kakaoJavaScriptKey = import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
@@ -77,6 +84,11 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   const animationFrameRef = useRef<number | undefined>(undefined);
   pointRef.current = displayPoint;
   pointSourceRef.current = hasDevicePoint ? "DEVICE" : "ROUTE";
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setMovementSecond(Math.floor(Date.now() / 1_000)), 1_000);
+    return () => window.clearInterval(timer);
+  }, [profile.courierId]);
 
   useEffect(() => {
     if (!kakaoRequested || !containerRef.current) {
@@ -162,8 +174,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
     }
 
     const source = hasDevicePoint ? "DEVICE" : "ROUTE";
-    const moveImmediately = renderedSourceRef.current !== "DEVICE"
-      || source !== "DEVICE"
+    const moveImmediately = renderedSourceRef.current !== source
       || (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches);
 
     if (moveImmediately) {
@@ -226,10 +237,15 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
       <div className={`rider-live-map-stage ${mapStatus === "READY" ? "is-kakao" : "is-fallback"}`}>
         <div ref={containerRef} className="rider-live-kakao-map" aria-hidden={mapStatus !== "READY"} />
         {mapStatus !== "READY" && (
-          <div className="rider-live-map-fallback" data-location-source={hasDevicePoint ? "DEVICE" : "ROUTE"}>
+          <div
+            className="rider-live-map-fallback"
+            data-location-source={hasDevicePoint ? "DEVICE" : "ROUTE"}
+            data-latitude={displayPoint.latitude.toFixed(6)}
+            data-longitude={displayPoint.longitude.toFixed(6)}
+          >
             <i className="rider-live-road is-one" aria-hidden="true" />
             <i className="rider-live-road is-two" aria-hidden="true" />
-            <div className="rider-truck-map-marker" aria-hidden="true">
+            <div className="rider-truck-map-marker is-street" data-marker-scale="STREET" aria-hidden="true">
               <img src="/assets/rider-truck-top-2d.png" alt="" />
               <span>{hasDevicePoint ? "내 위치" : "경로 위치"}</span>
             </div>

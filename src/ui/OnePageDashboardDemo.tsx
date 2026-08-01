@@ -11,7 +11,18 @@ import {
   type KakaoMapOverlay,
   type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
-import { riderProfiles } from "../application/riderProfileRepository";
+import {
+  loadRiderProfiles,
+  riderProfiles,
+  type RiderProfile,
+} from "../application/riderProfileRepository";
+import {
+  riderAreaKey,
+  riderMapMarkerScale,
+  riderMapMarkerSizePx,
+  riderRoutePosition,
+  type RiderRoutePoint,
+} from "../application/riderMapPresentation";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
@@ -46,6 +57,7 @@ type InterventionOption = {
 type Courier = {
   id: string;
   name: string;
+  currentScore: number;
   budget: number;
   area: string;
   completed: number;
@@ -56,14 +68,7 @@ type Courier = {
   criticalMinute: number | null;
 };
 
-type RoutePoint = {
-  mapX: number;
-  mapY: number;
-  latitude: number;
-  longitude: number;
-};
-
-type PositionedCourier = Courier & RoutePoint;
+type PositionedCourier = Courier & RiderRoutePoint;
 
 type RiderDangerSignal = {
   courierId: string;
@@ -71,9 +76,11 @@ type RiderDangerSignal = {
   receivedAt: string;
 };
 
-const couriers: Courier[] = riderProfiles.map((profile) => ({
+function courierFromRiderProfile(profile: RiderProfile): Courier {
+  return {
   id: profile.courierId,
   name: profile.displayName,
+  currentScore: profile.safetyScore,
   budget: profile.projectedSafetyScore ?? profile.safetyScore,
   area: profile.areaCode,
   completed: profile.completedCount,
@@ -84,7 +91,10 @@ const couriers: Courier[] = riderProfiles.map((profile) => ({
   criticalMinute: (profile.projectedSafetyScore ?? profile.safetyScore) < 30
     ? 0
     : profile.criticalMinute,
-}));
+  };
+}
+
+const bundledCouriers: Courier[] = riderProfiles.map(courierFromRiderProfile);
 
 const initialDangerSignals: Record<string, RiderDangerSignal> = {
   "R-017": {
@@ -103,52 +113,6 @@ const clusters = [
 
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
 const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
-const roadCorridors: Record<string, readonly [RoutePoint, RoutePoint]> = {
-  역삼: [
-    { mapX: 31, mapY: 45, latitude: 37.4981, longitude: 127.0305 },
-    { mapX: 43, mapY: 50, latitude: 37.5032, longitude: 127.042 },
-  ],
-  논현: [
-    { mapX: 27, mapY: 38, latitude: 37.5102, longitude: 127.021 },
-    { mapX: 39, mapY: 34, latitude: 37.5124, longitude: 127.032 },
-  ],
-  대치: [
-    { mapX: 61, mapY: 48, latitude: 37.503, longitude: 127.053 },
-    { mapX: 73, mapY: 45, latitude: 37.5033, longitude: 127.065 },
-  ],
-  도곡: [
-    { mapX: 47, mapY: 63, latitude: 37.4885, longitude: 127.0385 },
-    { mapX: 58, mapY: 67, latitude: 37.49, longitude: 127.049 },
-  ],
-  삼성: [
-    { mapX: 69, mapY: 34, latitude: 37.509, longitude: 127.053 },
-    { mapX: 80, mapY: 31, latitude: 37.5105, longitude: 127.063 },
-  ],
-  청담: [
-    { mapX: 61, mapY: 29, latitude: 37.519, longitude: 127.043 },
-    { mapX: 73, mapY: 27, latitude: 37.52, longitude: 127.055 },
-  ],
-  개포: [
-    { mapX: 67, mapY: 71, latitude: 37.481, longitude: 127.049 },
-    { mapX: 79, mapY: 75, latitude: 37.4825, longitude: 127.061 },
-  ],
-  신사: [
-    { mapX: 23, mapY: 31, latitude: 37.518, longitude: 127.018 },
-    { mapX: 35, mapY: 28, latitude: 37.5195, longitude: 127.03 },
-  ],
-  압구정: [
-    { mapX: 39, mapY: 28, latitude: 37.5235, longitude: 127.027 },
-    { mapX: 51, mapY: 31, latitude: 37.524, longitude: 127.039 },
-  ],
-  세곡: [
-    { mapX: 71, mapY: 82, latitude: 37.466, longitude: 127.092 },
-    { mapX: 83, mapY: 78, latitude: 37.469, longitude: 127.103 },
-  ],
-  자곡: [
-    { mapX: 62, mapY: 85, latitude: 37.474, longitude: 127.096 },
-    { mapX: 74, mapY: 83, latitude: 37.477, longitude: 127.107 },
-  ],
-};
 const clockFormatter = new Intl.DateTimeFormat("ko-KR", {
   hour: "2-digit",
   minute: "2-digit",
@@ -217,25 +181,22 @@ const regionCapacity = [
 ] as const;
 
 function courierAreaKey(courier: Courier) {
-  return courier.area.split(" ")[0];
+  return riderAreaKey({ areaCode: courier.area });
 }
 
 function simulatedCourierPosition(
   courier: Courier,
   movementSecond: number,
 ): PositionedCourier {
-  const courierIndex = couriers.findIndex((item) => item.id === courier.id);
-  const corridor = roadCorridors[courierAreaKey(courier)];
-  const cycle = ((movementSecond + courierIndex * 5) % 24) / 12;
-  const progress = cycle <= 1 ? cycle : 2 - cycle;
-  const [start, end] = corridor;
-  const interpolate = (from: number, to: number) => from + (to - from) * progress;
+  const point = riderRoutePosition({
+    courierId: courier.id,
+    areaCode: courier.area,
+    mapX: courier.mapX,
+    mapY: courier.mapY,
+  }, movementSecond);
   return {
     ...courier,
-    mapX: interpolate(start.mapX, end.mapX),
-    mapY: interpolate(start.mapY, end.mapY),
-    latitude: interpolate(start.latitude, end.latitude),
-    longitude: interpolate(start.longitude, end.longitude),
+    ...point,
   };
 }
 
@@ -321,9 +282,14 @@ function CourierCard({
       ref={cardRef}
       className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
       data-courier-card={courier.id}
+      data-current-score={courier.currentScore.toFixed(1)}
+      data-projected-score={courier.budget.toFixed(1)}
+      data-area-code={courier.area}
+      data-completed-count={courier.completed}
+      data-total-count={courier.total}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 현재 점수 ${courier.currentScore.toFixed(1)}, 예상 최저 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -346,7 +312,7 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <small>{dangerSignal ? "위험 신호 · 점수" : "안전 지원 점수"}</small>
+        <small>{dangerSignal ? "위험 신호 / 예상 최저" : "예상 최저 점수"}</small>
         <span className="onepage-card-safety-value">
           <b>{courier.budget.toFixed(1)}</b>
           <em>{supportTimingShort(courier)}</em>
@@ -384,6 +350,20 @@ function MapMarker({
   );
 }
 
+function updateDashboardMarkerScale(
+  button: HTMLButtonElement,
+  map: KakaoMapInstance,
+  container: HTMLDivElement,
+) {
+  const scale = riderMapMarkerScale(map.getLevel());
+  const size = Math.max(24, Math.round(riderMapMarkerSizePx(map.getLevel(), container.clientWidth) * 0.64));
+  button.dataset.markerScale = scale;
+  button.style.setProperty("--dashboard-marker-size", `${size}px`);
+  button.classList.toggle("is-scale-street", scale === "STREET");
+  button.classList.toggle("is-scale-district", scale === "DISTRICT");
+  button.classList.toggle("is-scale-overview", scale === "OVERVIEW");
+}
+
 function SafetyMarginTrack({ value }: { value: number }) {
   const markerPosition = Math.max(0, Math.min(100, value));
   return (
@@ -411,11 +391,13 @@ function SafetyMarginTrack({ value }: { value: number }) {
 }
 
 function DashboardKakaoMap({
+  couriers,
   selectedId,
   movementSecond,
   onSelect,
   onStatus,
 }: {
+  couriers: Courier[];
   selectedId: string;
   movementSecond: number;
   onSelect: (id: string) => void;
@@ -446,6 +428,7 @@ function DashboardKakaoMap({
 
     let disposed = false;
     let map: KakaoMapInstance | undefined;
+    let updateMarkerScales: (() => void) | undefined;
     const overlays: KakaoMapOverlay[] = [];
     const buttons = markerButtonsRef.current;
     const markerOverlays = markerOverlaysRef.current;
@@ -464,10 +447,11 @@ function DashboardKakaoMap({
 
         couriers.forEach((courier) => {
           if (!map) return;
-          const point = simulatedCourierPosition(courier, 0);
+          const point = simulatedCourierPosition(courier, movementSecond);
           const position = new maps.LatLng(point.latitude, point.longitude);
           const state = supportState(courier.budget);
           const button = document.createElement("button");
+          const truckImage = document.createElement("img");
           const markerDot = document.createElement("span");
 
           button.type = "button";
@@ -477,8 +461,10 @@ function DashboardKakaoMap({
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
           button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
+          truckImage.src = "/assets/rider-truck-top-2d.png";
+          truckImage.alt = "";
           markerDot.setAttribute("aria-hidden", "true");
-          button.append(markerDot);
+          button.append(truckImage, markerDot);
           button.addEventListener("click", () => selectRef.current(courier.id));
           buttons.set(courier.id, button);
 
@@ -518,6 +504,14 @@ function DashboardKakaoMap({
         }));
         bounds.extend(hubPosition);
         map.setBounds(bounds, 56, 56, 56, 56);
+        updateMarkerScales = () => {
+          if (!map) return;
+          markerButtonsRef.current.forEach((button) => {
+            updateDashboardMarkerScale(button, map!, container);
+          });
+        };
+        updateMarkerScales();
+        maps.event.addListener(map, "zoom_changed", updateMarkerScales);
 
         markerButtonsRef.current.forEach((button, id) => {
           button.classList.toggle("is-selected", id === selectedId);
@@ -531,6 +525,9 @@ function DashboardKakaoMap({
 
     return () => {
       disposed = true;
+      if (map && updateMarkerScales) {
+        mapsNamespaceRef.current?.event.removeListener(map, "zoom_changed", updateMarkerScales);
+      }
       overlays.forEach((overlay) => overlay.setMap(null));
       buttons.clear();
       markerOverlays.clear();
@@ -538,7 +535,7 @@ function DashboardKakaoMap({
       container.replaceChildren();
       map = undefined;
     };
-  }, [javaScriptKey, onStatus, requested]);
+  }, [couriers, javaScriptKey, onStatus, requested]);
 
   useEffect(() => {
     markerButtonsRef.current.forEach((button, id) => {
@@ -561,7 +558,7 @@ function DashboardKakaoMap({
         .get(courier.id)
         ?.setPosition(new maps.LatLng(movingCourier.latitude, movingCourier.longitude));
     });
-  }, [movementSecond]);
+  }, [couriers, movementSecond]);
 
   return (
     <div
@@ -605,7 +602,7 @@ function InterventionDialog({
     selectedTransferCount === 0
       ? "분담 없음"
       : `현재 선택 ${selectedTransferCount}건 / ${selectedTransferFeasible ? "가능" : "불가"}`;
-  const courierIndex = couriers.findIndex((item) => item.id === courier.id);
+  const courierIndex = bundledCouriers.findIndex((item) => item.id === courier.id);
 
   useEffect(() => {
     if (transferAvailable || !selectedOption.transferDependent) return;
@@ -916,7 +913,8 @@ function InterventionDialog({
 
 export function OnePageDashboardDemo() {
   const [now, setNow] = useState(() => new Date());
-  const [selectedId, setSelectedId] = useState(couriers[0].id);
+  const [couriers, setCouriers] = useState<Courier[]>(bundledCouriers);
+  const [selectedId, setSelectedId] = useState(bundledCouriers[0].id);
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const [interventionOpen, setInterventionOpen] = useState(false);
@@ -933,7 +931,7 @@ export function OnePageDashboardDemo() {
     })();
     if (
       !storedSignal ||
-      !couriers.some((courier) => courier.id === storedSignal.courierId)
+      !bundledCouriers.some((courier) => courier.id === storedSignal.courierId)
     ) {
       return initialDangerSignals;
     }
@@ -951,6 +949,10 @@ export function OnePageDashboardDemo() {
     (courier) => courier.id === selectedCourier.id,
   );
   const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
+  const supportCounts = couriers.reduce<Record<SupportState, number>>((counts, courier) => {
+    counts[supportState(courier.budget)] += 1;
+    return counts;
+  }, { BREACH: 0, SUPPORT: 0, CAUTION: 0, STABLE: 0 });
   const dangerSignalCount = Object.keys(dangerSignals).length;
   const selectedDangerSignal = dangerSignals[selectedCourier.id];
   const currentTimeLabel = clockFormatter.format(now);
@@ -965,6 +967,14 @@ export function OnePageDashboardDemo() {
   useEffect(() => {
     const timer = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void loadRiderProfiles(controller.signal)
+      .then((result) => setCouriers(result.profiles.map(courierFromRiderProfile)))
+      .catch(() => undefined);
+    return () => controller.abort();
   }, []);
 
   useEffect(() => {
@@ -1109,15 +1119,15 @@ export function OnePageDashboardDemo() {
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
             <h2 id="courier-section-title">기사 현황</h2>
-            <small>안전 지원 점수</small>
+            <small>예상 최저 점수</small>
           </div>
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
-              ["ALL", "전체", 20],
+              ["ALL", "전체", couriers.length],
               ["SIGNAL", "위험신호", dangerSignalCount],
-              ["SUPPORT", "지원", 9],
-              ["CAUTION", "주의", 7],
-              ["STABLE", "안정", 4],
+              ["SUPPORT", "지원", supportCounts.BREACH + supportCounts.SUPPORT],
+              ["CAUTION", "주의", supportCounts.CAUTION],
+              ["STABLE", "안정", supportCounts.STABLE],
             ] as const).map(([value, label, count]) => (
               <button
                 key={value}
@@ -1182,6 +1192,7 @@ export function OnePageDashboardDemo() {
             data-movement-second={movementSecond}
           >
             <DashboardKakaoMap
+              couriers={couriers}
               selectedId={selectedId}
               movementSecond={movementSecond}
               onSelect={(id) => selectCourier(id, true)}
@@ -1254,10 +1265,10 @@ export function OnePageDashboardDemo() {
 
             <div className="onepage-map-overlay-tools">
               <div className="onepage-map-legend" aria-label="지도 상태 범례">
-                <span className="state-breach"><i /> 한계 초과 3</span>
-                <span className="state-support"><i /> 지원 필요 6</span>
-                <span className="state-caution"><i /> 주의 7</span>
-                <span className="state-stable"><i /> 정상 4</span>
+                <span className="state-breach"><i /> 한계 초과 {supportCounts.BREACH}</span>
+                <span className="state-support"><i /> 지원 필요 {supportCounts.SUPPORT}</span>
+                <span className="state-caution"><i /> 주의 {supportCounts.CAUTION}</span>
+                <span className="state-stable"><i /> 정상 {supportCounts.STABLE}</span>
               </div>
             </div>
 
@@ -1267,7 +1278,7 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
-              <b>안전 지원 점수 {selectedCourier.budget.toFixed(1)}</b>
+              <b>현재 {selectedCourier.currentScore.toFixed(1)} / 예상 최저 {selectedCourier.budget.toFixed(1)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
@@ -1339,7 +1350,7 @@ export function OnePageDashboardDemo() {
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>안전 지원 점수</strong>
+              <strong>예상 최저 점수</strong>
             </div>
             <div className="onepage-support-list">
               {urgentCouriers.map((courier) => (

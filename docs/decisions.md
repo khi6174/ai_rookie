@@ -1224,13 +1224,25 @@
 - 날짜: 2026-08-01
 - 상태: Approved
 - 사용자 재승인: 기사 `운행` 탭에서 본인의 실시간 위치를 카카오 지도와 택배 탑차 아이콘으로 표시하는 범위를 승인함. 2026-08-01 후속 선택에 따라 마커는 탑차 상단만 보이는 2D 하향 시점으로 고정한다.
-- 결정: 기사 앱의 `내 위치 표시` 버튼을 누른 뒤에만 브라우저 Geolocation `watchPosition`을 시작한다. 수신한 좌표·정확도·갱신시각은 현재 페이지 메모리에만 두고 Kakao Maps JavaScript SDK의 사용자 정의 오버레이 위치를 갱신한다. 카카오 공개 웹 API에 초정밀 대중교통 위치 피드를 결합하지 않고, 초정밀 버스·지하철처럼 이동 주체가 잘 보이는 시각 방식만 자체 2D 택배차 상단 마커로 구현한다. 마커 크기는 지도 확대 단계와 지도 폭에 맞춰 50~108px 범위에서 조절한다. 첫 기기 좌표는 즉시 표시하고 이후 연속 기기 관측 사이만 짧게 보간하며, 움직임 줄이기 설정에서는 즉시 이동한다.
+- 결정: 기사 앱의 `내 위치 표시` 버튼을 누른 뒤에만 브라우저 Geolocation `watchPosition`을 시작한다. 수신한 좌표·정확도·갱신시각은 현재 페이지 메모리에만 두고 Kakao Maps JavaScript SDK의 사용자 정의 오버레이 위치를 갱신한다. 카카오 공개 웹 API에 초정밀 대중교통 위치 피드를 결합하지 않고, 초정밀 버스·지하철처럼 이동 주체가 잘 보이는 시각 방식만 자체 2D 택배차 상단 마커로 구현한다. ADR-125에 따라 마커 크기는 지도 확대 단계와 지도 폭에 맞춰 24~108px 범위에서 조절한다. 첫 기기 좌표는 즉시 표시하고 이후 연속 기기 관측 사이만 짧게 보간하며, 움직임 줄이기 설정에서는 즉시 이동한다.
 - 상태와 철회: 요청 전, 확인 중, 기기 위치, 갱신 지연, 권한 없음, 위치 사용 불가를 텍스트로 표시한다. 권한 거절은 불이익이나 오류 점수로 표현하지 않는다. 탭 이탈·컴포넌트 해제 시 위치 감시를 종료하며 서버·D1·localStorage·감사기록·AI 입력·관리자 화면으로 좌표를 보내지 않는다.
 - Fallback: 권한이 없거나 위치를 받을 수 없거나 Kakao SDK가 실패하면 해당 기사의 승인된 가상 배송 구역 중심과 단순 경로를 `경로 위치`로 표시한다. 이를 기기 위치나 실시간 위치로 부르지 않는다.
 - 이유: 운행 중인 기사가 자신의 현재 위치와 배송 흐름을 한눈에 이해하되, 대회 화면에서 불필요한 상시 추적·서버 저장·관리자 감시 범위를 만들지 않기 위해서다.
 - 경계: 이 승인은 본인 화면의 세션 메모리 표시만 허용한다. 화면 보간은 수신한 두 기기 관측 사이의 프레임 표현일 뿐 새 위치 관측·이동 예측·속도 판정으로 저장하지 않는다. 백그라운드 위치, 서버 동기화, 관리자 공유, 장기 궤적, 속도·경로이탈 평가, 실제 기사 식별정보 결합, 카카오의 비공개 교통 피드 사용은 승인하지 않는다. 위치는 Safety Budget·지원 추천·배송 순서·동의·승인 상태를 바꾸지 않는다.
 - 기각한 대안: 페이지 진입 즉시 권한 요청, 좌표를 D1에 저장, 관제에 정밀 위치 자동 공유, 합성 경로를 실시간 GPS로 표시, 카카오 초정밀 대중교통 기능을 기사 위치 API처럼 표현.
 - 영향 파일: `src/application/riderLiveLocation.ts`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/adapters/maps/kakao.ts`, `public/assets/rider-truck-top-2d.png`, `tests/rider-live-location.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+
+### ADR-125 — 기사 앱과 관제는 같은 기사 기록·가상 이동 모델·축척 표현을 사용한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 사용자 재승인: 기사별 앱과 관제의 기사별 지도 위치·데이터를 다시 대조하고, 지도 축척에 따라 아이콘 표현을 바꾸는 범위를 승인함.
+- 결정: 관제와 기사 앱은 `/api/riders`의 같은 20명 `RiderProfile`을 우선 사용하고 서버를 읽을 수 없을 때만 같은 bundled 기록으로 전환한다. 이름, 구역, 배송 진행, 완료 예정, 현재 점수, 예상 최저 점수와 위험 시점은 같은 `courierId`의 필드에서 읽는다. `projectedSafetyScore`가 비어 있으면 `safetyScore`와 같은 값으로 해석한다. 권한 요청 전 기사 지도와 관제 지도는 `src/application/riderMapPresentation.ts`의 같은 도로 구간·시간 함수로 가상 위치를 계산한다.
+- 축척 표현: Kakao 지도 level 1~3은 탑차와 `내 위치` 꼬리표를 보이는 근거리, level 4~5는 꼬리표를 뺀 축소 탑차, level 6 이상은 위치를 가리지 않는 상태 점으로 표시한다. 기사 지도와 관제 지도는 같은 세 단계를 사용하고 색만으로 상태를 설명하지 않는다.
+- 위치 경계: 기사 앱에서 사용자가 `내 위치 표시`를 누르면 그 화면만 브라우저 기기 좌표로 전환한다. 기기 좌표는 관제·서버·D1·브라우저 영구 저장소로 보내지 않으므로 이 시점부터 관제의 가상 위치와 같다고 표현하지 않는다. 가상 이동은 실시간 GPS가 아니라 도로 위 결정론적 화면 재생이다.
+- 이유: 같은 기사 ID인데 위치 계산식이나 점수 의미가 화면마다 다르면 심사위원이 데이터 연결을 신뢰하기 어렵다. 먼 지도에서는 큰 차량이 지도를 가리고 가까운 지도에서는 점만으로 방향과 대상을 알아보기 어려우므로 축척별 표현이 필요하다.
+- 기각한 대안: 기사 기기 GPS를 동의·보존 정책 없이 관제로 자동 전송, 두 화면에 서로 다른 위치 함수를 유지, 모든 축척에서 2D 탑차를 같은 크기로 표시, 현재 점수와 예상 최저 점수를 같은 이름으로 혼용.
+- 영향 파일: `src/application/riderMapPresentation.ts`, `src/application/riderProfileRepository.ts`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/ui/one-page-dashboard.css`, `tests/rider-map-presentation.test.ts`, `tests/rider-profile-store.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
 ## 4. 심사기준 연결
 

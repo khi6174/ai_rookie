@@ -338,7 +338,10 @@ type RiderDeviceLocationState =
 - `PERMISSION_DENIED`, `UNAVAILABLE`, `ERROR`에서는 승인된 가상 배송 구역 중심을 `경로 위치`로 표시할 수 있지만 `CURRENT`나 `실시간`으로 승격하지 않는다.
 - 위치 상태와 좌표는 Safety 계산, 배송 순서, 지원 후보, 동의·승인 상태의 입력이 아니다.
 - 지도 마커의 프레임 보간값은 연속된 두 `CURRENT` 기기 관측 사이에서만 화면에 사용하며 새로운 위치 관측, 이력, 속도 또는 경로 예측 데이터로 직렬화하지 않는다. 첫 기기 관측과 `ROUTE` fallback 사이에는 보간하지 않는다.
-- 지도 확대 단계와 화면 폭에서 계산한 50~108px 마커 크기는 표시 전용 값이며 위치 상태 계약에 추가하지 않는다.
+- 지도 확대 단계와 화면 폭에서 계산한 24~108px 마커 크기는 표시 전용 값이며 위치 상태 계약에 추가하지 않는다.
+- 관제와 기사 앱의 권한 요청 전 `ROUTE` 위치는 같은 `courierId`, `areaCode`, 초 단위 기준시각을 `riderRoutePosition`에 전달해 계산한다. 같은 입력은 위도·경도와 schematic 좌표가 정확히 같아야 한다.
+- `projectedSafetyScore`가 없는 bundled 기록은 표시 경계에서 `safetyScore`와 같은 값으로 정규화한다. `현재 점수`는 `safetyScore`, `예상 최저`는 정규화된 `projectedSafetyScore`를 사용하며 이름을 바꿔 섞지 않는다.
+- 지도 level은 도메인 데이터가 아니며 `STREET`(1~3), `DISTRICT`(4~5), `OVERVIEW`(6 이상)의 표시 단계로만 변환한다.
 
 #### G4-A 결정론적 Demo 이동 타임라인
 

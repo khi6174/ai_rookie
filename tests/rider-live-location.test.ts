@@ -4,8 +4,8 @@ import {
   isValidRiderLocationPoint,
   riderLocationErrorState,
   riderLocationFromPosition,
-  riderMapMarkerSizePx,
 } from "../src/application/riderLiveLocation";
+import { riderMapMarkerSizePx } from "../src/application/riderMapPresentation";
 
 describe("rider device location boundary", () => {
   it("accepts a finite browser position without adding persistence fields", () => {
@@ -45,7 +45,7 @@ describe("rider device location boundary", () => {
     expect(riderMapMarkerSizePx(3, 390)).toBeGreaterThan(riderMapMarkerSizePx(7, 390));
     expect(riderMapMarkerSizePx(3, 300)).toBeLessThan(riderMapMarkerSizePx(3, 390));
     expect(riderMapMarkerSizePx(-20, 1000)).toBe(108);
-    expect(riderMapMarkerSizePx(99, 100)).toBe(50);
+    expect(riderMapMarkerSizePx(99, 100)).toBe(24);
   });
 
   it("interpolates only between the supplied device observations", () => {

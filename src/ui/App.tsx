@@ -2018,6 +2018,7 @@ function RiderView({
               <div>
                 <span>내 안전 지원 점수</span>
                 <strong>{formatBudget(riderProfile.safetyScore)}</strong>
+                <small>예상 최저 {formatBudget(riderProfile.projectedSafetyScore ?? riderProfile.safetyScore)}</small>
               </div>
               <div>
                 <span>위험 예상</span>

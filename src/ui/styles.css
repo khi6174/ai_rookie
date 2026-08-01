@@ -4620,13 +4620,40 @@ summary {
 }
 
 .rider-truck-map-marker {
-  --rider-marker-size: 92px;
+  --rider-marker-size: 90px;
 
   display: grid;
   justify-items: center;
   width: var(--rider-marker-size);
   pointer-events: none;
   filter: drop-shadow(0 2px 3px rgb(15 23 42 / 20%));
+}
+
+.rider-truck-map-marker.is-district span {
+  display: none;
+}
+
+.rider-truck-map-marker.is-overview {
+  height: var(--rider-marker-size);
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 999px;
+  background: #245edb;
+  box-shadow: 0 2px 7px rgb(15 23 42 / 24%);
+  filter: none;
+}
+
+.rider-truck-map-marker.is-overview::before {
+  content: "";
+  width: 28%;
+  height: 28%;
+  border-radius: 999px;
+  background: #fff;
+}
+
+.rider-truck-map-marker.is-overview img,
+.rider-truck-map-marker.is-overview span {
+  display: none;
 }
 
 .rider-truck-map-marker img {
@@ -4651,7 +4678,7 @@ summary {
 }
 
 .rider-live-map-fallback > .rider-truck-map-marker {
-  --rider-marker-size: 92px;
+  --rider-marker-size: 90px;
 
   position: absolute;
   z-index: 3;

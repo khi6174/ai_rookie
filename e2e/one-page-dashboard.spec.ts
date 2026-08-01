@@ -67,7 +67,15 @@ test("기사 ID별 앱은 서버에 저장된 배송 구역과 진행률을 함�
   const response = await request.get("/api/riders");
   expect(response.ok()).toBe(true);
   const payload = await response.json() as {
-    riders: Array<{ courierId: string; displayName: string }>;
+    riders: Array<{
+      courierId: string;
+      displayName: string;
+      areaCode: string;
+      completedCount: number;
+      totalCount: number;
+      safetyScore: number;
+      projectedSafetyScore?: number;
+    }>;
   };
   expect(payload.riders).toHaveLength(20);
   expect(new Set(payload.riders.map((rider) => rider.courierId)).size).toBe(20);
@@ -78,8 +86,25 @@ test("기사 ID별 앱은 서버에 저장된 배송 구역과 진행률을 함�
   await expect(page.getByRole("heading", { name: "서울시 강남구 압구정동 한강아파트" })).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "오늘 배송률" })).toHaveAttribute("aria-valuenow", "57");
   await expect(page.getByLabel("오늘의 간단한 운행 경로")).toContainText("21번째");
+  await page.getByRole("tab", { name: "안전지원" }).click();
+  await expect(page.getByText("52.5", { exact: true })).toBeVisible();
+  await expect(page.getByText("예상 최저 43.7", { exact: true })).toBeVisible();
   await page.locator(".rider-role-menu summary").click();
   await expect(page.locator(".rider-profile-options a")).toHaveCount(20);
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  for (const rider of payload.riders) {
+    const card = page.locator(`[data-courier-card="${rider.courierId}"]`);
+    await expect(card).toHaveAttribute("data-area-code", rider.areaCode);
+    await expect(card).toHaveAttribute("data-completed-count", String(rider.completedCount));
+    await expect(card).toHaveAttribute("data-total-count", String(rider.totalCount));
+    await expect(card).toHaveAttribute("data-current-score", rider.safetyScore.toFixed(1));
+    await expect(card).toHaveAttribute(
+      "data-projected-score",
+      (rider.projectedSafetyScore ?? rider.safetyScore).toFixed(1),
+    );
+  }
 });
 
 test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를 유지한다", async ({
@@ -99,7 +124,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   const firstClockValue = await clock.textContent();
   await expect.poll(() => clock.textContent()).not.toBe(firstClockValue);
   await expect(
-    page.getByText("안전 지원 점수", { exact: true }).first(),
+    page.getByText("예상 최저 점수", { exact: true }).first(),
   ).toBeVisible();
   await expect(page.getByText("순위 아님", { exact: true })).toHaveCount(0);
   await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(1);
@@ -140,7 +165,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.locator(".onepage-state-pill").first()).toContainText("한계 초과");
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 안전 지원 점수 24.1, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
+      name: "강태현 기사, 지정구역 역삼 A, 현재 점수 54.7, 예상 최저 24.1, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
     }),
   ).toBeVisible();
   await expect(
