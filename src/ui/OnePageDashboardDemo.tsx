@@ -12,18 +12,28 @@ type DashboardMapStatus = "LOADING" | "LIVE" | "FALLBACK";
 type InterventionStage =
   | "COMPARE"
   | "REQUESTED"
+  | "RECIPIENT_REQUESTED"
   | "CONSENTED"
   | "MODIFY"
   | "DECLINED"
   | "APPLIED";
 
 type InterventionOption = {
-  id: "REST" | "SAFE_ROUTE" | "TRANSFER" | "RESEQUENCE" | "SAFE_DELAY";
+  id:
+    | "REST_RESEQUENCE"
+    | "REST_SAFE_DELAY"
+    | "REST_TRANSFER"
+    | "TRANSFER_12"
+    | "REST_ONLY";
   label: string;
   detail: string;
-  budgetDelta: number;
-  etaDelta: number;
+  resultBand: "지원 필요" | "주의";
+  etaLabel: string;
   guard: string;
+  feasible: boolean;
+  transferDependent: boolean;
+  recommended?: boolean;
+  compensation: string;
 };
 
 type Courier = {
@@ -72,7 +82,7 @@ const initialDangerSignals: Record<string, RiderDangerSignal> = {
   "R-014": {
     courierId: "R-014",
     label: "긴급 지원 요청",
-    receivedAt: "14:31",
+    receivedAt: "15:27",
   },
 };
 
@@ -86,12 +96,70 @@ const clusters = [
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
 const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
 const interventionOptions: InterventionOption[] = [
-  { id: "REST", label: "10분 휴식", detail: "가까운 휴식 거점 경유", budgetDelta: 18.4, etaDelta: 10, guard: "실행 가능" },
-  { id: "SAFE_ROUTE", label: "안전경로", detail: "위험 노출 구간 우회", budgetDelta: 13.6, etaDelta: 6, guard: "실행 가능" },
-  { id: "TRANSFER", label: "물량이관 6건", detail: "인접 기사에게 일부 이관", budgetDelta: 16.1, etaDelta: 4, guard: "위험전가 검사 통과" },
-  { id: "RESEQUENCE", label: "순서 변경", detail: "가까운 배송지부터 재배치", budgetDelta: 8.7, etaDelta: 2, guard: "실행 가능" },
-  { id: "SAFE_DELAY", label: "Safe Delay", detail: "고객 안내 후 안전 지연", budgetDelta: 12.5, etaDelta: 8, guard: "고객 안내 가능" },
+  {
+    id: "REST_RESEQUENCE",
+    label: "10분 휴식 + 배송 순서 변경",
+    detail: "경사 구간을 후순위로 · 이관 불필요",
+    resultBand: "지원 필요",
+    etaLabel: "+6분",
+    guard: "초과 해소 · 실행 가능",
+    feasible: true,
+    transferDependent: false,
+    compensation: "배송시간 목표 조정 가정",
+  },
+  {
+    id: "REST_SAFE_DELAY",
+    label: "10분 휴식 + 시간 재약정",
+    detail: "Safe Delay · 고객 동의 필요",
+    resultBand: "주의",
+    etaLabel: "+12분",
+    guard: "초과 해소 · 실행 가능",
+    feasible: true,
+    transferDependent: false,
+    compensation: "지연 미집계 가정",
+  },
+  {
+    id: "REST_TRANSFER",
+    label: "10분 휴식 + 배송 8건 이관",
+    detail: "이관 여력이 있을 때만 선택",
+    resultBand: "주의",
+    etaLabel: "−15분",
+    guard: "R-024 기준 45 통과",
+    feasible: true,
+    transferDependent: true,
+    recommended: true,
+    compensation: "이관 8건 보전 검토",
+  },
+  {
+    id: "TRANSFER_12",
+    label: "배송 12건 이관",
+    detail: "수신 기사에게 위험이 전가되는 후보",
+    resultBand: "주의",
+    etaLabel: "−37분",
+    guard: "차단 · 수신 기사 41 / 기준 45 미달",
+    feasible: false,
+    transferDependent: true,
+    compensation: "적용 불가",
+  },
+  {
+    id: "REST_ONLY",
+    label: "10분 휴식 단독",
+    detail: "물량·순서 변경 없음",
+    resultBand: "지원 필요",
+    etaLabel: "+10분",
+    guard: "초과 해소 · 실행 가능",
+    feasible: true,
+    transferDependent: false,
+    compensation: "배송시간 목표 조정 가정",
+  },
 ];
+
+const regionCapacity = [
+  { area: "역삼", summary: "4명 / 11건", capacity: "32%", tone: "need" },
+  { area: "대치", summary: "6명 / 17건", capacity: "51%", tone: "watch" },
+  { area: "도곡", summary: "2명 / 5건", capacity: "14%", tone: "over" },
+  { area: "강남 허브", summary: "9명 / 24건", capacity: "78%", tone: "ok" },
+] as const;
 
 function courierGeographicPoint(courier: Courier) {
   return {
@@ -120,11 +188,25 @@ function matchesCourierFilter(
 }
 
 const stateLabel: Record<SupportState, string> = {
-  BREACH: "긴급",
-  SUPPORT: "지원",
+  BREACH: "한계 초과",
+  SUPPORT: "지원 필요",
   CAUTION: "주의",
-  STABLE: "안정",
+  STABLE: "정상",
 };
+
+function supportTimingLabel(courier: Courier) {
+  if (courier.criticalMinute === 0) return "현재 한계 초과";
+  if (courier.criticalMinute !== null) {
+    return `한계까지 ${courier.criticalMinute}분`;
+  }
+  return "향후 60분 내 초과 없음";
+}
+
+function supportTimingShort(courier: Courier) {
+  if (courier.criticalMinute === 0) return "지금";
+  if (courier.criticalMinute !== null) return `${courier.criticalMinute}분`;
+  return "60분+";
+}
 
 const roads = [
   { left: -6, top: 26, width: 116, rotate: 5, kind: "major" },
@@ -163,7 +245,7 @@ function CourierCard({
       data-courier-card={courier.id}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전여유 ${courier.budget}, ${stateLabel[state]}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -186,9 +268,9 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <small>{dangerSignal ? "기사앱 위험 신호" : "안전여유"}</small>
+        <small>{dangerSignal ? "기사앱 위험 신호" : "조치 시각"}</small>
         <span className="onepage-card-safety-value">
-          <b>{courier.budget.toFixed(1)}</b>
+          <b>{supportTimingLabel(courier)}</b>
         </span>
       </span>
     </button>
@@ -210,7 +292,7 @@ function MapMarker({
       className={`onepage-map-marker state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
       data-map-marker={courier.id}
       style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
-      aria-label={`${courier.name} 기사 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`}
+      aria-label={`${courier.name} 기사 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
       onClick={onSelect}
       type="button"
@@ -391,16 +473,19 @@ function InterventionDialog({
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const [selectedOptionId, setSelectedOptionId] =
-    useState<InterventionOption["id"]>("REST");
+    useState<InterventionOption["id"]>("REST_TRANSFER");
   const [stage, setStage] = useState<InterventionStage>("COMPARE");
+  const [transferAvailable, setTransferAvailable] = useState(true);
   const selectedOption =
     interventionOptions.find((option) => option.id === selectedOptionId) ??
     interventionOptions[0];
-  const projectedBudget = Math.min(
-    89.9,
-    courier.budget + selectedOption.budgetDelta,
-  );
   const courierIndex = couriers.findIndex((item) => item.id === courier.id);
+
+  useEffect(() => {
+    if (transferAvailable || !selectedOption.transferDependent) return;
+    setSelectedOptionId("REST_RESEQUENCE");
+    setStage("COMPARE");
+  }, [selectedOption.transferDependent, transferAvailable]);
 
   useEffect(() => {
     const previousFocus =
@@ -500,15 +585,36 @@ function InterventionDialog({
               </div>
               <span>5개 후보</span>
             </div>
+            <div className="onepage-transfer-guard">
+              <div>
+                <strong>이관 여력 · 강남 권역</strong>
+                <b>{transferAvailable ? "32%" : "0%"}</b>
+              </div>
+              <span>
+                {transferAvailable
+                  ? "수신 가능 4명 · 흡수 11건 / 필요 34건"
+                  : "동일 강우 영향으로 수신 가능한 기사가 없습니다"}
+              </span>
+              <button
+                type="button"
+                aria-pressed={!transferAvailable}
+                onClick={() => setTransferAvailable((current) => !current)}
+              >
+                {transferAvailable ? "이관 여력 부족 보기" : "기본 여력으로 복원"}
+              </button>
+            </div>
             <div className="onepage-candidate-list">
               {interventionOptions.map((option) => {
-                const after = Math.min(89.9, courier.budget + option.budgetDelta);
                 const isSelected = option.id === selectedOptionId;
+                const isAvailable =
+                  option.feasible &&
+                  (!option.transferDependent || transferAvailable);
                 return (
                   <button
                     key={option.id}
                     type="button"
                     aria-pressed={isSelected}
+                    disabled={!isAvailable}
                     onClick={() => {
                       setSelectedOptionId(option.id);
                       setStage("COMPARE");
@@ -519,14 +625,29 @@ function InterventionDialog({
                       <small>{option.detail}</small>
                     </span>
                     <span>
-                      <b>{after.toFixed(1)}</b>
-                      <small>ETA +{option.etaDelta}분</small>
+                      <b className={!option.feasible ? "is-blocked" : "is-band"}>
+                        {option.feasible ? option.resultBand : "차단"}
+                      </b>
+                      <small>ETA {option.etaLabel}</small>
                     </span>
-                    <em>{option.guard}</em>
+                    <em>
+                      {!option.feasible
+                        ? option.guard
+                        : option.transferDependent && !transferAvailable
+                          ? "이관 여력 없음"
+                          : option.recommended
+                            ? `추천 · ${option.guard}`
+                            : option.guard}
+                    </em>
                   </button>
                 );
               })}
             </div>
+            <p className="onepage-prescription-ladder">
+              <strong>이관 불가 시 대체 계층</strong>
+              휴식 → 순서 변경 → 시간 재약정 → 물량 이관
+              <small>추천 순위가 아니라 안전한 대안이 남는 순서입니다.</small>
+            </p>
           </section>
 
           <aside className="onepage-decision-summary" aria-live="polite">
@@ -538,13 +659,13 @@ function InterventionDialog({
             </div>
             <div className="onepage-before-after">
               <div>
-                <small>조정 전</small>
-                <b>{courier.budget.toFixed(1)}</b>
+                <small>현재 계획</small>
+                <b>{stateLabel[supportState(courier.budget)]}</b>
               </div>
               <span aria-hidden="true">→</span>
               <div>
-                <small>조정 후</small>
-                <b>{projectedBudget.toFixed(1)}</b>
+                <small>조정 후 예상</small>
+                <b>{selectedOption.resultBand}</b>
               </div>
             </div>
             <dl className="onepage-decision-facts">
@@ -554,13 +675,22 @@ function InterventionDialog({
               </div>
               <div>
                 <dt>고객 ETA</dt>
-                <dd>+{selectedOption.etaDelta}분</dd>
+                <dd>{selectedOption.etaLabel}</dd>
               </div>
               <div>
                 <dt>안전 제약</dt>
                 <dd>{selectedOption.guard}</dd>
               </div>
+              <div>
+                <dt>정산 영향</dt>
+                <dd>{selectedOption.compensation}</dd>
+              </div>
             </dl>
+
+            <div className="onepage-compensation-note">
+              <strong>Demo 보전 가정</strong>
+              <span>실제 지급·정산 시스템과 연동되지 않습니다.</span>
+            </div>
 
             <div className={`onepage-workflow-state is-${stage.toLowerCase()}`}>
               {stage === "COMPARE" && (
@@ -572,15 +702,22 @@ function InterventionDialog({
               )}
               {stage === "REQUESTED" && (
                 <>
-                  <small>2 · 기사 확인</small>
-                  <strong>응답을 선택하세요</strong>
-                  <span>동의·수정 요청·거절에 불이익이 없습니다.</span>
+                  <small>2 · 원 기사 확인</small>
+                  <strong>R-014 응답을 선택하세요</strong>
+                  <span>동의·수정 요청·거절에 불이익이 없고, 거절 사유는 개인 단위로 저장하지 않습니다.</span>
+                </>
+              )}
+              {stage === "RECIPIENT_REQUESTED" && (
+                <>
+                  <small>3 · 수신 기사 확인</small>
+                  <strong>R-024 이어받기 검토</strong>
+                  <span>수신 기사도 같은 수준으로 동의·수정 요청·거절할 수 있습니다.</span>
                 </>
               )}
               {stage === "CONSENTED" && (
                 <>
-                  <small>3 · 관리자 승인</small>
-                  <strong>기사 동의 확인</strong>
+                  <small>4 · 관리자 승인</small>
+                  <strong>{selectedOption.transferDependent ? "두 기사 동의 완료" : "기사 동의 완료"}</strong>
                   <span>최종 승인 후 계획과 고객 안내를 함께 갱신합니다.</span>
                 </>
               )}
@@ -600,7 +737,7 @@ function InterventionDialog({
               )}
               {stage === "APPLIED" && (
                 <>
-                  <small>4 · 적용됨</small>
+                  <small>5 · 적용됨</small>
                   <strong>{selectedOption.label} 반영</strong>
                   <span>경로·배송순서·ETA·고객 안내를 함께 갱신했습니다.</span>
                 </>
@@ -619,10 +756,29 @@ function InterventionDialog({
             )}
             {stage === "REQUESTED" && (
               <>
-                <button type="button" onClick={() => setStage("DECLINED")}>거절</button>
-                <button type="button" onClick={() => setStage("MODIFY")}>수정 요청</button>
+                <button type="button" onClick={() => setStage("DECLINED")}>지금은 거절</button>
+                <button type="button" onClick={() => setStage("MODIFY")}>다른 방법 요청</button>
+                <button
+                  type="button"
+                  className="is-primary"
+                  onClick={() =>
+                    setStage(
+                      selectedOption.transferDependent
+                        ? "RECIPIENT_REQUESTED"
+                        : "CONSENTED",
+                    )
+                  }
+                >
+                  이 조정에 동의
+                </button>
+              </>
+            )}
+            {stage === "RECIPIENT_REQUESTED" && (
+              <>
+                <button type="button" onClick={() => setStage("DECLINED")}>지금은 거절</button>
+                <button type="button" onClick={() => setStage("MODIFY")}>다른 방법 요청</button>
                 <button type="button" className="is-primary" onClick={() => setStage("CONSENTED")}>
-                  동의 확인
+                  이어받기에 동의
                 </button>
               </>
             )}
@@ -648,11 +804,138 @@ function InterventionDialog({
   );
 }
 
+function ValidationDialog({ onClose }: { onClose: () => void }) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    const previousFocus =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    closeButtonRef.current?.focus();
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+
+    document.addEventListener("keydown", handleKeyDown);
+    return () => {
+      document.removeEventListener("keydown", handleKeyDown);
+      previousFocus?.focus();
+    };
+  }, [onClose]);
+
+  return (
+    <div
+      className="onepage-modal-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={dialogRef}
+        className="onepage-validation-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="validation-dialog-title"
+      >
+        <header className="onepage-dialog-header">
+          <div>
+            <small>Simulation result · 검증 정직성</small>
+            <h2 id="validation-dialog-title">검증 상태 · 아직 모르는 것</h2>
+          </div>
+          <button
+            ref={closeButtonRef}
+            type="button"
+            className="onepage-dialog-close"
+            aria-label="검증 상태 닫기"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </header>
+
+        <div className="onepage-validation-body">
+          <section>
+            <h3>예측 성능</h3>
+            <dl>
+              <div><dt>AUC</dt><dd>미측정</dd></div>
+              <div><dt>선행 시간</dt><dd>미측정</dd></div>
+              <div><dt>오탐률</dt><dd>미측정</dd></div>
+              <div><dt>마지막 캘리브레이션</dt><dd>—</dd></div>
+            </dl>
+          </section>
+          <section>
+            <h3>임계치 근거</h3>
+            <dl>
+              <div><dt>임계치 30</dt><dd>MVP 잠정 규칙</dd></div>
+              <div><dt>지원 기준 45</dt><dd>MVP 잠정 규칙</dd></div>
+              <div><dt>안정 기준 60</dt><dd>MVP 잠정 규칙</dd></div>
+              <div><dt>실차 캘리브레이션</dt><dd>미실시</dd></div>
+            </dl>
+          </section>
+          <section className="is-wide">
+            <h3>입력 신뢰도 구성</h3>
+            <dl className="onepage-validation-inputs">
+              <div><dt>강수·시정</dt><dd>Fallback 60 · 실측 Safety 입력 미연동</dd></div>
+              <div><dt>경사</dt><dd>합성 정적값 · 도로 단위 검증 전</dd></div>
+              <div><dt>정차 판정</dt><dd>Demo fixture · 실제 단말 센서 미사용</dd></div>
+              <div><dt>누적 운행</dt><dd>Demo fixture · TMS 연동 전</dd></div>
+              <div><dt>종합</dt><dd>60 보통 · 입력 품질 지수</dd></div>
+            </dl>
+          </section>
+          <section className="is-wide is-limit">
+            <h3>알려진 한계</h3>
+            <ol>
+              <li>동일 강우·시간대처럼 위험이 상관되면 이관 여력이 함께 낮아집니다.</li>
+              <li>사고 결과지표와의 상관 및 실제 사고감소 효과는 검증되지 않았습니다.</li>
+              <li>개인별 피로 편차를 보정하지 않습니다.</li>
+            </ol>
+          </section>
+          <section className="is-wide is-plan">
+            <h3>다음 검증 계획</h3>
+            <p>실차 파일럿의 표본·기간·성공 기준은 아직 승인되지 않았습니다. 기준을 먼저 확정한 뒤 급제동·과속 이벤트의 선행 예측 가능성을 평가합니다.</p>
+          </section>
+        </div>
+
+        <footer className="onepage-dialog-footer">
+          <span>결정론적 합성 fixture · 실제 사고감소 효과가 아닙니다.</span>
+          <div>
+            <button type="button" onClick={onClose}>확인</button>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+}
+
 export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState(couriers[0].id);
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const [interventionOpen, setInterventionOpen] = useState(false);
+  const [validationOpen, setValidationOpen] = useState(false);
   const [appliedPlans, setAppliedPlans] = useState<Record<string, string>>({});
   const [dangerSignals, setDangerSignals] =
     useState<Record<string, RiderDangerSignal>>(initialDangerSignals);
@@ -694,7 +977,7 @@ export function OnePageDashboardDemo() {
           [detail.courierId!]: {
             courierId: detail.courierId!,
             label: detail.label?.trim() || "긴급 지원 요청",
-            receivedAt: detail.receivedAt?.trim() || "14:32",
+            receivedAt: detail.receivedAt?.trim() || "15:28",
           },
         };
       });
@@ -772,8 +1055,15 @@ export function OnePageDashboardDemo() {
         <div className="onepage-header-status">
           <span className="onepage-demo-badge">합성 Demo</span>
           <span className="onepage-live-badge"><i aria-hidden="true" /> Live 0명</span>
+          <button
+            type="button"
+            className="onepage-validation-trigger"
+            onClick={() => setValidationOpen(true)}
+          >
+            검증 상태
+          </button>
           <span className="onepage-operator">운영 관리자</span>
-          <time dateTime="2026-07-30T14:32:00+09:00">14:32</time>
+          <time dateTime="2026-08-01T15:28:00+09:00">15:28</time>
         </div>
       </header>
 
@@ -782,7 +1072,7 @@ export function OnePageDashboardDemo() {
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
             <h2 id="courier-section-title">기사 현황</h2>
-            <small>안전여유 낮은 순 · 지원 시급성</small>
+            <small>조치 마감 임박 순 · 개인 성과 지표 아님</small>
           </div>
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
@@ -834,11 +1124,20 @@ export function OnePageDashboardDemo() {
               <strong>강남 허브</strong>
               <span>
                 {mapStatus === "LIVE"
-                  ? "위치 기준 14:32"
+                  ? "위치 기준 15:28"
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : "위치 기준 14:32 · Fallback"}
+                    : "위치 기준 15:28 · Fallback"}
               </span>
+            </div>
+            <div className="onepage-region-capacity" aria-label="권역별 합성 이관 여력">
+              {regionCapacity.map((region) => (
+                <span key={region.area} className={`is-${region.tone}`}>
+                  <strong>{region.area}</strong>
+                  <b>{region.capacity}</b>
+                  <small>{region.summary}</small>
+                </span>
+              ))}
             </div>
           </div>
           <div className={`onepage-map-canvas ${mapStatus === "LIVE" ? "has-kakao-map" : ""}`}>
@@ -897,7 +1196,7 @@ export function OnePageDashboardDemo() {
                       type="button"
                     >
                       <strong>{members.length}</strong>
-                      <small>{priority.budget.toFixed(0)}</small>
+                      <small>{stateLabel[supportState(priority.budget)]}</small>
                     </button>
                   );
                 })}
@@ -915,10 +1214,10 @@ export function OnePageDashboardDemo() {
             <div className="onepage-map-overlay-tools">
               <span className="onepage-demo-overlay">Demo overlay</span>
               <div className="onepage-map-legend" aria-label="지도 상태 범례">
-                <span className="state-breach"><i /> 긴급 3</span>
-                <span className="state-support"><i /> 지원 6</span>
+                <span className="state-breach"><i /> 한계 초과 3</span>
+                <span className="state-support"><i /> 지원 필요 6</span>
                 <span className="state-caution"><i /> 주의 7</span>
-                <span className="state-stable"><i /> 안정 4</span>
+                <span className="state-stable"><i /> 정상 4</span>
               </div>
             </div>
 
@@ -928,8 +1227,7 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
-              <span>안전여유</span>
-              <b>{selectedCourier.budget.toFixed(1)}</b>
+              <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
           </div>
@@ -963,21 +1261,24 @@ export function OnePageDashboardDemo() {
             </div>
             <div className="onepage-support-metrics">
               <div>
-                <small>안전여유</small>
-                <b>{selectedCourier.budget.toFixed(1)}</b>
+                <small>현재 밴드</small>
+                <b>{stateLabel[supportState(selectedCourier.budget)]}</b>
               </div>
               <div>
-                <small>안전한계</small>
-                <strong>
-                  {selectedCourier.criticalMinute === null
-                    ? "예상 없음"
-                    : selectedCourier.criticalMinute === 0
-                      ? "한계 초과"
-                      : `+${selectedCourier.criticalMinute}분`}
-                </strong>
+                <small>조치 시각</small>
+                <strong>{supportTimingLabel(selectedCourier)}</strong>
               </div>
             </div>
             <SafetyMarginTrack value={selectedCourier.budget} />
+            <div className="onepage-transfer-capacity">
+              <div>
+                <strong>이관 여력 · 강남 권역</strong>
+                <b>32%</b>
+              </div>
+              <span>수신 가능 4명 · 흡수 11건 / 필요 34건</span>
+              <i aria-hidden="true"><span /></i>
+              <small>동일 강우셀 영향 18명 · 이관만으로는 해소되지 않음</small>
+            </div>
             <p>
               {selectedDangerSignal
                 ? `기사앱 위험 신호 · ${selectedDangerSignal.receivedAt}${appliedPlans[selectedCourier.id] ? ` · 적용됨 · ${appliedPlans[selectedCourier.id]}` : ""}`
@@ -997,28 +1298,25 @@ export function OnePageDashboardDemo() {
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>지원 필요</strong>
-              <small>지원 기준 45 미만</small>
+              <strong>조치 마감 임박 순</strong>
+              <small>개인 성과 지표 아님</small>
             </div>
             <div className="onepage-support-list">
-              {urgentCouriers.map((courier, index) => (
+              {urgentCouriers.map((courier) => (
                 <button
                   key={courier.id}
                   type="button"
                   aria-pressed={selectedCourier.id === courier.id}
                   onClick={() => selectCourier(courier.id, true)}
                 >
-                  <span className="onepage-list-rank">{index + 1}</span>
                   <span>
                     <strong>{courier.name}</strong>
                     <small>{courier.area}</small>
                   </span>
                   <span>
-                    <b>{courier.budget.toFixed(1)}</b>
+                    <b>{stateLabel[supportState(courier.budget)]}</b>
                     <small className="onepage-eta-pill">
-                      {courier.criticalMinute === 0
-                        ? "지금"
-                        : `+${courier.criticalMinute}분`}
+                      {supportTimingShort(courier)}
                     </small>
                   </span>
                 </button>
@@ -1026,7 +1324,7 @@ export function OnePageDashboardDemo() {
             </div>
           </div>
           <div className="onepage-tint-banner">
-            순위는 지원 시급성이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.
+            조치 마감 상태 기준이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.
           </div>
         </aside>
       </section>
@@ -1037,6 +1335,9 @@ export function OnePageDashboardDemo() {
           onClose={closeIntervention}
           onApplied={recordAppliedPlan}
         />
+      ) : null}
+      {validationOpen ? (
+        <ValidationDialog onClose={() => setValidationOpen(false)} />
       ) : null}
     </main>
   );

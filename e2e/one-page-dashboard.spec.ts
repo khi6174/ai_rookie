@@ -23,7 +23,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.getByText("합성 Demo", { exact: true })).toBeVisible();
   await expect(page.getByText("Live 0명", { exact: true })).toBeVisible();
   await expect(
-    page.getByText("안전여유 낮은 순 · 지원 시급성", { exact: true }),
+    page.getByText("조치 마감 임박 순 · 개인 성과 지표 아님", { exact: true }),
   ).toBeVisible();
 
   const palette = await page.locator("main.onepage-demo").evaluate((main) => {
@@ -49,12 +49,13 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
   await expect(page.locator(".onepage-profile-photo")).toHaveCount(20);
   await expect(page.locator(".onepage-avatar-status")).toHaveCount(20);
-  await expect(page.locator(".onepage-state-pill").first()).toContainText("긴급");
+  await expect(page.locator(".onepage-state-pill").first()).toContainText("한계 초과");
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 안전여유 24.1, 긴급, 기사앱 위험 신호",
+      name: "강태현 기사, 지정구역 역삼 A, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
     }),
   ).toBeVisible();
+  await expect(page.getByText("24.1", { exact: true })).toHaveCount(0);
 
   const dangerCard = page.locator('[data-courier-card="R-014"]');
   const dangerVisual = await dangerCard.evaluate((card) => {
@@ -77,7 +78,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   expect(dangerVisual.background).toBe("rgb(253, 238, 236)");
   expect(dangerVisual.color).toBe("rgb(16, 24, 40)");
   expect(dangerVisual.scoreColor).toBe("rgb(220, 38, 38)");
-  expect(dangerVisual.scoreSize).toBeCloseTo(29, 0);
+  expect(dangerVisual.scoreSize).toBeCloseTo(14, 0);
   expect(dangerVisual.shadow).not.toBe("none");
   expect(new Set(dangerVisual.borders).size).toBe(1);
 
@@ -109,11 +110,15 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   expect(profileAssetLoaded).toBe(true);
 
   await expect(page.getByText("Demo overlay", { exact: true })).toBeVisible();
-  await expect(page.locator(".onepage-map-legend")).toContainText("긴급 3");
-  await expect(page.locator(".onepage-map-legend")).toContainText("지원 6");
+  await expect(page.locator(".onepage-map-legend")).toContainText("한계 초과 3");
+  await expect(page.locator(".onepage-map-legend")).toContainText("지원 필요 6");
   await expect(page.locator(".onepage-map-legend")).toContainText("주의 7");
-  await expect(page.locator(".onepage-map-legend")).toContainText("안정 4");
+  await expect(page.locator(".onepage-map-legend")).toContainText("정상 4");
   await expect(page.locator(".onepage-map-marker-photo")).toHaveCount(0);
+  await expect(
+    page.locator(".onepage-region-capacity").getByText("역삼", { exact: true }),
+  ).toBeVisible();
+  await expect(page.getByText("32%", { exact: true }).first()).toBeVisible();
 
   const markerVisual = await page
     .locator(".onepage-map-marker")
@@ -139,14 +144,28 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.getByText("30 한계", { exact: true })).toBeVisible();
   await expect(page.getByText("45 기준", { exact: true })).toBeVisible();
   await expect(page.locator(".onepage-support-list button")).toHaveCount(9);
-  await expect(page.locator(".onepage-list-rank")).toHaveCount(9);
+  await expect(page.locator(".onepage-list-rank")).toHaveCount(0);
   await expect(page.locator(".onepage-eta-pill")).toHaveCount(9);
   await expect(
     page.getByText(
-      "순위는 지원 시급성이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.",
+      "조치 마감 상태 기준이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.",
       { exact: true },
     ),
   ).toBeVisible();
+
+  await page.getByRole("button", { name: "검증 상태" }).click();
+  const validationDialog = page.getByRole("dialog", {
+    name: "검증 상태 · 아직 모르는 것",
+  });
+  await expect(validationDialog.getByText("AUC")).toBeVisible();
+  await expect(validationDialog.getByText("미측정", { exact: true }).first()).toBeVisible();
+  await expect(validationDialog.getByText("60 보통 · 입력 품질 지수")).toBeVisible();
+  await expect(validationDialog.getByText(/표본·기간·성공 기준은 아직 승인되지 않았습니다/)).toBeVisible();
+  await page.screenshot({
+    path: "test-results/dashboard-demo-validation-1280x720.png",
+    fullPage: false,
+  });
+  await validationDialog.getByRole("button", { name: "확인" }).click();
 
   await page.getByRole("button", { name: "지원 9" }).click();
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
@@ -223,25 +242,58 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
   await expect(dialog).toBeVisible();
   await expect(dialog.getByText("지원안 선택")).toBeVisible();
+  await page.screenshot({
+    path: "test-results/dashboard-demo-intervention-1280x720.png",
+    fullPage: false,
+  });
   await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
-  await expect(dialog.getByText("응답을 선택하세요")).toBeVisible();
-  await dialog.getByRole("button", { name: "동의 확인" }).click();
-  await expect(dialog.getByText("기사 동의 확인")).toBeVisible();
+  await expect(dialog.getByText("R-014 응답을 선택하세요")).toBeVisible();
+  await dialog.getByRole("button", { name: "이 조정에 동의" }).click();
+  await expect(dialog.getByText("R-024 이어받기 검토")).toBeVisible();
+  await dialog.getByRole("button", { name: "이어받기에 동의" }).click();
+  await expect(dialog.getByText("두 기사 동의 완료")).toBeVisible();
   await dialog.getByRole("button", { name: "관리자 승인 및 적용" }).click();
-  await expect(dialog.getByText("10분 휴식 반영")).toBeVisible();
+  await expect(dialog.getByText("10분 휴식 + 배송 8건 이관 반영")).toBeVisible();
   await expect(
     dialog.getByText("경로·배송순서·ETA·고객 안내를 함께 갱신했습니다."),
   ).toBeVisible();
   await dialog.getByRole("button", { name: "완료" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(interventionTrigger).toBeFocused();
-  await expect(page.getByText("적용됨 · 10분 휴식")).toBeVisible();
+  await expect(page.getByText("적용됨 · 10분 휴식 + 배송 8건 이관")).toBeVisible();
 
   await expectNoPageOverflow(page);
   await page.screenshot({
     path: "test-results/dashboard-demo-1280x720.png",
     fullPage: false,
   });
+});
+
+test("이관 여력이 없으면 이관 후보를 차단하고 비이관 대안을 남긴다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/dashboard-demo");
+  await page.getByRole("button", { name: "지원안 검토" }).click();
+
+  const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
+  await dialog.getByRole("button", { name: "이관 여력 부족 보기" }).click();
+
+  await expect(
+    dialog.getByRole("button", { name: /10분 휴식 \+ 배송 8건 이관/ }),
+  ).toBeDisabled();
+  await expect(
+    dialog.getByRole("button", { name: /배송 12건 이관/ }),
+  ).toBeDisabled();
+  await expect(
+    dialog.getByRole("button", { name: /10분 휴식 \+ 배송 순서 변경/ }),
+  ).toHaveAttribute("aria-pressed", "true");
+  await expect(dialog.getByText("추천 순위가 아니라 안전한 대안이 남는 순서입니다.")).toBeVisible();
+
+  await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
+  await dialog.getByRole("button", { name: "이 조정에 동의" }).click();
+  await expect(dialog.getByText("기사 동의 완료")).toBeVisible();
+  await expect(dialog.getByText("R-024 이어받기 검토")).toHaveCount(0);
 });
 
 test("1920 데스크톱은 62px 헤더·384px 패널·16px 간격을 유지한다", async ({

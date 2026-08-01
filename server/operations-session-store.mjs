@@ -2,6 +2,8 @@ const MAX_SESSION_BYTES = 2_000_000;
 const WORKSPACE_ID = /^operations-workspace-[a-f0-9-]{36}$/;
 const PII_PATTERN =
   /01[016789][-\s]?\d{3,4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/;
+const UUID_PATTERN =
+  /\b[a-f0-9]{8}-[a-f0-9]{4}-[1-5][a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}\b/gi;
 
 function json(body, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -54,7 +56,11 @@ function validatePayload(workspaceId, value) {
     return "합성 운영 데이터만 저장할 수 있습니다.";
   }
   const serialized = JSON.stringify(value);
-  if (PII_PATTERN.test(serialized)) {
+  // Schema IDs are UUIDs and can randomly contain a phone-shaped digit run.
+  // Remove only complete RFC 4122 UUIDs before scanning user-visible payload
+  // values so the PII guard remains strict without nondeterministic false hits.
+  const piiScanText = serialized.replace(UUID_PATTERN, "<uuid>");
+  if (PII_PATTERN.test(piiScanText)) {
     return "이메일 또는 휴대전화번호 형태의 값은 저장할 수 없습니다.";
   }
   if (new TextEncoder().encode(serialized).byteLength > MAX_SESSION_BYTES) {

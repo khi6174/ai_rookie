@@ -12,7 +12,9 @@ import {
   handleOperationsSessionRequest,
 } from "../server/operations-session-store.mjs";
 
-async function persistedSession() {
+async function persistedSession(
+  workspaceId = "operations-workspace-11111111-1111-4111-8111-111111111111",
+) {
   const snapshot = await createDailyOperationsSnapshot(
     bundledDailyOperationsPackage,
     { createdAt: "2026-07-27T00:00:00.000Z" },
@@ -20,8 +22,7 @@ async function persistedSession() {
   const fleet = evaluateOperationsFleet(snapshot);
   const workspace = createOperationsDecisionWorkspace(snapshot, fleet);
   return createOperationsPersistedSession({
-    workspaceId:
-      "operations-workspace-11111111-1111-4111-8111-111111111111",
+    workspaceId,
     savedAt: "2026-07-27T01:00:00.000Z",
     operationsPackage: bundledDailyOperationsPackage,
     snapshot,
@@ -115,5 +116,24 @@ describe("operations session persistence boundary", () => {
     expect(await response?.text()).toContain(
       "휴대전화번호",
     );
+  });
+
+  it("does not mistake a complete UUID containing phone-shaped digits for PII", async () => {
+    const store = createMemoryOperationsSessionStore();
+    const session = await persistedSession(
+      "operations-workspace-01012345-6781-4111-8111-111111111111",
+    );
+    const response = await handleOperationsSessionRequest(
+      new Request(
+        `http://localhost/api/operations/sessions/${session.workspaceId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(session),
+        },
+      ),
+      { memoryStore: store },
+    );
+    expect(response?.status).toBe(200);
   });
 });
