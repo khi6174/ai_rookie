@@ -4495,6 +4495,228 @@ summary {
   }
 }
 
+/* ADR-124: user-requested, device-only rider location map */
+.rider-live-location {
+  margin-top: 14px;
+  padding-top: 13px;
+  border-top: 1px solid var(--design-line);
+}
+
+.rider-live-location-heading,
+.rider-live-location-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.rider-live-location-heading > div,
+.rider-live-location-footer > div {
+  display: grid;
+  gap: 3px;
+  min-width: 0;
+}
+
+.rider-live-location-heading > div > span,
+.rider-live-location-footer span {
+  color: var(--design-ink-muted);
+  font-size: 0.6rem;
+  font-weight: 700;
+}
+
+.rider-live-location-heading strong,
+.rider-live-location-footer strong {
+  color: var(--design-ink);
+  font-size: 0.74rem;
+}
+
+.rider-location-status {
+  flex: 0 0 auto;
+  padding: 5px 8px;
+  border: 1px solid #c7d7fe;
+  border-radius: 999px;
+  color: var(--design-blue-strong);
+  background: var(--design-blue-tint);
+  font-size: 0.58rem;
+  font-weight: 800;
+}
+
+.rider-location-status.is-current {
+  border-color: #98d9b0;
+  color: #08783c;
+  background: #ebf9f1;
+}
+
+.rider-location-status.is-stale {
+  border-color: #f3ce86;
+  color: #9a5a00;
+  background: #fff8e8;
+}
+
+.rider-live-map-stage {
+  position: relative;
+  height: 176px;
+  margin-top: 10px;
+  overflow: hidden;
+  border: 1px solid #cfdae8;
+  border-radius: 14px;
+  background: #e8f0f7;
+}
+
+.rider-live-kakao-map,
+.rider-live-map-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.rider-live-kakao-map {
+  visibility: hidden;
+}
+
+.rider-live-map-stage.is-kakao .rider-live-kakao-map {
+  visibility: visible;
+}
+
+.rider-live-map-fallback {
+  overflow: hidden;
+  background:
+    linear-gradient(90deg, rgb(255 255 255 / 46%) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(rgb(255 255 255 / 46%) 1px, transparent 1px) 0 0 / 30px 30px,
+    linear-gradient(145deg, #dce9e2 0 32%, #edf2f5 32% 67%, #dae5ee 67% 100%);
+}
+
+.rider-live-map-fallback::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 50% 48%, rgb(44 102 229 / 18%), transparent 31%);
+  content: "";
+}
+
+.rider-live-road {
+  position: absolute;
+  z-index: 1;
+  height: 18px;
+  border: solid #fff;
+  border-width: 5px 0;
+  background: #c0cbd5;
+  box-shadow: 0 0 0 1px rgb(100 116 139 / 16%);
+}
+
+.rider-live-road.is-one {
+  top: 49%;
+  right: -8%;
+  left: -8%;
+  transform: rotate(-10deg);
+}
+
+.rider-live-road.is-two {
+  top: -8%;
+  bottom: -8%;
+  left: 25%;
+  width: 18px;
+  height: auto;
+  border-width: 0 5px;
+  transform: rotate(20deg);
+}
+
+.rider-truck-map-marker {
+  display: grid;
+  justify-items: center;
+  width: 84px;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 7px rgb(15 23 42 / 24%));
+}
+
+.rider-truck-map-marker img {
+  display: block;
+  width: 84px;
+  height: 84px;
+  object-fit: contain;
+}
+
+.rider-truck-map-marker span {
+  margin-top: -11px;
+  padding: 4px 8px;
+  border: 2px solid #fff;
+  border-radius: 999px;
+  color: #fff;
+  background: #245edb;
+  box-shadow: 0 2px 6px rgb(15 23 42 / 22%);
+  font-size: 0.58rem;
+  font-weight: 900;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.rider-live-map-fallback > .rider-truck-map-marker {
+  position: absolute;
+  z-index: 3;
+  top: 45%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.rider-live-map-fallback > p {
+  position: absolute;
+  z-index: 4;
+  right: 9px;
+  bottom: 8px;
+  margin: 0;
+  padding: 4px 7px;
+  border-radius: 7px;
+  color: #43536a;
+  background: rgb(255 255 255 / 90%);
+  font-size: 0.56rem;
+  font-weight: 750;
+}
+
+.rider-live-location-footer {
+  margin-top: 10px;
+}
+
+.rider-live-location-footer button {
+  min-width: 104px;
+  min-height: 44px;
+  padding: 0 13px;
+  border: 1px solid #b9cbf7;
+  border-radius: 11px;
+  color: var(--design-blue-strong);
+  background: var(--design-blue-tint);
+  font: inherit;
+  font-size: 0.68rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.rider-live-location-footer button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.rider-live-location-footer button:focus-visible {
+  outline: 3px solid rgb(44 102 229 / 28%);
+  outline-offset: 2px;
+}
+
+@media (max-width: 370px) {
+  .rider-live-map-stage {
+    height: 164px;
+  }
+
+  .rider-live-location-footer button {
+    min-width: 98px;
+    padding-inline: 10px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rider-truck-map-marker,
+  .rider-truck-map-marker * {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .courier-marker {
     transition: none;

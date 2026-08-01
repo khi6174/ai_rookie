@@ -77,6 +77,7 @@ import {
   demoAdminExplanationInput,
   generateDemoAdminExplanation,
 } from "./demoExplanation";
+import { RiderLiveLocationMap } from "./RiderLiveLocationMap";
 
 type Role = "ADMIN" | "SOURCE" | "RECIPIENT";
 type RiderTab = "ROUTE" | "SUPPORT" | "PROFILE";
@@ -2004,6 +2005,7 @@ function RiderView({
                     <li><span>완료</span><strong>{expectedCompletionLabel}</strong></li>
                   </ol>
                 </section>
+                <RiderLiveLocationMap profile={riderProfile} online={pwa.online} />
               </div>
             </section>
           </section>

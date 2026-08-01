@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-27
+- 최종 갱신: 2026-08-01
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -82,6 +82,8 @@ G2-B의 지도 오류 Fallback도 별도 데이터를 만들거나 Safety 결과
 ADR-043의 `src/adapters/maps/kakao.ts`는 공식 HTTPS SDK 로딩과 provider 객체의 생명주기만 소유한다. React 지도 계층은 `MapRenderModel.geographicPoint(s)`를 Kakao `Polyline`과 `CustomOverlay`로 변환하고 SDK 원시 데이터나 주소·경로 API 응답을 읽지 않는다. 키가 없거나 `VITE_KAKAO_MAP_ENABLED=false`이면 공급자 독립 schematic 지도를 사용한다. SDK 로드·도메인 인증·네트워크가 실패하면 `ERROR` 상태를 표시하고 같은 schematic 지도와 구조화 목록으로 자동 복귀한다. 지도 공급자 상태는 Safety·개입·결정 상태기계 입력이 아니다.
 
 ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderModel`에서 현재 위치, 휴식 지점, 다음 배송지와 경로만 축소해 기사 프레젠테이션 모델로 만든다. 기사 Kakao 계층은 온라인에서만 이 모델을 렌더링하며 오프라인·SDK 오류·키 미설정 시 기존 CSS schematic과 항상 남아 있는 구조화 목록을 사용한다. ADR-063의 같은-origin `/api/kakao-directions`는 브라우저 좌표를 받지 않고 서버에 고정된 합성 세 지점만 Kakao Mobility Directions에 전달해 정규화된 경로선·거리·시간을 반환한다. 브라우저 Geolocation API, 실제 주소와 위치 저장은 호출하지 않는다.
+
+ADR-124의 `src/application/riderLiveLocation.ts`는 기사 본인이 버튼을 누른 뒤 시작한 브라우저 `watchPosition`만 소유한다. 관측값은 React 메모리 상태로만 전달하고 API·D1·localStorage·Cache Storage와 관리자 projection에는 쓰지 않는다. 기사 지도는 같은 Kakao SDK 인스턴스의 `CustomOverlay.setPosition`으로 3D 택배차 마커를 갱신하며, 30초 이상 새 관측이 없으면 stale 상태로 내린다. 권한 거절·위치 사용 불가·SDK 실패에서는 기사 profile의 가상 배송 구역 중심과 schematic 경로를 `경로 위치`로 렌더링한다. 이 어댑터는 주소 검색·Directions 요청·Safety·배송계획·동의 상태에 좌표를 전달하지 않으며 컴포넌트 해제 시 `clearWatch`한다.
 
 아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 합성 위치의 자동차 경로 미리보기와 외부 Kakao Map Demo 길찾기만 제공하며, 화물차 높이·중량·통행제한, 실제 GPS·주소, 오더 배차와 내장 턴바이턴 안내는 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
 

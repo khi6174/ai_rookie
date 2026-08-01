@@ -18,16 +18,16 @@ test("G4-B는 24·96·240명 Fallback 2D 부하에서 승인된 반응 예산을
     const regionCouriers = totalCouriers / 3;
     const readyStartedAt = Date.now();
     await page.goto(`/closed-loop-demo?map-load-test=${totalCouriers}`, { waitUntil: "domcontentloaded" });
-    await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "3개 권역의 지원 필요 상황" })).toBeVisible();
     const initialMapReadyMs = Date.now() - readyStartedAt;
 
     const routePanel = page.locator("#route-decision");
     await expect(routePanel).toHaveAttribute("data-map-total-couriers", String(totalCouriers));
     const drilldownStartedAt = Date.now();
     await page.getByRole("button", {
-      name: `합성 북부권역, 기사 ${regionCouriers}명, 지원 decision 4건`,
+      name: `북부권역, 기사 ${regionCouriers}명, 지원 decision 4건`,
     }).click();
-    await expect(page.getByRole("heading", { name: "합성 북부권역의 기사와 경로" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "북부권역의 기사와 경로" })).toBeVisible();
     await expect(routePanel).toHaveAttribute("data-map-visible-couriers", String(regionCouriers));
     const expectedRoutes = Math.min(
       regionCouriers,
@@ -46,7 +46,7 @@ test("G4-B는 24·96·240명 Fallback 2D 부하에서 승인된 반응 예산을
     await expect.poll(() => movingMarker.getAttribute("style")).not.toBe(previousStyle);
     const frameUpdateMs = Date.now() - frameStartedAt;
 
-    const map = page.getByRole("group", { name: "합성 지도 이동 영역" });
+    const map = page.getByRole("group", { name: "지도 이동 영역" });
     const surface = page.locator(".control-map-pan-surface");
     await map.scrollIntoViewIfNeeded();
     await map.focus();

@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-27
-- 계약 버전: `contracts-v1.4.0`
+- 최종 갱신: 2026-08-01
+- 계약 버전: `contracts-v1.5.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -309,6 +309,15 @@ type MapSelection = {
   planId?: PlanId;
   decisionId?: DecisionId;
 };
+
+type RiderDeviceLocationState =
+  | { status: "IDLE" }
+  | { status: "REQUESTING" }
+  | { status: "CURRENT"; point: GeoPoint; accuracyMeters: number; capturedAt: IsoDateTime }
+  | { status: "STALE"; point: GeoPoint; accuracyMeters: number; capturedAt: IsoDateTime }
+  | { status: "PERMISSION_DENIED" }
+  | { status: "UNAVAILABLE" }
+  | { status: "ERROR" };
 ```
 
 - `receivedAt >= capturedAt`이어야 한다.
@@ -318,6 +327,16 @@ type MapSelection = {
 - stale·offline·permission denied는 이동 가능한 현재 위치로 표시할 수 없다.
 - 정확 좌표를 AI 입력·일반 로그·스크린샷·장기 감사기록에 넣지 않는다.
 - 다지역 fixture의 region·hub·courier·plan·decision 참조는 모두 존재하고 유일해야 한다.
+
+#### 기사 본인 기기 위치 표시
+
+- 상태는 사용자가 `내 위치 표시`를 누르기 전 `IDLE`에서 시작하며 자동 권한 요청을 금지한다.
+- `CURRENT`는 유한한 위도·경도, 0 이상의 유한한 `accuracyMeters`, 유효한 `capturedAt`을 가져야 한다.
+- 마지막 성공 관측 뒤 30초가 지나면 `STALE`로 전환하고 더 이상 갱신 중인 위치처럼 표현하지 않는다.
+- 이 상태는 React 페이지 메모리에만 존재한다. API 요청·D1·localStorage·Cache Storage·일반 로그·AI 입력·감사기록으로 직렬화하지 않는다.
+- 기사 앱이 해제되면 활성 `watchPosition`을 `clearWatch`하고 좌표를 폐기한다.
+- `PERMISSION_DENIED`, `UNAVAILABLE`, `ERROR`에서는 승인된 가상 배송 구역 중심을 `경로 위치`로 표시할 수 있지만 `CURRENT`나 `실시간`으로 승격하지 않는다.
+- 위치 상태와 좌표는 Safety 계산, 배송 순서, 지원 후보, 동의·승인 상태의 입력이 아니다.
 
 #### G4-A 결정론적 Demo 이동 타임라인
 

@@ -5,6 +5,7 @@ export type KakaoLatLng = object;
 
 export type KakaoMapInstance = {
   relayout(): void;
+  panTo(point: KakaoLatLng): void;
   setBounds(
     bounds: KakaoLatLngBounds,
     paddingTop?: number,
@@ -20,6 +21,10 @@ export type KakaoLatLngBounds = {
 
 export type KakaoMapOverlay = {
   setMap(map: KakaoMapInstance | null): void;
+};
+
+export type KakaoCustomOverlay = KakaoMapOverlay & {
+  setPosition(position: KakaoLatLng): void;
 };
 
 export type KakaoMapsNamespace = {
@@ -46,7 +51,7 @@ export type KakaoMapsNamespace = {
     xAnchor?: number;
     yAnchor?: number;
     zIndex?: number;
-  }) => KakaoMapOverlay;
+  }) => KakaoCustomOverlay;
 };
 
 declare global {

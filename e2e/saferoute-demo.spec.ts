@@ -297,6 +297,29 @@ for (const viewport of [
   });
 }
 
+test("기사 요청 뒤 기기 위치를 지도 마커에만 반영한다", async ({ context, page }) => {
+  await context.grantPermissions(["geolocation"]);
+  await context.setGeolocation({ latitude: 37.50091, longitude: 127.03642, accuracy: 9 });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/rider-demo?courier=R-017");
+
+  const locationSection = page.getByLabel("기사 본인 현재 위치");
+  await expect(locationSection.getByText("위치 권한 필요", { exact: true })).toBeVisible();
+  const locationButton = locationSection.getByRole("button", { name: "내 위치 표시" });
+  await expectMinimumTouchHeight(locationButton);
+
+  const apiWrites: string[] = [];
+  page.on("request", (request) => {
+    if (request.url().includes("/api/") && request.method() !== "GET") apiWrites.push(request.url());
+  });
+  await locationButton.click();
+
+  await expect(locationSection.getByText("기기 위치", { exact: true })).toBeVisible();
+  await expect(locationSection.getByText("정확도 약 9m", { exact: true })).toBeVisible();
+  await expect(locationSection.locator('[data-location-source="DEVICE"]')).toBeVisible();
+  expect(apiWrites).toEqual([]);
+});
+
 test("저장 상태가 없는 독립 브라우저 세션 3회에서 같은 폐루프를 180초 안에 재현한다", async ({ browser }) => {
   const startedAt = Date.now();
   for (let run = 1; run <= 3; run += 1) {

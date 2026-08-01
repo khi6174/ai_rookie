@@ -22,7 +22,7 @@ async function switchRole(page: Page, role: "관리자" | "원 기사" | "수신
 
 async function enterRider(page: Page, role: "원 기사" | "수신 기사") {
   await switchRole(page, role);
-  const enterButton = page.getByRole("button", { name: "데모 계정으로 시작" });
+  const enterButton = page.getByRole("button", { name: "업무 화면 시작" });
   if (await enterButton.isVisible()) await enterButton.click();
   await page.getByRole("tab", { name: "안전지원" }).click();
 }

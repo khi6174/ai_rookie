@@ -12,7 +12,7 @@ test("제출용 Stage Mode는 한 페이지에서 대표 decision과 데이터 �
     }),
   ).toBeVisible();
   await expect(page.locator(".admin-nav")).toBeHidden();
-  await expect(page.getByText("합성 Demo · Simulation result")).toBeVisible();
+  await expect(page.getByText("시연 데이터", { exact: true })).toBeVisible();
   await expect(
     page.getByRole("heading", {
       name: "약 52분 후 17번째 배송지 전에, 10분 휴식과 배송 8건 이관이 필요합니다.",

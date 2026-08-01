@@ -15,7 +15,7 @@ function percentile95(values: number[]) {
 
 async function selectPrimaryDecision(page: import("@playwright/test").Page) {
   await page.getByRole("button", {
-    name: "합성 북부권역, 기사 8명, 지원 decision 4건",
+    name: "북부권역, 기사 8명, 지원 decision 4건",
   }).click();
   await page.getByRole("button", {
     name: /courier-01, 지원 필요, 위치 CURRENT/,
@@ -65,7 +65,7 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   await expect(page.getByText("8건 줄고 안전여유가 회복됩니다")).toBeVisible();
   await expect(page.getByText("8건 추가 후에도 안전기준을 통과합니다", { exact: true })).toBeVisible();
 
-  const toggle = page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" });
+  const toggle = page.getByRole("button", { name: "경사 근거 자세히 보기 · 2.5D" });
   const firstDisplayStartedAt = Date.now();
   await toggle.click();
   const scene = page.locator("[data-spatial-scene]");
@@ -80,9 +80,9 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
     "data-route-id",
     "demo-region-north-courier-01-route",
   );
-  await expect(scene.getByText("Demo 2.5D", { exact: true })).toBeVisible();
-  await expect(scene.getByText("Live 0명", { exact: true })).toBeVisible();
-  await expect(scene.getByText("세로 1.5배 · 합성 고도", { exact: true })).toBeVisible();
+  await expect(scene.getByText("경사 근거", { exact: true })).toBeVisible();
+  await expect(scene.getByText("연결 기사 0명", { exact: true })).toBeVisible();
+  await expect(scene.getByText("세로 1.5배 · 참고 고도", { exact: true })).toBeVisible();
   await expect(scene.getByText("52분 후 · 17번째 배송지 전", { exact: true })).toBeVisible();
   await expect(scene.getByText("29.9", { exact: true })).toBeVisible();
   await expect(scene.getByText("47.2", { exact: true })).toBeVisible();
@@ -142,7 +142,7 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   await expect(scene).toHaveCount(0);
   const returnTo2dMs = Date.now() - returnStartedAt;
   await expect(
-    page.getByRole("group", { name: "합성 지도 이동 영역" }),
+    page.getByRole("group", { name: "지도 이동 영역" }),
   ).toBeVisible();
 
   expect(firstDisplayMs).toBeLessThanOrEqual(
@@ -168,10 +168,11 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
       ),
     )
   ).reduce((total, bytes) => total + bytes, 0);
-  // ADR-088 Stage Mode and ADR-112's lazy /dashboard-demo chunk are part of
-  // the non-spatial app baseline. The 2.5D scene keeps the original 50 KiB
-  // incremental cap; this baseline change does not enlarge that allowance.
-  const previousG4BGzipJsBytes = 137_119;
+  // ADR-088 Stage Mode, ADR-112's lazy /dashboard-demo chunk and ADR-124's
+  // rider-only location control are part of the non-spatial app baseline.
+  // The 2.5D scene keeps the original 50 KiB incremental cap; this baseline
+  // update does not enlarge that allowance.
+  const previousG4BGzipJsBytes = 139_545;
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
   );
@@ -222,7 +223,7 @@ test("G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D �
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/closed-loop-demo");
   await selectPrimaryDecision(page);
-  await page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" }).click();
+  await page.getByRole("button", { name: "경사 근거 자세히 보기 · 2.5D" }).click();
   const scene = page.locator("[data-spatial-scene]");
   await expect(scene).toBeVisible();
   const motion = await scene.evaluate((element) => {
@@ -245,7 +246,7 @@ test("G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D �
   ).toBeVisible();
   await page.getByRole("button", { name: "지도 복구" }).click();
   await expect(
-    page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" }),
+    page.getByRole("button", { name: "경사 근거 자세히 보기 · 2.5D" }),
   ).toBeVisible();
   await expect.poll(() => page.evaluate(
     () => document.documentElement.scrollWidth <= document.documentElement.clientWidth,
