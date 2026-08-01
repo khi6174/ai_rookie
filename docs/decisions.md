@@ -1157,6 +1157,16 @@
 - 기각한 대안: 빈 공간에 장문 진행 설명 추가, 파란 상태 상자를 과도하게 늘림, 백분율 유지, 실제 TMS 용량처럼 표시.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-118 — 기사 응급 버튼은 합성 앱 감지 신호만 관제로 전달한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: 기사 앱 `운행` 탭에 별도 `응급 상황 감지 예시` 버튼을 둔다. 버튼은 고정 합성 기사 `R-022`의 `SYNTHETIC_RIDER_APP` 위험 신호를 같은 브라우저에 최대 15분 보존하고 `/dashboard-demo`의 위험신호 건수와 기사 카드를 갱신한다. 버튼 가까이에 `합성 예시 / 실제 신고 아님`을 고정하고 성공 뒤 `대시보드에서 확인`을 제공한다.
+- 이유: 심사 중 기사 앱의 선행 감지에서 관리자 관제 확인까지를 짧고 반복 가능하게 보여주되, 아직 승인되지 않은 실제 센서·응급 신고·위치 전송 기능으로 오해되지 않게 하기 위해서다.
+- 경계: 서버, 외부 알림, 브라우저 위치·센서 API를 호출하지 않는다. 실제 PII·정밀 위치·생체정보를 수집하지 않으며 Safety Budget, 개입 추천, 동의·승인 상태를 변경하지 않는다. 손상·만료·알 수 없는 기사 ID는 버린다.
+- 기각한 대안: 실제 응급기관 신고처럼 표시, 실제 위치·센서 수집 추가, 만료 없는 영구 신호, 대시보드 안에서만 신호를 만든 뒤 기사 앱 연동처럼 표현.
+- 영향 파일: `src/application/demoRiderDangerSignal.ts`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/operations.css`, `tests/demo-rider-danger-signal.test.ts`, `e2e/operations-rider.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

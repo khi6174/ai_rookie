@@ -125,3 +125,38 @@ for (const viewport of [
     }
   });
 }
+
+test("synthetic rider danger example reaches the control dashboard", async ({
+  page,
+}) => {
+  const href = await createRiderReviewLink(page);
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto(href);
+  await page.getByRole("tab", { name: "운행" }).click();
+
+  const demoButton = page.getByRole("button", {
+    name: "응급 상황 감지 예시",
+  });
+  const demoButtonBox = await demoButton.boundingBox();
+  expect(demoButtonBox?.height).toBeGreaterThanOrEqual(48);
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(391);
+  await page.screenshot({
+    path: "test-results/rider-danger-demo-390x844.png",
+    fullPage: true,
+  });
+
+  await demoButton.click();
+  await expect(
+    page.getByText("관제 화면에 합성 위험 신호를 보냈습니다."),
+  ).toBeVisible();
+
+  await page.getByRole("link", { name: "대시보드에서 확인" }).click();
+  await expect(page).toHaveURL(/\/dashboard-demo$/);
+  await expect(page.locator('[data-courier-card="R-022"]')).toHaveAttribute(
+    "data-rider-danger-signal",
+    "active",
+  );
+  await expect(page.getByRole("button", { name: "위험신호 2" })).toBeVisible();
+});

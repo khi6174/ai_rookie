@@ -1712,3 +1712,16 @@ type DailyOperationsSnapshot = {
 - 브라우저에는 무작위 합성 `workspaceId`만 보존하며 운영 상태는 Sites D1 또는 개발 메모리 어댑터가 보존한다.
 - PUT은 `X-SafeRoute-Base-Saved-At`를 사용한다. 저장된 `updated_at`과 다르면 `409 SESSION_CONFLICT`로 거부하고 최신 상태 재로딩을 요구한다.
 - 기사 응답과 관리자 승인은 같은 세션·decision ID를 사용하며 stale 화면의 last-write-wins 덮어쓰기를 허용하지 않는다.
+
+### 28.5 기사 응급 합성 예시 신호
+
+`DemoRiderDangerSignal`은 기사 앱에서 관제 화면으로 넘어오는 위험 신호를 재현하기 위한 브라우저 전용 계약이다.
+
+- `schemaVersion`: `demo-rider-danger-signal-v1`
+- `courierId`: `R-000` 형식의 고정 합성 ID
+- `label`: 최대 40자의 화면 문구
+- `receivedAt`: 브라우저 현지 `HH:mm`
+- `createdAt`, `expiresAt`: ISO 8601이며 유효시간은 15분
+- `source`: `SYNTHETIC_RIDER_APP`
+
+손상·만료·알 수 없는 기사 ID는 관제 화면에서 버린다. 이 계약에는 실제 위치, 생체정보, 센서 원본, 연락처와 신고 전송 상태를 넣지 않으며 운영 저장소나 외부 서비스로 보내지 않는다.

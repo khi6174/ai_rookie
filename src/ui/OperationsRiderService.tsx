@@ -9,6 +9,7 @@ import {
   type FleetEvaluation,
   type OperationsDecisionWorkspace,
 } from "../application/operations";
+import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
 import type {
   DailyOperationsPackage,
   DailyOperationsSnapshot,
@@ -65,6 +66,7 @@ export function OperationsRiderService() {
   });
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string>();
+  const [dangerDemoMessage, setDangerDemoMessage] = useState<string>();
   const baseSavedAtRef = useRef<string | undefined>(undefined);
 
   useEffect(() => {
@@ -209,6 +211,25 @@ export function OperationsRiderService() {
     }
   };
 
+  const sendDangerDemoSignal = () => {
+    let storage: Storage | undefined;
+    try {
+      storage = window.localStorage;
+    } catch {
+      storage = undefined;
+    }
+    const result = publishDemoRiderDangerSignal({
+      courierId: "R-022",
+      storage,
+      eventTarget: window,
+    });
+    setDangerDemoMessage(
+      result.persisted
+        ? "관제 화면에 합성 위험 신호를 보냈습니다."
+        : "브라우저 저장소가 차단되어 신호를 보존하지 못했습니다.",
+    );
+  };
+
   if (loadState.status === "LOADING") {
     return (
       <main className="operations-rider-loading" aria-busy="true">
@@ -277,6 +298,34 @@ export function OperationsRiderService() {
               >
                 안전지원 검토하기
               </button>
+            </section>
+
+            <section
+              className="operations-rider-danger-demo"
+              aria-labelledby="operations-rider-danger-demo-title"
+            >
+              <div>
+                <span>합성 예시 / 실제 신고 아님</span>
+                <strong id="operations-rider-danger-demo-title">
+                  매우 위험한 상태 감지
+                </strong>
+                <p>합성 위험 신호를 관제로 보냅니다.</p>
+              </div>
+              <button
+                type="button"
+                className="operations-rider-danger-demo-button"
+                onClick={sendDangerDemoSignal}
+              >
+                응급 상황 감지 예시
+              </button>
+              {dangerDemoMessage && (
+                <p className="operations-rider-danger-demo-status" role="status">
+                  {dangerDemoMessage}
+                  {dangerDemoMessage.startsWith("관제") && (
+                    <a href="/dashboard-demo">대시보드에서 확인</a>
+                  )}
+                </p>
+              )}
             </section>
 
             {operationsPackage && (

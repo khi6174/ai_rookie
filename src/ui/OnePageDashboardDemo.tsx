@@ -1,5 +1,11 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import {
+  DEMO_RIDER_DANGER_SIGNAL_EVENT,
+  DEMO_RIDER_DANGER_SIGNAL_STORAGE_KEY,
+  loadDemoRiderDangerSignal,
+  parseDemoRiderDangerSignal,
+} from "../application/demoRiderDangerSignal";
+import {
   loadKakaoMapsSdk,
   type KakaoMapInstance,
   type KakaoMapOverlay,
@@ -923,8 +929,27 @@ export function OnePageDashboardDemo() {
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const [interventionOpen, setInterventionOpen] = useState(false);
   const [appliedPlans, setAppliedPlans] = useState<Record<string, string>>({});
-  const [dangerSignals, setDangerSignals] =
-    useState<Record<string, RiderDangerSignal>>(initialDangerSignals);
+  const [dangerSignals, setDangerSignals] = useState<
+    Record<string, RiderDangerSignal>
+  >(() => {
+    const storedSignal = (() => {
+      try {
+        return loadDemoRiderDangerSignal(window.localStorage);
+      } catch {
+        return undefined;
+      }
+    })();
+    if (
+      !storedSignal ||
+      !couriers.some((courier) => courier.id === storedSignal.courierId)
+    ) {
+      return initialDangerSignals;
+    }
+    return {
+      ...initialDangerSignals,
+      [storedSignal.courierId]: storedSignal,
+    };
+  });
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
 
@@ -982,15 +1007,40 @@ export function OnePageDashboardDemo() {
       });
     };
 
+    const handleStoredDangerSignal = (event: StorageEvent) => {
+      if (
+        event.key !== DEMO_RIDER_DANGER_SIGNAL_STORAGE_KEY ||
+        !event.newValue
+      ) {
+        return;
+      }
+      try {
+        const signal = parseDemoRiderDangerSignal(
+          JSON.parse(event.newValue),
+        );
+        if (signal) {
+          handleRiderDangerSignal(
+            new CustomEvent(DEMO_RIDER_DANGER_SIGNAL_EVENT, {
+              detail: signal,
+            }),
+          );
+        }
+      } catch {
+        // Ignore damaged browser demo state at this presentation boundary.
+      }
+    };
+
     window.addEventListener(
-      "saferoute:rider-danger-signal",
+      DEMO_RIDER_DANGER_SIGNAL_EVENT,
       handleRiderDangerSignal,
     );
+    window.addEventListener("storage", handleStoredDangerSignal);
     return () => {
       window.removeEventListener(
-        "saferoute:rider-danger-signal",
+        DEMO_RIDER_DANGER_SIGNAL_EVENT,
         handleRiderDangerSignal,
       );
+      window.removeEventListener("storage", handleStoredDangerSignal);
     };
   }, []);
 
