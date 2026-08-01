@@ -1165,7 +1165,7 @@
 - 이유: 심사 중 기사 앱의 선행 감지에서 관리자 관제 확인까지를 짧고 반복 가능하게 보여주되, 아직 승인되지 않은 실제 센서·응급 신고·위치 전송 기능으로 오해되지 않게 하기 위해서다.
 - 경계: 서버, 외부 알림, 브라우저 위치·센서 API를 호출하지 않는다. 실제 PII·정밀 위치·생체정보를 수집하지 않으며 Safety Budget, 개입 추천, 동의·승인 상태를 변경하지 않는다. 손상·만료·알 수 없는 기사 ID는 버린다.
 - 기각한 대안: 실제 응급기관 신고처럼 표시, 실제 위치·센서 수집 추가, 만료 없는 영구 신호, 대시보드 안에서만 신호를 만든 뒤 기사 앱 연동처럼 표현.
-- 영향 파일: `src/application/demoRiderDangerSignal.ts`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/operations.css`, `tests/demo-rider-danger-signal.test.ts`, `e2e/operations-rider.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+- 영향 파일: `src/application/demoRiderDangerSignal.ts`, `src/ui/App.tsx`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/styles.css`, `src/ui/operations.css`, `tests/demo-rider-danger-signal.test.ts`, `e2e/operations-rider.spec.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
 ### ADR-119 — 단일 관제 헤더에서 고정 기사 Demo로 직접 이동한다
 

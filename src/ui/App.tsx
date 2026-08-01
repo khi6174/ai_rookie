@@ -11,6 +11,7 @@ import type {
   MapSelection,
   MultiRegionMapFixture,
 } from "../domain/contracts";
+import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
 import {
   applyMapMovementFrame,
   createMapMovementTimeline,
@@ -1867,6 +1868,7 @@ function RiderView({
   mapModel: RiderCompactMapModel;
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
+  const [dangerDemoMessage, setDangerDemoMessage] = useState<string>();
   const consentStatus = consentStatusFor(session, courierId);
   const canRespond = pwa.online && session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
   const offlinePlan = !pwa.online && pwa.cacheState.status === "FRESH" ? pwa.cacheState.plan : null;
@@ -1881,6 +1883,24 @@ function RiderView({
   const selectTab = (nextTab: RiderTab) => {
     setTab(nextTab);
     window.scrollTo({ top: 0, behavior: "auto" });
+  };
+  const sendDangerDemoSignal = () => {
+    let storage: Storage | undefined;
+    try {
+      storage = window.localStorage;
+    } catch {
+      storage = undefined;
+    }
+    const result = publishDemoRiderDangerSignal({
+      courierId: "R-022",
+      storage,
+      eventTarget: window,
+    });
+    setDangerDemoMessage(
+      result.persisted
+        ? "관제 화면에 합성 위험 신호를 보냈습니다."
+        : "브라우저 저장소가 차단되어 신호를 보존하지 못했습니다.",
+    );
   };
 
   return (
@@ -1942,6 +1962,21 @@ function RiderView({
               <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
             </section>
             <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
+            <section className="rider-danger-demo" aria-label="응급 상황 감지 합성 예시">
+              <span>합성 예시 / 실제 신고 아님</span>
+              <strong>매우 위험한 상태 감지</strong>
+              <button type="button" onClick={sendDangerDemoSignal}>
+                응급 상황 감지 예시
+              </button>
+              {dangerDemoMessage && (
+                <p role="status">
+                  {dangerDemoMessage}
+                  {dangerDemoMessage.startsWith("관제") && (
+                    <a href="/">관제에서 확인</a>
+                  )}
+                </p>
+              )}
+            </section>
             <RiderCompactRoute applied={applied} mapModel={mapModel} online={pwa.online} />
             <section className="rider-next-plan">
               <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>

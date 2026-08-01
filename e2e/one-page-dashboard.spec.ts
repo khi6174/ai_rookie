@@ -31,6 +31,12 @@ test("현재 시각 옆 기사 앱 버튼은 합성 기사 운행 화면을 바�
     page.getByRole("button", { name: "데모 계정으로 시작" }),
   ).toHaveCount(0);
   await expect(page.getByRole("link", { name: "관제" })).toBeVisible();
+  await page
+    .getByRole("button", { name: "응급 상황 감지 예시" })
+    .click();
+  await expect(
+    page.getByText("관제 화면에 합성 위험 신호를 보냈습니다."),
+  ).toBeVisible();
 });
 
 test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를 유지한다", async ({

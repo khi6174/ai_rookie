@@ -5992,6 +5992,56 @@ body {
   font-size: 0.88rem;
 }
 
+.rider-danger-demo {
+  display: grid;
+  gap: 8px;
+  margin-top: 12px;
+  padding: 14px;
+  border: 1px solid #fecaca;
+  border-radius: 16px;
+  background: #fff7f7;
+}
+
+.rider-danger-demo > span {
+  color: #b42318;
+  font-size: 0.65rem;
+  font-weight: 850;
+}
+
+.rider-danger-demo > strong {
+  color: var(--design-ink);
+  font-size: 0.92rem;
+}
+
+.rider-danger-demo > button {
+  min-height: 48px;
+  border: 1px solid #b42318;
+  border-radius: 10px;
+  color: #fff;
+  background: #b42318;
+  font: inherit;
+  font-size: 0.82rem;
+  font-weight: 850;
+  cursor: pointer;
+}
+
+.rider-danger-demo > p {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin: 0;
+  color: var(--design-ink-muted);
+  font-size: 0.72rem;
+  line-height: 1.45;
+}
+
+.rider-danger-demo > p a {
+  flex: 0 0 auto;
+  color: var(--design-blue-strong);
+  font-weight: 800;
+}
+
 .rider-support-hero {
   padding: 17px 18px;
   border: 1px solid var(--design-line);
