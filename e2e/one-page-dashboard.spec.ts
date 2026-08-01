@@ -23,6 +23,7 @@ test("현재 시각 옆 기사 앱 버튼은 합성 기사 운행 화면을 바�
   await riderAppLink.click();
 
   await expect(page).toHaveURL(/\/rider-demo$/);
+  await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("tab", { name: "운행" })).toHaveAttribute(
     "aria-selected",
     "true",
@@ -31,6 +32,22 @@ test("현재 시각 옆 기사 앱 버튼은 합성 기사 운행 화면을 바�
     page.getByRole("button", { name: "데모 계정으로 시작" }),
   ).toHaveCount(0);
   await expect(page.getByRole("link", { name: "관제" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "서울시 용산구 한빛아파트" }),
+  ).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "오늘 배송률" })).toHaveAttribute(
+    "aria-valuenow",
+    "45",
+  );
+  await expect(page.getByText("54.7", { exact: true })).toBeVisible();
+  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
+  expect(
+    await page.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(391);
+  await page.screenshot({
+    path: "test-results/rider-route-overview-390x844.png",
+    fullPage: true,
+  });
   await page
     .getByRole("button", { name: "응급 상황 감지 예시" })
     .click();

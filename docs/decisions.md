@@ -1177,6 +1177,16 @@
 - 기각한 대안: 주소를 직접 입력하게 두기, 공개 관제에서 `/operations`를 거쳐 기사 링크 생성, 새 기사 앱을 중복 구현.
 - 영향 파일: `src/main.tsx`, `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `src/ui/styles.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
+### ADR-120 — 기사 운행 첫 화면은 배송 구역과 진행·완료·안전 시점을 우선한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: 기사 `운행` 탭의 기존 지원계획 중심 첫 카드를 배송 구역 카드로 바꾼다. 합성 구역명 `서울시 용산구 한빛아파트`, 서울 주거지역 대표 사진, 기존 Demo 배송 진행 `14/31`과 계산된 `45%`, 현재 workload의 `projectedEndAt` 기반 예상 완료 시각을 먼저 표시한다. 바로 아래에는 엔진의 현재 안전 지원 점수와 Time-to-Breach를 `54.7 / 52분 뒤 / 17번째 배송지 전`으로 표시한다.
+- 이유: 운행을 시작한 기사는 지원 절차보다 지금 어디를 배송 중인지, 얼마나 끝냈는지, 언제 완료되는지, 언제 안전지원이 필요한지를 먼저 확인해야 한다.
+- 경계: 아파트명은 합성이며 사진은 실제 배송지·현재 위치 증거가 아니다. 실제 주소·GPS·개인정보를 추가하지 않는다. 배송률은 기존 화면의 Demo 진행 수치에서 계산하고 완료 시각·점수·위험 시간은 workload와 결정론적 Safety 결과에서 읽는다. 기사 순위나 성과평가로 사용하지 않는다.
+- 기각한 대안: 기존 지원계획 카드 유지, 실제 아파트 주소·정밀 위치 사용, 배송률과 ETA를 고정 문자열로만 표시, 점수를 다른 기사와 비교.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `public/assets/rider-delivery-area-seoul.jpg`, `public/assets/ATTRIBUTION.md`, `e2e/saferoute-demo.spec.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

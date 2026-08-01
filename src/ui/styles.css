@@ -1282,6 +1282,149 @@ tr.is-recommended {
   gap: 10px;
 }
 
+.rider-delivery-overview {
+  overflow: hidden;
+  border: 1px solid var(--design-line);
+  border-radius: 18px;
+  background: var(--design-card);
+  box-shadow: var(--design-card-shadow);
+}
+
+.rider-delivery-overview figure {
+  position: relative;
+  height: 148px;
+  margin: 0;
+  overflow: hidden;
+  background: #dbe4f0;
+}
+
+.rider-delivery-overview img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.rider-delivery-overview figcaption {
+  position: absolute;
+  right: 10px;
+  bottom: 9px;
+  padding: 5px 8px;
+  border-radius: 999px;
+  color: #fff;
+  background: rgb(15 23 42 / 78%);
+  font-size: 0.6rem;
+  font-weight: 750;
+}
+
+.rider-delivery-copy {
+  padding: 14px 16px 16px;
+}
+
+.rider-delivery-copy > span {
+  color: var(--design-blue-strong);
+  font-size: 0.65rem;
+  font-weight: 800;
+}
+
+.rider-delivery-copy h1 {
+  margin: 5px 0 14px;
+  color: var(--design-ink);
+  font-size: 1.18rem;
+  line-height: 1.35;
+  letter-spacing: -0.035em;
+}
+
+.rider-delivery-progress-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--design-ink-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+}
+
+.rider-delivery-progress-copy strong {
+  color: var(--design-blue-strong);
+  font-size: 1rem;
+}
+
+.rider-delivery-progress {
+  height: 8px;
+  margin-top: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #e5eaf2;
+}
+
+.rider-delivery-progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--design-blue);
+}
+
+.rider-delivery-facts {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.rider-delivery-facts div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--design-page);
+}
+
+.rider-delivery-facts dt {
+  color: var(--design-ink-muted);
+  font-size: 0.65rem;
+}
+
+.rider-delivery-facts dd {
+  margin: 0;
+  color: var(--design-ink);
+  font-size: 0.88rem;
+  font-weight: 850;
+}
+
+.rider-safety-now {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 12px;
+  overflow: hidden;
+  border: 1px solid var(--design-line);
+  border-radius: 16px;
+  background: var(--design-card);
+  box-shadow: var(--design-card-shadow);
+}
+
+.rider-safety-now > div {
+  display: grid;
+  min-height: 82px;
+  align-content: center;
+  gap: 4px;
+  padding: 12px 14px;
+}
+
+.rider-safety-now > div + div {
+  border-left: 1px solid var(--design-line);
+}
+
+.rider-safety-now span,
+.rider-safety-now small {
+  color: var(--design-ink-muted);
+  font-size: 0.65rem;
+}
+
+.rider-safety-now strong {
+  color: var(--design-ink);
+  font-size: 1.14rem;
+}
+
 .rider-route-summary > div {
   display: flex;
   flex-direction: column;

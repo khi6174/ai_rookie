@@ -90,6 +90,15 @@ const confidenceLabels = {
 } as const;
 
 const demoConfidence = `${demoBaselineSnapshot.confidenceScore} · ${confidenceLabels[demoBaselineSnapshot.confidence]}`;
+const riderDemoClockMinutes = 10 * 60 + 21;
+const formatRiderClock = (totalMinutes: number) => {
+  const dayMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
+  const hour24 = Math.floor(dayMinutes / 60);
+  const minute = dayMinutes % 60;
+  const period = hour24 < 12 ? "오전" : "오후";
+  const hour12 = hour24 % 12 || 12;
+  return `${period} ${hour12}:${String(minute).padStart(2, "0")}`;
+};
 
 function candidateLabel(candidate: InterventionCandidate) {
   const types = candidate.actions.map((action) => action.type);
@@ -179,7 +188,7 @@ function DemoFlowSteps({ session }: { session: DemoSession }) {
 function MobileStatusBar() {
   return (
     <div className="mobile-status-bar" aria-hidden="true">
-      <span>10:21</span>
+      <span>{formatRiderClock(riderDemoClockMinutes).replace(/^(오전|오후) /, "")}</span>
       <span className="mobile-device-status">
         <span className="mobile-signal"><i /><i /><i /><i /></span>
         <b>5G</b>
@@ -1879,6 +1888,31 @@ function RiderView({
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
   const cachedCourierPlan = offlinePlan?.couriers.find((courier) => courier.courierId === courierId);
   const remainingStopCount = cachedCourierPlan?.remainingStopCount ?? activeWorkload.remainingLoad.stopCount;
+  const deliveryCompletedCount = isRecipient ? 9 : 14;
+  const deliveryTotalCount = isRecipient ? 24 : 31;
+  const deliveryRate = deliveryTotalCount
+    ? Math.round((deliveryCompletedCount / deliveryTotalCount) * 100)
+    : 0;
+  const remainingPlanMinutes = Math.max(
+    0,
+    Math.round(
+      (Date.parse(activeWorkload.projectedEndAt) -
+        Date.parse(activeWorkload.evaluatedAt)) /
+        60_000,
+    ),
+  );
+  const expectedCompletionLabel = formatRiderClock(
+    riderDemoClockMinutes + remainingPlanMinutes,
+  );
+  const baselineBreach = demoBaselineSnapshot.breach;
+  const dangerMinutes =
+    baselineBreach.status === "PREDICTED"
+      ? Math.round(baselineBreach.timeToBreachMinutes)
+      : undefined;
+  const dangerStopOrdinal =
+    baselineBreach.status === "PREDICTED"
+      ? baselineBreach.stopIndex + 1
+      : undefined;
   const tabContentId = `rider-${tab.toLowerCase()}-panel`;
   const selectTab = (nextTab: RiderTab) => {
     setTab(nextTab);
@@ -1923,8 +1957,8 @@ function RiderView({
           <span className="stopped-badge">정차 확인</span>
         </div>
         <div className="rider-route-bar">
-          <div><span>관악 합성 권역</span><strong>{tab === "ROUTE" ? "오늘의 운행" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
-          <div><span>배송 진행</span><strong>{isRecipient ? "9 / 24" : "14 / 31"}</strong></div>
+          <div><span>합성 배송 구역</span><strong>{tab === "ROUTE" ? "서울 용산" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
+          <div><span>배송률</span><strong>{deliveryRate}%</strong></div>
         </div>
         {(!pwa.online || tab === "PROFILE") && (
           <RiderPwaStatus online={pwa.online} shellReady={pwa.shellReady} cacheState={pwa.cacheState} />
@@ -1932,34 +1966,48 @@ function RiderView({
 
         {tab === "ROUTE" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-route-tab">
-            <p className="rider-overline">오늘의 안전배송 · {isRecipient ? "수신 기사" : "원 기사"}</p>
-            <section className={`rider-hero-card rider-route-hero ${applied ? "is-applied" : ""}`}>
-              <div className="rider-plan-heading">
-                <span className="rider-hero-label">지원 계획</span>
-                <span className="rider-plan-status">{applied ? "적용 완료" : "정차 후 검토"}</span>
-              </div>
-              <div className="rider-safe-window">
-                <h1>{applied ? "조정된 계획으로 운행합니다" : "17번째 배송지 전에 지원을 확인해 주세요"}</h1>
-                <div className="rider-safe-clock" aria-label={applied ? "예상 임계치 초과 해소" : "오후 4시 20분까지 약 52분 남음"}>
-                  <span>Safe-until</span>
-                  <strong>{applied ? "해소" : "16:20"}</strong>
-                  <small>{applied ? "조정 계획 기준" : "약 52분 남음"}</small>
+            <p className="rider-overline">현재 배송 구역</p>
+            <section className="rider-delivery-overview">
+              <figure>
+                <img
+                  src="/assets/rider-delivery-area-seoul.jpg"
+                  alt="서울 주거지역의 아파트 건물 전경"
+                />
+                <figcaption>대표 이미지 / 실제 배송지 아님</figcaption>
+              </figure>
+              <div className="rider-delivery-copy">
+                <span>합성 배송 구역</span>
+                <h1>서울시 용산구 한빛아파트</h1>
+                <div className="rider-delivery-progress-copy">
+                  <span>배송 {deliveryCompletedCount}/{deliveryTotalCount}</span>
+                  <strong>{deliveryRate}%</strong>
                 </div>
-                <div className="rider-safe-copy">
-                  <p>{applied
-                    ? `현재 남은 배송은 ${remainingStopCount}건이며 승인된 순서와 ETA가 적용되었습니다.`
-                    : "미래 안전한계 예측·지원계획 합의. 기사 동의 → 관리자 승인 후에만 적용됩니다."}</p>
+                <div
+                  className="rider-delivery-progress"
+                  role="progressbar"
+                  aria-label="오늘 배송률"
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                  aria-valuenow={deliveryRate}
+                >
+                  <span style={{ width: `${deliveryRate}%` }} />
                 </div>
-              </div>
-              <div className="rider-plan-steps" aria-label={applied ? "적용된 운행 계획" : "지원 계획 진행 순서"}>
-                <div className="is-current"><span>현재</span><strong>14번째 · 약 6분</strong></div>
-                <div><span>{applied ? "적용 조치" : "다음 조치"}</span><strong>{applied ? "10분 휴식" : "정차·검토"}</strong></div>
-                <div><span>{applied ? "결과" : "지원 시점"}</span><strong>{applied ? "예상 초과 해소" : "17번째 전"}</strong></div>
+                <dl className="rider-delivery-facts">
+                  <div><dt>남은 배송</dt><dd>{remainingStopCount}건</dd></div>
+                  <div><dt>예상 완료</dt><dd>{expectedCompletionLabel}</dd></div>
+                </dl>
               </div>
             </section>
-            <section className="rider-route-summary" aria-label="오늘 배송 진행과 안전 상태">
-              <div><span>배송 진행</span><strong>14 / 31</strong><small>{remainingStopCount}건 남음</small></div>
-              <div><span>Safe-until</span><strong>{applied ? "초과 예상 해소" : "약 52분"}</strong><small>{applied ? "조정 계획 기준" : "17번째 배송지"}</small></div>
+            <section className="rider-safety-now" aria-label="현재 안전 지원 상태">
+              <div>
+                <span>내 안전 지원 점수</span>
+                <strong>{formatBudget(demoBaselineSnapshot.currentBudget)}</strong>
+              </div>
+              <div>
+                <span>위험 예상</span>
+                <strong>{applied ? "해소" : dangerMinutes === undefined ? "확인 중" : `${dangerMinutes}분 뒤`}</strong>
+                <small>{applied ? "조정 계획 기준" : dangerStopOrdinal === undefined ? "예측 데이터 확인 중" : `${dangerStopOrdinal}번째 배송지 전`}</small>
+              </div>
             </section>
             <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
             <section className="rider-danger-demo" aria-label="응급 상황 감지 합성 예시">

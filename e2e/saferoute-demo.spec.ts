@@ -35,8 +35,8 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
 
 async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId) {
   await enterRider(page, "원 기사");
-  await expect(page.getByRole("heading", { name: "17번째 배송지 전에 지원을 확인해 주세요" })).toBeVisible();
-  await expect(page.getByLabel("지원 계획 진행 순서")).toContainText("정차·검토");
+  await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
+  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
   await page.getByRole("tab", { name: "안전지원" }).click();
   await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
@@ -272,11 +272,10 @@ for (const viewport of [
     await enterRider(page, "원 기사");
     await expect(page.locator(".stopped-badge")).toHaveText("정차 확인");
     await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "17번째 배송지 전에 지원을 확인해 주세요" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
     await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
     await expect(page.getByText("Fallback map", { exact: true })).toBeVisible();
     await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
-    await expect(page.getByText("14번째 · 약 6분", { exact: true })).toBeVisible();
     const structuredRoute = page.getByLabel("구조화된 다음 경로");
     await expect(structuredRoute).toContainText("14번째 배송지 구간");
     await expect(structuredRoute).toContainText("10분 휴식 지점");
@@ -333,7 +332,7 @@ test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 �
     await enterRider(page, "원 기사");
     await expect(page.getByText("오프라인 · 마지막 승인 Demo 계획")).toBeVisible();
     await expect(page.getByText("읽기 전용", { exact: false })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "조정된 계획으로 운행합니다" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByText("오프라인에서는 동의·수정·거절을 기록하지 않습니다.")).toBeVisible();
     await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
@@ -366,7 +365,7 @@ test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행�
     await page.reload({ waitUntil: "domcontentloaded" });
     await enterRider(page, "원 기사");
     await expect(page.getByText("캐시 만료 · 최신 계획 아님")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "17번째 배송지 전에 지원을 확인해 주세요" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
   } finally {
