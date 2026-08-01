@@ -71,7 +71,7 @@ type RiderDangerSignal = {
 };
 
 const couriers: Courier[] = [
-  { id: "R-014", name: "강태현", budget: 24.1, area: "역삼 A", completed: 14, total: 31, shift: "08:30", mapX: 29, mapY: 38, criticalMinute: 0 },
+  { id: "R-017", name: "강태현", budget: 24.1, area: "역삼 A", completed: 14, total: 31, shift: "08:30", mapX: 29, mapY: 38, criticalMinute: 0 },
   { id: "R-022", name: "윤재호", budget: 27.6, area: "논현 B", completed: 18, total: 34, shift: "08:10", mapX: 37, mapY: 29, criticalMinute: 0 },
   { id: "R-031", name: "문상혁", budget: 29.3, area: "대치 A", completed: 16, total: 29, shift: "08:20", mapX: 70, mapY: 43, criticalMinute: 0 },
   { id: "R-008", name: "배준영", budget: 31.8, area: "도곡 B", completed: 15, total: 32, shift: "08:40", mapX: 54, mapY: 67, criticalMinute: 16 },
@@ -94,8 +94,8 @@ const couriers: Courier[] = [
 ];
 
 const initialDangerSignals: Record<string, RiderDangerSignal> = {
-  "R-014": {
-    courierId: "R-014",
+  "R-017": {
+    courierId: "R-017",
     label: "긴급 지원 요청",
     receivedAt: "15:27",
   },
@@ -381,7 +381,7 @@ function MapMarker({
       data-latitude={courier.latitude.toFixed(6)}
       data-longitude={courier.longitude.toFixed(6)}
       style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
-      aria-label={`${courier.name} 기사 시뮬레이션 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
+      aria-label={`${courier.name} 기사 갱신 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
       onClick={onSelect}
       type="button"
@@ -483,7 +483,7 @@ function DashboardKakaoMap({
           button.dataset.roadCorridor = courierAreaKey(courier);
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
-          button.setAttribute("aria-label", `${courier.name} 기사 시뮬레이션 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
+          button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
           markerDot.setAttribute("aria-hidden", "true");
           button.append(markerDot);
           button.addEventListener("click", () => selectRef.current(courier.id));
@@ -574,7 +574,7 @@ function DashboardKakaoMap({
     <div
       ref={containerRef}
       className="onepage-kakao-layer"
-      aria-label="Kakao 실제 지도 데이터 위 Demo 기사 위치"
+      aria-label="Kakao 지도 위 기사 위치"
     />
   );
 }
@@ -821,14 +821,14 @@ function InterventionDialog({
               {stage === "REQUESTED" && (
                 <>
                   <small>2 · 원 기사 확인</small>
-                  <strong>R-014 응답을 선택하세요</strong>
+                  <strong>강태현 기사 응답을 선택하세요</strong>
                   <span>동의·수정 요청·거절에 불이익이 없고, 거절 사유는 개인 단위로 저장하지 않습니다.</span>
                 </>
               )}
               {stage === "RECIPIENT_REQUESTED" && (
                 <>
                   <small>3 · 수신 기사 확인</small>
-                  <strong>R-024 이어받기 검토</strong>
+                  <strong>채우진 기사 이어받기 검토</strong>
                   <span>수신 기사도 같은 수준으로 동의·수정 요청·거절할 수 있습니다.</span>
                 </>
               )}
@@ -865,7 +865,6 @@ function InterventionDialog({
         </div>
 
         <footer className="onepage-dialog-footer">
-          <span>합성 데모 · 실제 지급·정산 미연동</span>
           <div>
             {stage === "COMPARE" && (
               <button type="button" className="is-primary" onClick={() => setStage("REQUESTED")}>
@@ -1096,6 +1095,7 @@ export function OnePageDashboardDemo() {
           <span className="onepage-brand-mark" aria-hidden="true">SR</span>
           <span className="onepage-brand-copy">
             <strong>SafeRoute AI</strong>
+            <small>시연 데이터</small>
           </span>
         </div>
         <div className="onepage-page-title">
@@ -1168,13 +1168,13 @@ export function OnePageDashboardDemo() {
               <strong>강남 허브</strong>
               <span>
                 {mapStatus === "READY"
-                  ? `위치 시뮬레이션 · ${currentTimeLabel}`
+                  ? `위치 갱신 · ${currentTimeLabel}`
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : `위치 시뮬레이션 · ${currentTimeLabel} · 지도 대체 화면`}
+                    : `위치 갱신 · ${currentTimeLabel} · 지도 대체 화면`}
               </span>
             </div>
-            <div className="onepage-region-capacity" aria-label="권역별 합성 이관 여력">
+            <div className="onepage-region-capacity" aria-label="권역별 이관 여력">
               {regionCapacity.map((region) => (
                 <span key={region.area} className={`is-${region.tone}`}>
                   <strong>{region.area}</strong>

@@ -91,6 +91,8 @@ const confidenceLabels = {
 
 const demoConfidence = `${demoBaselineSnapshot.confidenceScore} · ${confidenceLabels[demoBaselineSnapshot.confidence]}`;
 const riderDemoClockMinutes = 10 * 60 + 21;
+
+const displayOperationalLabel = (label: string) => label.replace(/합성\s*/g, "");
 const formatRiderClock = (totalMinutes: number) => {
   const dayMinutes = ((totalMinutes % (24 * 60)) + 24 * 60) % (24 * 60);
   const hour24 = Math.floor(dayMinutes / 60);
@@ -126,7 +128,7 @@ function consentLabel(status: ReturnType<typeof consentStatusFor>) {
 
 function RoleSwitcher({ role, onChange }: { role: Role; onChange: (role: Role) => void }) {
   return (
-    <div className="role-switcher" role="tablist" aria-label="Demo 역할 전환">
+    <div className="role-switcher" role="tablist" aria-label="화면 역할 전환">
       {[
         ["ADMIN", "관리자"],
         ["SOURCE", "원 기사"],
@@ -148,12 +150,12 @@ function RoleSwitcher({ role, onChange }: { role: Role; onChange: (role: Role) =
 }
 
 function RiderRoleMenu({ role, onChange }: { role: Exclude<Role, "ADMIN">; onChange: (role: Role) => void }) {
-  const riderId = role === "SOURCE" ? "R-017" : "R-024";
+  const riderName = role === "SOURCE" ? "강태현" : "채우진";
   return (
     <details className="rider-role-menu">
-      <summary aria-label={`${riderId} · Demo 화면 전환`}>
-        <span>{riderId}</span>
-        <small>화면</small>
+      <summary aria-label={`${riderName} 기사 화면 전환`}>
+        <span>{riderName}</span>
+        <small>기사</small>
       </summary>
       <RoleSwitcher role={role} onChange={onChange} />
     </details>
@@ -198,15 +200,6 @@ function MobileStatusBar() {
   );
 }
 
-function DemoDisclosure() {
-  return (
-    <details className="demo-disclosure">
-      <summary>합성 데이터 · 기사 평가 아님 <strong>자세히 ▾</strong></summary>
-      <p>결정론적 합성 fixture · 실제 개인정보나 로그인 미사용 · 지원 시급성 기준이며 기사 성과·평가가 아닙니다.</p>
-    </details>
-  );
-}
-
 function AppHeader({
   role,
   session,
@@ -224,7 +217,7 @@ function AppHeader({
         <span className="brand-mark" aria-hidden="true">SR</span>
         <span>
           <strong>SafeRoute</strong>
-          <small>{role === "ADMIN" ? "운영 안전 데모" : "기사 안전배송"}</small>
+          <small>{role === "ADMIN" ? "운영 안전 관제" : "기사 안전배송"}</small>
         </span>
       </div>
       {role === "ADMIN" && <DemoFlowSteps session={session} />}
@@ -232,9 +225,9 @@ function AppHeader({
         ? <RoleSwitcher role={role} onChange={onRoleChange} />
         : <RiderRoleMenu role={role} onChange={onRoleChange} />}
       <div className="header-actions">
-        <span className="mode-badge"><span aria-hidden="true">◇</span><span className="mode-label-full">{demoWeatherRuntime.displayLabel}</span><span className="mode-label-short">Demo · Weather Fallback</span></span>
+        <span className="mode-badge"><span aria-hidden="true">◇</span><span className="mode-label-full">시연 데이터</span><span className="mode-label-short">시연 데이터</span></span>
         <button type="button" className="button button-quiet button-small" onClick={onReset}>
-          Demo 초기화
+          초기화
         </button>
       </div>
     </header>
@@ -273,10 +266,6 @@ function AdminNavigation() {
         </a>
       ))}
       <a className="nav-item" href="#audit"><span aria-hidden="true">04</span><span>감사기록</span></a>
-      <div className="nav-simulation">
-        <strong>Simulation result</strong>
-        <span>실제 사고감소 효과가 아닙니다.</span>
-      </div>
     </nav>
   );
 }
@@ -350,9 +339,9 @@ function DecisionSpatialScenePanel({
           <h3 id="spatial-scene-heading">휴식 뒤 경사 구간을 지나기 전에 지원합니다</h3>
         </div>
         <div className="spatial-scene-badges" aria-label="공간 장면 데이터 상태">
-          <span>Demo 2.5D</span>
-          <span>Live 0명</span>
-          <span>세로 {scene.verticalExaggeration}배 · 합성 고도</span>
+          <span>경사 근거</span>
+          <span>연결 기사 0명</span>
+          <span>세로 {scene.verticalExaggeration}배 · 참고 고도</span>
         </div>
       </div>
       <div className="spatial-scene-grid">
@@ -500,12 +489,12 @@ function KakaoControlMap({
       button.className = "kakao-region-cluster";
       button.setAttribute(
         "aria-label",
-        `${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`,
+        `${displayOperationalLabel(region.label)}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`,
       );
       const count = document.createElement("span");
       count.textContent = String(region.supportDecisionCount);
       const label = document.createElement("strong");
-      label.textContent = region.label;
+      label.textContent = displayOperationalLabel(region.label);
       const detail = document.createElement("small");
       detail.textContent = `기사 ${region.courierCount} · stale/offline ${region.staleOrOfflineCount}`;
       button.append(count, label, detail);
@@ -524,7 +513,7 @@ function KakaoControlMap({
       const node = document.createElement("div");
       node.className = "kakao-hub-marker";
       node.textContent = `${hub.courierCount}명`;
-      node.setAttribute("aria-label", `${hub.label}, 기사 ${hub.courierCount}명`);
+      node.setAttribute("aria-label", `${displayOperationalLabel(hub.label)}, 기사 ${hub.courierCount}명`);
       addOverlay(new maps.CustomOverlay({
         map,
         position: toLatLng(hub.geographicPoint),
@@ -572,7 +561,7 @@ function KakaoControlMap({
         className="kakao-map-layer"
         data-kakao-map
         role="group"
-        aria-label="카카오 지도 위에 표시한 결정론적 합성 기사와 경로"
+        aria-label="카카오 지도 위에 표시한 기사와 경로"
       />
       {status === "LOADING" && <div className="kakao-map-loading" role="status">카카오 지도를 불러오는 중입니다.</div>}
     </>
@@ -643,18 +632,18 @@ function MultiRegionControlMap({
       )
     : undefined;
   const title = model.scope === "NATIONAL"
-    ? "3개 합성 권역의 지원 필요 상황"
+    ? "3개 권역의 지원 필요 상황"
     : model.scope === "REGION"
-      ? `${selectedRegion?.label ?? "선택 권역"}의 기사와 경로`
+      ? `${selectedRegion ? displayOperationalLabel(selectedRegion.label) : "선택 권역"}의 기사와 경로`
       : "선택한 지원 decision과 계획 경로";
   const movementAtEnd = movement.frameIndex === movement.frameCount - 1;
   const movementStatus = movement.connectionState === "DISCONNECTED"
-    ? "합성 기사 1명 연결 끊김"
+    ? "기사 1명 연결 끊김"
     : movement.connectionState === "RECOVERED"
-      ? "합성 연결 복구"
+      ? "연결 복구"
       : movement.frameIndex === 0
         ? "재생 대기"
-        : "합성 위치 이벤트 수신";
+        : "위치 정보 수신";
   const selectDecision = (decisionId: string) => {
     onSelectionChange(adapter.selectionForDecision(decisionId));
   };
@@ -719,21 +708,21 @@ function MultiRegionControlMap({
         현재 범위 · <strong>{title}</strong>
       </p>
       {model.scope === "NATIONAL" ? (
-        <ul className="map-region-list" aria-label="합성 권역 목록">
+        <ul className="map-region-list" aria-label="권역 목록">
           {model.regions.map((region) => (
             <li key={region.regionId}>
               <div>
-                <strong>{region.label}</strong>
+                <strong>{displayOperationalLabel(region.label)}</strong>
                 <span>기사 {region.courierCount}명 · 지원 decision {region.supportDecisionCount}건 · stale/offline {region.staleOrOfflineCount}명</span>
               </div>
               <button type="button" onClick={() => onSelectionChange({ regionId: region.regionId })}>
-                {region.label} 목록 보기
+                {displayOperationalLabel(region.label)} 목록 보기
               </button>
             </li>
           ))}
         </ul>
       ) : (
-        <ul className="map-courier-list" aria-label={`${selectedRegion?.label ?? "선택 권역"} 기사와 위치 상태 목록`}>
+        <ul className="map-courier-list" aria-label={`${selectedRegion ? displayOperationalLabel(selectedRegion.label) : "선택 권역"} 기사와 위치 상태 목록`}>
           {model.couriers.map((courier) => (
             <li key={courier.courierId} className={model.selection.courierId === courier.courierId ? "is-selected" : undefined}>
               <div>
@@ -780,7 +769,7 @@ function MultiRegionControlMap({
     >
       <div className="panel-heading">
         <div>
-          <p className="section-kicker">다지역 합성 운영 · 기사 {fixture.couriers.length}명 · 허브 6개</p>
+          <p className="section-kicker">다지역 운영 · 기사 {fixture.couriers.length}명 · 허브 6개</p>
           <h2 id="route-heading">{title}</h2>
         </div>
         <div className="route-heading-meta">
@@ -792,11 +781,11 @@ function MultiRegionControlMap({
               disabled={!spatialAvailable}
               onClick={() => setSpatialMode(spatialActive ? "TWO_D" : "DEMO_TWO_POINT_FIVE_D")}
             >
-              {spatialActive ? "2D로 돌아가기" : spatialAvailable ? "경사 근거 자세히 보기 · Demo 2.5D" : "2.5D 데이터 없음"}
+              {spatialActive ? "2D로 돌아가기" : spatialAvailable ? "경사 근거 자세히 보기 · 2.5D" : "2.5D 데이터 없음"}
             </button>
           )}
           <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
-            {kakaoReady ? "Kakao map · Demo overlay" : kakaoFailed ? "Kakao 오류 · Fallback map" : "Demo schematic map"}
+            {kakaoReady ? "Kakao 지도 · 지원 경로" : kakaoFailed ? "Kakao 오류 · 기본 지도" : "기본 지도"}
           </span>
           <span className="legend"><i className="legend-current" /> 현재 계획 <i className="legend-adjusted" /> 적용 계획</span>
           <button
@@ -823,14 +812,14 @@ function MultiRegionControlMap({
           </button>
         </div>
       </div>
-      <div className="map-movement-toolbar" aria-label="결정론적 Demo 이동 타임라인">
+      <div className="map-movement-toolbar" aria-label="기사 이동 타임라인">
         <div className="map-movement-status">
-          <span className={`movement-state is-${movement.connectionState.toLowerCase()}`}>Demo movement</span>
+          <span className={`movement-state is-${movement.connectionState.toLowerCase()}`}>이동 경로</span>
           <strong aria-live="polite">{formatMovementTime(movement.elapsedSeconds)} / {formatMovementTime(movement.durationSeconds)}</strong>
-          <small>{movementStatus} · Live 0명</small>
+          <small>{movementStatus} · 연결 기사 0명</small>
         </div>
         <progress
-          aria-label="Demo 이동 진행률"
+          aria-label="이동 진행률"
           max={movement.durationSeconds}
           value={movement.elapsedSeconds}
         />
@@ -846,7 +835,7 @@ function MultiRegionControlMap({
               movement.onToggle();
             }}
           >
-            {movement.playing ? "Demo 이동 일시정지" : movementAtEnd ? "Demo 이동 다시 재생" : "Demo 이동 재생"}
+            {movement.playing ? "이동 일시정지" : movementAtEnd ? "이동 다시 재생" : "이동 재생"}
           </button>
           <button type="button" className="button button-neutral" disabled={movementAtEnd} onClick={movement.onNext}>
             다음 {movement.intervalSeconds}초
@@ -879,7 +868,7 @@ function MultiRegionControlMap({
               aria-current={model.scope === "REGION" ? "page" : undefined}
               onClick={() => onSelectionChange({ regionId: selectedRegion.regionId })}
             >
-              {selectedRegion.label}
+              {displayOperationalLabel(selectedRegion.label)}
             </button>
           </>
         )}
@@ -892,14 +881,14 @@ function MultiRegionControlMap({
           onSelectionChange(adapter.resetSelection());
         }}>전체 보기</button>
       </nav>
-      <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 Fallback · ${title}`}</p>
+      <p className="sr-only" aria-live="polite">{mapAvailable ? title : `지도 오류 · 기본 지도 · ${title}`}</p>
       {mapAvailable && spatialActive ? (
         <DecisionSpatialScenePanel applied={applied} scene={spatialScene} />
       ) : mapAvailable ? <div
         className={`control-map-canvas scope-${model.scope.toLowerCase()} ${isMapPanning ? "is-panning" : ""} ${kakaoReady ? "is-kakao" : ""}`}
         role="group"
         tabIndex={0}
-        aria-label="합성 지도 이동 영역"
+        aria-label="지도 이동 영역"
         aria-describedby="map-pan-instructions"
         style={{
           "--map-pan-x": `${mapPan.x}px`,
@@ -938,8 +927,8 @@ function MultiRegionControlMap({
             viewBox="0 0 100 100"
             role="img"
             aria-label={model.scope === "NATIONAL"
-              ? "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도"
-              : `${selectedRegion?.label ?? "선택 권역"}의 합성 허브, 기사 위치 상태와 계획 경로 지도`}
+              ? "3개 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도"
+              : `${selectedRegion ? displayOperationalLabel(selectedRegion.label) : "선택 권역"}의 허브, 기사 위치 상태와 계획 경로 지도`}
           >
             <defs>
               <pattern id="map-grid" width="10" height="10" patternUnits="userSpaceOnUse">
@@ -967,11 +956,11 @@ function MultiRegionControlMap({
               type="button"
               className="region-cluster"
               style={{ left: `${region.point.x}%`, top: `${region.point.y}%` }}
-              aria-label={`${region.label}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`}
+              aria-label={`${displayOperationalLabel(region.label)}, 기사 ${region.courierCount}명, 지원 decision ${region.supportDecisionCount}건`}
               onClick={() => onSelectionChange({ regionId: region.regionId })}
             >
               <span>{region.supportDecisionCount}</span>
-              <strong>{region.label}</strong>
+              <strong>{displayOperationalLabel(region.label)}</strong>
               <small>기사 {region.courierCount} · stale/offline {region.staleOrOfflineCount}</small>
             </button>
           ))}
@@ -991,7 +980,7 @@ function MultiRegionControlMap({
             </button>
           ))}
         </div>
-        <div className="map-data-mode" data-map-overlay><strong>Demo movement · {formatMovementTime(movement.elapsedSeconds)}</strong><span>{kakaoReady ? "Kakao base map · " : "Schematic · "}결정론적 합성 위치 · Live 0명</span></div>
+        <div className="map-data-mode" data-map-overlay><strong>경로 이동 · {formatMovementTime(movement.elapsedSeconds)}</strong><span>{kakaoReady ? "Kakao 지도 · " : "기본 지도 · "}연결 기사 0명</span></div>
         <span className="map-pan-hint" data-map-overlay>{kakaoReady ? "드래그·휠로 지도 이동" : "드래그·방향키로 지도 이동"}</span>
         <span className="sr-only" aria-live="polite">지도 이동 위치 가로 {Math.round(mapPan.x)}, 세로 {Math.round(mapPan.y)}</span>
         <div className={`map-active-decision ${applied ? "is-applied" : ""}`} data-map-overlay>
@@ -1008,7 +997,7 @@ function MultiRegionControlMap({
             <span aria-hidden="true">!</span>
             <div>
               <strong>지도를 불러오지 못했습니다.</strong>
-              <p>빈 화면 대신 같은 합성 fixture의 지역·기사·배송순서 목록을 제공합니다. Safety 계산과 현재 결정은 변경되지 않았습니다.</p>
+              <p>빈 화면 대신 같은 지역·기사·배송순서 목록을 제공합니다. Safety 계산과 현재 결정은 변경되지 않았습니다.</p>
             </div>
           </div>
           {structuredAlternative}
@@ -1193,7 +1182,7 @@ function AuditTimeline({ session }: { session: DemoSession }) {
       </ol>
       <div className="audit-data-boundary">
         <strong>날씨 입력 경계</strong>
-        <span>Live 부분 증거 미사용 · Demo 타임라인 전체 사용</span>
+        <span>외부 연동 증거 미사용 · 저장된 타임라인 사용</span>
         <code>{demoWeatherRuntime.active.fallbackReason.code}</code>
       </div>
     </section>
@@ -1212,12 +1201,12 @@ function WeatherDataBoundary() {
       className="weather-data-boundary"
       aria-labelledby="weather-boundary-heading"
     >
-      <span className="weather-fallback-badge">Fallback</span>
+      <span className="weather-fallback-badge">연결 전</span>
       <div className="weather-boundary-copy">
-        <strong id="weather-boundary-heading">Safety 계산은 Demo 날씨만 사용합니다.</strong>
-        <span>기상청 Live 표본은 부분 검증됐지만 계산 입력과 혼합하지 않았습니다.</span>
+        <strong id="weather-boundary-heading">Safety 계산은 현재 날씨 입력만 사용합니다.</strong>
+        <span>기상청 표본은 별도로 검증하며 현재 계산 입력과 혼합하지 않습니다.</span>
       </div>
-      <dl aria-label="기상청 Live 날씨 적합성">
+      <dl aria-label="기상청 날씨 적합성">
         <div>
           <dt>준비</dt>
           <dd>{evidence.readyFields.length}개 시간범위 필드</dd>
@@ -1253,9 +1242,9 @@ function ExplanationPanel({
         </div>
         <span className={`explanation-status ${result?.status === "FALLBACK" ? "is-fallback" : ""}`}>
           {result?.status === "MOCK"
-            ? "Upstage Mock · 검증 통과"
+            ? "문구 생성 · 검증 통과"
             : result?.status === "FALLBACK"
-              ? "Fallback template"
+              ? "기본 문구"
               : "설명 생성 전"}
         </span>
       </div>
@@ -1263,7 +1252,7 @@ function ExplanationPanel({
         <div className="explanation-copy">
           {result ? (
             <>
-              <span className="mode-badge">◇ {result.data.dataModeLabel}</span>
+              <span className="mode-badge">◇ 문구 생성 완료</span>
               <p>{result.data.summary}</p>
               {result.status === "FALLBACK" && (
                 <div className="fallback-note" role="status">
@@ -1278,7 +1267,7 @@ function ExplanationPanel({
               </div>
             </>
           ) : (
-            <p>적용된 결정 사실과 허용된 합성문서 인용만 사용해 관리자 메모를 생성합니다. 숫자나 추천은 다시 계산하지 않습니다.</p>
+            <p>적용된 결정 사실과 허용된 운영문서 인용만 사용해 관리자 메모를 생성합니다. 숫자나 추천은 다시 계산하지 않습니다.</p>
           )}
         </div>
         <div className="explanation-checks" aria-label="설명 검증 상태">
@@ -1402,16 +1391,16 @@ function AdminDashboard({
         <header className="admin-dashboard-header">
           <div className="admin-context">
             <div>
-              <p className="section-kicker">{stageMode ? "SafeRoute AI · 3분 제출 Demo" : "2026년 7월 14일 · Asia/Seoul"}</p>
+              <p className="section-kicker">{stageMode ? "SafeRoute AI · 3분 제출 화면" : "2026년 7월 14일 · Asia/Seoul"}</p>
               <h1>{stageMode ? "52분 후 17번째 배송지 전, 지금 지원이 필요합니다" : "향후 60분 안에 어떤 지원이 필요한가?"}</h1>
             </div>
-            <div className="weather-summary"><span aria-hidden="true">☂</span><span><strong>강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</strong><small>Demo Fallback · 시정 {(currentWeather.visibilityMeters / 1_000).toFixed(1)} km</small></span></div>
+            <div className="weather-summary"><span aria-hidden="true">☂</span><span><strong>강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</strong><small>기상 확인 중 · 시정 {(currentWeather.visibilityMeters / 1_000).toFixed(1)} km</small></span></div>
           </div>
           <div className="admin-dashboard-actions">
             <RoleSwitcher role={role} onChange={onRoleChange} />
             <div className="header-actions">
-              <span className="mode-badge"><span aria-hidden="true">◇</span><span>{demoWeatherRuntime.displayLabel}</span></span>
-              <button type="button" className="button button-quiet button-small" onClick={onReset}>Demo 초기화</button>
+              <span className="mode-badge"><span aria-hidden="true">◇</span><span>시연 데이터</span></span>
+              <button type="button" className="button button-quiet button-small" onClick={onReset}>초기화</button>
             </div>
           </div>
         </header>
@@ -1421,12 +1410,7 @@ function AdminDashboard({
           <span>{session.announcement}</span>
           <code>{session.decision.decisionId}</code>
         </div>
-        {stageMode ? (
-          <div className="stage-mode-disclosure" role="note">
-            <strong>합성 Demo · Simulation result</strong>
-            <span>실제 사고확률이나 사고감소 효과가 아닙니다 · Live 0명 · Weather Fallback</span>
-          </div>
-        ) : (
+        {!stageMode && (
           <>
             <WeatherDataBoundary />
             <div className="kpi-strip" aria-label="운영 요약">
@@ -1577,7 +1561,7 @@ function KakaoRiderRouteMap({
       className="rider-kakao-map-layer"
       data-rider-kakao-map
       role="group"
-      aria-label="카카오 지도 위에 표시한 결정론적 합성 현재 위치, 휴식 지점과 다음 배송지"
+      aria-label="카카오 지도 위에 표시한 현재 위치, 휴식 지점과 다음 배송지"
     />
   );
 }
@@ -1649,13 +1633,13 @@ function RiderCompactRoute({
       ? "카카오모빌리티 경로"
       : directionsState.status === "LOADING"
         ? "경로 계산 중"
-        : "Demo 경로로 계속";
+        : "기본 경로로 계속";
   return (
-    <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약">
+    <section className={`rider-compact-map ${applied ? "is-applied" : ""}`} aria-label="현재 위치, 휴식 지점과 다음 배송지 경로 요약">
       <div className="compact-map-heading">
         <div><span>현재 운행 경로</span><strong>{applied ? "휴식 후 조정 순서" : "17번째 배송지 전 지원"}</strong></div>
         <span className={`fallback-map-badge ${kakaoReady ? "is-live-map" : ""}`}>
-          {kakaoReady ? "Kakao map · Demo route" : kakaoFailed ? "Kakao 오류 · Fallback map" : "Fallback map"}
+          {kakaoReady ? "Kakao 지도 · 운행 경로" : kakaoFailed ? "Kakao 오류 · 기본 지도" : "기본 지도"}
         </span>
       </div>
       <div className={`compact-map-stage ${kakaoReady ? "is-kakao" : ""}`}>
@@ -1670,8 +1654,8 @@ function RiderCompactRoute({
         {kakaoRequested && kakaoMapStatus === "LOADING" && (
           <div className="rider-kakao-map-loading" role="status">경로 지도를 불러오는 중입니다.</div>
         )}
-        <div className="compact-map-context" aria-label="합성 위치와 날씨 상태">
-          <span><i aria-hidden="true">⌖</i> 합성 현재 위치</span>
+        <div className="compact-map-context" aria-label="현재 위치와 날씨 상태">
+          <span><i aria-hidden="true">⌖</i> 현재 위치</span>
           <span><i aria-hidden="true">☂</i> 강수 {currentWeather.rainfallMmPerHour.toFixed(1)} mm/h</span>
           <span><i aria-hidden="true">△</i> 경사 구간</span>
         </div>
@@ -1688,12 +1672,12 @@ function RiderCompactRoute({
       </ol>
       <section
         className={`rider-directions-preview ${directionsState.status === "LIVE" ? "is-live" : "is-fallback"}`}
-        aria-label="합성 위치 자동차 길찾기 미리보기"
+        aria-label="자동차 길찾기 미리보기"
         aria-live="polite"
       >
         <div className="rider-directions-heading">
           <div>
-            <span>자동차 길찾기 · 합성 Demo</span>
+            <span>자동차 길찾기</span>
             <strong>{directionsLabel}</strong>
           </div>
           <span className="rider-directions-status">
@@ -1701,7 +1685,7 @@ function RiderCompactRoute({
               ? "연결됨"
               : directionsState.status === "LOADING"
                 ? "확인 중"
-                : "Fallback"}
+                : "기본 경로"}
           </span>
         </div>
         {directionsState.status === "LIVE" ? (
@@ -1727,7 +1711,7 @@ function RiderCompactRoute({
           <p className="rider-directions-fallback">
             {directionsState.status === "LOADING"
               ? "카카오 경로와 ETA를 확인하고 있습니다."
-              : "외부 경로를 불러오지 못해 승인된 합성 경로와 구조화 목록을 유지합니다."}
+              : "외부 경로를 불러오지 못해 승인된 경로와 구조화 목록을 유지합니다."}
           </p>
         )}
         {online ? (
@@ -1737,18 +1721,18 @@ function RiderCompactRoute({
             target="_blank"
             rel="noreferrer"
           >
-            카카오맵에서 Demo 길찾기
+            카카오맵에서 길찾기
           </a>
         ) : (
           <span
             className="button button-secondary rider-directions-open is-disabled"
             aria-disabled="true"
           >
-            연결 후 Demo 길찾기
+            연결 후 길찾기
           </span>
         )}
         <small>
-          합성 위치만 사용합니다. 실제 GPS가 아니며 Safety 계산·배송순서를 변경하지 않습니다.
+          현재 화면의 위치 정보는 Safety 계산·배송순서를 변경하지 않습니다.
         </small>
       </section>
     </section>
@@ -1775,18 +1759,16 @@ function RiderLogin({
           <h1 id="rider-login-title">안전한 운행을<br />함께 준비합니다.</h1>
         </div>
         <div className="login-panel">
-          <span className="fixture-pill">Demo fixture</span>
+          <span className="fixture-pill">시연 데이터</span>
           <h2>기사 계정 확인</h2>
           <p>배정된 허브와 차량을 확인하고 업무 화면으로 이동합니다.</p>
           <dl>
-            <div><dt>기사 ID</dt><dd>{isRecipient ? "R-024" : "R-017"}</dd></div>
-            <div><dt>배정 허브</dt><dd>관악 합성 허브</dd></div>
+            <div><dt>기사</dt><dd>{isRecipient ? "채우진" : "강태현"}</dd></div>
+            <div><dt>배정 허브</dt><dd>관악 허브</dd></div>
             <div><dt>차량</dt><dd>{isRecipient ? "EV-31" : "EV-24"} · 확인됨</dd></div>
           </dl>
-          <button type="button" className="button button-primary button-block login-primary" onClick={onEnter}>데모 계정으로 시작</button>
+          <button type="button" className="button button-primary button-block login-primary" onClick={onEnter}>업무 화면 시작</button>
           <button type="button" className="button button-quiet button-block login-back" onClick={onBack}>관리자 화면으로 돌아가기</button>
-          <small>실제 개인정보나 로그인 정보는 사용하지 않습니다.</small>
-          <DemoDisclosure />
         </div>
       </section>
     </main>
@@ -1815,7 +1797,7 @@ function RiderPwaStatus({
     return (
       <section className="rider-pwa-status is-online" aria-live="polite">
         <span aria-hidden="true">●</span>
-        <div><strong>온라인 · Demo session</strong><small>{shellReady ? "오프라인 앱 셸 준비됨" : "앱 셸 확인 중"}</small></div>
+        <div><strong>온라인</strong><small>{shellReady ? "오프라인 앱 셸 준비됨" : "앱 셸 확인 중"}</small></div>
       </section>
     );
   }
@@ -1825,7 +1807,7 @@ function RiderPwaStatus({
       <section className="rider-pwa-status is-offline" aria-live="polite">
         <span aria-hidden="true">↓</span>
         <div>
-          <strong>오프라인 · 마지막 승인 Demo 계획</strong>
+          <strong>오프라인 · 마지막 승인 계획</strong>
           <small>{formatCachedAt(cacheState.plan.storedAt)} 저장 · {formatCachedAt(cacheState.plan.expiresAt)}까지 읽기 전용</small>
         </div>
       </section>
@@ -1932,7 +1914,7 @@ function RiderView({
     });
     setDangerDemoMessage(
       result.persisted
-        ? "관제 화면에 합성 위험 신호를 보냈습니다."
+        ? "관제 화면에 위험 신호를 보냈습니다."
         : "브라우저 저장소가 차단되어 신호를 보존하지 못했습니다.",
     );
   };
@@ -1948,16 +1930,16 @@ function RiderView({
           </div>
           <div className="rider-toolbar-actions">
             <a className="rider-dashboard-link" href="/">관제</a>
-            <button type="button" className="rider-reset-button" onClick={onReset}>Demo 초기화</button>
+            <button type="button" className="rider-reset-button" onClick={onReset}>초기화</button>
             <RiderRoleMenu role={role} onChange={onRoleChange} />
           </div>
         </div>
         <div className="rider-topline">
-          <span className="mode-badge"><span aria-hidden="true">◇</span> 합성 Demo 경로 · GPS 길안내 아님</span>
+          <span className="mode-badge"><span aria-hidden="true">◇</span><span>시연 데이터</span></span>
           <span className="stopped-badge">정차 확인</span>
         </div>
         <div className="rider-route-bar">
-          <div><span>합성 배송 구역</span><strong>{tab === "ROUTE" ? "서울 용산" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
+          <div><span>현재 배송 구역</span><strong>{tab === "ROUTE" ? "서울 용산" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
           <div><span>배송률</span><strong>{deliveryRate}%</strong></div>
         </div>
         {(!pwa.online || tab === "PROFILE") && (
@@ -1973,10 +1955,10 @@ function RiderView({
                   src="/assets/rider-delivery-area-seoul.jpg"
                   alt="서울 주거지역의 아파트 건물 전경"
                 />
-                <figcaption>대표 이미지 / 실제 배송지 아님</figcaption>
+                <figcaption>배송 구역 대표 이미지</figcaption>
               </figure>
               <div className="rider-delivery-copy">
-                <span>합성 배송 구역</span>
+                <span>현재 배송 구역</span>
                 <h1>서울시 용산구 한빛아파트</h1>
                 <div className="rider-delivery-progress-copy">
                   <span>배송 {deliveryCompletedCount}/{deliveryTotalCount}</span>
@@ -2010,8 +1992,8 @@ function RiderView({
               </div>
             </section>
             <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
-            <section className="rider-danger-demo" aria-label="응급 상황 감지 합성 예시">
-              <span>합성 예시 / 실제 신고 아님</span>
+            <section className="rider-danger-demo" aria-label="응급 상황 감지 예시">
+              <span>위험 신호 감지</span>
               <strong>매우 위험한 상태 감지</strong>
               <button type="button" onClick={sendDangerDemoSignal}>
                 응급 상황 감지 예시
@@ -2031,7 +2013,6 @@ function RiderView({
               <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
               <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
             </section>
-            <DemoDisclosure />
           </section>
         )}
 
@@ -2090,19 +2071,18 @@ function RiderView({
                 <ul>
                   <li>연속작업과 남은 물량 노출을 함께 줄입니다.</li>
                   <li>수신 기사의 안전여유·용량·시간창을 모두 확인했습니다.</li>
-                  <li>이 수치는 사고확률이 아닌 Demo 운영 위험지수입니다.</li>
+                  <li>이 수치는 사고확률이 아닌 안전 지원 점수입니다.</li>
                 </ul>
               </details>
             </section>
-            <DemoDisclosure />
           </section>
         )}
 
         {tab === "PROFILE" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-profile-tab">
-            <p className="rider-overline">내 정보 · Demo 안내</p>
+            <p className="rider-overline">내 정보</p>
             <h1>필요한 운영 상태만 공유합니다</h1>
-            <p className="rider-lead">실제 인증이나 개인정보를 사용하지 않는 합성 기사 계정 화면입니다.</p>
+            <p className="rider-lead">업무에 필요한 정보만 확인하고 공유 범위를 관리합니다.</p>
             <section className="rider-privacy-visual" aria-label="공유 정보와 기사 권리 요약">
               <div><span aria-hidden="true">◇</span><strong>공유</strong><small>운영 파생 상태</small></div>
               <div><span aria-hidden="true">⊘</span><strong>비공유</strong><small>생체·장기 궤적</small></div>
@@ -2115,28 +2095,27 @@ function RiderView({
             </section>
             <section className="rider-profile-card">
               <span>이 결정에 사용한 데이터</span>
-              <strong>결정론적 합성 fixture · 날씨 Fallback</strong>
-              <p>기상청 Live 부분 표본은 Safety 계산에 섞지 않았으며 전체 Demo 날씨 타임라인을 사용했습니다.</p>
+              <strong>배송·날씨·경로 상태</strong>
+              <p>같은 기준 시각의 입력만 사용하며 확인되지 않은 값은 계산에 섞지 않습니다.</p>
             </section>
             <section className="rider-profile-card">
               <span>이의제기와 도움</span>
               <strong>수정·거절·정정 요청에 불이익이 없습니다</strong>
-              <p>현재 데모에서는 안전지원 탭의 수정 요청과 거절로 운영팀의 재검토를 요청할 수 있습니다.</p>
+              <p>안전지원 탭의 수정 요청과 거절로 운영팀의 재검토를 요청할 수 있습니다.</p>
             </section>
             <section className="rider-profile-card rider-pwa-card">
               <span>기기 설치와 오프라인</span>
               <strong>{pwa.installStatus === "INSTALLED" ? "이 기기에 설치됨" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치할 수 있음" : pwa.shellReady ? "오프라인 앱 셸 준비됨" : "설치 조건 확인 중"}</strong>
-              <p>마지막 승인·적용 Demo 계획만 30분 동안 기기에 최소 필드로 저장합니다. 오프라인에서는 읽기 전용이며 만료 계획을 최신으로 표시하지 않습니다.</p>
+              <p>마지막 승인·적용 계획만 30분 동안 기기에 최소 필드로 저장합니다. 오프라인에서는 읽기 전용이며 만료 계획을 최신으로 표시하지 않습니다.</p>
               <button
                 type="button"
                 className="button button-secondary button-block"
                 disabled={pwa.installStatus !== "AVAILABLE"}
                 onClick={() => void pwa.requestInstall()}
               >{pwa.installStatus === "INSTALLED" ? "설치 완료" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치" : "브라우저 설치 조건 확인"}</button>
-              <small>실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.</small>
+              <small>인증·위치 권한·푸시 알림은 준비 중입니다.</small>
             </section>
             <code className="rider-decision-code">Decision ID · {session.decision.decisionId}</code>
-            <DemoDisclosure />
           </section>
         )}
 

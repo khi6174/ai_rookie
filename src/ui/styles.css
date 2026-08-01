@@ -6017,7 +6017,7 @@ body {
 }
 
 .rider-demo-toolbar .rider-role-menu summary {
-  min-width: 54px;
+  min-width: 64px;
   min-height: 44px;
   border-color: var(--design-line-strong);
   color: var(--design-ink);

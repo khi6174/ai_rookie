@@ -17,17 +17,17 @@ async function switchDemoRole(page: Page, role: "관리자" | "원 기사" | "�
 
 async function enterRider(page: Page, role: "원 기사" | "수신 기사") {
   await switchDemoRole(page, role);
-  const enterButton = page.getByRole("button", { name: "데모 계정으로 시작" });
+  const enterButton = page.getByRole("button", { name: "업무 화면 시작" });
   if (await enterButton.isVisible()) await enterButton.click();
 }
 
 async function expectCleanInitialState(page: Page, expectedDecisionId = decisionId) {
   await expect(page.getByRole("heading", { name: "향후 60분 안에 어떤 지원이 필요한가?" })).toBeVisible();
-  await expect(page.getByText("Demo fixture").first()).toBeVisible();
+  await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(1);
   await expect(page.getByText(expectedDecisionId).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeDisabled();
-  await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
-  await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3개 권역의 지원 필요 상황" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "3개 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toBeVisible();
   await expect(page.getByText("약 52분 후 · 17번째 배송지", { exact: true })).toBeVisible();
   await expect(page.getByText("12건 이관은 실행할 수 없습니다.")).toBeVisible();
   await expect(page.getByText("휴식 · 물량이관 · 순서변경 · 안전경로 · Safe Delay")).toBeVisible();
@@ -112,7 +112,7 @@ test("Demo 초기화는 같은 fixture를 새 결정 ID와 연결하고 폐루�
   await page.getByRole("tab", { name: "안전지원" }).click();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
   await switchDemoRole(page, "관리자");
-  await page.getByRole("button", { name: "Demo 초기화" }).click();
+  await page.getByRole("button", { name: "초기화" }).click();
 
   const resetDecisionId = await page.locator(".global-announcement code").textContent();
   expect(resetDecisionId).toMatch(/^decision-scenario-a-ui-reset-[0-9a-f-]{36}$/);
@@ -126,18 +126,18 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
 
   const sourceTab = page.getByRole("tab", { name: "원 기사" });
   await activateUsingKeyboard(page, sourceTab);
-  const enterButton = page.getByRole("button", { name: "데모 계정으로 시작" });
+  const enterButton = page.getByRole("button", { name: "업무 화면 시작" });
   await focusUsingTab(page, enterButton);
   await expect(enterButton).toBeFocused();
   expect(await enterButton.evaluate((element) => getComputedStyle(element).outlineStyle)).not.toBe("none");
   await page.keyboard.press("Enter");
-  await expect(page.locator(".rider-role-menu summary")).toHaveAttribute("aria-label", "R-017 · Demo 화면 전환");
+  await expect(page.locator(".rider-role-menu summary")).toHaveAttribute("aria-label", "강태현 기사 화면 전환");
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
 
   await activateUsingKeyboard(page, page.locator(".rider-role-menu summary"));
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "수신 기사" }));
-  await activateUsingKeyboard(page, page.getByRole("button", { name: "데모 계정으로 시작" }));
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "업무 화면 시작" }));
   await activateUsingKeyboard(page, page.getByRole("tab", { name: "안전지원" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
 
@@ -152,10 +152,10 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
 test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐와 동기화한다", async ({ page }) => {
   await page.goto("/closed-loop-demo");
   const northRegion = page.getByRole("button", {
-    name: "합성 북부권역, 기사 8명, 지원 decision 4건",
+    name: "북부권역, 기사 8명, 지원 decision 4건",
   });
   await northRegion.click();
-  await expect(page.getByRole("heading", { name: "합성 북부권역의 기사와 경로" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "북부권역의 기사와 경로" })).toBeVisible();
   const movingMarker = page.getByRole("button", { name: /courier-01, 지원 필요, 위치 CURRENT/ });
   const staleMarker = page.getByRole("button", { name: /courier-07, 운행 중, 위치 STALE/ });
   const movingStyleAtStart = await movingMarker.getAttribute("style");
@@ -164,23 +164,23 @@ test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐
   await expect(page.getByText("00:05 / 00:30", { exact: true })).toBeVisible();
   expect(await movingMarker.getAttribute("style")).not.toBe(movingStyleAtStart);
   expect(await staleMarker.getAttribute("style")).toBe(staleStyleAtStart);
-  await page.getByRole("button", { name: "Demo 이동 재생" }).click();
+  await page.getByRole("button", { name: "이동 재생" }).click();
   await expect(page.getByText("00:10 / 00:30", { exact: true })).toBeVisible();
-  await page.getByRole("button", { name: "Demo 이동 일시정지" }).click();
+  await page.getByRole("button", { name: "이동 일시정지" }).click();
   await page.getByRole("button", { name: "처음으로" }).click();
   await expect(page.getByText("00:00 / 00:30", { exact: true })).toBeVisible();
   await movingMarker.click();
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
   await expect(page.getByText(decisionId).first()).toBeVisible();
   await page.getByRole("button", { name: "전체 보기" }).click();
-  await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "3개 권역의 지원 필요 상황" })).toBeVisible();
   await page.getByRole("link", { name: "지도에서 같은 decision 보기" }).click();
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
 });
 
 test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한다", async ({ page }) => {
   await page.goto("/closed-loop-demo");
-  const map = page.getByRole("group", { name: "합성 지도 이동 영역" });
+  const map = page.getByRole("group", { name: "지도 이동 영역" });
   const surface = page.locator(".control-map-pan-surface");
   const background = page.locator(".control-map-pan-background");
   const reset = page.getByRole("button", { name: "지도 중심 복원" });
@@ -221,9 +221,9 @@ test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순
   await page.goto("/closed-loop-demo");
   await page.getByRole("button", { name: "지도 오류 재현" }).click();
   await expect(page.getByRole("alert").getByText("지도를 불러오지 못했습니다.")).toBeVisible();
-  await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toHaveCount(0);
-  await page.getByRole("button", { name: "합성 북부권역 목록 보기" }).click();
-  await expect(page.getByRole("list", { name: "합성 북부권역 기사와 위치 상태 목록" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "3개 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toHaveCount(0);
+  await page.getByRole("button", { name: "북부권역 목록 보기" }).click();
+  await expect(page.getByRole("list", { name: "북부권역 기사와 위치 상태 목록" })).toBeVisible();
   await page.getByRole("button", { name: "courier-01 decision 선택" }).click();
   const routeOrder = page.getByLabel("지도 없이 확인하는 배송순서와 지원 조치");
   await expect(routeOrder.getByRole("heading", { name: "지도 없이 확인하는 배송순서와 지원 조치" })).toBeVisible();
@@ -234,15 +234,15 @@ test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순
   await page.getByRole("link", { name: "지도에서 같은 decision 보기" }).click();
   await expect(page.getByRole("heading", { name: "선택한 지원 decision과 계획 경로" })).toBeVisible();
   await page.getByRole("button", { name: "지도 복구" }).click();
-  await expect(page.getByRole("img", { name: "합성 북부권역의 합성 허브, 기사 위치 상태와 계획 경로 지도" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "북부권역의 허브, 기사 위치 상태와 계획 경로 지도" })).toBeVisible();
 });
 
 test("키보드로 구조화 지도 대안을 열고 decision을 선택한다", async ({ page }) => {
   await page.goto("/closed-loop-demo");
   const alternative = page.getByText("지도 없이 배송순서·decision 보기", { exact: true });
   await activateUsingKeyboard(page, alternative);
-  await expect(page.getByRole("list", { name: "합성 권역 목록" })).toBeVisible();
-  await activateUsingKeyboard(page, page.getByRole("button", { name: "합성 북부권역 목록 보기" }));
+  await expect(page.getByRole("list", { name: "권역 목록" })).toBeVisible();
+  await activateUsingKeyboard(page, page.getByRole("button", { name: "북부권역 목록 보기" }));
   await activateUsingKeyboard(page, page.getByRole("button", { name: "courier-01 decision 선택" }));
   const routeOrder = page.getByLabel("지도 없이 확인하는 배송순서와 지원 조치");
   await expect(routeOrder.getByRole("heading", { name: "지도 없이 확인하는 배송순서와 지원 조치" })).toBeVisible();
@@ -256,7 +256,7 @@ for (const viewport of [
   test(`${viewport.name}에서 핵심 상태와 행동이 가로로 잘리지 않는다`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/closed-loop-demo");
-    await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "3개 권역의 지원 필요 상황" })).toBeVisible();
     await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
   });
@@ -273,17 +273,17 @@ for (const viewport of [
     await expect(page.locator(".stopped-badge")).toHaveText("정차 확인");
     await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
-    await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지를 나타내는 합성 경로 요약")).toBeVisible();
-    await expect(page.getByText("Fallback map", { exact: true })).toBeVisible();
-    await expect(page.getByText("합성 현재 위치", { exact: false })).toBeVisible();
+    await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지 경로 요약")).toBeVisible();
+    await expect(page.getByText("기본 지도", { exact: true })).toBeVisible();
+    await expect(page.getByText("현재 위치", { exact: false })).toBeVisible();
     const structuredRoute = page.getByLabel("구조화된 다음 경로");
     await expect(structuredRoute).toContainText("14번째 배송지 구간");
     await expect(structuredRoute).toContainText("10분 휴식 지점");
     await expect(structuredRoute).toContainText("약 52분 · 17번째 전");
-    const directions = page.getByLabel("합성 위치 자동차 길찾기 미리보기");
-    await expect(directions.getByText("Demo 경로로 계속")).toBeVisible();
+    const directions = page.getByLabel("자동차 길찾기 미리보기");
+    await expect(directions.getByText("기본 경로로 계속")).toBeVisible();
     const directionsLink = directions.getByRole("link", {
-      name: "카카오맵에서 Demo 길찾기",
+      name: "카카오맵에서 길찾기",
     });
     await expect(directionsLink).toHaveAttribute(
       "href",
@@ -330,7 +330,7 @@ test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 �
   try {
     await page.reload({ waitUntil: "domcontentloaded" });
     await enterRider(page, "원 기사");
-    await expect(page.getByText("오프라인 · 마지막 승인 Demo 계획")).toBeVisible();
+    await expect(page.getByText("오프라인 · 마지막 승인 계획")).toBeVisible();
     await expect(page.getByText("읽기 전용", { exact: false })).toBeVisible();
     await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
@@ -378,8 +378,8 @@ test("내 정보에서 설치 가능 상태와 실제 미구현 권한 경계를
   await enterRider(page, "원 기사");
   await page.getByRole("tab", { name: "내 정보" }).click();
   await expect(page.getByText("기기 설치와 오프라인")).toBeVisible();
-  await expect(page.getByText("마지막 승인·적용 Demo 계획만 30분 동안", { exact: false })).toBeVisible();
-  await expect(page.getByText("실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.")).toBeVisible();
+  await expect(page.getByText("마지막 승인·적용 계획만 30분 동안", { exact: false })).toBeVisible();
+  await expect(page.getByText("인증·위치 권한·푸시 알림은 준비 중입니다.")).toBeVisible();
   await expectMinimumTouchHeight(page.locator(".rider-pwa-card button"));
 });
 
@@ -400,7 +400,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     role: string;
     state: string;
     horizontalOverflow: boolean;
-    demoModeLabelVisible: boolean;
+    submissionCopyClean: boolean;
     checkedTouchTargets: number;
     minimumTouchHeightPx?: number;
     requiredTouchHeightPx?: number;
@@ -421,11 +421,13 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     });
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     await expectNoPageHorizontalOverflow(page);
-    const demoModeLabelVisible = await page.locator(".mode-badge:visible, .fixture-pill:visible").filter({ hasText: "Demo" }).first().isVisible();
-    expect(demoModeLabelVisible).toBe(true);
+    const visibleCopy = await page.locator("body").innerText();
+    const submissionCopyClean = !/Demo|데모|합성|실제\s*아님|Fallback|Live/.test(visibleCopy);
+    expect(submissionCopyClean).toBe(true);
+    await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(1);
     const touchTargets = input.state === "LOGIN"
       ? [
-          page.getByRole("button", { name: "데모 계정으로 시작" }),
+          page.getByRole("button", { name: "업무 화면 시작" }),
           page.getByRole("button", { name: "관리자 화면으로 돌아가기" }),
         ]
       : input.state === "RIDER_ROUTE"
@@ -462,7 +464,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
       role: input.role,
       state: input.state,
       horizontalOverflow: false,
-      demoModeLabelVisible,
+      submissionCopyClean,
       checkedTouchTargets: touchHeights.length,
       minimumTouchHeightPx: touchHeights.length ? Math.min(...touchHeights) : undefined,
       requiredTouchHeightPx: touchHeights.length ? 44 : undefined,
@@ -499,7 +501,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     role: "SOURCE",
     state: "LOGIN",
   });
-  await page.getByRole("button", { name: "데모 계정으로 시작" }).click();
+  await page.getByRole("button", { name: "업무 화면 시작" }).click();
   await capture({
     file: "rider-source-route-current-390x844.png",
     width: 390,
@@ -547,7 +549,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
       scope: [
         "horizontal overflow at four required viewports",
         "44px minimum touch height for login, route and decision controls in rider views",
-        "visible Demo fixture provenance label",
+        "submission UI excludes development and provenance copy",
         "map error fallback with structured region, courier, decision and delivery-order navigation",
         "keyboard-only structured map alternative navigation",
         "pointer-drag and keyboard map panning with bounded position and center reset",

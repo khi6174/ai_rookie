@@ -1187,6 +1187,26 @@
 - 기각한 대안: 기존 지원계획 카드 유지, 실제 아파트 주소·정밀 위치 사용, 배송률과 ETA를 고정 문자열로만 표시, 점수를 다른 기사와 비교.
 - 영향 파일: `src/ui/App.tsx`, `src/ui/styles.css`, `public/assets/rider-delivery-area-seoul.jpg`, `public/assets/ATTRIBUTION.md`, `e2e/saferoute-demo.spec.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-121 — 제출 화면의 데이터 경계 문구를 한 곳에 통합한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: 관리자 기본 화면과 기사 앱의 주요 업무 영역에서 반복되는 `Demo`, `합성`, `실제 아님`, `Fallback`, `Live` 문구를 제거하고 각 주요 화면 상단에 작은 `시연 데이터` 표시 하나만 유지한다. 지도·연결 상태는 `기본 지도`, `연결 확인 중`, `준비 중`처럼 행동 중심의 한국어로 표시한다.
+- 이유: 같은 경계 문구가 카드·사진·지도·버튼마다 반복되면 심사위원이 핵심 기능보다 개발 상태 문구를 먼저 읽게 되고 화면이 불필요하게 길어진다.
+- 경계: 데이터가 실제 운영 자료라는 문구나 실운영 성과 주장을 새로 추가하지 않는다. 출처 메타데이터, 결정론적 fixture, 개인정보·실연동 제한은 내부 계약과 검증 자료에 유지하고 오류·오프라인 상태는 기능 상태로 계속 표시한다. 계산·추천·동의·승인 동작은 변경하지 않는다.
+- 기각한 대안: 출처 표시 완전 제거, 기존 영문 상태 배지 유지, 각 카드마다 장문 주의문 반복, 접힌 장문 안내 유지.
+- 영향 파일: `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `e2e/one-page-dashboard.spec.ts`, `e2e/saferoute-demo.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
+### ADR-122 — 기사 이름·업무·이동 경로를 기사 ID와 일대일로 연결한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: 관제의 20명 기사 각각에 고유한 가상 이름, 기사 ID, 배송 구역, 배송 진행, 근무 시작, 안전 지원 점수, 위험 예상 시점과 도로 구간을 연결한다. 주 기사 `R-017`은 `강태현`, 수신 기사 `R-024`는 `채우진`으로 고정하고 기사 앱 우측 상단에는 ID 대신 이름을 표시한다. 관제 지도는 같은 기사 ID의 전용 도로 구간 위에서 1초마다 위치를 갱신한다.
+- 이유: 카드의 기사와 지도 마커, 기사 앱의 인물이 같은 사람으로 이어져야 심사위원이 실시간 관제 흐름을 자연스럽게 이해할 수 있다.
+- 경계: 이름과 위치는 모두 가상 fixture이며 실제 기사 개인정보·GPS·브라우저 위치를 수집하지 않는다. 위치 이동은 도로 위 결정론적 반복 경로이며 Safety 계산·순위·추천 결과를 변경하지 않는다. 실제 위치 연동은 공급자·수집주기·보존기간·권한 승인을 받은 뒤 별도로 진행한다.
+- 기각한 대안: 기사 ID만 표시, 모든 기사에게 같은 이동 경로 사용, 실제 기사 이름·GPS를 승인 없이 연결, 화면마다 서로 다른 기사 이름 사용.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/App.tsx`, `e2e/one-page-dashboard.spec.ts`, `e2e/saferoute-demo.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

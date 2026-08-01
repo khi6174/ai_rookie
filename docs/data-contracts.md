@@ -475,6 +475,29 @@ type CourierState = {
 - `optionalDerivedSignals`: 선택형 파생값만 허용하는 개인정보 경계
 - `consentCapabilities`: 정차·오프라인 상태에서 안전한 상호작용 제어
 
+### 5.1 제출 화면 기사 디렉터리
+
+`PresentationCourierProfile`은 관제 카드·지도 마커·기사 앱의 동일 인물을 연결하는 화면 전용 fixture다.
+
+```ts
+type PresentationCourierProfile = {
+  courierId: CourierId;
+  displayName: string;
+  coarseArea: string;
+  completedStopCount: number;
+  totalStopCount: number;
+  shiftStartedAtLabel: string;
+  safetySupportScore: number;
+  criticalMinute: number | null;
+  routeCorridorId: string;
+};
+```
+
+- 20개 프로필의 `courierId`와 `displayName`은 각각 고유하다.
+- 이름은 실제 기사와 연결되지 않는 가상 이름이며 연락처·인증정보·정밀 주소를 포함하지 않는다.
+- `routeCorridorId`는 도로 위 반복 이동 경로만 가리키며 브라우저 위치나 실제 GPS를 읽지 않는다.
+- 관제 카드, 지도 마커와 기사 앱은 같은 `courierId`에서 이름·구역·진행률을 읽는다.
+
 ## 6. WorkloadState
 
 현재 확정 계획에 남은 작업량과 기사별 적재 상태를 나타낸다.

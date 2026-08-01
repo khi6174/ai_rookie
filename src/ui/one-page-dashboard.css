@@ -92,6 +92,12 @@
   letter-spacing: -.02em;
 }
 
+.onepage-brand-copy small {
+  color: var(--muted);
+  font-size: var(--type-10);
+  font-weight: var(--weight-medium);
+}
+
 .onepage-page-title {
   justify-items: center;
 }
