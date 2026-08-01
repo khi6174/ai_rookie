@@ -11,6 +11,28 @@ async function expectNoPageOverflow(page: import("@playwright/test").Page) {
   expect(overflow.vertical).toBeLessThanOrEqual(1);
 }
 
+test("현재 시각 옆 기사 앱 버튼은 합성 기사 운행 화면을 바로 연다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+
+  const riderAppLink = page.getByRole("link", { name: "기사 앱" });
+  await expect(riderAppLink).toBeVisible();
+  await expect(riderAppLink).toHaveAttribute("href", "/rider-demo");
+  await riderAppLink.click();
+
+  await expect(page).toHaveURL(/\/rider-demo$/);
+  await expect(page.getByRole("tab", { name: "운행" })).toHaveAttribute(
+    "aria-selected",
+    "true",
+  );
+  await expect(
+    page.getByRole("button", { name: "데모 계정으로 시작" }),
+  ).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "관제" })).toBeVisible();
+});
+
 test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를 유지한다", async ({
   page,
 }) => {

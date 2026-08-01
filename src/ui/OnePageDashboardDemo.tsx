@@ -1105,6 +1105,9 @@ export function OnePageDashboardDemo() {
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>
+          <a className="onepage-rider-app-link" href="/rider-demo">
+            기사 앱
+          </a>
         </div>
       </header>
 

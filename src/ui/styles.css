@@ -5855,6 +5855,20 @@ body {
   cursor: pointer;
 }
 
+.rider-dashboard-link {
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 0 8px;
+  border: 1px solid var(--design-line);
+  border-radius: 8px;
+  color: var(--design-blue-strong);
+  background: var(--design-card);
+  font-size: 0.56rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
 .rider-demo-toolbar .rider-role-menu {
   position: relative;
 }

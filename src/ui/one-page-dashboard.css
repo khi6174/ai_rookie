@@ -104,6 +104,7 @@
 }
 
 .onepage-header-status {
+  gap: 10px;
   justify-content: flex-end;
   font-variant-numeric: tabular-nums;
 }
@@ -115,6 +116,27 @@
   font-weight: var(--weight-heavy);
   letter-spacing: .02em;
   text-align: right;
+}
+
+.onepage-rider-app-link {
+  display: inline-flex;
+  min-height: 36px;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid var(--blue);
+  border-radius: var(--r-md);
+  color: var(--surface);
+  background: var(--blue);
+  font-size: var(--type-13);
+  font-weight: var(--weight-heavy);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.onepage-rider-app-link:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
 }
 
 .onepage-courier-section {

@@ -48,6 +48,8 @@ createRoot(root).render(
     >
       {pathname === "/" || pathname.startsWith("/dashboard-demo") ? (
         <OnePageDashboardDemo />
+      ) : pathname.startsWith("/rider-demo") ? (
+        <App initialRole="SOURCE" initialRiderEntry />
       ) : pathname.startsWith("/closed-loop-demo") ? (
         <App />
       ) : pathname.startsWith("/stage") ? (

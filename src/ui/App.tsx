@@ -76,6 +76,8 @@ type AppProps = {
   initialSession?: DemoSession;
   initialExplanation?: ExplanationResult;
   stageMode?: boolean;
+  initialRole?: Role;
+  initialRiderEntry?: boolean;
 };
 
 const formatBudget = (value: number) => value.toFixed(1);
@@ -1891,6 +1893,7 @@ function RiderView({
             <strong>{tab === "ROUTE" ? "SafeRoute AI" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong>
           </div>
           <div className="rider-toolbar-actions">
+            <a className="rider-dashboard-link" href="/">관제</a>
             <button type="button" className="rider-reset-button" onClick={onReset}>Demo 초기화</button>
             <RiderRoleMenu role={role} onChange={onRoleChange} />
           </div>
@@ -2139,11 +2142,17 @@ function ApprovalDialog({
   );
 }
 
-export function App({ initialSession, initialExplanation, stageMode = false }: AppProps) {
-  const [role, setRole] = useState<Role>("ADMIN");
+export function App({
+  initialSession,
+  initialExplanation,
+  stageMode = false,
+  initialRole = "ADMIN",
+  initialRiderEntry = false,
+}: AppProps) {
+  const [role, setRole] = useState<Role>(initialRole);
   const [riderEntry, setRiderEntry] = useState<Record<"SOURCE" | "RECIPIENT", boolean>>({
-    SOURCE: false,
-    RECIPIENT: false,
+    SOURCE: initialRiderEntry && initialRole === "SOURCE",
+    RECIPIENT: initialRiderEntry && initialRole === "RECIPIENT",
   });
   const [session, setSession] = useState(
     () => initialSession ?? createInitialDemoSession(),

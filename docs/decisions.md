@@ -1167,6 +1167,16 @@
 - 기각한 대안: 실제 응급기관 신고처럼 표시, 실제 위치·센서 수집 추가, 만료 없는 영구 신호, 대시보드 안에서만 신호를 만든 뒤 기사 앱 연동처럼 표현.
 - 영향 파일: `src/application/demoRiderDangerSignal.ts`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/operations.css`, `tests/demo-rider-danger-signal.test.ts`, `e2e/operations-rider.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
+### ADR-119 — 단일 관제 헤더에서 고정 기사 Demo로 직접 이동한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: `/`와 `/dashboard-demo`의 오른쪽 상단 현재 시각 옆에 `기사 앱` 버튼을 둔다. 버튼은 `/rider-demo`로 이동하고, 이 경로는 기존 기사 PWA의 합성 원 기사 `운행` 화면을 로그인 단계 없이 연다. 기사 상단에는 공개 단일 관제로 돌아오는 `관제` 링크를 둔다.
+- 이유: 기사 앱 진입점이 운영 세션 링크와 상세 폐루프 안에 숨어 있어 발표자와 심사위원이 화면을 찾기 어렵다. 현재 시각 옆의 명시적 버튼은 관리자 관제와 기사 현장을 한 번에 오가게 한다.
+- 경계: 새 인증·세션·실제 기사 데이터는 만들지 않는다. `/closed-loop-demo`와 `/operations/rider`의 기존 검토 흐름, Safety 계산, 동의·승인 상태는 변경하지 않는다.
+- 기각한 대안: 주소를 직접 입력하게 두기, 공개 관제에서 `/operations`를 거쳐 기사 링크 생성, 새 기사 앱을 중복 구현.
+- 영향 파일: `src/main.tsx`, `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `src/ui/styles.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
