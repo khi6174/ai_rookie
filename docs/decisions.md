@@ -1223,14 +1223,14 @@
 
 - 날짜: 2026-08-01
 - 상태: Approved
-- 사용자 재승인: 기사 `운행` 탭에서 본인의 실시간 위치를 카카오 지도와 택배 탑차 3D 아이콘으로 표시하는 범위를 승인함.
-- 결정: 기사 앱의 `내 위치 표시` 버튼을 누른 뒤에만 브라우저 Geolocation `watchPosition`을 시작한다. 수신한 좌표·정확도·갱신시각은 현재 페이지 메모리에만 두고 Kakao Maps JavaScript SDK의 사용자 정의 오버레이 위치를 갱신한다. 카카오 공개 웹 API에 초정밀 대중교통 위치 피드를 결합하지 않고, 초정밀 버스·지하철처럼 이동 주체가 잘 보이는 시각 방식만 자체 3D 택배차 마커로 구현한다.
+- 사용자 재승인: 기사 `운행` 탭에서 본인의 실시간 위치를 카카오 지도와 택배 탑차 아이콘으로 표시하는 범위를 승인함. 2026-08-01 후속 선택에 따라 마커는 탑차 상단만 보이는 2D 하향 시점으로 고정한다.
+- 결정: 기사 앱의 `내 위치 표시` 버튼을 누른 뒤에만 브라우저 Geolocation `watchPosition`을 시작한다. 수신한 좌표·정확도·갱신시각은 현재 페이지 메모리에만 두고 Kakao Maps JavaScript SDK의 사용자 정의 오버레이 위치를 갱신한다. 카카오 공개 웹 API에 초정밀 대중교통 위치 피드를 결합하지 않고, 초정밀 버스·지하철처럼 이동 주체가 잘 보이는 시각 방식만 자체 2D 택배차 상단 마커로 구현한다.
 - 상태와 철회: 요청 전, 확인 중, 기기 위치, 갱신 지연, 권한 없음, 위치 사용 불가를 텍스트로 표시한다. 권한 거절은 불이익이나 오류 점수로 표현하지 않는다. 탭 이탈·컴포넌트 해제 시 위치 감시를 종료하며 서버·D1·localStorage·감사기록·AI 입력·관리자 화면으로 좌표를 보내지 않는다.
 - Fallback: 권한이 없거나 위치를 받을 수 없거나 Kakao SDK가 실패하면 해당 기사의 승인된 가상 배송 구역 중심과 단순 경로를 `경로 위치`로 표시한다. 이를 기기 위치나 실시간 위치로 부르지 않는다.
 - 이유: 운행 중인 기사가 자신의 현재 위치와 배송 흐름을 한눈에 이해하되, 대회 화면에서 불필요한 상시 추적·서버 저장·관리자 감시 범위를 만들지 않기 위해서다.
 - 경계: 이 승인은 본인 화면의 세션 메모리 표시만 허용한다. 백그라운드 위치, 서버 동기화, 관리자 공유, 장기 궤적, 속도·경로이탈 평가, 실제 기사 식별정보 결합, 카카오의 비공개 교통 피드 사용은 승인하지 않는다. 위치는 Safety Budget·지원 추천·배송 순서·동의·승인 상태를 바꾸지 않는다.
 - 기각한 대안: 페이지 진입 즉시 권한 요청, 좌표를 D1에 저장, 관제에 정밀 위치 자동 공유, 합성 경로를 실시간 GPS로 표시, 카카오 초정밀 대중교통 기능을 기사 위치 API처럼 표현.
-- 영향 파일: `src/application/riderLiveLocation.ts`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/adapters/maps/kakao.ts`, `public/assets/rider-truck-3d.png`, `tests/rider-live-location.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+- 영향 파일: `src/application/riderLiveLocation.ts`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/adapters/maps/kakao.ts`, `public/assets/rider-truck-top-2d.png`, `tests/rider-live-location.test.ts`, `e2e/saferoute-demo.spec.ts`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
 ## 4. 심사기준 연결
 

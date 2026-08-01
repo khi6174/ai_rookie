@@ -37,7 +37,7 @@ function createTruckMarker() {
   marker.className = "rider-truck-map-marker";
   marker.setAttribute("aria-hidden", "true");
   const image = document.createElement("img");
-  image.src = "/assets/rider-truck-3d.png";
+  image.src = "/assets/rider-truck-top-2d.png";
   image.alt = "";
   const label = document.createElement("span");
   label.textContent = "내 위치";
@@ -142,7 +142,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
             <i className="rider-live-road is-one" aria-hidden="true" />
             <i className="rider-live-road is-two" aria-hidden="true" />
             <div className="rider-truck-map-marker" aria-hidden="true">
-              <img src="/assets/rider-truck-3d.png" alt="" />
+              <img src="/assets/rider-truck-top-2d.png" alt="" />
               <span>{hasDevicePoint ? "내 위치" : "경로 위치"}</span>
             </div>
             <p>{mapStatus === "ERROR" ? "지도를 불러오지 못했습니다" : mapStatus === "LOADING" ? "지도를 준비하고 있습니다" : profile.areaCode}</p>

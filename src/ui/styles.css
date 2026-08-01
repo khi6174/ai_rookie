@@ -4622,20 +4622,20 @@ summary {
 .rider-truck-map-marker {
   display: grid;
   justify-items: center;
-  width: 84px;
+  width: 96px;
   pointer-events: none;
-  filter: drop-shadow(0 4px 7px rgb(15 23 42 / 24%));
+  filter: drop-shadow(0 2px 3px rgb(15 23 42 / 20%));
 }
 
 .rider-truck-map-marker img {
   display: block;
-  width: 84px;
-  height: 84px;
+  width: 96px;
+  height: 96px;
   object-fit: contain;
 }
 
 .rider-truck-map-marker span {
-  margin-top: -11px;
+  margin-top: -9px;
   padding: 4px 8px;
   border: 2px solid #fff;
   border-radius: 999px;
