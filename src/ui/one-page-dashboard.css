@@ -1176,7 +1176,7 @@
   width: 100%;
   min-height: 62px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) 82px 112px;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
   gap: 10px;
   padding: 9px 11px;
@@ -1200,7 +1200,7 @@
 .onepage-candidate-list button > span { min-width: 0; display: grid; gap: 3px; }
 .onepage-candidate-list button > span:nth-child(2) { justify-items: end; }
 .onepage-candidate-list strong { font-size: var(--type-12); }
-.onepage-candidate-list b { color: var(--green); font-size: var(--type-18); }
+.onepage-candidate-list b { color: var(--green); font-size: var(--type-14); }
 .onepage-candidate-list b.is-band { color: var(--amber-strong); }
 .onepage-candidate-list b.is-blocked { color: var(--red); }
 .onepage-candidate-list small { color: var(--muted); font-size: var(--type-10); }
@@ -1244,8 +1244,9 @@
 }
 
 .onepage-prescription-ladder {
-  display: grid;
-  gap: 3px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   margin: 8px 0 0;
   padding: 8px 10px;
   border-radius: var(--r-md);
@@ -1256,7 +1257,6 @@
 }
 
 .onepage-prescription-ladder strong { color: var(--blue-strong); }
-.onepage-prescription-ladder small { color: var(--muted); }
 
 .onepage-decision-summary {
   display: grid;
@@ -1307,18 +1307,6 @@
   font-weight: var(--weight-heavy);
   text-align: right;
 }
-
-.onepage-compensation-note {
-  display: grid;
-  gap: 3px;
-  padding: 10px;
-  border: 1px solid var(--green);
-  border-radius: var(--r-lg);
-  background: var(--green-t);
-}
-
-.onepage-compensation-note strong { color: var(--green-strong); font-size: var(--type-11); }
-.onepage-compensation-note span { color: var(--muted); font-size: var(--type-10); line-height: 1.35; }
 
 .onepage-workflow-state {
   min-height: 96px;

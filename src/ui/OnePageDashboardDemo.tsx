@@ -25,9 +25,8 @@ type InterventionOption = {
     | "REST_SAFE_DELAY"
     | "REST_TRANSFER"
     | "TRANSFER_12"
-    | "REST_ONLY";
+      | "REST_ONLY";
   label: string;
-  detail: string;
   resultBand: "지원 필요" | "주의";
   etaLabel: string;
   guard: string;
@@ -160,8 +159,7 @@ const clockFormatter = new Intl.DateTimeFormat("ko-KR", {
 const interventionOptions: InterventionOption[] = [
   {
     id: "REST_RESEQUENCE",
-    label: "10분 휴식 + 배송 순서 변경",
-    detail: "경사 구간을 후순위로 · 이관 불필요",
+    label: "10분 휴식 + 순서 변경",
     resultBand: "지원 필요",
     etaLabel: "+6분",
     guard: "초과 해소 · 실행 가능",
@@ -172,7 +170,6 @@ const interventionOptions: InterventionOption[] = [
   {
     id: "REST_SAFE_DELAY",
     label: "10분 휴식 + 시간 재약정",
-    detail: "Safe Delay · 고객 동의 필요",
     resultBand: "주의",
     etaLabel: "+12분",
     guard: "초과 해소 · 실행 가능",
@@ -182,8 +179,7 @@ const interventionOptions: InterventionOption[] = [
   },
   {
     id: "REST_TRANSFER",
-    label: "10분 휴식 + 배송 8건 이관",
-    detail: "이관 여력이 있을 때만 선택",
+    label: "10분 휴식 + 배송 8건 분담",
     resultBand: "주의",
     etaLabel: "−15분",
     guard: "R-024 기준 45 통과",
@@ -194,8 +190,7 @@ const interventionOptions: InterventionOption[] = [
   },
   {
     id: "TRANSFER_12",
-    label: "배송 12건 이관",
-    detail: "수신 기사에게 위험이 전가되는 후보",
+    label: "배송 12건 분담",
     resultBand: "주의",
     etaLabel: "−37분",
     guard: "차단 · 수신 기사 41 / 기준 45 미달",
@@ -205,8 +200,7 @@ const interventionOptions: InterventionOption[] = [
   },
   {
     id: "REST_ONLY",
-    label: "10분 휴식 단독",
-    detail: "물량·순서 변경 없음",
+    label: "10분 휴식",
     resultBand: "지원 필요",
     etaLabel: "+10분",
     guard: "초과 해소 · 실행 가능",
@@ -676,11 +670,10 @@ function InterventionDialog({
               }}
             />
             <div>
-              <small>합성 Demo · 지원안 검토</small>
               <h2 id="intervention-dialog-title">
-                {courier.name} 기사 안전지원
+                {courier.name} 기사
               </h2>
-              <span>{courier.area} · 배송 {courier.completed}/{courier.total}</span>
+              <span>{courier.area} | 배송 {courier.completed}/{courier.total}</span>
             </div>
           </div>
           <button
@@ -698,10 +691,9 @@ function InterventionDialog({
           <section className="onepage-intervention-candidates" aria-labelledby="candidate-title">
             <div className="onepage-dialog-section-title">
               <div>
-                <small>안전한 후보만 비교</small>
-                <h3 id="candidate-title">지원안 선택</h3>
+                <h3 id="candidate-title">지원 선택</h3>
               </div>
-              <span>5개 후보</span>
+              <span>5개</span>
             </div>
             <div className="onepage-transfer-guard">
               <div>
@@ -737,86 +729,71 @@ function InterventionDialog({
                       setSelectedOptionId(option.id);
                       setStage("COMPARE");
                     }}
-                  >
-                    <span>
-                      <strong>{option.label}</strong>
-                      <small>{option.detail}</small>
-                    </span>
-                    <span>
-                      <b className={!option.feasible ? "is-blocked" : "is-band"}>
-                        {option.feasible ? option.resultBand : "차단"}
-                      </b>
-                      <small>ETA {option.etaLabel}</small>
-                    </span>
-                    <em>
-                      {!option.feasible
-                        ? option.guard
-                        : option.transferDependent && !transferAvailable
-                          ? "이관 여력 없음"
-                          : option.recommended
-                            ? `추천 · ${option.guard}`
-                            : option.guard}
-                    </em>
-                  </button>
+                    >
+                      <span>
+                        <strong>{option.label}</strong>
+                      </span>
+                      <span>
+                        <b className={!option.feasible ? "is-blocked" : "is-band"}>
+                          {option.feasible
+                            ? `${option.resultBand} · ${option.etaLabel}`
+                            : "차단"}
+                        </b>
+                        {!option.feasible || option.recommended || (option.transferDependent && !transferAvailable) ? (
+                          <em>
+                            {!option.feasible
+                              ? "수신 기사 기준 미달"
+                              : option.transferDependent && !transferAvailable
+                                ? "분담 불가"
+                                : "추천"}
+                          </em>
+                        ) : null}
+                      </span>
+                    </button>
                 );
               })}
             </div>
             <p className="onepage-prescription-ladder">
-              <strong>이관 불가 시 대체 계층</strong>
-              휴식 → 순서 변경 → 시간 재약정 → 물량 이관
-              <small>추천 순위가 아니라 안전한 대안이 남는 순서입니다.</small>
+              <strong>분담 불가 시:</strong>
+              <span>휴식 → 순서 변경 → 시간 재약정</span>
             </p>
           </section>
 
           <aside className="onepage-decision-summary" aria-live="polite">
             <div className="onepage-dialog-section-title">
               <div>
-                <small>선택한 조치</small>
-                <h3>결정 요약</h3>
+                <h3>선택 사항</h3>
               </div>
             </div>
             <div className="onepage-before-after">
               <div>
-                <small>현재 계획</small>
+                <small>현재</small>
                 <b>{stateLabel[supportState(courier.budget)]}</b>
               </div>
               <span aria-hidden="true">→</span>
               <div>
-                <small>조정 후 예상</small>
+                <small>조정 후</small>
                 <b>{selectedOption.resultBand}</b>
               </div>
             </div>
             <dl className="onepage-decision-facts">
               <div>
-                <dt>선택</dt>
-                <dd>{selectedOption.label}</dd>
-              </div>
-              <div>
-                <dt>고객 ETA</dt>
+                <dt>배송 시간</dt>
                 <dd>{selectedOption.etaLabel}</dd>
               </div>
               <div>
-                <dt>안전 제약</dt>
+                <dt>{selectedOption.transferDependent ? "수신 기사 기준" : "안전 기준"}</dt>
                 <dd>{selectedOption.guard}</dd>
               </div>
               <div>
-                <dt>정산 영향</dt>
+                <dt>배송 보전</dt>
                 <dd>{selectedOption.compensation}</dd>
               </div>
             </dl>
 
-            <div className="onepage-compensation-note">
-              <strong>Demo 보전 가정</strong>
-              <span>실제 지급·정산 시스템과 연동되지 않습니다.</span>
-            </div>
-
             <div className={`onepage-workflow-state is-${stage.toLowerCase()}`}>
               {stage === "COMPARE" && (
-                <>
-                  <small>1 · 비교 완료</small>
-                  <strong>기사 확인이 필요합니다</strong>
-                  <span>승인 전에는 현재 계획을 유지합니다.</span>
-                </>
+                <strong>기사 확인 전 · 현재 계획 유지</strong>
               )}
               {stage === "REQUESTED" && (
                 <>
@@ -865,7 +842,7 @@ function InterventionDialog({
         </div>
 
         <footer className="onepage-dialog-footer">
-          <span>모든 수치와 응답은 합성 Demo입니다.</span>
+          <span>합성 데모 · 실제 지급·정산 미연동</span>
           <div>
             {stage === "COMPARE" && (
               <button type="button" className="is-primary" onClick={() => setStage("REQUESTED")}>

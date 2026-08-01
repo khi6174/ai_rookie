@@ -285,9 +285,25 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
     .click();
   const interventionTrigger = page.getByRole("button", { name: "지원 검토" });
   await interventionTrigger.click();
-  const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
+  const dialog = page.getByRole("dialog", { name: "강태현 기사" });
   await expect(dialog).toBeVisible();
-  await expect(dialog.getByText("지원안 선택")).toBeVisible();
+  await expect(dialog.getByText("합성 Demo · 지원안 검토")).toHaveCount(0);
+  await expect(dialog.getByText("역삼 A | 배송 14/31", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("안전한 후보만 비교")).toHaveCount(0);
+  await expect(dialog.getByText("지원 선택", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("5개", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("이관 여력 · 강남 권역", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("32%", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("선택한 조치", { exact: true })).toHaveCount(0);
+  await expect(dialog.getByRole("heading", { name: "선택 사항" })).toBeVisible();
+  await expect(dialog.getByText("현재", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("조정 후", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("배송 시간", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("수신 기사 기준", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("배송 보전", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("Demo 보전 가정", { exact: true })).toHaveCount(0);
+  await expect(dialog.getByText("기사 확인 전 · 현재 계획 유지", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("합성 데모 · 실제 지급·정산 미연동", { exact: true })).toBeVisible();
   await page.screenshot({
     path: "test-results/dashboard-demo-intervention-1280x720.png",
     fullPage: false,
@@ -299,14 +315,14 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await dialog.getByRole("button", { name: "이어받기에 동의" }).click();
   await expect(dialog.getByText("두 기사 동의 완료")).toBeVisible();
   await dialog.getByRole("button", { name: "관리자 승인 및 적용" }).click();
-  await expect(dialog.getByText("10분 휴식 + 배송 8건 이관 반영")).toBeVisible();
+  await expect(dialog.getByText("10분 휴식 + 배송 8건 분담 반영")).toBeVisible();
   await expect(
     dialog.getByText("경로·배송순서·ETA·고객 안내를 함께 갱신했습니다."),
   ).toBeVisible();
   await dialog.getByRole("button", { name: "완료" }).click();
   await expect(dialog).toHaveCount(0);
   await expect(interventionTrigger).toBeFocused();
-  await expect(page.getByText("적용됨 · 10분 휴식 + 배송 8건 이관")).toBeVisible();
+  await expect(page.getByText("적용됨 · 10분 휴식 + 배송 8건 분담")).toBeVisible();
 
   await expectNoPageOverflow(page);
   await page.screenshot({
@@ -322,19 +338,20 @@ test("이관 여력이 없으면 이관 후보를 차단하고 비이관 대안�
   await page.goto("/dashboard-demo");
   await page.getByRole("button", { name: "지원 검토" }).click();
 
-  const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
+  const dialog = page.getByRole("dialog", { name: "강태현 기사" });
   await dialog.getByRole("button", { name: "이관 여력 부족 보기" }).click();
 
   await expect(
-    dialog.getByRole("button", { name: /10분 휴식 \+ 배송 8건 이관/ }),
+    dialog.getByRole("button", { name: /10분 휴식 \+ 배송 8건 분담/ }),
   ).toBeDisabled();
   await expect(
-    dialog.getByRole("button", { name: /배송 12건 이관/ }),
+    dialog.getByRole("button", { name: /배송 12건 분담/ }),
   ).toBeDisabled();
   await expect(
-    dialog.getByRole("button", { name: /10분 휴식 \+ 배송 순서 변경/ }),
+    dialog.getByRole("button", { name: /10분 휴식 \+ 순서 변경/ }),
   ).toHaveAttribute("aria-pressed", "true");
-  await expect(dialog.getByText("추천 순위가 아니라 안전한 대안이 남는 순서입니다.")).toBeVisible();
+  await expect(dialog.getByText("분담 불가 시:", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("휴식 → 순서 변경 → 시간 재약정", { exact: true })).toBeVisible();
 
   await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
   await dialog.getByRole("button", { name: "이 조정에 동의" }).click();
