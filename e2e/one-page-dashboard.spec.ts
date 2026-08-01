@@ -292,6 +292,9 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(dialog.getByText("안전한 후보만 비교")).toHaveCount(0);
   await expect(dialog.getByText("지원 선택", { exact: true })).toBeVisible();
   await expect(dialog.getByText("5개", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("지원 필요 / +6분", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("주의 / −15분", { exact: true })).toBeVisible();
+  await expect(dialog.getByText(/지원 필요 ·|주의 ·/)).toHaveCount(0);
   await expect(dialog.getByText("이관 여력 · 강남 권역", { exact: true })).toBeVisible();
   await expect(dialog.getByText("32%", { exact: true })).toBeVisible();
   await expect(dialog.getByText("선택한 조치", { exact: true })).toHaveCount(0);

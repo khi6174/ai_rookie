@@ -736,7 +736,7 @@ function InterventionDialog({
                       <span>
                         <b className={!option.feasible ? "is-blocked" : "is-band"}>
                           {option.feasible
-                            ? `${option.resultBand} · ${option.etaLabel}`
+                            ? `${option.resultBand} / ${option.etaLabel}`
                             : "차단"}
                         </b>
                         {!option.feasible || option.recommended || (option.transferDependent && !transferAvailable) ? (
