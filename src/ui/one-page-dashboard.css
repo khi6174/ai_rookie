@@ -1403,7 +1403,6 @@
   .onepage-support-photo { width: 36px; height: 36px; }
   .onepage-support-metrics > div { padding-block: 6px; }
   .onepage-transfer-capacity { padding-block: 6px; }
-  .onepage-transfer-capacity small { display: none; }
   .onepage-safety-track { gap: 4px; }
   .onepage-open-intervention { min-height: 32px; }
   .onepage-support-queue { grid-template-rows: 30px minmax(0, 1fr); }

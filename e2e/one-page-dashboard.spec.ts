@@ -28,8 +28,9 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   const firstClockValue = await clock.textContent();
   await expect.poll(() => clock.textContent()).not.toBe(firstClockValue);
   await expect(
-    page.getByText("안전지원 점수 낮은 순 · 순위 아님", { exact: true }),
+    page.getByText("안전 지원 점수", { exact: true }).first(),
   ).toBeVisible();
+  await expect(page.getByText("순위 아님", { exact: true })).toHaveCount(0);
 
   const palette = await page.locator("main.onepage-demo").evaluate((main) => {
     const header = main.querySelector(".onepage-header")!;
@@ -57,7 +58,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.locator(".onepage-state-pill").first()).toContainText("한계 초과");
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 안전지원 점수 24.1, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
+      name: "강태현 기사, 지정구역 역삼 A, 안전 지원 점수 24.1, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
     }),
   ).toBeVisible();
   await expect(
@@ -157,12 +158,55 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
     )
     .not.toBe(firstMovementSecond);
   const movingMarker = page.locator('[data-map-marker="R-014"]');
+  await expect(movingMarker).toHaveAttribute("data-road-corridor", "역삼");
+  const roadPosition = await movingMarker.evaluate((marker) => ({
+    top: Number.parseFloat((marker as HTMLElement).style.top),
+    latitude: Number.parseFloat((marker as HTMLElement).dataset.latitude ?? "NaN"),
+    longitude: Number.parseFloat((marker as HTMLElement).dataset.longitude ?? "NaN"),
+  }));
+  expect(roadPosition.top).toBeGreaterThanOrEqual(27);
+  expect(roadPosition.latitude).toBeGreaterThanOrEqual(37.46);
+  expect(roadPosition.latitude).toBeLessThanOrEqual(37.525);
+  expect(roadPosition.longitude).toBeGreaterThanOrEqual(127.018);
+  expect(roadPosition.longitude).toBeLessThanOrEqual(127.108);
   const firstMarkerStyle = await movingMarker.getAttribute("style");
   await expect.poll(() => movingMarker.getAttribute("style")).not.toBe(firstMarkerStyle);
 
+  const courierIds = await page.locator("[data-courier-card]").evaluateAll((cards) =>
+    cards.map((card) => card.getAttribute("data-courier-card") ?? ""),
+  );
+  for (const courierId of courierIds) {
+    await page.locator(`[data-courier-card="${courierId}"]`).click();
+    const routeMarker = page.locator(`[data-map-marker="${courierId}"]`);
+    await expect(routeMarker).toBeVisible();
+    const position = await routeMarker.evaluate((marker) => ({
+      top: Number.parseFloat((marker as HTMLElement).style.top),
+      latitude: Number.parseFloat((marker as HTMLElement).dataset.latitude ?? "NaN"),
+      longitude: Number.parseFloat((marker as HTMLElement).dataset.longitude ?? "NaN"),
+    }));
+    expect(position.top).toBeGreaterThanOrEqual(27);
+    expect(position.latitude).toBeGreaterThanOrEqual(37.46);
+    expect(position.latitude).toBeLessThanOrEqual(37.525);
+    expect(position.longitude).toBeGreaterThanOrEqual(127.018);
+    expect(position.longitude).toBeLessThanOrEqual(127.108);
+  }
+  await page.locator('[data-courier-card="R-014"]').click();
+
   await expect(page.getByText("Safety Margin", { exact: true })).toBeVisible();
-  await expect(page.getByText("30 한계", { exact: true })).toBeVisible();
-  await expect(page.getByText("45 기준", { exact: true })).toBeVisible();
+  await expect(page.getByText("30(한계)", { exact: true })).toBeVisible();
+  await expect(page.getByText("45(기준)", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "안전 지원" })).toBeVisible();
+  await expect(page.getByText("9/20", { exact: true })).toBeVisible();
+  await expect(page.getByText("현재 상태", { exact: true })).toBeVisible();
+  await expect(page.getByText("지원 시점", { exact: true })).toBeVisible();
+  await expect(page.getByText("위험", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("지금", { exact: true }).first()).toBeVisible();
+  await expect(page.getByText("배송 분담 · 강남", { exact: true })).toBeVisible();
+  await expect(page.getByText("수신 가능 4명 · 최대 11건 / 필요 34건", { exact: true })).toBeVisible();
+  await expect(page.getByText("동일 강우셀 영향 18명", { exact: true })).toBeVisible();
+  await expect(page.getByText(/이관만으로는 해소되지 않음/)).toHaveCount(0);
+  await expect(page.getByText("기사 지원 요청", { exact: true })).toBeVisible();
+  await expect(page.getByText("배송 14/31 완료", { exact: true })).toBeVisible();
   await expect(page.locator(".onepage-support-list button")).toHaveCount(9);
   await expect(page.locator(".onepage-list-rank")).toHaveCount(0);
   await expect(page.locator(".onepage-eta-pill")).toHaveCount(9);
@@ -239,7 +283,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
     .locator(".onepage-support-list button")
     .filter({ hasText: "강태현" })
     .click();
-  const interventionTrigger = page.getByRole("button", { name: "지원안 검토" });
+  const interventionTrigger = page.getByRole("button", { name: "지원 검토" });
   await interventionTrigger.click();
   const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
   await expect(dialog).toBeVisible();
@@ -276,7 +320,7 @@ test("이관 여력이 없으면 이관 후보를 차단하고 비이관 대안�
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/dashboard-demo");
-  await page.getByRole("button", { name: "지원안 검토" }).click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
 
   const dialog = page.getByRole("dialog", { name: "강태현 기사 안전지원" });
   await dialog.getByRole("button", { name: "이관 여력 부족 보기" }).click();

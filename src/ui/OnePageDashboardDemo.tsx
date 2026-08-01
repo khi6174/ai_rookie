@@ -50,6 +50,15 @@ type Courier = {
   criticalMinute: number | null;
 };
 
+type RoutePoint = {
+  mapX: number;
+  mapY: number;
+  latitude: number;
+  longitude: number;
+};
+
+type PositionedCourier = Courier & RoutePoint;
+
 type RiderDangerSignal = {
   courierId: string;
   label: string;
@@ -96,6 +105,52 @@ const clusters = [
 
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
 const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
+const roadCorridors: Record<string, readonly [RoutePoint, RoutePoint]> = {
+  역삼: [
+    { mapX: 31, mapY: 45, latitude: 37.4981, longitude: 127.0305 },
+    { mapX: 43, mapY: 50, latitude: 37.5032, longitude: 127.042 },
+  ],
+  논현: [
+    { mapX: 27, mapY: 38, latitude: 37.5102, longitude: 127.021 },
+    { mapX: 39, mapY: 34, latitude: 37.5124, longitude: 127.032 },
+  ],
+  대치: [
+    { mapX: 61, mapY: 48, latitude: 37.503, longitude: 127.053 },
+    { mapX: 73, mapY: 45, latitude: 37.5033, longitude: 127.065 },
+  ],
+  도곡: [
+    { mapX: 47, mapY: 63, latitude: 37.4885, longitude: 127.0385 },
+    { mapX: 58, mapY: 67, latitude: 37.49, longitude: 127.049 },
+  ],
+  삼성: [
+    { mapX: 69, mapY: 34, latitude: 37.509, longitude: 127.053 },
+    { mapX: 80, mapY: 31, latitude: 37.5105, longitude: 127.063 },
+  ],
+  청담: [
+    { mapX: 61, mapY: 29, latitude: 37.519, longitude: 127.043 },
+    { mapX: 73, mapY: 27, latitude: 37.52, longitude: 127.055 },
+  ],
+  개포: [
+    { mapX: 67, mapY: 71, latitude: 37.481, longitude: 127.049 },
+    { mapX: 79, mapY: 75, latitude: 37.4825, longitude: 127.061 },
+  ],
+  신사: [
+    { mapX: 23, mapY: 31, latitude: 37.518, longitude: 127.018 },
+    { mapX: 35, mapY: 28, latitude: 37.5195, longitude: 127.03 },
+  ],
+  압구정: [
+    { mapX: 39, mapY: 28, latitude: 37.5235, longitude: 127.027 },
+    { mapX: 51, mapY: 31, latitude: 37.524, longitude: 127.039 },
+  ],
+  세곡: [
+    { mapX: 71, mapY: 82, latitude: 37.466, longitude: 127.092 },
+    { mapX: 83, mapY: 78, latitude: 37.469, longitude: 127.103 },
+  ],
+  자곡: [
+    { mapX: 62, mapY: 85, latitude: 37.474, longitude: 127.096 },
+    { mapX: 74, mapY: 83, latitude: 37.477, longitude: 127.107 },
+  ],
+};
 const clockFormatter = new Intl.DateTimeFormat("ko-KR", {
   hour: "2-digit",
   minute: "2-digit",
@@ -168,27 +223,26 @@ const regionCapacity = [
   { area: "강남 허브", summary: "9명 / 24건", capacity: "78%", tone: "ok" },
 ] as const;
 
-function courierGeographicPoint(courier: Courier) {
-  return {
-    latitude: 37.54 - courier.mapY * 0.0008,
-    longitude: 127.01 + courier.mapX * 0.0009,
-  };
+function courierAreaKey(courier: Courier) {
+  return courier.area.split(" ")[0];
 }
 
 function simulatedCourierPosition(
   courier: Courier,
   movementSecond: number,
-) {
+): PositionedCourier {
   const courierIndex = couriers.findIndex((item) => item.id === courier.id);
-  const phase =
-    (((movementSecond + courierIndex * 3) % 60) / 60) * Math.PI * 2;
+  const corridor = roadCorridors[courierAreaKey(courier)];
+  const cycle = ((movementSecond + courierIndex * 5) % 24) / 12;
+  const progress = cycle <= 1 ? cycle : 2 - cycle;
+  const [start, end] = corridor;
+  const interpolate = (from: number, to: number) => from + (to - from) * progress;
   return {
     ...courier,
-    mapX: Math.max(4, Math.min(96, courier.mapX + Math.sin(phase) * 2.2)),
-    mapY: Math.max(
-      6,
-      Math.min(94, courier.mapY + Math.cos(phase + courierIndex * 0.17) * 1.6),
-    ),
+    mapX: interpolate(start.mapX, end.mapX),
+    mapY: interpolate(start.mapY, end.mapY),
+    latitude: interpolate(start.latitude, end.latitude),
+    longitude: interpolate(start.longitude, end.longitude),
   };
 }
 
@@ -232,6 +286,13 @@ function supportTimingShort(courier: Courier) {
   return "60분+";
 }
 
+function supportPanelStateLabel(courier: Courier) {
+  const state = supportState(courier.budget);
+  if (state === "BREACH" || state === "SUPPORT") return "위험";
+  if (state === "CAUTION") return "주의";
+  return "정상";
+}
+
 const roads = [
   { left: -6, top: 26, width: 116, rotate: 5, kind: "major" },
   { left: -2, top: 60, width: 108, rotate: -7, kind: "major" },
@@ -269,7 +330,7 @@ function CourierCard({
       data-courier-card={courier.id}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -292,7 +353,7 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <small>{dangerSignal ? "위험 신호 · 점수" : "안전지원 점수"}</small>
+        <small>{dangerSignal ? "위험 신호 · 점수" : "안전 지원 점수"}</small>
         <span className="onepage-card-safety-value">
           <b>{courier.budget.toFixed(1)}</b>
           <em>{supportTimingShort(courier)}</em>
@@ -307,7 +368,7 @@ function MapMarker({
   selected,
   onSelect,
 }: {
-  courier: Courier;
+  courier: PositionedCourier;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -316,8 +377,11 @@ function MapMarker({
     <button
       className={`onepage-map-marker state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
       data-map-marker={courier.id}
+      data-road-corridor={courierAreaKey(courier)}
+      data-latitude={courier.latitude.toFixed(6)}
+      data-longitude={courier.longitude.toFixed(6)}
       style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
-      aria-label={`${courier.name} 기사 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
+      aria-label={`${courier.name} 기사 시뮬레이션 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
       onClick={onSelect}
       type="button"
@@ -344,8 +408,8 @@ function SafetyMarginTrack({ value }: { value: number }) {
       </div>
       <div className="onepage-safety-track-ticks" aria-hidden="true">
         <span>0</span>
-        <span style={{ left: "30%" }}>30 한계</span>
-        <span style={{ left: "45%" }}>45 기준</span>
+        <span style={{ left: "30%" }}>30(한계)</span>
+        <span style={{ left: "45%" }}>45(기준)</span>
         <span style={{ left: "60%" }}>60</span>
         <span>100</span>
       </div>
@@ -407,7 +471,7 @@ function DashboardKakaoMap({
 
         couriers.forEach((courier) => {
           if (!map) return;
-          const point = courierGeographicPoint(courier);
+          const point = simulatedCourierPosition(courier, 0);
           const position = new maps.LatLng(point.latitude, point.longitude);
           const state = supportState(courier.budget);
           const button = document.createElement("button");
@@ -416,7 +480,10 @@ function DashboardKakaoMap({
           button.type = "button";
           button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
           button.dataset.mapMarker = courier.id;
-          button.setAttribute("aria-label", `${courier.name} 기사 시뮬레이션 위치, 안전지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
+          button.dataset.roadCorridor = courierAreaKey(courier);
+          button.dataset.latitude = point.latitude.toFixed(6);
+          button.dataset.longitude = point.longitude.toFixed(6);
+          button.setAttribute("aria-label", `${courier.name} 기사 시뮬레이션 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
           markerDot.setAttribute("aria-hidden", "true");
           button.append(markerDot);
           button.addEventListener("click", () => selectRef.current(courier.id));
@@ -492,10 +559,14 @@ function DashboardKakaoMap({
     if (!maps) return;
     couriers.forEach((courier) => {
       const movingCourier = simulatedCourierPosition(courier, movementSecond);
-      const point = courierGeographicPoint(movingCourier);
+      const button = markerButtonsRef.current.get(courier.id);
+      if (button) {
+        button.dataset.latitude = movingCourier.latitude.toFixed(6);
+        button.dataset.longitude = movingCourier.longitude.toFixed(6);
+      }
       markerOverlaysRef.current
         .get(courier.id)
-        ?.setPosition(new maps.LatLng(point.latitude, point.longitude));
+        ?.setPosition(new maps.LatLng(movingCourier.latitude, movingCourier.longitude));
     });
   }, [movementSecond]);
 
@@ -998,7 +1069,7 @@ export function OnePageDashboardDemo() {
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
             <h2 id="courier-section-title">기사 현황</h2>
-            <small>안전지원 점수 낮은 순 · 순위 아님</small>
+            <small>안전 지원 점수</small>
           </div>
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
@@ -1156,7 +1227,7 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
-              <b>점수 {selectedCourier.budget.toFixed(1)}</b>
+              <b>안전 지원 점수 {selectedCourier.budget.toFixed(1)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
@@ -1167,9 +1238,9 @@ export function OnePageDashboardDemo() {
           <header>
             <div>
               <small>선택 기사</small>
-              <h2 id="support-panel-title">지원 검토</h2>
+              <h2 id="support-panel-title">안전 지원</h2>
             </div>
-            <span>검토 {urgentCouriers.length}명</span>
+            <span>{urgentCouriers.length}/{couriers.length}</span>
           </header>
 
           <div className="onepage-support-focus" aria-live="polite">
@@ -1186,50 +1257,50 @@ export function OnePageDashboardDemo() {
                 <span>{selectedCourier.area}</span>
               </div>
               <em className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
-                {stateLabel[supportState(selectedCourier.budget)]}
+                {supportPanelStateLabel(selectedCourier)}
               </em>
             </div>
             <div className="onepage-support-metrics">
               <div>
-                <small>현재 밴드</small>
-                <b>{stateLabel[supportState(selectedCourier.budget)]}</b>
+                <small>현재 상태</small>
+                <b>{supportPanelStateLabel(selectedCourier)}</b>
               </div>
               <div>
-                <small>조치 시각</small>
-                <strong>{supportTimingLabel(selectedCourier)}</strong>
+                <small>지원 시점</small>
+                <strong>{supportTimingShort(selectedCourier)}</strong>
               </div>
             </div>
             <SafetyMarginTrack value={selectedCourier.budget} />
             <div className="onepage-transfer-capacity">
               <div>
-                <strong>이관 여력 · 강남 권역</strong>
-                <b>32%</b>
+                <strong>배송 분담 · 강남</strong>
               </div>
-              <span>수신 가능 4명 · 흡수 11건 / 필요 34건</span>
+              <span>수신 가능 4명 · 최대 11건 / 필요 34건</span>
               <i aria-hidden="true"><span /></i>
-              <small>동일 강우셀 영향 18명 · 이관만으로는 해소되지 않음</small>
+              <small>동일 강우셀 영향 18명</small>
             </div>
             <p>
-              {selectedDangerSignal
-                ? `기사앱 위험 신호 · ${selectedDangerSignal.receivedAt}${appliedPlans[selectedCourier.id] ? ` · 적용됨 · ${appliedPlans[selectedCourier.id]}` : ""}`
-                : appliedPlans[selectedCourier.id]
-                  ? `적용됨 · ${appliedPlans[selectedCourier.id]}`
-                  : "승인 전까지 현재 계획 유지"}
-              <span>{selectedCourier.completed}/{selectedCourier.total} 완료</span>
+              <span>
+                {selectedDangerSignal
+                  ? `기사 지원 요청${appliedPlans[selectedCourier.id] ? ` · 적용됨 · ${appliedPlans[selectedCourier.id]}` : ""}`
+                  : appliedPlans[selectedCourier.id]
+                    ? `적용됨 · ${appliedPlans[selectedCourier.id]}`
+                    : "지원 대기"}
+              </span>
+              <span>배송 {selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
             <button
               type="button"
               className="onepage-open-intervention"
               onClick={() => setInterventionOpen(true)}
             >
-              지원안 검토
+              지원 검토
             </button>
           </div>
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>안전지원 점수 낮은 순</strong>
-              <small>순위 아님</small>
+              <strong>안전 지원 점수</strong>
             </div>
             <div className="onepage-support-list">
               {urgentCouriers.map((courier) => (
