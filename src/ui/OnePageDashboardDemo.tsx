@@ -3,12 +3,13 @@ import {
   loadKakaoMapsSdk,
   type KakaoMapInstance,
   type KakaoMapOverlay,
+  type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
-type DashboardMapStatus = "LOADING" | "LIVE" | "FALLBACK";
+type DashboardMapStatus = "LOADING" | "READY" | "FALLBACK";
 type InterventionStage =
   | "COMPARE"
   | "REQUESTED"
@@ -95,6 +96,12 @@ const clusters = [
 
 const clusteredIds = new Set(clusters.flatMap((cluster) => cluster.memberIds));
 const gangnamHubPoint = { latitude: 37.4986, longitude: 127.045 };
+const clockFormatter = new Intl.DateTimeFormat("ko-KR", {
+  hour: "2-digit",
+  minute: "2-digit",
+  second: "2-digit",
+  hour12: false,
+});
 const interventionOptions: InterventionOption[] = [
   {
     id: "REST_RESEQUENCE",
@@ -165,6 +172,23 @@ function courierGeographicPoint(courier: Courier) {
   return {
     latitude: 37.54 - courier.mapY * 0.0008,
     longitude: 127.01 + courier.mapX * 0.0009,
+  };
+}
+
+function simulatedCourierPosition(
+  courier: Courier,
+  movementSecond: number,
+) {
+  const courierIndex = couriers.findIndex((item) => item.id === courier.id);
+  const phase =
+    (((movementSecond + courierIndex * 3) % 60) / 60) * Math.PI * 2;
+  return {
+    ...courier,
+    mapX: Math.max(4, Math.min(96, courier.mapX + Math.sin(phase) * 2.2)),
+    mapY: Math.max(
+      6,
+      Math.min(94, courier.mapY + Math.cos(phase + courierIndex * 0.17) * 1.6),
+    ),
   };
 }
 
@@ -245,7 +269,7 @@ function CourierCard({
       data-courier-card={courier.id}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 안전지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -268,9 +292,10 @@ function CourierCard({
         </span>
       </span>
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
-        <small>{dangerSignal ? "기사앱 위험 신호" : "조치 시각"}</small>
+        <small>{dangerSignal ? "위험 신호 · 점수" : "안전지원 점수"}</small>
         <span className="onepage-card-safety-value">
-          <b>{supportTimingLabel(courier)}</b>
+          <b>{courier.budget.toFixed(1)}</b>
+          <em>{supportTimingShort(courier)}</em>
         </span>
       </span>
     </button>
@@ -330,15 +355,22 @@ function SafetyMarginTrack({ value }: { value: number }) {
 
 function DashboardKakaoMap({
   selectedId,
+  movementSecond,
   onSelect,
   onStatus,
 }: {
   selectedId: string;
+  movementSecond: number;
   onSelect: (id: string) => void;
   onStatus: (status: DashboardMapStatus) => void;
 }) {
+  type MovableKakaoOverlay = KakaoMapOverlay & {
+    setPosition(position: object): void;
+  };
   const containerRef = useRef<HTMLDivElement>(null);
   const markerButtonsRef = useRef(new Map<string, HTMLButtonElement>());
+  const markerOverlaysRef = useRef(new Map<string, MovableKakaoOverlay>());
+  const mapsNamespaceRef = useRef<KakaoMapsNamespace | undefined>(undefined);
   const selectRef = useRef(onSelect);
   const javaScriptKey =
     import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
@@ -359,11 +391,13 @@ function DashboardKakaoMap({
     let map: KakaoMapInstance | undefined;
     const overlays: KakaoMapOverlay[] = [];
     const buttons = markerButtonsRef.current;
+    const markerOverlays = markerOverlaysRef.current;
     onStatus("LOADING");
 
     void loadKakaoMapsSdk(javaScriptKey)
       .then((maps) => {
         if (disposed) return;
+        mapsNamespaceRef.current = maps;
         const center = new maps.LatLng(
           gangnamHubPoint.latitude,
           gangnamHubPoint.longitude,
@@ -382,23 +416,22 @@ function DashboardKakaoMap({
           button.type = "button";
           button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
           button.dataset.mapMarker = courier.id;
-          button.setAttribute(
-            "aria-label",
-            `${courier.name} 기사 Demo 위치, ${stateLabel[state]}, ${courier.budget.toFixed(1)}`,
-          );
+          button.setAttribute("aria-label", `${courier.name} 기사 시뮬레이션 위치, 안전지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
           markerDot.setAttribute("aria-hidden", "true");
           button.append(markerDot);
           button.addEventListener("click", () => selectRef.current(courier.id));
           buttons.set(courier.id, button);
 
-          overlays.push(new maps.CustomOverlay({
+          const markerOverlay = new maps.CustomOverlay({
             map,
             position,
             content: button,
             xAnchor: 0.5,
             yAnchor: 0.5,
             zIndex: courier.budget < 45 ? 8 : 6,
-          }));
+          }) as MovableKakaoOverlay;
+          overlays.push(markerOverlay);
+          markerOverlays.set(courier.id, markerOverlay);
           bounds.extend(position);
         });
 
@@ -430,7 +463,7 @@ function DashboardKakaoMap({
           button.classList.toggle("is-selected", id === selectedId);
           button.setAttribute("aria-pressed", String(id === selectedId));
         });
-        onStatus("LIVE");
+        onStatus("READY");
       })
       .catch(() => {
         if (!disposed) onStatus("FALLBACK");
@@ -440,6 +473,8 @@ function DashboardKakaoMap({
       disposed = true;
       overlays.forEach((overlay) => overlay.setMap(null));
       buttons.clear();
+      markerOverlays.clear();
+      mapsNamespaceRef.current = undefined;
       container.replaceChildren();
       map = undefined;
     };
@@ -451,6 +486,18 @@ function DashboardKakaoMap({
       button.setAttribute("aria-pressed", String(id === selectedId));
     });
   }, [selectedId]);
+
+  useEffect(() => {
+    const maps = mapsNamespaceRef.current;
+    if (!maps) return;
+    couriers.forEach((courier) => {
+      const movingCourier = simulatedCourierPosition(courier, movementSecond);
+      const point = courierGeographicPoint(movingCourier);
+      markerOverlaysRef.current
+        .get(courier.id)
+        ?.setPosition(new maps.LatLng(point.latitude, point.longitude));
+    });
+  }, [movementSecond]);
 
   return (
     <div
@@ -804,138 +851,12 @@ function InterventionDialog({
   );
 }
 
-function ValidationDialog({ onClose }: { onClose: () => void }) {
-  const dialogRef = useRef<HTMLDivElement>(null);
-  const closeButtonRef = useRef<HTMLButtonElement>(null);
-
-  useEffect(() => {
-    const previousFocus =
-      document.activeElement instanceof HTMLElement
-        ? document.activeElement
-        : null;
-    closeButtonRef.current?.focus();
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") {
-        event.preventDefault();
-        onClose();
-        return;
-      }
-      if (event.key !== "Tab") return;
-      const focusable = Array.from(
-        dialogRef.current?.querySelectorAll<HTMLElement>(
-          'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
-        ) ?? [],
-      );
-      if (focusable.length === 0) return;
-      const first = focusable[0];
-      const last = focusable[focusable.length - 1];
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault();
-        last.focus();
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault();
-        first.focus();
-      }
-    };
-
-    document.addEventListener("keydown", handleKeyDown);
-    return () => {
-      document.removeEventListener("keydown", handleKeyDown);
-      previousFocus?.focus();
-    };
-  }, [onClose]);
-
-  return (
-    <div
-      className="onepage-modal-backdrop"
-      onMouseDown={(event) => {
-        if (event.target === event.currentTarget) onClose();
-      }}
-    >
-      <div
-        ref={dialogRef}
-        className="onepage-validation-dialog"
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="validation-dialog-title"
-      >
-        <header className="onepage-dialog-header">
-          <div>
-            <small>Simulation result · 검증 정직성</small>
-            <h2 id="validation-dialog-title">검증 상태 · 아직 모르는 것</h2>
-          </div>
-          <button
-            ref={closeButtonRef}
-            type="button"
-            className="onepage-dialog-close"
-            aria-label="검증 상태 닫기"
-            onClick={onClose}
-          >
-            ×
-          </button>
-        </header>
-
-        <div className="onepage-validation-body">
-          <section>
-            <h3>예측 성능</h3>
-            <dl>
-              <div><dt>AUC</dt><dd>미측정</dd></div>
-              <div><dt>선행 시간</dt><dd>미측정</dd></div>
-              <div><dt>오탐률</dt><dd>미측정</dd></div>
-              <div><dt>마지막 캘리브레이션</dt><dd>—</dd></div>
-            </dl>
-          </section>
-          <section>
-            <h3>임계치 근거</h3>
-            <dl>
-              <div><dt>임계치 30</dt><dd>MVP 잠정 규칙</dd></div>
-              <div><dt>지원 기준 45</dt><dd>MVP 잠정 규칙</dd></div>
-              <div><dt>안정 기준 60</dt><dd>MVP 잠정 규칙</dd></div>
-              <div><dt>실차 캘리브레이션</dt><dd>미실시</dd></div>
-            </dl>
-          </section>
-          <section className="is-wide">
-            <h3>입력 신뢰도 구성</h3>
-            <dl className="onepage-validation-inputs">
-              <div><dt>강수·시정</dt><dd>Fallback 60 · 실측 Safety 입력 미연동</dd></div>
-              <div><dt>경사</dt><dd>합성 정적값 · 도로 단위 검증 전</dd></div>
-              <div><dt>정차 판정</dt><dd>Demo fixture · 실제 단말 센서 미사용</dd></div>
-              <div><dt>누적 운행</dt><dd>Demo fixture · TMS 연동 전</dd></div>
-              <div><dt>종합</dt><dd>60 보통 · 입력 품질 지수</dd></div>
-            </dl>
-          </section>
-          <section className="is-wide is-limit">
-            <h3>알려진 한계</h3>
-            <ol>
-              <li>동일 강우·시간대처럼 위험이 상관되면 이관 여력이 함께 낮아집니다.</li>
-              <li>사고 결과지표와의 상관 및 실제 사고감소 효과는 검증되지 않았습니다.</li>
-              <li>개인별 피로 편차를 보정하지 않습니다.</li>
-            </ol>
-          </section>
-          <section className="is-wide is-plan">
-            <h3>다음 검증 계획</h3>
-            <p>실차 파일럿의 표본·기간·성공 기준은 아직 승인되지 않았습니다. 기준을 먼저 확정한 뒤 급제동·과속 이벤트의 선행 예측 가능성을 평가합니다.</p>
-          </section>
-        </div>
-
-        <footer className="onepage-dialog-footer">
-          <span>결정론적 합성 fixture · 실제 사고감소 효과가 아닙니다.</span>
-          <div>
-            <button type="button" onClick={onClose}>확인</button>
-          </div>
-        </footer>
-      </div>
-    </div>
-  );
-}
-
 export function OnePageDashboardDemo() {
+  const [now, setNow] = useState(() => new Date());
   const [selectedId, setSelectedId] = useState(couriers[0].id);
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
   const [interventionOpen, setInterventionOpen] = useState(false);
-  const [validationOpen, setValidationOpen] = useState(false);
   const [appliedPlans, setAppliedPlans] = useState<Record<string, string>>({});
   const [dangerSignals, setDangerSignals] =
     useState<Record<string, RiderDangerSignal>>(initialDangerSignals);
@@ -950,6 +871,19 @@ export function OnePageDashboardDemo() {
   const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
   const dangerSignalCount = Object.keys(dangerSignals).length;
   const selectedDangerSignal = dangerSignals[selectedCourier.id];
+  const currentTimeLabel = clockFormatter.format(now);
+  const movementSecond = Math.floor(now.getTime() / 1_000);
+  const movingCouriers = couriers.map((courier) =>
+    simulatedCourierPosition(courier, movementSecond),
+  );
+  const movingSelectedCourier =
+    movingCouriers.find((courier) => courier.id === selectedId) ??
+    movingCouriers[0];
+
+  useEffect(() => {
+    const timer = window.setInterval(() => setNow(new Date()), 1_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   useEffect(() => {
     const handleRiderDangerSignal = (event: Event) => {
@@ -1048,25 +982,14 @@ export function OnePageDashboardDemo() {
           <span className="onepage-brand-copy">
             <strong>SafeRoute AI</strong>
           </span>
-          <a className="onepage-closed-loop-link" href="/closed-loop-demo">
-            폐루프 검증
-          </a>
         </div>
         <div className="onepage-page-title">
           <h1>Safety Control Tower</h1>
         </div>
         <div className="onepage-header-status">
-          <span className="onepage-demo-badge">합성 Demo</span>
-          <span className="onepage-live-badge"><i aria-hidden="true" /> Live 0명</span>
-          <button
-            type="button"
-            className="onepage-validation-trigger"
-            onClick={() => setValidationOpen(true)}
-          >
-            검증 상태
-          </button>
-          <span className="onepage-operator">운영 관리자</span>
-          <time dateTime="2026-08-01T15:28:00+09:00">15:28</time>
+          <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
+            {currentTimeLabel}
+          </time>
         </div>
       </header>
 
@@ -1075,7 +998,7 @@ export function OnePageDashboardDemo() {
           <div className="onepage-section-title">
             <span className="onepage-section-icon" aria-hidden="true">●</span>
             <h2 id="courier-section-title">기사 현황</h2>
-            <small>조치 마감 임박 순 · 개인 성과 지표 아님</small>
+            <small>안전지원 점수 낮은 순 · 순위 아님</small>
           </div>
           <div className="onepage-filter-tabs" aria-label="기사 현황 필터">
             {([
@@ -1126,11 +1049,11 @@ export function OnePageDashboardDemo() {
             <div>
               <strong>강남 허브</strong>
               <span>
-                {mapStatus === "LIVE"
-                  ? "위치 기준 15:28"
+                {mapStatus === "READY"
+                  ? `위치 시뮬레이션 · ${currentTimeLabel}`
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : "위치 기준 15:28 · Fallback"}
+                    : `위치 시뮬레이션 · ${currentTimeLabel} · 지도 대체 화면`}
               </span>
             </div>
             <div className="onepage-region-capacity" aria-label="권역별 합성 이관 여력">
@@ -1143,13 +1066,17 @@ export function OnePageDashboardDemo() {
               ))}
             </div>
           </div>
-          <div className={`onepage-map-canvas ${mapStatus === "LIVE" ? "has-kakao-map" : ""}`}>
+          <div
+            className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""}`}
+            data-movement-second={movementSecond}
+          >
             <DashboardKakaoMap
               selectedId={selectedId}
+              movementSecond={movementSecond}
               onSelect={(id) => selectCourier(id, true)}
               onStatus={setMapStatus}
             />
-            {mapStatus !== "LIVE" ? (
+            {mapStatus !== "READY" ? (
               <>
                 <div className="onepage-river" aria-hidden="true" />
                 {roads.map((road, index) => (
@@ -1173,7 +1100,7 @@ export function OnePageDashboardDemo() {
                   <strong>강남 허브</strong>
                 </span>
 
-                {couriers
+                {movingCouriers
                   .filter((courier) => !clusteredIds.has(courier.id))
                   .map((courier) => (
                     <MapMarker
@@ -1206,7 +1133,7 @@ export function OnePageDashboardDemo() {
 
                 {selectedIsClustered ? (
                   <MapMarker
-                    courier={selectedCourier}
+                    courier={movingSelectedCourier}
                     selected
                     onSelect={() => selectCourier(selectedCourier.id, true)}
                   />
@@ -1215,7 +1142,6 @@ export function OnePageDashboardDemo() {
             ) : null}
 
             <div className="onepage-map-overlay-tools">
-              <span className="onepage-demo-overlay">Demo overlay</span>
               <div className="onepage-map-legend" aria-label="지도 상태 범례">
                 <span className="state-breach"><i /> 한계 초과 3</span>
                 <span className="state-support"><i /> 지원 필요 6</span>
@@ -1230,6 +1156,7 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
+              <b>점수 {selectedCourier.budget.toFixed(1)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
@@ -1301,8 +1228,8 @@ export function OnePageDashboardDemo() {
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>조치 마감 임박 순</strong>
-              <small>개인 성과 지표 아님</small>
+              <strong>안전지원 점수 낮은 순</strong>
+              <small>순위 아님</small>
             </div>
             <div className="onepage-support-list">
               {urgentCouriers.map((courier) => (
@@ -1317,7 +1244,9 @@ export function OnePageDashboardDemo() {
                     <small>{courier.area}</small>
                   </span>
                   <span>
-                    <b>{stateLabel[supportState(courier.budget)]}</b>
+                    <b className={`state-${supportState(courier.budget).toLowerCase()}`}>
+                      {courier.budget.toFixed(1)}
+                    </b>
                     <small className="onepage-eta-pill">
                       {supportTimingShort(courier)}
                     </small>
@@ -1325,9 +1254,6 @@ export function OnePageDashboardDemo() {
                 </button>
               ))}
             </div>
-          </div>
-          <div className="onepage-tint-banner">
-            조치 마감 상태 기준이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.
           </div>
         </aside>
       </section>
@@ -1338,9 +1264,6 @@ export function OnePageDashboardDemo() {
           onClose={closeIntervention}
           onApplied={recordAppliedPlan}
         />
-      ) : null}
-      {validationOpen ? (
-        <ValidationDialog onClose={() => setValidationOpen(false)} />
       ) : null}
     </main>
   );

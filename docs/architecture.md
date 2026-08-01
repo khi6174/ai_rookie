@@ -87,6 +87,8 @@ KBS 모빌리티 AI 영상과 Riderlog 계열 공개 사례는 예방적 안전 
 
 ADR-045의 `MapMovementTimelineSchema`와 `createMapMovementTimeline`은 24명 합성 fixture를 5초 간격·30초 horizon의 7개 frame으로 변환한다. `applyMapMovementFrame`은 선택 frame의 위치 가용성만 기존 fixture에 적용하고 전체 `MultiRegionMapFixtureSchema`를 다시 검증한다. UI 재생기는 1초마다 다음 수신 frame을 보여주는 가속 Demo일 뿐 중간 위치를 추론하지 않는다. stale은 고정되고 offline은 좌표가 없으며 복구 frame에 새 `CURRENT` 관측이 있을 때만 마커가 다시 나타난다.
 
+ADR-114의 단일 관제 화면은 위 평가 타임라인과 별도로, 20명 합성 기사 좌표에 브라우저 현재 초 기반의 작은 반복 오프셋을 적용해 1초마다 움직임을 표시한다. 이 오프셋은 화면 표현 전용이며 위치 관측으로 저장하거나 도메인 입력으로 전달하지 않는다. Kakao 베이스 지도와 Fallback 지도는 같은 합성 좌표를 읽고 지도 가까이에 `위치 시뮬레이션`을 표시한다. 브라우저 Geolocation, 실제 GPS, TMS와 서버 위치 스트림은 계속 호출하지 않는다.
+
 ADR-046의 G4-B 부하 계층은 같은 생성기를 허브당 4·16·40명으로 확장해 총 24·96·240명 profile을 만든다. `MapAdapter`는 전국에서 개별 기사·경로를 반환하지 않고, 권역에서 최대 80명과 최대 24개 경로만 렌더 모델에 포함한다. 선택된 decision scope는 제한과 무관하게 해당 기사 경로 1개를 반환한다. 브라우저 성능 증거는 외부 네트워크를 끈 Fallback 2D에서 생성하며 Kakao 공급자 지연이나 실제 장치 성능으로 일반화하지 않는다.
 
 ADR-047의 G5-A는 `DecisionSpatialSceneSchema`와 `createDecisionSpatialScene`을 지도 표시 어댑터에 추가한다. 활성 지원 decision의 기존 네 route point에만 결정론적 합성 거리·고도·경사를 결합하고 `validateSpatialSceneAgainstMapModel`이 decision·plan·route·좌표 순서의 exact equality를 확인한 경우에만 React SVG 2.5D 장면을 연다. 장면은 Safety·개입·결정 상태를 계산하지 않으며 새 지도 공급자·WebGL·DEM·건물 타일·런타임 의존성을 사용하지 않는다. 불일치·지도 오류에서는 UI mode를 2D로 되돌리고 같은 구조화 목록을 유지한다.

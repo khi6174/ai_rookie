@@ -20,14 +20,15 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
-  await expect(page.getByText("합성 Demo", { exact: true })).toBeVisible();
-  await expect(page.getByText("Live 0명", { exact: true })).toBeVisible();
-  await expect(page.getByRole("link", { name: "폐루프 검증" })).toHaveAttribute(
-    "href",
-    "/closed-loop-demo",
-  );
+  await expect(page.getByText("합성 Demo", { exact: true })).toHaveCount(0);
+  await expect(page.getByText("Live 0명", { exact: true })).toHaveCount(0);
+  await expect(page.getByRole("link", { name: "폐루프 검증" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "검증 상태" })).toHaveCount(0);
+  const clock = page.locator(".onepage-header time");
+  const firstClockValue = await clock.textContent();
+  await expect.poll(() => clock.textContent()).not.toBe(firstClockValue);
   await expect(
-    page.getByText("조치 마감 임박 순 · 개인 성과 지표 아님", { exact: true }),
+    page.getByText("안전지원 점수 낮은 순 · 순위 아님", { exact: true }),
   ).toBeVisible();
 
   const palette = await page.locator("main.onepage-demo").evaluate((main) => {
@@ -56,10 +57,12 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.locator(".onepage-state-pill").first()).toContainText("한계 초과");
   await expect(
     page.getByRole("button", {
-      name: "강태현 기사, 지정구역 역삼 A, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
+      name: "강태현 기사, 지정구역 역삼 A, 안전지원 점수 24.1, 한계 초과, 현재 한계 초과, 기사앱 위험 신호",
     }),
   ).toBeVisible();
-  await expect(page.getByText("24.1", { exact: true })).toHaveCount(0);
+  await expect(
+    page.locator('[data-courier-card="R-014"] .onepage-card-safety b'),
+  ).toHaveText("24.1");
 
   const dangerCard = page.locator('[data-courier-card="R-014"]');
   const dangerVisual = await dangerCard.evaluate((card) => {
@@ -82,7 +85,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   expect(dangerVisual.background).toBe("rgb(253, 238, 236)");
   expect(dangerVisual.color).toBe("rgb(16, 24, 40)");
   expect(dangerVisual.scoreColor).toBe("rgb(220, 38, 38)");
-  expect(dangerVisual.scoreSize).toBeCloseTo(14, 0);
+  expect(dangerVisual.scoreSize).toBeCloseTo(29, 0);
   expect(dangerVisual.shadow).not.toBe("none");
   expect(new Set(dangerVisual.borders).size).toBe(1);
 
@@ -113,7 +116,8 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
     );
   expect(profileAssetLoaded).toBe(true);
 
-  await expect(page.getByText("Demo overlay", { exact: true })).toBeVisible();
+  await expect(page.getByText("Demo overlay", { exact: true })).toHaveCount(0);
+  await expect(page.getByText(/위치 시뮬레이션/)).toBeVisible();
   await expect(page.locator(".onepage-map-legend")).toContainText("한계 초과 3");
   await expect(page.locator(".onepage-map-legend")).toContainText("지원 필요 6");
   await expect(page.locator(".onepage-map-legend")).toContainText("주의 7");
@@ -144,32 +148,26 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   expect(markerVisual.border).toBe("rgb(255, 255, 255)");
   expect(markerVisual.radius).toBe("999px");
 
+  const firstMovementSecond = await page
+    .locator(".onepage-map-canvas")
+    .getAttribute("data-movement-second");
+  await expect
+    .poll(() =>
+      page.locator(".onepage-map-canvas").getAttribute("data-movement-second"),
+    )
+    .not.toBe(firstMovementSecond);
+  const movingMarker = page.locator('[data-map-marker="R-014"]');
+  const firstMarkerStyle = await movingMarker.getAttribute("style");
+  await expect.poll(() => movingMarker.getAttribute("style")).not.toBe(firstMarkerStyle);
+
   await expect(page.getByText("Safety Margin", { exact: true })).toBeVisible();
   await expect(page.getByText("30 한계", { exact: true })).toBeVisible();
   await expect(page.getByText("45 기준", { exact: true })).toBeVisible();
   await expect(page.locator(".onepage-support-list button")).toHaveCount(9);
   await expect(page.locator(".onepage-list-rank")).toHaveCount(0);
   await expect(page.locator(".onepage-eta-pill")).toHaveCount(9);
-  await expect(
-    page.getByText(
-      "조치 마감 상태 기준이며 기사 성과·평가가 아닙니다. 동의 전에는 현재 계획이 바뀌지 않습니다.",
-      { exact: true },
-    ),
-  ).toBeVisible();
-
-  await page.getByRole("button", { name: "검증 상태" }).click();
-  const validationDialog = page.getByRole("dialog", {
-    name: "검증 상태 · 아직 모르는 것",
-  });
-  await expect(validationDialog.getByText("AUC")).toBeVisible();
-  await expect(validationDialog.getByText("미측정", { exact: true }).first()).toBeVisible();
-  await expect(validationDialog.getByText("60 보통 · 입력 품질 지수")).toBeVisible();
-  await expect(validationDialog.getByText(/표본·기간·성공 기준은 아직 승인되지 않았습니다/)).toBeVisible();
-  await page.screenshot({
-    path: "test-results/dashboard-demo-validation-1280x720.png",
-    fullPage: false,
-  });
-  await validationDialog.getByRole("button", { name: "확인" }).click();
+  await expect(page.locator(".onepage-support-list button").first()).toContainText("24.1");
+  await expect(page.locator(".onepage-tint-banner")).toHaveCount(0);
 
   await page.getByRole("button", { name: "지원 9" }).click();
   await expect(page.locator("[data-courier-card]")).toHaveCount(20);
