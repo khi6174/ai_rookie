@@ -31,6 +31,7 @@ const OnePageDashboardDemo = lazy(() =>
 );
 
 const root = document.getElementById("root");
+const pathname = window.location.pathname;
 
 if (!root) {
   throw new Error("Root element was not found");
@@ -45,15 +46,17 @@ createRoot(root).render(
         </main>
       }
     >
-      {window.location.pathname.startsWith("/dashboard-demo") ? (
+      {pathname === "/" || pathname.startsWith("/dashboard-demo") ? (
         <OnePageDashboardDemo />
-      ) : window.location.pathname.startsWith("/stage") ? (
+      ) : pathname.startsWith("/closed-loop-demo") ? (
+        <App />
+      ) : pathname.startsWith("/stage") ? (
         <App stageMode />
-      ) : window.location.pathname.startsWith("/operations/rider") ? (
+      ) : pathname.startsWith("/operations/rider") ? (
         <OperationsRiderService />
-      ) : window.location.pathname.startsWith("/operations") ? (
+      ) : pathname.startsWith("/operations") ? (
         <OperationsService />
-      ) : window.location.pathname.startsWith("/design-preview") ? (
+      ) : pathname.startsWith("/design-preview") ? (
         <RedesignPreview />
       ) : (
         <App />

@@ -1100,6 +1100,16 @@
 - 기각한 대안: `ttl(sm)` 점수-시간 환산, 기사별 점수 순위 유지, 이관을 UI에서 무조건 4순위로 고정, 검증되지 않은 `추정 폭 ±7`, 동의 전 관리자 적용 승인, 실제 정산 지급처럼 보이는 보전 카드, 검증 상태를 접힌 각주로만 제공.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-113 — 공개 기본 진입점은 단일 관제 데모로 전환하고 기존 폐루프 화면은 보존한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 결정: 공개 사이트의 `/`는 ADR-112의 단일 관제 데모를 기본으로 표시한다. `/dashboard-demo`는 같은 화면의 호환 경로로 유지한다. 기존 루트 관리자 화면은 삭제하거나 기능을 축소하지 않고 `/closed-loop-demo`로 이동해 결정론 엔진, 지도 drill-down, 기사·수신 기사 동의, 관리자 승인, 적용·감사기록을 검증하는 상세 폐루프 화면으로 보존한다. 단일 관제 헤더에서 `폐루프 검증` 링크로 해당 화면에 진입할 수 있게 한다. `/stage`, `/operations`, `/operations/rider`, `/design-preview`의 기존 역할은 변경하지 않는다.
+- 이유: 배포된 공개 주소가 이전 관리자 화면을 먼저 표시하면 새 디자인이 적용되지 않은 것으로 보인다. 반대로 기존 화면을 폐기하면 P0 폐루프와 독립 검증 증거가 약해진다. 첫 화면은 최신 관제 디자인으로 명확히 전환하면서 기존 화면을 심층 검증 자산으로 연결하는 것이 두 목적을 함께 만족한다.
+- 경계: 이 변경은 화면 진입 경로와 안내 링크만 바꾸며 Safety Budget, Time-to-Breach, Risk Transfer Guard, Two-Key Control, 개인정보 범위, Stage Mode와 결정론적 fixture를 변경하지 않는다. 기존 화면을 `구버전` 또는 폐기 대상으로 표시하지 않는다.
+- 기각한 대안: `/`를 계속 기존 화면으로 유지, 새 화면을 별도 주소로만 안내, 기존 관리자 화면 삭제, 새 화면에 기존 기능을 한 번에 재구현, `/stage`를 공개 기본 화면으로 사용.
+- 영향 파일: `src/main.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `e2e/saferoute-demo.spec.ts`, `e2e/map-performance.spec.ts`, `e2e/spatial-scene.spec.ts`, `docs/design-system.md`, `docs/demo-script.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

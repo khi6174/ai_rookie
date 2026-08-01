@@ -1048,6 +1048,9 @@ export function OnePageDashboardDemo() {
           <span className="onepage-brand-copy">
             <strong>SafeRoute AI</strong>
           </span>
+          <a className="onepage-closed-loop-link" href="/closed-loop-demo">
+            폐루프 검증
+          </a>
         </div>
         <div className="onepage-page-title">
           <h1>Safety Control Tower</h1>

@@ -101,13 +101,13 @@ async function expectAboveMobileTabBar(page: Page, locator: Locator, reservedBot
 }
 
 test("두 기사 동의 후 관리자 승인으로 계획·ETA·안내를 함께 적용한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await expectCleanInitialState(page);
   await completeDecisionLoop(page);
 });
 
 test("Demo 초기화는 같은 fixture를 새 결정 ID와 연결하고 폐루프를 다시 완료한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await enterRider(page, "원 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
@@ -122,7 +122,7 @@ test("Demo 초기화는 같은 fixture를 새 결정 ID와 연결하고 폐루�
 });
 
 test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 완료한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
 
   const sourceTab = page.getByRole("tab", { name: "원 기사" });
   await activateUsingKeyboard(page, sourceTab);
@@ -150,7 +150,7 @@ test("키보드만으로 역할 전환, 두 기사 동의, 관리자 승인을 �
 });
 
 test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐와 동기화한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   const northRegion = page.getByRole("button", {
     name: "합성 북부권역, 기사 8명, 지원 decision 4건",
   });
@@ -179,7 +179,7 @@ test("다지역 집계에서 권역·기사·decision으로 좁히고 지원 큐
 });
 
 test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   const map = page.getByRole("group", { name: "합성 지도 이동 영역" });
   const surface = page.locator(".control-map-pan-surface");
   const background = page.locator(".control-map-pan-background");
@@ -218,7 +218,7 @@ test("합성 지도는 드래그·방향키로 이동하고 중심을 복원한�
 });
 
 test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순서를 확인하고 복구한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await page.getByRole("button", { name: "지도 오류 재현" }).click();
   await expect(page.getByRole("alert").getByText("지도를 불러오지 못했습니다.")).toBeVisible();
   await expect(page.getByRole("img", { name: "3개 합성 권역과 권역별 기사 8명, 지원 decision 4건을 집계한 지도" })).toHaveCount(0);
@@ -238,7 +238,7 @@ test("지도 오류에서는 구조화 목록으로 같은 decision과 배송순
 });
 
 test("키보드로 구조화 지도 대안을 열고 decision을 선택한다", async ({ page }) => {
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   const alternative = page.getByText("지도 없이 배송순서·decision 보기", { exact: true });
   await activateUsingKeyboard(page, alternative);
   await expect(page.getByRole("list", { name: "합성 권역 목록" })).toBeVisible();
@@ -255,7 +255,7 @@ for (const viewport of [
 ]) {
   test(`${viewport.name}에서 핵심 상태와 행동이 가로로 잘리지 않는다`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto("/");
+    await page.goto("/closed-loop-demo");
     await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
     await expect(page.getByRole("button", { name: "기사 동의 대기" })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
@@ -268,7 +268,7 @@ for (const viewport of [
 ]) {
   test(`${viewport.name}에서 핵심 문구와 44px 터치 대상을 유지한다`, async ({ page }) => {
     await page.setViewportSize(viewport);
-    await page.goto("/");
+    await page.goto("/closed-loop-demo");
     await enterRider(page, "원 기사");
     await expect(page.locator(".stopped-badge")).toHaveText("정차 확인");
     await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
@@ -320,7 +320,7 @@ test("저장 상태가 없는 독립 브라우저 세션 3회에서 같은 폐�
 });
 
 test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 읽기 전용으로 제공한다", async ({ context, page }) => {
-  await page.goto("/?pwa-test=1");
+  await page.goto("/closed-loop-demo?pwa-test=1");
   await completeDecisionLoop(page);
   await expect.poll(() => page.evaluate(() => localStorage.getItem("saferoute.approved-demo-plan.v1") !== null)).toBe(true);
   await page.evaluate(() => navigator.serviceWorker.ready.then(() => true));
@@ -344,7 +344,7 @@ test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 �
 });
 
 test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행동에 사용하지 않는다", async ({ context, page }) => {
-  await page.goto("/?pwa-test=1");
+  await page.goto("/closed-loop-demo?pwa-test=1");
   await page.evaluate(() => {
     const storedAt = new Date(Date.now() - 60 * 60 * 1_000);
     localStorage.setItem("saferoute.approved-demo-plan.v1", JSON.stringify({
@@ -375,7 +375,7 @@ test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행�
 });
 
 test("내 정보에서 설치 가능 상태와 실제 미구현 권한 경계를 구분한다", async ({ page }) => {
-  await page.goto("/?pwa-test=1");
+  await page.goto("/closed-loop-demo?pwa-test=1");
   await enterRider(page, "원 기사");
   await page.getByRole("tab", { name: "내 정보" }).click();
   await expect(page.getByText("기기 설치와 오프라인")).toBeVisible();
@@ -471,7 +471,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     });
   };
 
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await expectCleanInitialState(page);
   await capture({
     file: "admin-initial-1440x900.png",
@@ -491,7 +491,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     state: "NOTICE_RECORDED",
   });
 
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await page.getByRole("tab", { name: "원 기사" }).click();
   await capture({
     file: "rider-login-390x844.png",
@@ -517,7 +517,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     state: "RIDER_RESPONSE_PENDING",
   });
 
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await enterRider(page, "수신 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
   await capture({
@@ -571,7 +571,7 @@ async function runFreshSession(browser: Browser, run: number) {
   const context = await browser.newContext({ viewport: { width: 1280, height: 720 } });
   try {
     const page = await context.newPage();
-    await page.goto("/");
+    await page.goto("/closed-loop-demo");
     await expectCleanInitialState(page);
     await completeDecisionLoop(page);
     await test.info().attach(`clean-session-${run}`, {

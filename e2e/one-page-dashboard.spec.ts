@@ -15,13 +15,17 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   page,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto("/dashboard-demo");
+  await page.goto("/");
 
   await expect(
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(page.getByText("합성 Demo", { exact: true })).toBeVisible();
   await expect(page.getByText("Live 0명", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "폐루프 검증" })).toHaveAttribute(
+    "href",
+    "/closed-loop-demo",
+  );
   await expect(
     page.getByText("조치 마감 임박 순 · 개인 성과 지표 아님", { exact: true }),
   ).toBeVisible();

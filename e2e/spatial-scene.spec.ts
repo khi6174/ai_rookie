@@ -38,7 +38,7 @@ async function alignDecisionPanel(page: import("@playwright/test").Page) {
 
 test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은 decision의 2D와 보조 2.5D 자극을 고정한다", async ({ browser, page }) => {
   await page.setViewportSize(viewport);
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await selectPrimaryDecision(page);
 
   const screenshotDirectory = resolve("artifacts/evals/screenshots");
@@ -220,7 +220,7 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
 test("G5-A는 reduced-motion과 지도 오류에서 장면을 제거하고 2D 구조화 대안을 유지한다", async ({ page }) => {
   await page.setViewportSize(viewport);
   await page.emulateMedia({ reducedMotion: "reduce" });
-  await page.goto("/");
+  await page.goto("/closed-loop-demo");
   await selectPrimaryDecision(page);
   await page.getByRole("button", { name: "경사 근거 자세히 보기 · Demo 2.5D" }).click();
   const scene = page.locator("[data-spatial-scene]");

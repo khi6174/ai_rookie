@@ -17,7 +17,7 @@ test("G4-B는 24·96·240명 Fallback 2D 부하에서 승인된 반응 예산을
   for (const totalCouriers of mapPerformanceBudget.loadProfiles) {
     const regionCouriers = totalCouriers / 3;
     const readyStartedAt = Date.now();
-    await page.goto(`/?map-load-test=${totalCouriers}`, { waitUntil: "domcontentloaded" });
+    await page.goto(`/closed-loop-demo?map-load-test=${totalCouriers}`, { waitUntil: "domcontentloaded" });
     await expect(page.getByRole("heading", { name: "3개 합성 권역의 지원 필요 상황" })).toBeVisible();
     const initialMapReadyMs = Date.now() - readyStartedAt;
 
