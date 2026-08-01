@@ -591,6 +591,21 @@ function InterventionDialog({
   const selectedOption =
     interventionOptions.find((option) => option.id === selectedOptionId) ??
     interventionOptions[0];
+  const selectedTransferCount =
+    selectedOption.id === "REST_TRANSFER"
+      ? 8
+      : selectedOption.id === "TRANSFER_12"
+        ? 12
+        : 0;
+  const selectedTransferFeasible =
+    transferAvailable &&
+    selectedOption.feasible &&
+    selectedTransferCount > 0 &&
+    selectedTransferCount <= 11;
+  const selectedTransferLabel =
+    selectedTransferCount === 0
+      ? "분담 없음"
+      : `현재 선택 ${selectedTransferCount}건 / ${selectedTransferFeasible ? "가능" : "불가"}`;
   const courierIndex = couriers.findIndex((item) => item.id === courier.id);
 
   useEffect(() => {
@@ -695,24 +710,6 @@ function InterventionDialog({
               </div>
               <span>5개</span>
             </div>
-            <div className="onepage-transfer-guard">
-              <div>
-                <strong>이관 여력 · 강남 권역</strong>
-                <b>{transferAvailable ? "32%" : "0%"}</b>
-              </div>
-              <span>
-                {transferAvailable
-                  ? "수신 가능 4명 · 흡수 11건 / 필요 34건"
-                  : "동일 강우 영향으로 수신 가능한 기사가 없습니다"}
-              </span>
-              <button
-                type="button"
-                aria-pressed={!transferAvailable}
-                onClick={() => setTransferAvailable((current) => !current)}
-              >
-                {transferAvailable ? "이관 여력 부족 보기" : "기본 여력으로 복원"}
-              </button>
-            </div>
             <div className="onepage-candidate-list">
               {interventionOptions.map((option) => {
                 const isSelected = option.id === selectedOptionId;
@@ -790,6 +787,26 @@ function InterventionDialog({
                 <dd>{selectedOption.compensation}</dd>
               </div>
             </dl>
+
+            <div className="onepage-transfer-guard">
+              <div>
+                <strong>배송 분담</strong>
+                <b>{transferAvailable ? "가능" : "불가"}</b>
+              </div>
+              <span>
+                {transferAvailable
+                  ? "가능 기사 4명 / 최대 11건"
+                  : "가능 기사 없음"}
+              </span>
+              <em>{selectedTransferLabel}</em>
+              <button
+                type="button"
+                aria-pressed={!transferAvailable}
+                onClick={() => setTransferAvailable((current) => !current)}
+              >
+                {transferAvailable ? "분담 불가 상황 보기" : "기본 상태로"}
+              </button>
+            </div>
 
             <div className={`onepage-workflow-state is-${stage.toLowerCase()}`}>
               {stage === "COMPARE" && (

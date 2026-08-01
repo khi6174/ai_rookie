@@ -295,8 +295,12 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(dialog.getByText("지원 필요 / +6분", { exact: true })).toBeVisible();
   await expect(dialog.getByText("주의 / −15분", { exact: true })).toBeVisible();
   await expect(dialog.getByText(/지원 필요 ·|주의 ·/)).toHaveCount(0);
-  await expect(dialog.getByText("이관 여력 · 강남 권역", { exact: true })).toBeVisible();
-  await expect(dialog.getByText("32%", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("이관 여력 · 강남 권역", { exact: true })).toHaveCount(0);
+  await expect(dialog.getByText("32%", { exact: true })).toHaveCount(0);
+  await expect(dialog.getByText("배송 분담", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("가능 기사 4명 / 최대 11건", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("현재 선택 8건 / 가능", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "분담 불가 상황 보기" })).toBeVisible();
   await expect(dialog.getByText("선택한 조치", { exact: true })).toHaveCount(0);
   await expect(dialog.getByRole("heading", { name: "선택 사항" })).toBeVisible();
   await expect(dialog.getByText("현재", { exact: true })).toBeVisible();
@@ -307,6 +311,20 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(dialog.getByText("Demo 보전 가정", { exact: true })).toHaveCount(0);
   await expect(dialog.getByText("기사 확인 전 · 현재 계획 유지", { exact: true })).toBeVisible();
   await expect(dialog.getByText("합성 데모 · 실제 지급·정산 미연동", { exact: true })).toBeVisible();
+  const dialogBalance = await dialog.evaluate((element) => {
+    const body = element.querySelector(".onepage-dialog-body")!.getBoundingClientRect();
+    const transfer = element.querySelector(".onepage-transfer-guard")!.getBoundingClientRect();
+    const workflow = element.querySelector(".onepage-workflow-state")!.getBoundingClientRect();
+    const fallback = element.querySelector(".onepage-prescription-ladder")!.getBoundingClientRect();
+    return {
+      transferOnRight: transfer.left >= body.left + body.width * 0.55,
+      lowerGap: body.bottom - workflow.bottom,
+      leftLowerGap: body.bottom - fallback.bottom,
+    };
+  });
+  expect(dialogBalance.transferOnRight).toBe(true);
+  expect(dialogBalance.lowerGap).toBeLessThanOrEqual(20);
+  expect(dialogBalance.leftLowerGap).toBeLessThanOrEqual(40);
   await page.screenshot({
     path: "test-results/dashboard-demo-intervention-1280x720.png",
     fullPage: false,
@@ -342,7 +360,10 @@ test("이관 여력이 없으면 이관 후보를 차단하고 비이관 대안�
   await page.getByRole("button", { name: "지원 검토" }).click();
 
   const dialog = page.getByRole("dialog", { name: "강태현 기사" });
-  await dialog.getByRole("button", { name: "이관 여력 부족 보기" }).click();
+  await dialog.getByRole("button", { name: "분담 불가 상황 보기" }).click();
+  await expect(dialog.getByText("가능 기사 없음", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("분담 없음", { exact: true })).toBeVisible();
+  await expect(dialog.getByRole("button", { name: "기본 상태로" })).toBeVisible();
 
   await expect(
     dialog.getByRole("button", { name: /10분 휴식 \+ 배송 8건 분담/ }),

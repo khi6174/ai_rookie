@@ -1217,21 +1217,36 @@
 .onepage-transfer-guard {
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
-  gap: 4px 10px;
-  margin-top: 8px;
-  padding: 9px 10px;
+  gap: 6px 10px;
+  padding: 10px;
   border: 1px solid var(--amber);
   border-radius: var(--r-lg);
   background: var(--amber-t);
 }
 
-.onepage-transfer-guard > div { display: contents; }
+.onepage-transfer-guard > div {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
 .onepage-transfer-guard strong,
 .onepage-transfer-guard b { color: var(--amber-strong); font-size: var(--type-11); }
-.onepage-transfer-guard > span { color: var(--muted); font-size: var(--type-10); }
+.onepage-transfer-guard > span {
+  grid-column: 1 / -1;
+  color: var(--muted);
+  font-size: var(--type-10);
+}
+.onepage-transfer-guard > em {
+  align-self: center;
+  color: var(--text);
+  font-size: var(--type-10);
+  font-style: normal;
+  font-weight: var(--weight-heavy);
+}
 .onepage-transfer-guard > button {
   grid-column: 2;
-  grid-row: 2;
   min-height: 28px;
   padding: 0 8px;
   border: 1px solid var(--amber);
@@ -1242,6 +1257,7 @@
   font-size: var(--type-10);
   font-weight: var(--weight-heavy);
 }
+
 
 .onepage-prescription-ladder {
   display: flex;
@@ -1399,7 +1415,7 @@
   .onepage-intervention-candidates,
   .onepage-decision-summary { padding: 12px; }
   .onepage-candidate-list { gap: 5px; }
-  .onepage-candidate-list button { min-height: 51px; padding-block: 6px; }
+  .onepage-candidate-list button { min-height: 66px; padding-block: 8px; }
   .onepage-transfer-guard { padding-block: 6px; }
   .onepage-prescription-ladder { margin-top: 5px; padding-block: 6px; }
 }
