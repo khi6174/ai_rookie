@@ -4,6 +4,10 @@ import {
   createMemoryOperationsSessionStore,
   handleOperationsSessionRequest,
 } from "./server/operations-session-store.mjs";
+import {
+  createMemoryRiderProfileStore,
+  handleRiderProfileRequest,
+} from "./server/rider-profile-store.mjs";
 import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
 import react from "@vitejs/plugin-react";
 
@@ -32,6 +36,7 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
     ...loadEnv(mode, ".", ""),
   };
   const operationsSessionStore = createMemoryOperationsSessionStore();
+  const riderProfileStore = createMemoryRiderProfileStore();
   return {
     name: "saferoute-kakao-directions-dev-proxy",
     configureServer(server) {
@@ -52,6 +57,18 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
                 request as unknown as AsyncIterable<Uint8Array | string>,
               )
             : undefined;
+        const riderProfileResponse = await handleRiderProfileRequest(
+          new Request(requestUrl, { method }),
+          { memoryStore: riderProfileStore },
+        );
+        if (riderProfileResponse) {
+          response.statusCode = riderProfileResponse.status;
+          riderProfileResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await riderProfileResponse.text());
+          return;
+        }
         const operationsResponse = await handleOperationsSessionRequest(
           new Request(requestUrl, {
             method,

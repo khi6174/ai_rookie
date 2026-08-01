@@ -11,6 +11,7 @@ import {
   type KakaoMapOverlay,
   type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
+import { riderProfiles } from "../application/riderProfileRepository";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
@@ -70,28 +71,20 @@ type RiderDangerSignal = {
   receivedAt: string;
 };
 
-const couriers: Courier[] = [
-  { id: "R-017", name: "강태현", budget: 24.1, area: "역삼 A", completed: 14, total: 31, shift: "08:30", mapX: 29, mapY: 38, criticalMinute: 0 },
-  { id: "R-022", name: "윤재호", budget: 27.6, area: "논현 B", completed: 18, total: 34, shift: "08:10", mapX: 37, mapY: 29, criticalMinute: 0 },
-  { id: "R-031", name: "문상혁", budget: 29.3, area: "대치 A", completed: 16, total: 29, shift: "08:20", mapX: 70, mapY: 43, criticalMinute: 0 },
-  { id: "R-008", name: "배준영", budget: 31.8, area: "도곡 B", completed: 15, total: 32, shift: "08:40", mapX: 54, mapY: 67, criticalMinute: 16 },
-  { id: "R-019", name: "임세훈", budget: 34.2, area: "삼성 A", completed: 19, total: 36, shift: "08:00", mapX: 78, mapY: 24, criticalMinute: 21 },
-  { id: "R-027", name: "노현우", budget: 36.5, area: "청담 B", completed: 12, total: 28, shift: "09:00", mapX: 67, mapY: 18, criticalMinute: 28 },
-  { id: "R-005", name: "곽민제", budget: 38.9, area: "개포 A", completed: 13, total: 30, shift: "08:50", mapX: 74, mapY: 72, criticalMinute: 34 },
-  { id: "R-016", name: "서동하", budget: 41.4, area: "신사 B", completed: 17, total: 33, shift: "08:15", mapX: 25, mapY: 19, criticalMinute: 41 },
-  { id: "R-024", name: "채우진", budget: 43.7, area: "압구정 A", completed: 20, total: 35, shift: "08:05", mapX: 44, mapY: 17, criticalMinute: 49 },
-  { id: "R-011", name: "백승기", budget: 46.2, area: "역삼 B", completed: 18, total: 32, shift: "08:25", mapX: 44, mapY: 45, criticalMinute: null },
-  { id: "R-029", name: "오태림", budget: 48.8, area: "논현 A", completed: 14, total: 29, shift: "08:55", mapX: 41, mapY: 39, criticalMinute: null },
-  { id: "R-003", name: "신주완", budget: 50.5, area: "대치 B", completed: 21, total: 37, shift: "07:50", mapX: 62, mapY: 48, criticalMinute: null },
-  { id: "R-018", name: "하은성", budget: 52.9, area: "도곡 A", completed: 16, total: 31, shift: "08:35", mapX: 57, mapY: 61, criticalMinute: null },
-  { id: "R-034", name: "남기석", budget: 54.7, area: "삼성 B", completed: 22, total: 38, shift: "07:45", mapX: 72, mapY: 32, criticalMinute: null },
-  { id: "R-007", name: "조민혁", budget: 57.1, area: "청담 A", completed: 19, total: 33, shift: "08:00", mapX: 64, mapY: 23, criticalMinute: null },
-  { id: "R-026", name: "구본재", budget: 59.4, area: "개포 B", completed: 17, total: 30, shift: "08:30", mapX: 68, mapY: 68, criticalMinute: null },
-  { id: "R-013", name: "정해윤", budget: 62.8, area: "신사 A", completed: 23, total: 35, shift: "07:40", mapX: 30, mapY: 24, criticalMinute: null },
-  { id: "R-021", name: "최이든", budget: 65.3, area: "압구정 B", completed: 20, total: 32, shift: "08:10", mapX: 48, mapY: 22, criticalMinute: null },
-  { id: "R-009", name: "한서웅", budget: 68.6, area: "세곡 A", completed: 18, total: 28, shift: "08:45", mapX: 60, mapY: 78, criticalMinute: null },
-  { id: "R-032", name: "유정민", budget: 72.4, area: "자곡 B", completed: 24, total: 36, shift: "07:35", mapX: 51, mapY: 82, criticalMinute: null },
-];
+const couriers: Courier[] = riderProfiles.map((profile) => ({
+  id: profile.courierId,
+  name: profile.displayName,
+  budget: profile.projectedSafetyScore ?? profile.safetyScore,
+  area: profile.areaCode,
+  completed: profile.completedCount,
+  total: profile.totalCount,
+  shift: profile.shiftStart,
+  mapX: profile.mapX,
+  mapY: profile.mapY,
+  criticalMinute: (profile.projectedSafetyScore ?? profile.safetyScore) < 30
+    ? 0
+    : profile.criticalMinute,
+}));
 
 const initialDangerSignals: Record<string, RiderDangerSignal> = {
   "R-017": {
@@ -1105,7 +1098,7 @@ export function OnePageDashboardDemo() {
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>
-          <a className="onepage-rider-app-link" href="/rider-demo">
+          <a className="onepage-rider-app-link" href={`/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}`}>
             기사 앱
           </a>
         </div>

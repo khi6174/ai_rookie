@@ -42,9 +42,9 @@ describe("shared admin and courier Demo session", () => {
     const markup = renderToStaticMarkup(createElement(App));
     expect(markup).toContain('href="#main-content"');
     expect(markup).toContain('role="tablist"');
-    expect(markup).toContain("Demo fixture");
-    expect(markup).toContain("Weather Fallback");
-    expect(markup).toContain("Safety 계산은 Demo 날씨만 사용합니다");
+    expect(markup).toContain("시연 데이터");
+    expect(markup).toContain("연결 전");
+    expect(markup).toContain("Safety 계산은 현재 날씨 입력만 사용합니다");
     expect(markup).toContain("현재 시간당 적설 · 미래 120분 시정");
     expect(markup).toContain("INCOMPLETE_COVERAGE");
     expect(markup).toContain(demoDecisionId);
@@ -143,10 +143,10 @@ describe("shared admin and courier Demo session", () => {
         initialExplanation: explanation,
       }),
     );
-    expect(markup).toContain("Upstage Mock · 검증 통과");
+    expect(markup).toContain("문구 생성 · 검증 통과");
     expect(markup).toContain("합성 안전운영 매뉴얼");
     expect(markup).toContain("숫자 불변");
-    expect(markup).toContain("Demo fixture");
+    expect(markup).toContain("시연 데이터");
     expect(markup).not.toContain("Upstage Live");
   });
 

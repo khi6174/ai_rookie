@@ -15,11 +15,14 @@ const operationsSessionStoreSource = resolve(
   root,
   "server/operations-session-store.mjs",
 );
+const riderProfileStoreSource = resolve(root, "server/rider-profile-store.mjs");
+const riderProfilesSource = resolve(root, "server/rider-profiles.mjs");
 const upstageExplanationProxySource = resolve(
   root,
   "server/upstage-explanation-proxy.mjs",
 );
 const metadataDirectory = resolve(root, "dist/.openai");
+const drizzleDirectory = resolve(metadataDirectory, "drizzle");
 const publicReviewDirectory = resolve(clientDirectory, "tools");
 const publicReviewEvidenceDirectory = resolve(
   clientDirectory,
@@ -49,6 +52,7 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
 
 const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
 import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
+import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
 import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
 
 const securityHeaders = {
@@ -72,6 +76,12 @@ function secure(response) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const riderProfileResponse = await handleRiderProfileRequest(request, {
+      database: env.DB,
+    });
+    if (riderProfileResponse) {
+      return secure(riderProfileResponse);
+    }
     const operationsResponse = await handleOperationsSessionRequest(request, {
       database: env.DB,
     });
@@ -274,6 +284,9 @@ await copyFile(
 );
 await mkdir(workerDirectory, { recursive: true });
 await mkdir(metadataDirectory, { recursive: true });
+await cp(resolve(root, ".openai/drizzle"), drizzleDirectory, {
+  recursive: true,
+});
 await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");
 await copyFile(
   directionsProxySource,
@@ -282,6 +295,14 @@ await copyFile(
 await copyFile(
   operationsSessionStoreSource,
   resolve(workerDirectory, "operations-session-store.mjs"),
+);
+await copyFile(
+  riderProfileStoreSource,
+  resolve(workerDirectory, "rider-profile-store.mjs"),
+);
+await copyFile(
+  riderProfilesSource,
+  resolve(workerDirectory, "rider-profiles.mjs"),
 );
 await copyFile(
   upstageExplanationProxySource,

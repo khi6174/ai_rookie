@@ -58,7 +58,7 @@
 
 관리자와 기사 화면은 같은 애플리케이션의 역할 전환형 화면으로 구현한다. G3-B부터 기사 화면은 설치 가능한 PWA app shell을 제공하지만 독립 인증 세션·Live 위치·푸시 알림은 포함하지 않는다. 별도 마이크로서비스, 메시지 브로커, 실시간 데이터베이스는 P0에 도입하지 않는다. 외부 AI·날씨 Live 실행은 브라우저 번들에 포함하지 않고 명시적인 Node smoke 명령에서만 수행한다.
 
-공개 단일 관제 `/`의 `기사 앱` 링크는 `/rider-demo`로 이동한다. 이 경로는 기존 `App`의 합성 원 기사 운행 화면을 로그인 단계 없이 열 뿐 새 인증 상태나 운영 세션을 만들지 않는다. 기사 화면의 `관제` 링크는 공개 단일 관제로 돌아오며 `/closed-loop-demo`와 `/operations/rider`의 기존 역할은 유지한다.
+공개 단일 관제 `/`의 `기사 앱` 링크는 선택 기사 ID를 포함한 `/rider-demo?courier={courierId}`로 이동한다. 기사 앱은 `GET /api/riders/{courierId}`에서 D1의 기사별 표시 프로필을 읽고 같은 ID의 이름·구역·배송 진행을 표시한다. 이 경로는 로그인 단계를 생략하지만 실제 인증 상태를 만들지는 않는다. 기사 화면의 `관제` 링크는 공개 단일 관제로 돌아오며 `/closed-loop-demo`와 `/operations/rider`의 기존 역할은 유지한다.
 
 이 문장은 현재 P0 공개 Demo의 배포 경계다. ADR-035의 최종 목표는 아래 단계로 확장한다. G2-A에서는 같은 단일 애플리케이션 안에 공급자 독립 `MapAdapter`, 결정론적 다지역 위치와 기능 목적의 SVG 2D 지도를 추가했다. ADR-043에서는 이 projection 위에 선택적인 Kakao Maps 2D 베이스 레이어를 추가했고 ADR-044에서는 같은 합성 decision route를 기사 compact map에도 표시한다. ADR-045의 G4-A는 고정된 합성 위치 event만 단기 재생하며 실제 위치 stream과 인증 세션은 도입하지 않는다. G3-B에서는 정적 app shell service worker와 최소 승인 Demo 계획 캐시만 추가했다.
 
@@ -135,6 +135,8 @@ src/
   pwa/                  # service worker 등록, 설치 상태와 최소 승인 Demo 계획 캐시
 server/                 # Sites Worker 서버 전용 런타임
   operations-session-store.mjs  # D1 세션 저장·복구·낙관적 동시성
+  rider-profile-store.mjs       # 기사별 표시 프로필 D1 조회
+  rider-profiles.mjs            # 20명 고정 seed와 클라이언트 공통 계약
   upstage-explanation-proxy.mjs # strict 합성 결정 설명 프록시
 tests/
   fixtures/
@@ -353,6 +355,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 ### 12.2 배포 런타임 경계
 
 - `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답
+- `/api/riders`, `/api/riders/:courierId`: 대회용 고정 기사 목록·개별 프로필 GET, D1 저장과 개발 메모리 어댑터
 - `/api/upstage-explanation`: 검증된 합성 결정 사실만 Upstage로 전달하고 공급자 원문 대신 strict JSON만 반환
 - Upstage Document Parse·Extract Live 평가는 합성 PDF와 strict exact-match Gate로 분리한다. 승인되지 않은 유료 호출은 실행하지 않고 `CONFIGURED_NOT_RUN`으로 남기며, 원문과 raw 공급자 응답을 증거에 저장하지 않는다.
 - `/api/kakao-directions`: 고정 Demo 또는 `deterministic-synthetic-operations`로 표시된 국내 범위 합성 좌표만 Kakao Mobility에 전달

@@ -19,10 +19,10 @@ test("현재 시각 옆 기사 앱 버튼은 기사 운행 화면을 바로 연�
 
   const riderAppLink = page.getByRole("link", { name: "기사 앱" });
   await expect(riderAppLink).toBeVisible();
-  await expect(riderAppLink).toHaveAttribute("href", "/rider-demo");
+  await expect(riderAppLink).toHaveAttribute("href", "/rider-demo?courier=R-017");
   await riderAppLink.click();
 
-  await expect(page).toHaveURL(/\/rider-demo$/);
+  await expect(page).toHaveURL(/\/rider-demo\?courier=R-017$/);
   await page.setViewportSize({ width: 390, height: 844 });
   await expect(page.getByRole("tab", { name: "운행" })).toHaveAttribute(
     "aria-selected",
@@ -34,15 +34,15 @@ test("현재 시각 옆 기사 앱 버튼은 기사 운행 화면을 바로 연�
   await expect(page.getByRole("link", { name: "관제" })).toBeVisible();
   await expect(page.locator(".rider-role-menu summary")).toContainText("강태현");
   await expect(
-    page.getByRole("heading", { name: "서울시 용산구 한빛아파트" }),
+    page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" }),
   ).toBeVisible();
   await expect(page.getByRole("progressbar", { name: "오늘 배송률" })).toHaveAttribute(
     "aria-valuenow",
     "45",
   );
-  await expect(page.getByText("54.7", { exact: true })).toBeVisible();
-  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
-  await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(1);
+  await expect(page.getByLabel("오늘의 간단한 운행 경로")).toContainText("15번째");
+  await expect(page.locator(".rider-safety-now")).toHaveCount(0);
+  await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(0);
   expect(await page.locator("body").innerText()).not.toMatch(/Demo|데모|합성|실제\s*아님|Fallback|Live/);
   expect(
     await page.evaluate(() => document.documentElement.scrollWidth),
@@ -51,12 +51,35 @@ test("현재 시각 옆 기사 앱 버튼은 기사 운행 화면을 바로 연�
     path: "test-results/rider-route-overview-390x844.png",
     fullPage: true,
   });
-  await page
-    .getByRole("button", { name: "응급 상황 감지 예시" })
-    .click();
+  await page.getByRole("tab", { name: "안전지원" }).click();
+  await expect(page.getByText("54.7", { exact: true })).toBeVisible();
+  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
+  await page.getByRole("button", { name: "응급 상황 감지 예시" }).click();
   await expect(
     page.getByText("관제 화면에 위험 신호를 보냈습니다."),
   ).toBeVisible();
+});
+
+test("기사 ID별 앱은 서버에 저장된 배송 구역과 진행률을 함께 불러온다", async ({
+  page,
+  request,
+}) => {
+  const response = await request.get("/api/riders");
+  expect(response.ok()).toBe(true);
+  const payload = await response.json() as {
+    riders: Array<{ courierId: string; displayName: string }>;
+  };
+  expect(payload.riders).toHaveLength(20);
+  expect(new Set(payload.riders.map((rider) => rider.courierId)).size).toBe(20);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/rider-demo?courier=R-024");
+  await expect(page.locator(".rider-role-menu summary")).toContainText("채우진");
+  await expect(page.getByRole("heading", { name: "서울시 강남구 압구정동 한강아파트" })).toBeVisible();
+  await expect(page.getByRole("progressbar", { name: "오늘 배송률" })).toHaveAttribute("aria-valuenow", "57");
+  await expect(page.getByLabel("오늘의 간단한 운행 경로")).toContainText("21번째");
+  await page.locator(".rider-role-menu summary").click();
+  await expect(page.locator(".rider-profile-options a")).toHaveCount(20);
 });
 
 test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를 유지한다", async ({
@@ -236,6 +259,10 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   );
   for (const courierId of courierIds) {
     await page.locator(`[data-courier-card="${courierId}"]`).click();
+    await expect(page.getByRole("link", { name: "기사 앱" })).toHaveAttribute(
+      "href",
+      `/rider-demo?courier=${courierId}`,
+    );
     const routeMarker = page.locator(`[data-map-marker="${courierId}"]`);
     await expect(routeMarker).toBeVisible();
     const position = await routeMarker.evaluate((marker) => ({

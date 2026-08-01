@@ -1207,6 +1207,18 @@
 - 기각한 대안: 기사 ID만 표시, 모든 기사에게 같은 이동 경로 사용, 실제 기사 이름·GPS를 승인 없이 연결, 화면마다 서로 다른 기사 이름 사용.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/App.tsx`, `e2e/one-page-dashboard.spec.ts`, `e2e/saferoute-demo.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-123 — 기사별 앱은 하나의 서버 기록을 기사 ID로 조회한다
+
+- 날짜: 2026-08-01
+- 상태: Approved
+- 대체 관계: ADR-120의 고정 용산구 표시, ADR-121의 기사 상단 출처 배지, ADR-122의 화면별 기사 데이터 연결 방식을 이 결정으로 대체한다.
+- 결정: 관제와 기사 앱이 함께 사용하는 20명의 `RiderProfile`을 만들고 Sites D1의 `rider_profiles`에 저장한다. 관제에서 선택한 기사 앱 링크는 `/rider-demo?courier={courierId}`를 사용하며 기사 앱은 같은 ID로 이름, 배송 구역, 완료·전체 건수, 예상 완료, 현재·예상 점수와 위험 시점을 조회한다. 기사 우측 상단에서는 20명 중 다른 기사 앱도 선택할 수 있다.
+- 화면: 기사 `운행` 탭 상단의 `시연 데이터`, `정차 확인`과 중복 구역 막대를 제거한다. 배송 구역 카드 안에 진행률과 `현재 / 다음 / 완료` 세 지점 운행 요약을 넣는다. 점수, 위험 예상, 지원안과 응급 감지 예시는 하단 `안전지원` 탭으로 이동한다. 출처 경계는 `내 정보 > 데이터 안내`에서 한 번 제공한다.
+- 이유: 이름만 바뀌고 구역·배송률이 고정되면 기사 앱과 관제 카드가 같은 사람으로 이어지지 않는다. 기사 ID 하나가 서버 기록, 관제 카드, 기사 앱과 링크를 함께 결정해야 화면 수치가 어긋나지 않는다.
+- 경계: 이번 저장소는 대회용 고정 기사 기록만 허용하며 실제 인증, 개인식별정보, 실제 주소, GPS, TMS 쓰기와 외부 알림은 추가하지 않는다. Safety 계산과 기사 동의·관리자 승인 ID는 표시용 기사 ID와 분리해 기존 검증 흐름을 유지한다.
+- 기각한 대안: 기사별 정적 페이지 20개 복제, 브라우저 저장소만 사용, 이름만 query에 넣고 배송 데이터는 고정, 실제 기사·GPS를 승인 없이 저장.
+- 영향 파일: `.openai/drizzle/0001_rider_profiles.sql`, `db/schema.ts`, `server/rider-profiles.mjs`, `server/rider-profile-store.mjs`, `src/application/riderProfileRepository.ts`, `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/styles.css`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, `tests/rider-profile-store.test.ts`, `e2e/one-page-dashboard.spec.ts`, `e2e/saferoute-demo.spec.ts`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

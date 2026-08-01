@@ -35,9 +35,9 @@ async function expectCleanInitialState(page: Page, expectedDecisionId = decision
 
 async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId) {
   await enterRider(page, "원 기사");
-  await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
-  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" })).toBeVisible();
   await page.getByRole("tab", { name: "안전지원" }).click();
+  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
   await expect(page.locator(".rider-response-status").getByText("동의가 기록되었습니다. 계획은 아직 변경되지 않았습니다.")).toBeVisible();
@@ -270,30 +270,17 @@ for (const viewport of [
     await page.setViewportSize(viewport);
     await page.goto("/closed-loop-demo");
     await enterRider(page, "원 기사");
-    await expect(page.locator(".stopped-badge")).toHaveText("정차 확인");
-    await expect(page.locator(".stopped-badge > *")).toHaveCount(0);
-    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
-    await expect(page.getByLabel("현재 위치, 휴식 지점과 다음 배송지 경로 요약")).toBeVisible();
-    await expect(page.getByText("기본 지도", { exact: true })).toBeVisible();
-    await expect(page.getByText("현재 위치", { exact: false })).toBeVisible();
-    const structuredRoute = page.getByLabel("구조화된 다음 경로");
-    await expect(structuredRoute).toContainText("14번째 배송지 구간");
-    await expect(structuredRoute).toContainText("10분 휴식 지점");
-    await expect(structuredRoute).toContainText("약 52분 · 17번째 전");
-    const directions = page.getByLabel("자동차 길찾기 미리보기");
-    await expect(directions.getByText("기본 경로로 계속")).toBeVisible();
-    const directionsLink = directions.getByRole("link", {
-      name: "카카오맵에서 길찾기",
-    });
-    await expect(directionsLink).toHaveAttribute(
-      "href",
-      /^https:\/\/map\.kakao\.com\/link\/by\/car\//,
-    );
-    await expectMinimumTouchHeight(directionsLink, 48);
+    await expect(page.locator(".stopped-badge")).toHaveCount(0);
+    await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" })).toBeVisible();
+    const route = page.getByLabel("오늘의 간단한 운행 경로");
+    await expect(route).toContainText("15번째");
+    await expect(route).toContainText("16번째");
+    await expect(route).toContainText("오전 11:27");
+    await expect(page.locator(".rider-safety-now")).toHaveCount(0);
     await expect(page.getByText("실시간 길안내", { exact: true })).toHaveCount(0);
     await expect(page.getByText("운전점수", { exact: true })).toHaveCount(0);
     await expect(page.getByText("자동 구조", { exact: true })).toHaveCount(0);
-    await expectAboveMobileTabBar(page, page.getByRole("button", { name: "안전지원 검토" }));
     for (const tabName of ["운행", "안전지원", "내 정보"]) {
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
     }
@@ -332,7 +319,7 @@ test("설치형 앱 셸은 오프라인에서 마지막 승인 Demo 계획만 �
     await enterRider(page, "원 기사");
     await expect(page.getByText("오프라인 · 마지막 승인 계획")).toBeVisible();
     await expect(page.getByText("읽기 전용", { exact: false })).toBeVisible();
-    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" })).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByText("오프라인에서는 동의·수정·거절을 기록하지 않습니다.")).toBeVisible();
     await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
@@ -365,7 +352,7 @@ test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행�
     await page.reload({ waitUntil: "domcontentloaded" });
     await enterRider(page, "원 기사");
     await expect(page.getByText("캐시 만료 · 최신 계획 아님")).toBeVisible();
-    await expect(page.getByRole("heading", { name: "서울시 용산구 한빛아파트" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" })).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
     await expect(page.getByRole("button", { name: "이 조정에 동의", exact: true })).toBeDisabled();
   } finally {
@@ -424,7 +411,7 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
     const visibleCopy = await page.locator("body").innerText();
     const submissionCopyClean = !/Demo|데모|합성|실제\s*아님|Fallback|Live/.test(visibleCopy);
     expect(submissionCopyClean).toBe(true);
-    await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(1);
+    await expect(page.getByText("시연 데이터", { exact: true })).toHaveCount(input.role === "ADMIN" ? 1 : 0);
     const touchTargets = input.state === "LOGIN"
       ? [
           page.getByRole("button", { name: "업무 화면 시작" }),
@@ -435,7 +422,6 @@ test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다",
             page.getByRole("tab", { name: "운행" }),
             page.getByRole("tab", { name: "안전지원" }),
             page.getByRole("tab", { name: "내 정보" }),
-            page.getByRole("button", { name: "안전지원 검토" }),
           ]
         : input.role === "SOURCE" || input.role === "RECIPIENT"
       ? [

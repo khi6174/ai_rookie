@@ -1748,3 +1748,36 @@ type DailyOperationsSnapshot = {
 - `source`: `SYNTHETIC_RIDER_APP`
 
 손상·만료·알 수 없는 기사 ID는 관제 화면에서 버린다. 이 계약에는 실제 위치, 생체정보, 센서 원본, 연락처와 신고 전송 상태를 넣지 않으며 운영 저장소나 외부 서비스로 보내지 않는다.
+
+### 28.6 기사 앱 표시 프로필과 서버 조회
+
+`RiderProfile`은 관제 카드와 기사 앱이 같은 기사 정보를 사용하기 위한 대회용 고정 데이터 계약이다.
+
+```ts
+type RiderProfile = {
+  courierId: `R-${string}`;
+  displayName: string;
+  areaCode: string;
+  deliveryZone: string;
+  completedCount: number;
+  totalCount: number;
+  shiftStart: string;
+  expectedCompletion: string;
+  safetyScore: number;
+  projectedSafetyScore?: number;
+  criticalMinute: number | null;
+  criticalStopOrdinal: number | null;
+  mapX: number;
+  mapY: number;
+  hubLabel: string;
+  vehicleId: string;
+};
+```
+
+- `GET /api/riders`는 20명 목록을, `GET /api/riders/{courierId}`는 한 명의 프로필을 반환한다.
+- 배포 환경의 기준 저장소는 Sites D1의 `rider_profiles`이고 개발 환경은 같은 seed의 메모리 저장소를 사용한다.
+- `/rider-demo?courier=R-017`처럼 기사 ID를 전달하며, 관제에서 선택한 기사 ID를 그대로 기사 앱 링크에 사용한다.
+- `completedCount ≤ totalCount`이고 배송률은 두 값에서 계산한다. 남은 배송도 같은 두 값의 차이로 계산한다.
+- `safetyScore`는 현재 점수, `projectedSafetyScore`는 관제에서 사용하는 계획상 최소 점수로 구분한다.
+- 이름, 단지명, 차량과 좌표는 모두 대회용 고정 값이며 실제 개인정보·주소·GPS가 아니다.
+- 서버 조회 실패 시 같은 버전의 번들 기본 기록으로 읽기 전용 표시하고 Safety 결정 값은 만들거나 변경하지 않는다.

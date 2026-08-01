@@ -13,6 +13,13 @@ import type {
 } from "../domain/contracts";
 import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
 import {
+  loadRiderProfile,
+  resolveRequestedRiderProfile,
+  riderProfiles,
+  type RiderProfile,
+  type RiderProfileLoadResult,
+} from "../application/riderProfileRepository";
+import {
   applyMapMovementFrame,
   createMapMovementTimeline,
   createMultiRegionMapFixture,
@@ -158,6 +165,29 @@ function RiderRoleMenu({ role, onChange }: { role: Exclude<Role, "ADMIN">; onCha
         <small>기사</small>
       </summary>
       <RoleSwitcher role={role} onChange={onChange} />
+    </details>
+  );
+}
+
+function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
+  return (
+    <details className="rider-role-menu rider-profile-menu">
+      <summary aria-label={`${profile.displayName} 기사 화면 전환`}>
+        <span>{profile.displayName}</span>
+        <small>기사</small>
+      </summary>
+      <div className="rider-profile-options" aria-label="기사 앱 선택">
+        {riderProfiles.map((rider) => (
+          <a
+            key={rider.courierId}
+            href={`/rider-demo?courier=${encodeURIComponent(rider.courierId)}`}
+            aria-current={rider.courierId === profile.courierId ? "page" : undefined}
+          >
+            <strong>{rider.displayName}</strong>
+            <small>{rider.areaCode} / 배송 {rider.completedCount}/{rider.totalCount}</small>
+          </a>
+        ))}
+      </div>
     </details>
   );
 }
@@ -1759,7 +1789,6 @@ function RiderLogin({
           <h1 id="rider-login-title">안전한 운행을<br />함께 준비합니다.</h1>
         </div>
         <div className="login-panel">
-          <span className="fixture-pill">시연 데이터</span>
           <h2>기사 계정 확인</h2>
           <p>배정된 허브와 차량을 확인하고 업무 화면으로 이동합니다.</p>
           <dl>
@@ -1834,6 +1863,9 @@ function RiderPwaStatus({
 function RiderView({
   session,
   courierId,
+  riderProfile,
+  riderProfileSource,
+  directRiderEntry,
   isRecipient,
   role,
   onRoleChange,
@@ -1844,6 +1876,9 @@ function RiderView({
 }: {
   session: DemoSession;
   courierId: string;
+  riderProfile: RiderProfile;
+  riderProfileSource: RiderProfileLoadResult["source"];
+  directRiderEntry: boolean;
   isRecipient: boolean;
   role: Exclude<Role, "ADMIN">;
   onRoleChange: (role: Role) => void;
@@ -1869,32 +1904,18 @@ function RiderView({
   const impact = isRecipient ? recipientImpact : sourceImpact;
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
   const cachedCourierPlan = offlinePlan?.couriers.find((courier) => courier.courierId === courierId);
-  const remainingStopCount = cachedCourierPlan?.remainingStopCount ?? activeWorkload.remainingLoad.stopCount;
-  const deliveryCompletedCount = isRecipient ? 9 : 14;
-  const deliveryTotalCount = isRecipient ? 24 : 31;
+  const deliveryCompletedCount = riderProfile.completedCount;
+  const deliveryTotalCount = riderProfile.totalCount;
+  const remainingStopCount = directRiderEntry
+    ? Math.max(0, deliveryTotalCount - deliveryCompletedCount)
+    : cachedCourierPlan?.remainingStopCount ?? activeWorkload.remainingLoad.stopCount;
   const deliveryRate = deliveryTotalCount
     ? Math.round((deliveryCompletedCount / deliveryTotalCount) * 100)
     : 0;
-  const remainingPlanMinutes = Math.max(
-    0,
-    Math.round(
-      (Date.parse(activeWorkload.projectedEndAt) -
-        Date.parse(activeWorkload.evaluatedAt)) /
-        60_000,
-    ),
-  );
-  const expectedCompletionLabel = formatRiderClock(
-    riderDemoClockMinutes + remainingPlanMinutes,
-  );
-  const baselineBreach = demoBaselineSnapshot.breach;
-  const dangerMinutes =
-    baselineBreach.status === "PREDICTED"
-      ? Math.round(baselineBreach.timeToBreachMinutes)
-      : undefined;
-  const dangerStopOrdinal =
-    baselineBreach.status === "PREDICTED"
-      ? baselineBreach.stopIndex + 1
-      : undefined;
+  const expectedCompletionLabel = riderProfile.expectedCompletion;
+  const dangerMinutes = riderProfile.criticalMinute ?? undefined;
+  const dangerStopOrdinal = riderProfile.criticalStopOrdinal ?? undefined;
+  const hasDecisionSupport = ["R-017", "R-024"].includes(riderProfile.courierId);
   const tabContentId = `rider-${tab.toLowerCase()}-panel`;
   const selectTab = (nextTab: RiderTab) => {
     setTab(nextTab);
@@ -1908,7 +1929,7 @@ function RiderView({
       storage = undefined;
     }
     const result = publishDemoRiderDangerSignal({
-      courierId: "R-022",
+      courierId: riderProfile.courierId,
       storage,
       eventTarget: window,
     });
@@ -1931,16 +1952,10 @@ function RiderView({
           <div className="rider-toolbar-actions">
             <a className="rider-dashboard-link" href="/">관제</a>
             <button type="button" className="rider-reset-button" onClick={onReset}>초기화</button>
-            <RiderRoleMenu role={role} onChange={onRoleChange} />
+            {directRiderEntry
+              ? <RiderProfileMenu profile={riderProfile} />
+              : <RiderRoleMenu role={role} onChange={onRoleChange} />}
           </div>
-        </div>
-        <div className="rider-topline">
-          <span className="mode-badge"><span aria-hidden="true">◇</span><span>시연 데이터</span></span>
-          <span className="stopped-badge">정차 확인</span>
-        </div>
-        <div className="rider-route-bar">
-          <div><span>현재 배송 구역</span><strong>{tab === "ROUTE" ? "서울 용산" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong></div>
-          <div><span>배송률</span><strong>{deliveryRate}%</strong></div>
         </div>
         {(!pwa.online || tab === "PROFILE") && (
           <RiderPwaStatus online={pwa.online} shellReady={pwa.shellReady} cacheState={pwa.cacheState} />
@@ -1953,13 +1968,13 @@ function RiderView({
               <figure>
                 <img
                   src="/assets/rider-delivery-area-seoul.jpg"
-                  alt="서울 주거지역의 아파트 건물 전경"
+                  alt={`${riderProfile.deliveryZone} 배송 구역을 나타내는 주거지역 전경`}
                 />
                 <figcaption>배송 구역 대표 이미지</figcaption>
               </figure>
               <div className="rider-delivery-copy">
-                <span>현재 배송 구역</span>
-                <h1>서울시 용산구 한빛아파트</h1>
+                <span>{riderProfile.areaCode}</span>
+                <h1>{riderProfile.deliveryZone}</h1>
                 <div className="rider-delivery-progress-copy">
                   <span>배송 {deliveryCompletedCount}/{deliveryTotalCount}</span>
                   <strong>{deliveryRate}%</strong>
@@ -1978,49 +1993,39 @@ function RiderView({
                   <div><dt>남은 배송</dt><dd>{remainingStopCount}건</dd></div>
                   <div><dt>예상 완료</dt><dd>{expectedCompletionLabel}</dd></div>
                 </dl>
+                <section className="rider-zone-route" aria-label="오늘의 간단한 운행 경로">
+                  <div className="rider-zone-route-heading">
+                    <span>오늘 운행</span>
+                    <strong>{riderProfile.areaCode} 안에서 이동</strong>
+                  </div>
+                  <ol>
+                    <li className="is-current"><span>현재</span><strong>{Math.min(deliveryCompletedCount + 1, deliveryTotalCount)}번째</strong></li>
+                    <li><span>다음</span><strong>{Math.min(deliveryCompletedCount + 2, deliveryTotalCount)}번째</strong></li>
+                    <li><span>완료</span><strong>{expectedCompletionLabel}</strong></li>
+                  </ol>
+                </section>
               </div>
-            </section>
-            <section className="rider-safety-now" aria-label="현재 안전 지원 상태">
-              <div>
-                <span>내 안전 지원 점수</span>
-                <strong>{formatBudget(demoBaselineSnapshot.currentBudget)}</strong>
-              </div>
-              <div>
-                <span>위험 예상</span>
-                <strong>{applied ? "해소" : dangerMinutes === undefined ? "확인 중" : `${dangerMinutes}분 뒤`}</strong>
-                <small>{applied ? "조정 계획 기준" : dangerStopOrdinal === undefined ? "예측 데이터 확인 중" : `${dangerStopOrdinal}번째 배송지 전`}</small>
-              </div>
-            </section>
-            <button type="button" className="button button-primary button-block rider-support-cta" onClick={() => selectTab("SUPPORT")}>{applied ? "적용 근거 확인" : "안전지원 검토"}</button>
-            <section className="rider-danger-demo" aria-label="응급 상황 감지 예시">
-              <span>위험 신호 감지</span>
-              <strong>매우 위험한 상태 감지</strong>
-              <button type="button" onClick={sendDangerDemoSignal}>
-                응급 상황 감지 예시
-              </button>
-              {dangerDemoMessage && (
-                <p role="status">
-                  {dangerDemoMessage}
-                  {dangerDemoMessage.startsWith("관제") && (
-                    <a href="/">관제에서 확인</a>
-                  )}
-                </p>
-              )}
-            </section>
-            <RiderCompactRoute applied={applied} mapModel={mapModel} online={pwa.online} />
-            <section className="rider-next-plan">
-              <span>{applied ? "적용된 다음 계획" : "검토할 안전지원"}</span>
-              <strong>{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</strong>
-              <p>{applied ? "승인된 배송순서와 고객 ETA가 같은 계획 버전에 반영됐습니다." : "검토하기 전에는 배송계획과 고객 ETA가 변경되지 않습니다."}</p>
             </section>
           </section>
         )}
 
         {tab === "SUPPORT" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-support-tab">
-            <p className="rider-overline">안전지원 · 한 화면에서 결정</p>
+            <p className="rider-overline">안전지원</p>
+            <section className="rider-safety-now" aria-label="현재 안전 지원 상태">
+              <div>
+                <span>내 안전 지원 점수</span>
+                <strong>{formatBudget(riderProfile.safetyScore)}</strong>
+              </div>
+              <div>
+                <span>위험 예상</span>
+                <strong>{applied && hasDecisionSupport ? "해소" : dangerMinutes === undefined ? "없음" : `${dangerMinutes}분 뒤`}</strong>
+                <small>{applied && hasDecisionSupport ? "조정 계획 기준" : dangerStopOrdinal === undefined ? "현재 계획 기준" : `${dangerStopOrdinal}번째 배송지 전`}</small>
+              </div>
+            </section>
+            {hasDecisionSupport ? <>
             <section className={`rider-hero-card rider-support-hero ${applied ? "is-applied" : ""}`}>
-              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : isRecipient ? "함께 안전기준을 확인했어요" : "약 52분 안에 지원이 필요할 수 있어요"}</span>
+              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : isRecipient ? "함께 안전기준을 확인했어요" : `${dangerMinutes ?? 52}분 안에 지원이 필요할 수 있어요`}</span>
               <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "배송지 8건을 전달받습니다" : "10분 쉬고, 배송지 8건을 이관합니다"}</h1>
               <p>{applied
                 ? `현재 남은 배송은 ${remainingStopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
@@ -2075,6 +2080,28 @@ function RiderView({
                 </ul>
               </details>
             </section>
+            </> : (
+              <section className="rider-support-empty">
+                <span>{dangerMinutes === undefined ? "현재 상태" : "지원 준비 중"}</span>
+                <h1>{dangerMinutes === undefined ? "현재 계획을 이어가도 됩니다" : `${dangerMinutes}분 뒤를 기준으로 지원안을 확인하고 있습니다`}</h1>
+                <p>{dangerMinutes === undefined
+                  ? "새로운 지원이 필요해지면 이 탭에서 바로 확인할 수 있습니다."
+                  : "지원안이 준비되기 전에는 현재 배송계획이 바뀌지 않습니다."}</p>
+              </section>
+            )}
+            <section className="rider-danger-demo" aria-label="응급 상황 감지 예시">
+              <span>위험 신호 감지</span>
+              <strong>매우 위험한 상태 감지</strong>
+              <button type="button" onClick={sendDangerDemoSignal}>
+                응급 상황 감지 예시
+              </button>
+              {dangerDemoMessage && (
+                <p role="status">
+                  {dangerDemoMessage}
+                  {dangerDemoMessage.startsWith("관제") && <a href="/">관제에서 확인</a>}
+                </p>
+              )}
+            </section>
           </section>
         )}
 
@@ -2097,6 +2124,11 @@ function RiderView({
               <span>이 결정에 사용한 데이터</span>
               <strong>배송·날씨·경로 상태</strong>
               <p>같은 기준 시각의 입력만 사용하며 확인되지 않은 값은 계산에 섞지 않습니다.</p>
+            </section>
+            <section className="rider-profile-card">
+              <span>데이터 안내</span>
+              <strong>{riderProfileSource === "SERVER" ? "기사별 기록을 서버에서 불러옴" : "저장된 기본 기록으로 표시 중"}</strong>
+              <p>대회용 고정 기사 정보이며 실제 이름·주소·정밀 위치는 포함하지 않습니다.</p>
             </section>
             <section className="rider-profile-card">
               <span>이의제기와 도움</span>
@@ -2211,10 +2243,19 @@ export function App({
   initialRole = "ADMIN",
   initialRiderEntry = false,
 }: AppProps) {
-  const [role, setRole] = useState<Role>(initialRole);
+  const [riderProfileResult, setRiderProfileResult] = useState<RiderProfileLoadResult>(() => ({
+    profile: resolveRequestedRiderProfile(
+      typeof window === "undefined" ? "" : window.location.search,
+    ),
+    source: "BUNDLED",
+  }));
+  const resolvedInitialRole: Role = initialRiderEntry && riderProfileResult.profile.courierId === demoRecipientCourierId
+    ? "RECIPIENT"
+    : initialRole;
+  const [role, setRole] = useState<Role>(resolvedInitialRole);
   const [riderEntry, setRiderEntry] = useState<Record<"SOURCE" | "RECIPIENT", boolean>>({
-    SOURCE: initialRiderEntry && initialRole === "SOURCE",
-    RECIPIENT: initialRiderEntry && initialRole === "RECIPIENT",
+    SOURCE: initialRiderEntry && resolvedInitialRole === "SOURCE",
+    RECIPIENT: initialRiderEntry && resolvedInitialRole === "RECIPIENT",
   });
   const [session, setSession] = useState(
     () => initialSession ?? createInitialDemoSession(),
@@ -2233,6 +2274,15 @@ export function App({
     const adapter = createFixtureMapAdapter(fixture);
     return createRiderCompactMapModel(adapter, session.decision.decisionId);
   }, [session.decision.decisionId]);
+
+  useEffect(() => {
+    if (!initialRiderEntry) return;
+    const controller = new AbortController();
+    void loadRiderProfile(riderProfileResult.profile.courierId, controller.signal)
+      .then(setRiderProfileResult)
+      .catch(() => undefined);
+    return () => controller.abort();
+  }, [initialRiderEntry, riderProfileResult.profile.courierId]);
 
   useEffect(() => {
     const planVersion = session.store.appliedDecisionVersions[session.decision.decisionId];
@@ -2299,6 +2349,11 @@ export function App({
         <RiderView
           session={session}
           courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
+          riderProfile={initialRiderEntry
+            ? riderProfileResult.profile
+            : riderProfiles.find((profile) => profile.courierId === (role === "SOURCE" ? "R-017" : "R-024"))!}
+          riderProfileSource={initialRiderEntry ? riderProfileResult.source : "BUNDLED"}
+          directRiderEntry={initialRiderEntry}
           isRecipient={role === "RECIPIENT"}
           role={role}
           onRoleChange={setRole}
