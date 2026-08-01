@@ -203,7 +203,7 @@ test("Safety Control Tower는 토큰 기반 관제 화면과 선택 동기화를
   await expect(page.getByText("지금", { exact: true }).first()).toBeVisible();
   await expect(page.getByText("배송 분담 · 강남", { exact: true })).toBeVisible();
   await expect(page.getByText("수신 가능 4명 · 최대 11건 / 필요 34건", { exact: true })).toBeVisible();
-  await expect(page.getByText("동일 강우셀 영향 18명", { exact: true })).toBeVisible();
+  await expect(page.getByText("동일 강우셀 영향 18명", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/이관만으로는 해소되지 않음/)).toHaveCount(0);
   await expect(page.getByText("기사 지원 요청", { exact: true })).toBeVisible();
   await expect(page.getByText("배송 14/31 완료", { exact: true })).toBeVisible();

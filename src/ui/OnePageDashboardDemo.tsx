@@ -1277,7 +1277,6 @@ export function OnePageDashboardDemo() {
               </div>
               <span>수신 가능 4명 · 최대 11건 / 필요 34건</span>
               <i aria-hidden="true"><span /></i>
-              <small>동일 강우셀 영향 18명</small>
             </div>
             <p>
               <span>
