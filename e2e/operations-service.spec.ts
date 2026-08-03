@@ -19,7 +19,13 @@ test.describe("synthetic operations service", () => {
       page.getByRole("tablist", { name: "관리자 운영 화면" }).getByRole("tab"),
     ).toHaveCount(5);
     await expect(page.getByText("활성 기사 25명")).toBeVisible();
-    await expect(page.getByText("입력 합성 문서 100개")).toBeVisible();
+    await expect(page.getByText("입력 정규화 패키지")).toBeVisible();
+    await expect(
+      page.getByText(
+        "추출 상태 MEMORY_DEV · 검증된 합성 기사 25명",
+        { exact: true },
+      ),
+    ).toBeVisible();
     const documentAttach = page.getByText("운영 문서 첨부", { exact: true });
     await expect(documentAttach).toBeVisible();
     expect(
@@ -147,9 +153,10 @@ test.describe("synthetic operations service", () => {
       page.getByText("Fallback 템플릿 · RATE_LIMITED", { exact: true }),
     ).toBeVisible();
     await page.getByRole("tab", { name: "경로" }).click();
-    await expect(
-      page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
-    ).toBeVisible();
+    await expect(page.locator(".operations-map-header > span")).toHaveText(
+      /^(Kakao map|Schematic Fallback) · 합성 좌표$/,
+      { timeout: 15_000 },
+    );
     await expect(
       page.getByRole("heading", {
         name: "조정 전·후 경로·배송순서·ETA",

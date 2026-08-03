@@ -96,6 +96,8 @@ B_current = simulate(shift history, B_shift_start)
 
 직접 제공한 값은 `ScenarioFixture.initialSafetyStates`에 두며 엔진은 `CURRENT_BUDGET_FROM_DEMO_FIXTURE` 가정과 `shiftHistory` 결측을 출력한다. 이 값은 가중치나 시나리오별 예외 규칙이 아니라 명시적인 mock 초기상태다.
 
+ADR-128의 25명 합성 운영일은 `synthetic-courier-directory-v2`에 버전된 27~88 범위 분포 앵커를 제공한다. 앵커는 운영 패키지의 연속근무·강수·경사·계단·열·시정 노출로 계산한 기준값에 결정론적 편차로 결합되며, 위험입력 증가가 현재 Budget을 개선하지 않는 단조성을 유지한다. 31~90 범위 결과만 `initialSafetyStates`의 Mock 현재 초기상태가 된다. 이는 네 위험 밴드의 UI·개입 폐루프를 재현하기 위한 분포이며 기사 개인의 실제 상태·성과·사고확률을 뜻하지 않는다. 앵커는 디렉터리와 정확히 일치하는 25개 ID에만 적용하고, 확장 부하 등 다른 검증된 합성 ID는 패키지 위험입력 기준값만 사용한다. 미래 Budget과 Time-to-Breach는 이 값에서 동일한 v1 Exposure·Recovery 계산을 수행한 결과만 사용한다.
+
 ### 4.2 미래 Budget 계산
 
 남은 경로를 이동구간과 배송작업 이벤트의 시간순 목록으로 변환한다.

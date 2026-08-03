@@ -18,6 +18,10 @@ import {
   type OperationsValidationIssue,
   type SyntheticOperationsParentRecord,
 } from "../../domain/operations";
+import {
+  findSyntheticCourierDirectoryEntry,
+  syntheticCourierDirectoryVersion,
+} from "../../../server/synthetic-courier-directory.mjs";
 
 const minute = 60_000;
 
@@ -46,18 +50,22 @@ function sourceBudget(record: SyntheticOperationsParentRecord) {
     conditions.visibilityMeters >= 3_000
       ? 0
       : ((3_000 - conditions.visibilityMeters) / 3_000) * 8;
+  const packageDerivedBudget =
+    76 -
+    record.shift.continuousWorkMinutes * 0.08 -
+    conditions.rainfallMmPerHour * 0.45 -
+    conditions.maxSlopePercent * 0.35 -
+    conditions.stairsStopCount * 0.7 -
+    heatLoad -
+    visibilityLoad;
+  const distributionAnchor = findSyntheticCourierDirectoryEntry(
+    record.courier.courierId,
+  )?.initialSafetyBudget;
+  const anchoredBudget = distributionAnchor === undefined
+    ? packageDerivedBudget
+    : packageDerivedBudget + (distributionAnchor - 57) * 0.8;
   return Number(
-    clamp(
-      76 -
-        record.shift.continuousWorkMinutes * 0.08 -
-        conditions.rainfallMmPerHour * 0.45 -
-        conditions.maxSlopePercent * 0.35 -
-        conditions.stairsStopCount * 0.7 -
-        heatLoad -
-        visibilityLoad,
-      32,
-      78,
-    ).toFixed(2),
+    clamp(anchoredBudget, 31, 90).toFixed(2),
   );
 }
 
@@ -387,7 +395,7 @@ export function createScenarioFixtureFromOperationsPackage(
       currentBudget: sourceBudget(record),
       derivedFromHistory: false,
       rationale:
-        "Deterministic synthetic starting state derived from the validated operations package",
+        `Deterministic synthetic starting state from validated package inputs and ${syntheticCourierDirectoryVersion}`,
       provenance,
     });
 

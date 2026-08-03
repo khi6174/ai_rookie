@@ -354,11 +354,18 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 초기 서비스 저장은 정규화 패키지·스냅샷·decision·감사 이벤트를 구조화 저장소에 보존한다. 합성 원문 업로드 바이트 저장은 별도 보존 승인이 있기 전까지 하지 않는다. 브라우저 저장소는 화면 선택과 임시 작성 상태만 소유하며 권위 있는 운영 상태가 될 수 없다.
 
+ADR-126부터 번들 샘플의 검증된 25개 `extractedRecords`는 D1의 운영일·기사 레코드·남은 배송지 테이블에 먼저 적재한다. `/operations`는 이 DB projection으로 `DailyOperationsPackage`를 복원한 뒤 기존 계약 검증과 스냅샷 생성을 수행한다. D1에는 합성 원문 100개를 저장하지 않으며 Safety 결과는 seed하지 않고 같은 엔진에서 재계산한다. 기존 20명 `rider_profiles`는 제출 영상 회귀 경로에만 남고 신규 운영 서비스의 권위 소스가 아니다.
+
+ADR-127부터 공개 `/`와 `/dashboard-demo`도 같은 패키지·스냅샷·Fleet 평가를 읽는 `DashboardOperationsProjection`을 사용한다. 표시용 좌표와 허브 집계만 Application 계층에서 파생하고 Safety 수치·지원 여부는 UI에서 다시 만들지 않는다. 공개 화면의 지원 행동은 선택한 `courierId`를 `/operations`에 전달하며 후보 비교와 적용 상태는 운영 폐루프가 단독 소유한다.
+
+ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합성 별칭과 Mock 초기 Budget을 연결하는 버전 설정이다. Ingestion이 별칭을 적용한 `named-v2` 패키지를 D1과 메모리 Fallback에 동일하게 제공하고, Snapshot 계층은 초기 Budget을 `derivedFromHistory=false`로 명시해 같은 Safety 엔진을 실행한다. 디렉터리의 분포 앵커는 정확히 일치하는 25개 ID에만 적용하며 확장 부하 등 다른 검증된 합성 ID는 패키지 위험입력 기준값으로 일반화한다. 기사 앱 repository는 별도 `/api/riders` 점수를 읽지 않고 이 Dashboard/Fleet projection을 `RiderProfile` 표시 계약으로 변환한다.
+
 관리자와 기사 UI는 이 Application 서비스의 projection만 읽는다. 기존 `DemoSession`은 회귀·복구 시나리오로 유지하지만 신규 운영 화면의 권위 소스가 아니다.
 
 ### 12.2 배포 런타임 경계
 
 - `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답
+- `/api/operations/days/current`, `/api/operations/days/current/package`: D1에 적재된 25명 정규화 합성 운영일 요약과 검증 패키지 조회
 - `/api/riders`, `/api/riders/:courierId`: 대회용 고정 기사 목록·개별 프로필 GET, D1 저장과 개발 메모리 어댑터
 - `/api/upstage-explanation`: 검증된 합성 결정 사실만 Upstage로 전달하고 공급자 원문 대신 strict JSON만 반환
 - Upstage Document Parse·Extract Live 평가는 합성 PDF와 strict exact-match Gate로 분리한다. 승인되지 않은 유료 호출은 실행하지 않고 `CONFIGURED_NOT_RUN`으로 남기며, 원문과 raw 공급자 응답을 증거에 저장하지 않는다.

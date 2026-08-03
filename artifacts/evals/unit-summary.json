@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-07-30T04:30:24.868Z",
+  "capturedAt": "2026-08-03T14:16:43.410Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 37,
-  "testCount": 300,
-  "passed": 300,
+  "testFileCount": 45,
+  "testCount": 320,
+  "passed": 320,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -26,6 +26,11 @@
       "assertionCount": 18
     },
     {
+      "file": "dashboard-operations-projection.test.ts",
+      "status": "passed",
+      "assertionCount": 3
+    },
+    {
       "file": "decision-workflow-boundaries.test.ts",
       "status": "passed",
       "assertionCount": 5
@@ -34,6 +39,11 @@
       "file": "decision-workflow.test.ts",
       "status": "passed",
       "assertionCount": 13
+    },
+    {
+      "file": "demo-rider-danger-signal.test.ts",
+      "status": "passed",
+      "assertionCount": 2
     },
     {
       "file": "domestic-ai-benchmark.test.ts",
@@ -106,6 +116,11 @@
       "assertionCount": 3
     },
     {
+      "file": "operations-scale.test.ts",
+      "status": "passed",
+      "assertionCount": 1
+    },
+    {
       "file": "operations-service.test.ts",
       "status": "passed",
       "assertionCount": 14
@@ -113,7 +128,7 @@
     {
       "file": "operations-session-store.test.ts",
       "status": "passed",
-      "assertionCount": 2
+      "assertionCount": 3
     },
     {
       "file": "pwa-assets.test.ts",
@@ -124,6 +139,21 @@
       "file": "remaining-interventions.test.ts",
       "status": "passed",
       "assertionCount": 16
+    },
+    {
+      "file": "rider-live-location.test.ts",
+      "status": "passed",
+      "assertionCount": 4
+    },
+    {
+      "file": "rider-map-presentation.test.ts",
+      "status": "passed",
+      "assertionCount": 2
+    },
+    {
+      "file": "rider-profile-store.test.ts",
+      "status": "passed",
+      "assertionCount": 2
     },
     {
       "file": "rider-reference-comprehension.test.ts",
@@ -151,9 +181,19 @@
       "assertionCount": 8
     },
     {
+      "file": "synthetic-courier-directory.test.ts",
+      "status": "passed",
+      "assertionCount": 2
+    },
+    {
       "file": "synthetic-operations-documents.test.ts",
       "status": "passed",
       "assertionCount": 5
+    },
+    {
+      "file": "synthetic-operations-store.test.ts",
+      "status": "passed",
+      "assertionCount": 3
     },
     {
       "file": "taas-public-data.test.ts",

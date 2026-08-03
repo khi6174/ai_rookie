@@ -99,6 +99,7 @@ async function generateUnitSummary() {
     "exec",
     "vitest",
     "run",
+    "--maxWorkers=1",
     "--reporter=json",
     `--outputFile=${relative(root, temporaryVitestResult).replaceAll("\\", "/")}`,
   ]);

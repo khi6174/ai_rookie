@@ -1,9 +1,9 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-07-30T04:30:24.868Z",
+  "capturedAt": "2026-08-03T14:16:43.410Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
-  "baseCommit": "6234d8aee98a610f1ac613a2023b360af6d0a494",
+  "baseCommit": "1efe35baa464d0409f973c2f11f6a26afcbf3bee",
   "workingTreeDirty": true,
   "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
   "credentialsStored": false,
@@ -12,7 +12,7 @@
   "sourceHashes": [
     {
       "file": "scripts/run-core-eval-artifacts.mjs",
-      "sha256": "66a50be5d0ca46affce6aff179bc33e1b21f79efd936f7ff7772b7bd5039776f"
+      "sha256": "3426699314d6fed00162519634d1c5ae851173a84d8b1ed584b53364eb488aee"
     },
     {
       "file": "scripts/run-domestic-track-audit.mjs",
@@ -96,15 +96,15 @@
     },
     {
       "file": "e2e/map-performance.spec.ts",
-      "sha256": "622752b6132e74a437d52862f3bff38a7fb1a138eb3571a56f7c28161e62638a"
+      "sha256": "21260b105b46452e49c3a0555fc08d8211ba263c7074a0baeb4c08889abb852b"
     },
     {
       "file": "e2e/spatial-scene.spec.ts",
-      "sha256": "457858081422f582e5a9c88dd6296c7f4938343b60bb5245926fb0e4a5a0f71e"
+      "sha256": "16bb2f2526211595957442770ac9f8f41e464184f96999cd572d1526a99ec777"
     },
     {
       "file": "e2e/saferoute-demo.spec.ts",
-      "sha256": "8ebb8eaae7c17b7d7629cbcaf2962ab0b8e406714b839b231a6a097fd59db11c"
+      "sha256": "ae624d4191806d740d418d2b5e848b197efc0ab23fd79cb99e4b4a68ae5c0005"
     },
     {
       "file": "scripts/build-rider-reference-stimulus.mjs",
@@ -130,8 +130,8 @@
   "artifacts": [
     {
       "file": "unit-summary.json",
-      "bytes": 4374,
-      "sha256": "457f911ed3903c47d94a4ba016fdec9e728fb23e3c0ec4982abec109757190e5"
+      "bytes": 5286,
+      "sha256": "38ffa6fa8968778d5a89cddd96e75c128139ba25ac2a6578cced39f220bc06f0"
     },
     {
       "file": "scenario-results.csv",
@@ -151,7 +151,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "8866eb664d391c11ec318ebd46ea4773ee6ef8482bc0f36939be4a80a58f683b"
+      "sha256": "ea2e8145b4c9628a12c4376593a5fbc38478d891654b73237adbec684925e3a1"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -161,7 +161,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "34ad21db14b7245862d8b889637d1d1b5390ed85407686b21e6615a0a8b1a578"
+      "sha256": "5fda8659fdad958bcd4abe358eef791c15dc18a516628262c6f0cf44bfb03b00"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -171,12 +171,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "573265b467374a04b8cf25c3fb004f628e6de111de165561b1388347a00bde19"
+      "sha256": "ecd411da04f1d5640ee06cfd4990b1b89dddf9587eaf7dbe557a4cf46ca44712"
     },
     {
       "file": "domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "997ca38aa3ff2a7da7203284258b88c552aa4afb00618bf7946b142557df3290"
+      "sha256": "86ea77997748456cf612df391f7bf8607103141b7de08ec1dab831907a4c3697"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -210,18 +210,18 @@
     },
     {
       "file": "accessibility-summary.json",
-      "bytes": 2568,
-      "sha256": "3556458683a44406492ffbb47e418847fec8ade81a692b9d5fdbfe9bca4a1fa5"
+      "bytes": 2579,
+      "sha256": "7df592a923248a43c493bb20445f0df06b23e16ac2160d68d3626d2a8ca09df9"
     },
     {
       "file": "map-performance-summary.json",
-      "bytes": 2319,
-      "sha256": "e0259402f60744327aa90475e15b9e5720bc7178eba3109ba322b91b0ac88dec"
+      "bytes": 2321,
+      "sha256": "2726bbaf13e52073f77b2a82906ea365651c5424565dd72693b8adba5fe7dd36"
     },
     {
       "file": "spatial-scene-summary.json",
-      "bytes": 1191,
-      "sha256": "177fa182ce51c9be20940dbf1df5811ccd9f024f65581f107167613c5f556566"
+      "bytes": 1194,
+      "sha256": "b7f23f43ac13d31fc93c7a1bd3816c1a8c294948780cbaaeb13948c7ddfc8f06"
     },
     {
       "file": "rider-reference-round2-stimulus-manifest.json",

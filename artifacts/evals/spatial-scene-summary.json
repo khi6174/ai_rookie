@@ -1,6 +1,6 @@
 {
   "schemaVersion": "spatial-scene-evidence-v1",
-  "capturedAt": "2026-07-30T04:29:54.294Z",
+  "capturedAt": "2026-08-03T14:16:04.234Z",
   "status": "PASSED",
   "dataMode": "DEMO",
   "renderer": "PROVIDER_INDEPENDENT_SVG_2_5D",
@@ -23,16 +23,16 @@
     "maximumAdditionalGzipJsKiB": 50
   },
   "metrics": {
-    "firstDisplayMs": 56,
-    "returnTo2dMs": 25,
+    "firstDisplayMs": 87,
+    "returnTo2dMs": 35,
     "p95FrameGapMs": 16.7,
     "maxFrameGapMs": 16.8,
     "identifierMismatchCount": 0,
     "numericMismatchCount": 0,
     "additionalRuntimeDependencyCount": 0,
-    "previousG4BGzipJsBytes": 127752,
-    "currentGzipJsBytes": 178952,
-    "additionalGzipJsKiB": 50
+    "previousG4BGzipJsBytes": 142412,
+    "currentGzipJsBytes": 192905,
+    "additionalGzipJsKiB": 49.31
   },
   "limitations": [
     "Deterministic synthetic elevation only; no live GPS, terrain, building, or TMS data.",

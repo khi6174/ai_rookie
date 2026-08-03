@@ -15,6 +15,14 @@ const operationsSessionStoreSource = resolve(
   root,
   "server/operations-session-store.mjs",
 );
+const syntheticOperationsStoreSource = resolve(
+  root,
+  "server/synthetic-operations-store.mjs",
+);
+const syntheticCourierDirectorySource = resolve(
+  root,
+  "server/synthetic-courier-directory.mjs",
+);
 const riderProfileStoreSource = resolve(root, "server/rider-profile-store.mjs");
 const riderProfilesSource = resolve(root, "server/rider-profiles.mjs");
 const upstageExplanationProxySource = resolve(
@@ -53,7 +61,28 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
 const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
 import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
 import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
+import { handleSyntheticOperationsRequest } from "./synthetic-operations-store.mjs";
 import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
+
+let bundledSyntheticOperationsDocument;
+
+async function loadBundledSyntheticOperationsDocument(request, env) {
+  if (bundledSyntheticOperationsDocument) {
+    return bundledSyntheticOperationsDocument;
+  }
+  const assetUrl = new URL(
+    "/templates/daily-operations-documents-2026-07-25-bundled-v1.json",
+    request.url,
+  );
+  const response = await env.ASSETS.fetch(
+    new Request(assetUrl, { headers: { Accept: "application/json" } }),
+  );
+  if (!response.ok) {
+    throw new Error("승인된 합성 운영 seed asset을 불러오지 못했습니다.");
+  }
+  bundledSyntheticOperationsDocument = await response.json();
+  return bundledSyntheticOperationsDocument;
+}
 
 const securityHeaders = {
   "Referrer-Policy": "no-referrer",
@@ -81,6 +110,19 @@ const worker = {
     });
     if (riderProfileResponse) {
       return secure(riderProfileResponse);
+    }
+    if (
+      url.pathname === "/api/operations/days/current" ||
+      url.pathname === "/api/operations/days/current/package"
+    ) {
+      const syntheticOperationsResponse =
+        await handleSyntheticOperationsRequest(request, {
+          database: env.DB,
+          bundle: await loadBundledSyntheticOperationsDocument(request, env),
+        });
+      if (syntheticOperationsResponse) {
+        return secure(syntheticOperationsResponse);
+      }
     }
     const operationsResponse = await handleOperationsSessionRequest(request, {
       database: env.DB,
@@ -295,6 +337,14 @@ await copyFile(
 await copyFile(
   operationsSessionStoreSource,
   resolve(workerDirectory, "operations-session-store.mjs"),
+);
+await copyFile(
+  syntheticOperationsStoreSource,
+  resolve(workerDirectory, "synthetic-operations-store.mjs"),
+);
+await copyFile(
+  syntheticCourierDirectorySource,
+  resolve(workerDirectory, "synthetic-courier-directory.mjs"),
 );
 await copyFile(
   riderProfileStoreSource,

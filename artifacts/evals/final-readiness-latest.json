@@ -1,6 +1,6 @@
 {
   "schemaVersion": "final-readiness-audit-v1",
-  "capturedAt": "2026-07-30T04:27:52.069Z",
+  "capturedAt": "2026-08-03T14:12:53.582Z",
   "status": "PASSED",
   "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
   "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
@@ -11,9 +11,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 2110,
-      "outputSha256": "6cf9df1f9f41165a413faf196c7d0ea473ac163a622c865be1e2eadfeab88653",
-      "evidenceLine": "\u001b[32m✓ built in 273ms\u001b[39m"
+      "elapsedMs": 3255,
+      "outputSha256": "40c1d543e4b148a405ea397ad3d34bf546e3108359b3d8e169f976cfef261812",
+      "evidenceLine": "\u001b[32m✓ built in 461ms\u001b[39m"
     },
     {
       "id": "PLAYWRIGHT_E2E",
@@ -21,9 +21,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 128256,
-      "outputSha256": "4df2681fd7947c54a4cbc5661b0e8477ebf0189c9e18cb52d7ef771a5b54f416",
-      "evidenceLine": "35 passed (2.1m)"
+      "elapsedMs": 200330,
+      "outputSha256": "f56715009e5d7cc4cda985772e53294027dc16603ec58ce6084596b80e7562e2",
+      "evidenceLine": "43 passed (3.3m)"
     },
     {
       "id": "CLEAN_START_3X",
@@ -31,9 +31,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 20801,
-      "outputSha256": "b813721a743cbdaa0ef7acb103d018f140633e91b7b3b89390ddb591aaf1da23",
-      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=19.1"
+      "elapsedMs": 24423,
+      "outputSha256": "285d692b9dc46692840472c2e0e51953045b8355438488e86f6546fbed7098de",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=23.3"
     },
     {
       "id": "DOMESTIC_TRACK_AUDIT",
@@ -41,9 +41,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 837,
-      "outputSha256": "d7f2c2ae683d1bef43529b67e60ca27dfc9afc426fa1e62f2b68edc73f524a80",
-      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=a5a7437bbc494ce9449893ba5569521d17e8d134149989492f6838c3a8ae5ee8"
+      "elapsedMs": 945,
+      "outputSha256": "ba40fec5f98afa6a4e236473dab88e272ed3022837c03eaea5655b27c19e507a",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=79f74b78ebb0c58e5f50c19624292f1322f6fd44ef52ac94ac2cbfbb6ec1b380"
     },
     {
       "id": "CORE_EVIDENCE",
@@ -51,9 +51,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 16956,
-      "outputSha256": "fefe095bdf8a06aa3739b77338c6513e25e1912e91b86194db98b479c5be16f4",
-      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=300 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
+      "elapsedMs": 61345,
+      "outputSha256": "eefb939ae2ebcce90fd61b31493725083c22180871d1dacda08cfc28c8897c0f",
+      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=320 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
     }
   ],
   "documentStatuses": [
@@ -162,7 +162,7 @@
     {
       "id": "UNIT_TESTS",
       "passed": true,
-      "details": "300/300 passed"
+      "details": "320/320 passed"
     },
     {
       "id": "ACCESSIBILITY_VIEWPORTS",
@@ -217,7 +217,7 @@
     {
       "id": "SPATIAL_SCENE_G5_A",
       "passed": true,
-      "details": "renderer=PROVIDER_INDEPENDENT_SVG_2_5D, mismatch=0, dependencies=0, gzipDelta=50KiB"
+      "details": "renderer=PROVIDER_INDEPENDENT_SVG_2_5D, mismatch=0, dependencies=0, gzipDelta=49.31KiB"
     },
     {
       "id": "PUBLIC_DEMO_BUILD",
@@ -231,8 +231,8 @@
     }
   ],
   "summary": {
-    "unitTests": 300,
-    "e2eTests": 35,
+    "unitTests": 320,
+    "e2eTests": 43,
     "cleanStartRuns": 3,
     "requiredViewports": 4,
     "screenshotAndAccessibilityChecks": 6,

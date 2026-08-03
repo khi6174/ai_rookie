@@ -1244,6 +1244,36 @@
 - 기각한 대안: 기사 기기 GPS를 동의·보존 정책 없이 관제로 자동 전송, 두 화면에 서로 다른 위치 함수를 유지, 모든 축척에서 2D 탑차를 같은 크기로 표시, 현재 점수와 예상 최저 점수를 같은 이름으로 혼용.
 - 영향 파일: `src/application/riderMapPresentation.ts`, `src/application/riderProfileRepository.ts`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/App.tsx`, `src/ui/styles.css`, `src/ui/one-page-dashboard.css`, `tests/rider-map-presentation.test.ts`, `tests/rider-profile-store.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
 
+### ADR-126 — 신규 운영 화면의 기사 원천은 25명 정규화 합성 운영 DB다
+
+- 날짜: 2026-08-03
+- 상태: Approved
+- 대체 관계: ADR-123·125의 20명 수기 `RiderProfile`을 신규 운영 서비스의 권위 데이터로 사용하는 범위를 대체한다. 기존 `R-000` 프로필과 `/dashboard-demo`·`/rider-demo`는 제출 영상 회귀 전용 레거시 fixture로만 유지한다.
+- 결정: `daily-operations-documents-2026-07-25-bundled-v1`의 검증된 `extractedRecords` 25개를 D1의 `synthetic_operation_days`, `synthetic_courier_records`, `synthetic_delivery_stops`에 버전 그대로 저장한다. 신규 `/operations`는 `/api/operations/days/current/package`에서 이 정규화 패키지를 우선 읽고, 저장소 장애 때만 같은 버전의 번들 패키지를 명시적 Fallback으로 사용한다. 기사·근무·차량·계획·배송지는 `parentRecordId`와 `courierId`로 연결하며 Safety Budget과 decision은 이 DB 입력에서 Application 계층이 다시 계산한다.
+- 저장 경계: 합성 Markdown 원문 100개와 공급자 raw output은 D1에 저장하지 않는다. 정규화 레코드 JSON, 검색·무결성 확인에 필요한 비식별 열, 남은 배송지 열만 저장한다. 실제 이름·전화번호·이메일·전체 주소·정밀 GPS·생체정보는 허용하지 않는다.
+- 이유: 화면용 수기 기사 상수가 운영 입력과 분리돼 있으면 기사 수·배송 진행·구역·계획이 실제 Safety 계산과 어긋난다. 검증된 25명 패키지를 DB의 단일 진실 원천으로 만들면 입력→스냅샷→Safety→decision→기사 응답→적용의 계보를 같은 ID로 추적할 수 있다.
+- 기각한 대안: 20명 화면 상수를 D1 seed로 계속 사용, 원문 문서 전체를 D1에 저장, Safety 결과를 seed 상수로 저장, 기존 `rider_profiles`를 파괴적으로 덮어쓰기, 실제 기사 데이터로 교체.
+- 영향 파일: `.openai/drizzle/0002_synthetic_operations.sql`, `db/schema.ts`, `server/synthetic-operations-store.mjs`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, `src/application/operations/loadDailyOperationsPackage.ts`, `src/ui/OperationsService.tsx`, `tests/synthetic-operations-store.test.ts`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/decisions.md`
+
+### ADR-127 — 공개 관제 대시보드도 25명 운영 DB projection만 사용한다
+
+- 상태: Approved
+- 결정: 공개 `/`와 `/dashboard-demo`의 기사 카드·지도·지원 큐·허브 집계는 ADR-126의 `DailyOperationsPackage`를 읽고 동일한 `createDailyOperationsSnapshot`과 `evaluateOperationsFleet` 결과에서 만든다. 화면은 `demo-courier-001`부터 `025`까지의 합성 ID, 원천 `displayLabel`, 거친 배송권역, 실제 완료·전체 배송 수와 결정론적 현재·예상 최저 Safety Budget을 표시한다. 저장소 장애 때만 같은 버전의 승인 번들 Fallback을 사용하고 이를 화면에 명시한다.
+- 이유: 수기 `R-000` 프로필의 이름·구역·점수·강남 단일 허브를 25명 운영 DB와 함께 유지하면 공개 첫 화면과 실제 운영 폐루프가 서로 다른 기사와 결론을 보여준다. 대회 심사에서 가장 치명적인 데이터 계보 단절을 제거하고 첫 화면부터 동일 원천·동일 계산을 증명하기 위함이다.
+- 경계: DB에 없는 실제 이름·사진·GPS·이관 가능량을 만들지 않는다. 지도 좌표는 거친 권역을 구분하기 위한 결정론적 합성 projection이며 Live 위치가 아니다. 공개 대시보드는 지원 후보를 요약하고 실제 후보 비교·동의·승인·적용은 같은 기사 ID를 전달받은 `/operations` 폐루프가 소유한다. 기존 20명 `/api/riders`와 `/rider-demo`는 회귀 경로로만 남고 공개 관제의 데이터 원천이나 진입 링크로 사용하지 않는다.
+- 기각한 대안: 기존 20명 배열의 이름만 25명으로 교체, DB 점수와 화면 점수를 별도 계산, 20장 인물 sprite를 25명에게 재사용, 수기 강남 허브·이관 가능량 유지, 공개 화면에서 별도 적용 상태기계를 계속 운영.
+- 영향 파일: `src/application/dashboardOperationsProjection.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `src/ui/OperationsService.tsx`, 공개 대시보드 단위·E2E, `docs/data-contracts.md`, `docs/architecture.md`, `docs/decisions.md`
+
+### ADR-128 — 25명 합성 기사 디렉터리와 기사 앱은 운영 DB ID를 공유한다
+
+- 상태: Approved
+- 결정: `demo-courier-001~025`에 버전된 합성 별칭과 명시적 Mock Safety 분포 앵커를 연결한다. 001~020은 기존 표시 순서의 `강태현, 윤재호, 문상혁, 배준영, 임세훈, 노현우, 곽민제, 서동하, 채우진, 백승기, 오태림, 신주완, 하은성, 남기석, 조민혁, 구본재, 정해윤, 최이든, 한서웅, 유정민`을 사용하고, 021~025는 `김도윤, 이준서, 박시우, 송현준, 안재민` 합성 별칭을 사용한다. `synthetic-courier-directory-v2`의 27~88 앵커는 검증된 운영 패키지의 연속근무·강수·경사·계단·열·시정 노출 계산에 결정론적 편차로 결합되고 31~90 범위의 Mock 현재 초기상태가 된다. 결과는 `initialSafetyStates`, `derivedFromHistory=false`, Mock provenance로 엔진에 들어간다. 위험입력이 증가하면 현재 Budget이 개선되지 않는 단조성, 임계치·가중치·미래 Exposure 계산은 변경하지 않는다.
+- 앱 연동: `/rider-demo?courier=demo-courier-xxx`는 같은 운영 패키지와 Fleet projection에서 이름·거친 권역·배송 진행·현재 및 예상 최저 Budget을 읽는다. 공개 대시보드의 `기사 앱` 링크는 선택한 ID를 그대로 전달하며 기사 선택 메뉴도 같은 25명 디렉터리를 사용한다.
+- 이유: 모든 기사를 `합성 기사 001`처럼 표시하면 시연에서 인물과 decision을 따라가기 어렵고, 25명 모두가 비슷한 지원 밴드에 몰리면 정상·주의·지원·한계 초과의 운영 우선순위를 증명할 수 없다. 기존 합성 별칭을 유지하면서도 점수는 화면용 임의값이 아니라 승인된 Mock 초기상태와 동일 엔진의 미래 노출 결과로 재현한다.
+- 경계: 이름은 실제 개인정보가 아닌 합성 별칭이며 실제 기사처럼 주장하지 않는다. Budget은 개인 성과점수·사고확률·순위가 아니다. UI가 별도 점수를 덮어쓰지 않으며 DB·번들 Fallback 모두 동일 디렉터리 버전을 사용한다. 이 분포 앵커는 정확히 일치하는 25개 `demo-courier-*`에만 적용하고, 24·96·240명 부하처럼 디렉터리 밖의 검증된 합성 ID는 패키지 위험입력 기준값만 사용한다. 운영일의 지원 큐 전 항목은 안전 후보를 실제로 계산해 초기화 가능해야 하며 불안전 후보를 허용해 fixture를 맞추지 않는다.
+- 기각한 대안: 20개 이름 반복 사용, 무작위 이름·점수 생성, 렌더 단계 점수 보정, 임계치나 모델 가중치 변경, 실제 이름 입력.
+- 영향 파일: `server/synthetic-courier-directory.mjs`, `server/synthetic-operations-store.mjs`, `src/adapters/fixtures/syntheticOperationsPackage.ts`, `src/application/operations/createDailyOperationsSnapshot.ts`, `src/application/riderProfileRepository.ts`, `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, 기사 앱·대시보드 테스트, `docs/safety-model.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

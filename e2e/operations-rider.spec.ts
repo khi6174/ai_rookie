@@ -130,12 +130,16 @@ test("synthetic rider danger example reaches the control dashboard", async ({
   page,
 }) => {
   const href = await createRiderReviewLink(page);
+  const courierId = new URL(href, "http://localhost").searchParams.get(
+    "courier",
+  );
+  expect(courierId).toBeTruthy();
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto(href);
   await page.getByRole("tab", { name: "운행" }).click();
 
   const demoButton = page.getByRole("button", {
-    name: "응급 상황 감지 예시",
+    name: "응급 상황 전송",
   });
   const demoButtonBox = await demoButton.boundingBox();
   expect(demoButtonBox?.height).toBeGreaterThanOrEqual(48);
@@ -154,9 +158,11 @@ test("synthetic rider danger example reaches the control dashboard", async ({
 
   await page.getByRole("link", { name: "대시보드에서 확인" }).click();
   await expect(page).toHaveURL(/\/dashboard-demo$/);
-  await expect(page.locator('[data-courier-card="R-022"]')).toHaveAttribute(
+  await expect(
+    page.locator(`[data-courier-card="${courierId}"]`),
+  ).toHaveAttribute(
     "data-rider-danger-signal",
     "active",
   );
-  await expect(page.getByRole("button", { name: "위험신호 2" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "위험신호 1" })).toBeVisible();
 });

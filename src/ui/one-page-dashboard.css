@@ -306,12 +306,14 @@
 .onepage-profile-photo {
   width: 64px;
   height: 64px;
-  display: block;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  background-image: url("../assets/synthetic-courier-profiles-v1.jpg");
-  background-repeat: no-repeat;
-  background-size: 500% 400%;
+  color: var(--blue-strong);
+  background: linear-gradient(145deg, #eef4ff, #dbeafe);
+  font-size: var(--type-16);
+  font-weight: var(--weight-heavy);
 }
 
 .onepage-avatar-status {
@@ -847,11 +849,14 @@
   width: 44px;
   height: 44px;
   flex: 0 0 auto;
+  display: grid;
+  place-items: center;
   border: 1px solid var(--line);
   border-radius: var(--r-lg);
-  background-image: url("../assets/synthetic-courier-profiles-v1.jpg");
-  background-repeat: no-repeat;
-  background-size: 500% 400%;
+  color: var(--blue-strong);
+  background: linear-gradient(145deg, #eef4ff, #dbeafe);
+  font-size: var(--type-12);
+  font-weight: var(--weight-heavy);
 }
 
 .onepage-support-person > div {
@@ -1032,6 +1037,19 @@
   cursor: pointer;
   font-size: var(--type-11);
   font-weight: var(--weight-heavy);
+  text-decoration: none;
+}
+
+.onepage-data-loading {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  color: var(--navy);
+  background: var(--page);
+  font-size: var(--type-16);
+  font-weight: var(--weight-bold);
+  text-align: center;
 }
 
 .onepage-open-intervention:hover {

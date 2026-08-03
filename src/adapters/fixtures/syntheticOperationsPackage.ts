@@ -4,6 +4,7 @@ import {
   type DailyOperationsPackage,
   type SyntheticOperationsParentRecord,
 } from "../../domain/operations";
+import { applySyntheticCourierDirectory } from "../../../server/synthetic-courier-directory.mjs";
 
 const sourceRecordModules = import.meta.glob(
   "../../../data/synthetic/operations-documents-v1/**/source-record.json",
@@ -17,17 +18,21 @@ function sourceRecordNumber(record: SyntheticOperationsParentRecord) {
   return Number(record.parentRecordId.split("-").at(-1));
 }
 
-export const bundledSyntheticOperationsRecords = Object.values(
-  sourceRecordModules,
-)
-  .map((record) => SyntheticOperationsParentRecordSchema.parse(record))
-  .sort((left, right) => sourceRecordNumber(left) - sourceRecordNumber(right));
+export const bundledSyntheticOperationsRecords =
+  applySyntheticCourierDirectory(
+    Object.values(sourceRecordModules)
+      .map((record) => SyntheticOperationsParentRecordSchema.parse(record))
+      .sort(
+        (left, right) =>
+          sourceRecordNumber(left) - sourceRecordNumber(right),
+      ),
+  );
 
 export const bundledDailyOperationsPackage: DailyOperationsPackage =
   DailyOperationsPackageSchema.parse({
     schemaVersion: "daily-operations-package-v1",
     packageId:
-      "daily-operations-documents-2026-07-25-bundled-v1-normalized",
+      "daily-operations-documents-2026-07-25-bundled-v1-named-v2",
     operationDate: "2026-07-25",
     evaluatedAt: "2026-07-25T18:00:00+09:00",
     timeZone: "Asia/Seoul",

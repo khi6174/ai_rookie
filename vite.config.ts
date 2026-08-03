@@ -1,4 +1,5 @@
 import { defineConfig, loadEnv, type Plugin } from "vite";
+import bundledSyntheticOperationsDocument from "./public/templates/daily-operations-documents-2026-07-25-bundled-v1.json";
 import { handleKakaoDirectionsRequest } from "./server/kakao-directions-proxy.mjs";
 import {
   createMemoryOperationsSessionStore,
@@ -9,6 +10,10 @@ import {
   handleRiderProfileRequest,
 } from "./server/rider-profile-store.mjs";
 import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
+import {
+  createMemorySyntheticOperationsStore,
+  handleSyntheticOperationsRequest,
+} from "./server/synthetic-operations-store.mjs";
 import react from "@vitejs/plugin-react";
 
 async function readIncomingBody(
@@ -37,6 +42,9 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
   };
   const operationsSessionStore = createMemoryOperationsSessionStore();
   const riderProfileStore = createMemoryRiderProfileStore();
+  const syntheticOperationsStore = createMemorySyntheticOperationsStore(
+    bundledSyntheticOperationsDocument,
+  );
   return {
     name: "saferoute-kakao-directions-dev-proxy",
     configureServer(server) {
@@ -67,6 +75,19 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
             response.setHeader(name, value);
           });
           response.end(await riderProfileResponse.text());
+          return;
+        }
+        const syntheticOperationsResponse =
+          await handleSyntheticOperationsRequest(
+            new Request(requestUrl, { method }),
+            { memoryStore: syntheticOperationsStore },
+          );
+        if (syntheticOperationsResponse) {
+          response.statusCode = syntheticOperationsResponse.status;
+          syntheticOperationsResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await syntheticOperationsResponse.text());
           return;
         }
         const operationsResponse = await handleOperationsSessionRequest(

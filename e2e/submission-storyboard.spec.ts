@@ -47,7 +47,7 @@ test("3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처
 
   await enterRider(page, "원 기사");
   await expect(
-    page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" }),
+    page.getByRole("heading", { name: "10분 쉬고, 배송 8건을 나눌까요?" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "지금은 거절" }).scrollIntoViewIfNeeded();
   await capture(page, "03-source-rider-consent.png");
@@ -55,7 +55,7 @@ test("3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처
 
   await enterRider(page, "수신 기사");
   await expect(
-    page.getByRole("heading", { name: "배송지 8건을 전달받습니다" }),
+    page.getByRole("heading", { name: "가까운 배송 8건을 이어받을까요?" }),
   ).toBeVisible();
   await page.getByRole("button", { name: "지금은 거절" }).scrollIntoViewIfNeeded();
   await capture(page, "04-recipient-rider-consent.png");

@@ -7,7 +7,7 @@ export const DEMO_RIDER_DANGER_SIGNAL_STORAGE_KEY =
 
 const demoRiderDangerSignalSchema = z.object({
   schemaVersion: z.literal("demo-rider-danger-signal-v1"),
-  courierId: z.string().regex(/^R-\d{3}$/),
+  courierId: z.string().regex(/^(?:R-\d{3}|demo-courier-\d{3})$/),
   label: z.string().trim().min(1).max(40),
   receivedAt: z.string().regex(/^\d{2}:\d{2}$/),
   createdAt: z.string().datetime(),

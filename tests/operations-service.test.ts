@@ -282,18 +282,21 @@ describe("multi-decision operations workspace", () => {
     );
     const fleet = evaluateOperationsFleet(snapshot);
     const emptyWorkspace = createOperationsDecisionWorkspace(snapshot, fleet);
-    const workspace = initializeOperationsDecision(
-      emptyWorkspace,
-      snapshot,
-      fleet,
-      fleet.supportQueue[0].decisionId,
-    );
+    let workspace = emptyWorkspace;
+    for (const queueItem of fleet.supportQueue) {
+      workspace = initializeOperationsDecision(
+        workspace,
+        snapshot,
+        fleet,
+        queueItem.decisionId,
+      );
+    }
 
     expect(emptyWorkspace.supportQueue).toHaveLength(
       fleet.supportDecisionCount,
     );
     expect(emptyWorkspace.decisions).toHaveLength(0);
-    expect(workspace.decisions).toHaveLength(1);
+    expect(workspace.decisions).toHaveLength(fleet.supportDecisionCount);
     expect(
       workspace.decisions.every(
         (item) =>
@@ -303,7 +306,7 @@ describe("multi-decision operations workspace", () => {
           item.decision.decisionId === item.queueItem.decisionId,
       ),
     ).toBe(true);
-  });
+  }, 20_000);
 
   it("detects two open transfer decisions that would use the same recipient", async () => {
     const snapshot = await createDailyOperationsSnapshot(
@@ -360,7 +363,16 @@ describe("multi-decision operations workspace", () => {
     expect(conflicts[0].reasonCodes).toContain(
       "AFFECTED_COURIER_OVERLAP",
     );
-    expect(conflicts[0].sharedCourierIds).toContain("demo-courier-001");
+    const recipientIds = transferSelections.map((item) => {
+      const transfer = item.candidate.actions.find(
+        (action) => action.type === "TRANSFER_STOPS",
+      );
+      return transfer?.type === "TRANSFER_STOPS"
+        ? transfer.recipientCourierId
+        : undefined;
+    });
+    expect(new Set(recipientIds).size).toBe(1);
+    expect(conflicts[0].sharedCourierIds).toContain(recipientIds[0]);
   });
 
   it("completes consent, approval, revalidation, atomic apply and notice recording", async () => {

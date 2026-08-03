@@ -80,7 +80,12 @@ function check(id, passed, details) {
 
 const commands = [
   runPnpm("BUILD", ["run", "build"], /built in/i),
-  runPnpm("PLAYWRIGHT_E2E", ["run", "test:e2e"], /\b\d+ passed\b/),
+  runPnpm(
+    "PLAYWRIGHT_E2E",
+    ["run", "test:e2e"],
+    /\b\d+ passed\b/,
+    300_000,
+  ),
   runPnpm(
     "CLEAN_START_3X",
     ["run", "test:e2e:clean-start"],

@@ -19,6 +19,7 @@ import {
   holdOperationsDecision,
   initializeOperationsDecision,
   getOrCreateOperationsWorkspaceId,
+  loadCurrentDailyOperationsPackage,
   loadOperationsPersistedSession,
   restoreOperationsPersistedSession,
   saveOperationsPersistedSession,
@@ -180,14 +181,18 @@ function formatEvaluatedAt(value: string) {
 }
 
 export function OperationsService() {
+  const requestedCourierId = useMemo(
+    () => new URLSearchParams(window.location.search).get("courier"),
+    [],
+  );
   const [adminTab, setAdminTab] =
     useState<OperationsAdminTab>(adminTabFromHash);
   const [operationsPackage, setOperationsPackage] =
     useState<DailyOperationsPackage>(bundledDailyOperationsPackage);
   const [inputSummary, setInputSummary] = useState<OperationsInputSummary>({
-    kind: "DOCUMENT_BUNDLE",
-    documentCount: 100,
-    label: "SafeRoute 결정론 추출 · 검증 통과",
+    kind: "NORMALIZED_PACKAGE",
+    documentCount: 0,
+    label: "합성 운영 DB 확인 중",
   });
   const [snapshot, setSnapshot] =
     useState<DailyOperationsSnapshot | null>(null);
@@ -267,6 +272,25 @@ export function OperationsService() {
               ? result.message
               : "저장된 운영 세션을 확인하지 못했습니다.",
         });
+      }
+      if (result.status !== "LOADED") {
+        const packageResult = await loadCurrentDailyOperationsPackage();
+        if (cancelled) return;
+        if (packageResult.status === "LOADED") {
+          setOperationsPackage(packageResult.operationsPackage);
+          setInputSummary({
+            kind: "NORMALIZED_PACKAGE",
+            documentCount: 0,
+            label: `${packageResult.storage} · 검증된 합성 기사 ${packageResult.operationsPackage.records.length}명`,
+          });
+        } else {
+          setOperationsPackage(bundledDailyOperationsPackage);
+          setInputSummary({
+            kind: "DOCUMENT_BUNDLE",
+            documentCount: 100,
+            label: "DB 연결 실패 · 승인 번들 Fallback",
+          });
+        }
       }
       restoreCompleteRef.current = true;
     };
@@ -426,7 +450,15 @@ export function OperationsService() {
       setFleet(nextFleet);
       setWorkspace(nextWorkspace);
       setLoadState({ status: "READY" });
-      selectAdminTab("SUPPORT", true);
+      const requestedDecision = nextFleet.supportQueue.find(
+        (item) => item.courierId === requestedCourierId,
+      );
+      if (requestedDecision) {
+        setSelectedDecisionId(requestedDecision.decisionId);
+        selectAdminTab("INTERVENTIONS", true);
+      } else {
+        selectAdminTab("SUPPORT", true);
+      }
     } catch (error) {
       const details =
         typeof error === "object" &&

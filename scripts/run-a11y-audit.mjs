@@ -70,3 +70,6 @@ if (failures.length) {
 }
 
 console.log(`A11Y_TOKEN_CONTRAST_PASS checks=${checks.length + 2}`);
+
+["amber chip", "--color-amber-600", "--color-amber-100", 4.5]
+["safe chip",  "--color-teal-700",  "--color-teal-100",  4.5]

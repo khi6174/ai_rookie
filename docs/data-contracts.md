@@ -1805,3 +1805,49 @@ type RiderProfile = {
 - `safetyScore`는 현재 점수, `projectedSafetyScore`는 관제에서 사용하는 계획상 최소 점수로 구분한다.
 - 이름, 단지명, 차량과 좌표는 모두 대회용 고정 값이며 실제 개인정보·주소·GPS가 아니다.
 - 서버 조회 실패 시 같은 버전의 번들 기본 기록으로 읽기 전용 표시하고 Safety 결정 값은 만들거나 변경하지 않는다.
+
+### 28.7 합성 운영 DB projection
+
+ADR-126 이후 신규 운영 서비스는 표시용 `RiderProfile` 대신 검증된 `DailyOperationsPackage`의 25명 레코드를 DB 권위 소스로 사용한다.
+
+```ts
+type SyntheticOperationDayProjection = {
+  schemaVersion: "synthetic-operation-day-projection-v1";
+  packageId: string;
+  operationDate: string;
+  evaluatedAt: IsoDateTime;
+  timeZone: "Asia/Seoul";
+  dataMode: "SYNTHETIC";
+  source: "BUNDLED_SAMPLE" | "USER_UPLOADED";
+  courierCount: number;
+  remainingStopCount: number;
+  datasetVersions: string[];
+  storage: "D1" | "MEMORY_DEV";
+};
+```
+
+- `synthetic_operation_days`는 패키지 ID·운영일·평가시각·기사 수·남은 배송 수와 seed 버전을 보존한다.
+- `synthetic_courier_records`는 `parentRecordId`·기사·허브·근무·차량·계획의 검색 열과 strict 정규화 레코드 JSON을 보존한다.
+- `synthetic_delivery_stops`는 남은 배송지 ID·기사 ID·순번·ETA·거친 구역·작업유형·중량만 보존한다.
+- 합성 원문 Markdown, 공급자 raw output, 실제 이름·연락처·전체 주소·정밀 GPS·생체정보는 세 테이블에 저장하지 않는다.
+- `/api/operations/days/current/package`는 DB 레코드를 `parentRecordId` 순서로 복원하고 기존 `DailyOperationsPackageSchema`를 다시 통과한 값만 반환한다.
+- DB 패키지와 번들 Fallback은 같은 `packageId`, 레코드 수와 기사·배송지 ID 집합을 가져야 한다.
+- Safety Budget·지원 큐·후보·decision은 DB에 seed하지 않고 복원된 패키지에서 결정론적으로 다시 계산한다.
+
+### 28.8 공개 관제 dashboard projection
+
+- 공개 관제의 기사 ID·표시명·허브·배송권역·차량·근무·배송 수는 28.7의 정규화 레코드에서만 가져온다.
+- 현재 Budget, 예상 최저 Budget, 위험 밴드, Time-to-Breach와 decision ID는 같은 패키지로 생성한 `DailyOperationsSnapshot`과 `FleetEvaluation`에서만 가져온다.
+- 화면 좌표는 `hubId`와 패키지 내 고정 순번으로 만든 비정밀 합성 projection이다. 실제 주소·GPS 또는 이동 이력으로 표현하지 않는다.
+- 저장소 상태는 `D1`, `MEMORY_DEV`, `BUNDLED_FALLBACK` 중 하나로 표시하며 Fallback을 정상 Live 조회처럼 숨기지 않는다.
+- 공개 관제는 별도의 개입 수치나 이관 가능량을 만들지 않는다. 지원 검토는 `courierId`를 `/operations`에 전달하고 결정론적 후보 엔진이 다시 계산한다.
+
+### 28.9 합성 기사 디렉터리와 앱 profile projection
+
+- `synthetic-courier-directory-v2`는 `courierId`, 합성 `displayName`, `displayOrder`, 명시적 Mock 분포 앵커 `initialSafetyBudget`, `dataMode=SYNTHETIC`, `syntheticAlias=true`만 가진다. 앵커는 화면 점수가 아니라 운영 패키지 위험입력 계산과 결합되는 fixture 설정이다.
+- 25개 ID·이름·순서·초기 Budget은 중복될 수 없고 모든 운영 레코드와 정확히 일치해야 한다.
+- 정규화 패키지는 디렉터리의 합성 별칭을 `courier.displayLabel`에 적용하며 package ID를 `named-v2`로 구분한다.
+- 기사 앱 profile은 운영 레코드의 거친 배송권역·배송 수·근무·차량과 Fleet projection의 현재 Budget·예상 최저 Budget·Time-to-Breach를 결합한다.
+- `BUNDLED_FALLBACK`도 동일 디렉터리와 같은 엔진을 사용하며 이름이나 점수를 별도 하드코딩하지 않는다.
+- 디렉터리 앵커는 정확히 일치하는 25개 `demo-courier-*`에만 적용한다. 디렉터리 밖의 검증된 합성 기사 ID는 운영 패키지 위험입력에서 계산한 기준 Budget을 사용해야 하며 이름 앵커 조회 실패로 스냅샷 생성을 중단하지 않는다.
+- 실제 이름·연락처·전체 주소·정밀 GPS·생체정보는 디렉터리에 추가할 수 없다.

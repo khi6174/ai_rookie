@@ -14,6 +14,7 @@ import type {
 import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
 import {
   loadRiderProfile,
+  legacyRiderProfiles,
   resolveRequestedRiderProfile,
   riderProfiles,
   type RiderProfile,
@@ -171,14 +172,21 @@ function RiderRoleMenu({ role, onChange }: { role: Exclude<Role, "ADMIN">; onCha
 }
 
 function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
+  const availableProfiles = profile.courierId.startsWith("demo-courier-")
+    ? riderProfiles
+    : legacyRiderProfiles;
   return (
     <details className="rider-role-menu rider-profile-menu">
       <summary aria-label={`${profile.displayName} 기사 화면 전환`}>
         <span>{profile.displayName}</span>
-        <small>기사</small>
+        <small>
+          {profile.courierId.startsWith("demo-courier-")
+            ? "합성 기사"
+            : "기사"}
+        </small>
       </summary>
       <div className="rider-profile-options" aria-label="기사 앱 선택">
-        {riderProfiles.map((rider) => (
+        {availableProfiles.map((rider) => (
           <a
             key={rider.courierId}
             href={`/rider-demo?courier=${encodeURIComponent(rider.courierId)}`}
@@ -1816,18 +1824,16 @@ function formatCachedAt(value: string) {
 
 function RiderPwaStatus({
   online,
-  shellReady,
   cacheState,
 }: {
   online: boolean;
-  shellReady: boolean;
   cacheState: CachedApprovedDemoPlanState;
 }) {
   if (online) {
     return (
       <section className="rider-pwa-status is-online" aria-live="polite">
         <span aria-hidden="true">●</span>
-        <div><strong>온라인</strong><small>{shellReady ? "오프라인 앱 셸 준비됨" : "앱 셸 확인 중"}</small></div>
+        <div><strong>온라인</strong></div>
       </section>
     );
   }
@@ -1865,7 +1871,6 @@ function RiderView({
   session,
   courierId,
   riderProfile,
-  riderProfileSource,
   directRiderEntry,
   isRecipient,
   role,
@@ -1878,7 +1883,6 @@ function RiderView({
   session: DemoSession;
   courierId: string;
   riderProfile: RiderProfile;
-  riderProfileSource: RiderProfileLoadResult["source"];
   directRiderEntry: boolean;
   isRecipient: boolean;
   role: Exclude<Role, "ADMIN">;
@@ -1895,7 +1899,7 @@ function RiderView({
   mapModel: RiderCompactMapModel;
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
-  const [dangerDemoMessage, setDangerDemoMessage] = useState<string>();
+  const [profileGuideOpen, setProfileGuideOpen] = useState(false);
   const consentStatus = consentStatusFor(session, courierId);
   const canRespond = pwa.online && session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
   const offlinePlan = !pwa.online && pwa.cacheState.status === "FRESH" ? pwa.cacheState.plan : null;
@@ -1903,6 +1907,18 @@ function RiderView({
   const sourceImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "SOURCE")!;
   const recipientImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "RECIPIENT")!;
   const impact = isRecipient ? recipientImpact : sourceImpact;
+  const personalResponseLabel = applied
+    ? "새 계획 적용됨"
+    : consentStatus === "CONSENTED"
+      ? "내 동의 기록됨"
+      : consentStatus === "MODIFICATION_REQUESTED"
+        ? "다른 방법 요청됨"
+        : consentStatus === "DECLINED"
+          ? "거절 기록됨"
+          : "내 응답 대기";
+  const supportSteps = isRecipient
+    ? [["지금", "현재 배송 유지"], ["확인 후", "가까운 8건 수신"], ["적용 뒤", "새 순서로 운행"]]
+    : [["지금", "14번째 배송"], ["먼저", "10분 휴식"], ["그 다음", "8건 인계"]];
   const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
   const cachedCourierPlan = offlinePlan?.couriers.find((courier) => courier.courierId === courierId);
   const deliveryCompletedCount = riderProfile.completedCount;
@@ -1929,16 +1945,11 @@ function RiderView({
     } catch {
       storage = undefined;
     }
-    const result = publishDemoRiderDangerSignal({
+    publishDemoRiderDangerSignal({
       courierId: riderProfile.courierId,
       storage,
       eventTarget: window,
     });
-    setDangerDemoMessage(
-      result.persisted
-        ? "관제 화면에 위험 신호를 보냈습니다."
-        : "브라우저 저장소가 차단되어 신호를 보존하지 못했습니다.",
-    );
   };
 
   return (
@@ -1959,7 +1970,7 @@ function RiderView({
           </div>
         </div>
         {(!pwa.online || tab === "PROFILE") && (
-          <RiderPwaStatus online={pwa.online} shellReady={pwa.shellReady} cacheState={pwa.cacheState} />
+          <RiderPwaStatus online={pwa.online} cacheState={pwa.cacheState} />
         )}
 
         {tab === "ROUTE" && (
@@ -2013,39 +2024,58 @@ function RiderView({
 
         {tab === "SUPPORT" && (
           <section id={tabContentId} role="tabpanel" aria-labelledby="rider-support-tab">
-            <p className="rider-overline">안전지원</p>
-            <section className="rider-safety-now" aria-label="현재 안전 지원 상태">
-              <div>
-                <span>내 안전 지원 점수</span>
-                <strong>{formatBudget(riderProfile.safetyScore)}</strong>
-                <small>예상 최저 {formatBudget(riderProfile.projectedSafetyScore ?? riderProfile.safetyScore)}</small>
-              </div>
-              <div>
-                <span>위험 예상</span>
-                <strong>{applied && hasDecisionSupport ? "해소" : dangerMinutes === undefined ? "없음" : `${dangerMinutes}분 뒤`}</strong>
-                <small>{applied && hasDecisionSupport ? "조정 계획 기준" : dangerStopOrdinal === undefined ? "현재 계획 기준" : `${dangerStopOrdinal}번째 배송지 전`}</small>
-              </div>
-            </section>
             {hasDecisionSupport ? <>
-            <section className={`rider-hero-card rider-support-hero ${applied ? "is-applied" : ""}`}>
-              <span className="rider-hero-label">{applied ? "새 계획이 적용됐어요" : isRecipient ? "함께 안전기준을 확인했어요" : `${dangerMinutes ?? 52}분 안에 지원이 필요할 수 있어요`}</span>
-              <h1>{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "배송지 8건을 전달받습니다" : "10분 쉬고, 배송지 8건을 이관합니다"}</h1>
-              <p>{applied
-                ? `현재 남은 배송은 ${remainingStopCount}건입니다. 실제 적용된 계획과 ETA를 기준으로 안내합니다.`
-                : isRecipient
-                  ? "이관 후에도 안전기준을 통과하는지 전체 계획을 다시 확인했습니다."
-                  : "10분 휴식 후 8건을 이관하면 예상 초과를 피할 수 있습니다. 동의 전에는 현재 계획이 바뀌지 않습니다."}</p>
+            <section className={`rider-support-decision ${applied ? "is-applied" : ""}`} aria-labelledby="rider-support-decision-heading">
+              <div className="rider-support-timing" aria-label="안전지원 시점과 안전 여유">
+                <div>
+                  <span>{isRecipient ? "요청받은 조정" : "지원 시점"}</span>
+                  <strong>{isRecipient ? "배송 8건 수신" : `${dangerMinutes ?? 52}분 후`}</strong>
+                  <small>{isRecipient ? "강태현 기사 지원 계획" : `${dangerStopOrdinal ?? 17}번째 배송 전`}</small>
+                </div>
+                <div>
+                  <span>안전 여유</span>
+                  <strong>{formatBudget(riderProfile.safetyScore)}</strong>
+                  <small>사고확률이 아닌 운영 지표</small>
+                </div>
+              </div>
+              <div className="rider-support-question">
+                <span>{applied ? "새 계획이 적용됐어요" : isRecipient ? "내 작업 변화 확인" : "추천 조정"}</span>
+                <h1 id="rider-support-decision-heading">{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "가까운 배송 8건을 이어받을까요?" : "10분 쉬고, 배송 8건을 나눌까요?"}</h1>
+                <p>{applied
+                  ? `현재 남은 배송은 ${remainingStopCount}건입니다. 실제 적용된 계획과 ETA만 안내합니다.`
+                  : isRecipient
+                    ? "가까운 배송지 8건을 이어받아도 내 안전기준을 지키는지 전체 계획을 다시 계산했습니다."
+                    : "동의 시 AI 추천 계획을 실행합니다."}</p>
+              </div>
+              <ol className="rider-support-steps" aria-label="안전지원 실행 순서">
+                {supportSteps.map(([when, action], index) => {
+                  const state = applied
+                    ? index === 0 ? "complete" : index === 1 ? "current" : "later"
+                    : index === 0 ? "current" : index === 1 ? "next" : "later";
+                  const stateLabel = state === "complete" ? "완료" : state === "current" ? "현재" : state === "next" ? "다음" : "예정";
+                  return <li key={when} className={`is-${state}`}><span>{when}</span><strong>{action}</strong><small>{stateLabel}</small></li>;
+                })}
+              </ol>
             </section>
 
-            <section className="rider-decision-brief" aria-label="조정 전후와 내 작업 변화 요약">
-              <div><span>현재 최소</span><strong>{formatBudget(impact.baselineMinimumBudget)}</strong></div>
-              <span className="decision-brief-arrow" aria-label="에서">→</span>
-              <div className="is-safe"><span>조정 후</span><strong>{formatBudget(impact.candidateMinimumBudget)}</strong></div>
-              <div className="decision-brief-work"><span>내 작업</span><strong>{isRecipient ? "+8건" : "-8건"}</strong><small>{isRecipient ? "기준 45 통과" : "예상 초과 해소"}</small></div>
+            <section className="rider-decision-brief rider-impact-summary" aria-label="조정 전후와 내 작업 변화 요약">
+              <div>
+                <span>남은 배송</span>
+                <strong>{isRecipient ? `${remainingStopCount}건 → ${remainingStopCount + 8}건` : "17건 → 9건"}</strong>
+              </div>
+              <div>
+                <span>예상 종료</span>
+                <strong>{isRecipient ? "약 25분 연장" : "약 15분 단축"}</strong>
+              </div>
+              <div className={isRecipient ? "is-boundary" : "is-safe"}>
+                <span>{isRecipient ? "이관 후 최소" : "조정 후 최소"}</span>
+                <strong>{formatBudget(impact.candidateMinimumBudget)}</strong>
+                <small>{isRecipient ? "기준선 45 · 여유 없음" : "임계치 30 통과"}</small>
+              </div>
             </section>
 
             <div className="rider-response-status" aria-live="polite">
-              <StatusPill session={session} />
+              <strong className="rider-personal-status">{personalResponseLabel}</strong>
               <span>{!pwa.online ? "오프라인에서는 동의·수정·거절을 기록하지 않습니다." : canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
             </div>
             <div className="rider-actions" aria-label="조치 응답">
@@ -2053,36 +2083,6 @@ function RiderView({
               <button type="button" className="button button-secondary" disabled={!canRespond} onClick={() => onResponse("MODIFICATION_REQUESTED")}>다른 방법 요청</button>
               <button type="button" className="button button-neutral" disabled={!canRespond} onClick={() => onResponse("DECLINED")}>지금은 거절</button>
             </div>
-            <p className="nonpunitive-copy">수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.</p>
-
-            <section className="rider-safety-card" aria-labelledby="rider-safety-heading">
-              <div className="safety-card-heading"><span className="band-label">{applied ? "조정 완료" : "조정 권장"}</span><span>입력 신뢰도 {demoConfidence}</span></div>
-              <h2 id="rider-safety-heading">{isRecipient ? "이관 후 남은 안전여유" : "조정 전후 최소 안전여유"}</h2>
-              <div className="before-after">
-                <div><span>현재 계획</span><strong>{formatBudget(impact.baselineMinimumBudget)}</strong></div>
-                <span className="change-arrow" aria-label="에서">→</span>
-                <div className="after"><span>추천 조치 후</span><strong>{formatBudget(impact.candidateMinimumBudget)}</strong></div>
-              </div>
-              <p className="threshold-note"><span aria-hidden="true">✓</span> {isRecipient ? "수신 기사 최소 기준 45를 통과했습니다." : "임계치 30 아래로 내려가는 예상을 해소합니다."}</p>
-            </section>
-
-            <section className="rider-action-card" aria-labelledby="rider-action-heading">
-              <p className="section-kicker">추천 조치</p>
-              <h2 id="rider-action-heading">{isRecipient ? "가까운 배송지 8건 수신" : "10분 휴식 + 배송지 8건 이관"}</h2>
-              <dl>
-                <div><dt>내 작업량</dt><dd>{isRecipient ? "+8건" : "-8건"}</dd></div>
-                <div><dt>예상 종료</dt><dd>{isRecipient ? "+25분" : "-15분"}</dd></div>
-                <div><dt>고객 ETA</dt><dd>{isRecipient ? "인계 계획 반영" : "최대 +10분"}</dd></div>
-              </dl>
-              <details>
-                <summary>왜 이 조치를 추천하나요?</summary>
-                <ul>
-                  <li>연속작업과 남은 물량 노출을 함께 줄입니다.</li>
-                  <li>수신 기사의 안전여유·용량·시간창을 모두 확인했습니다.</li>
-                  <li>이 수치는 사고확률이 아닌 안전 지원 점수입니다.</li>
-                </ul>
-              </details>
-            </section>
             </> : (
               <section className="rider-support-empty">
                 <span>{dangerMinutes === undefined ? "현재 상태" : "지원 준비 중"}</span>
@@ -2092,65 +2092,61 @@ function RiderView({
                   : "지원안이 준비되기 전에는 현재 배송계획이 바뀌지 않습니다."}</p>
               </section>
             )}
-            <section className="rider-danger-demo" aria-label="응급 상황 감지 예시">
-              <span>위험 신호 감지</span>
-              <strong>매우 위험한 상태 감지</strong>
+            <section className="rider-danger-demo" aria-label="응급 상황 전송">
               <button type="button" onClick={sendDangerDemoSignal}>
-                응급 상황 감지 예시
+                응급 상황 전송
               </button>
-              {dangerDemoMessage && (
-                <p role="status">
-                  {dangerDemoMessage}
-                  {dangerDemoMessage.startsWith("관제") && <a href="/">관제에서 확인</a>}
-                </p>
-              )}
             </section>
           </section>
         )}
 
         {tab === "PROFILE" && (
-          <section id={tabContentId} role="tabpanel" aria-labelledby="rider-profile-tab">
-            <p className="rider-overline">내 정보</p>
-            <h1>필요한 운영 상태만 공유합니다</h1>
-            <p className="rider-lead">업무에 필요한 정보만 확인하고 공유 범위를 관리합니다.</p>
-            <section className="rider-privacy-visual" aria-label="공유 정보와 기사 권리 요약">
-              <div><span aria-hidden="true">◇</span><strong>공유</strong><small>운영 파생 상태</small></div>
-              <div><span aria-hidden="true">⊘</span><strong>비공유</strong><small>생체·장기 궤적</small></div>
-              <div><span aria-hidden="true">↺</span><strong>기사 권리</strong><small>수정·거절·정정</small></div>
+          <section id={tabContentId} className="rider-profile-page" role="tabpanel" aria-labelledby="rider-profile-tab">
+            <header className="rider-profile-identity">
+              <span className="rider-profile-avatar" aria-hidden="true">{riderProfile.displayName.slice(0, 1)}</span>
+              <div className="rider-profile-identity-copy">
+                <h1>{riderProfile.displayName} 기사</h1>
+                <p>{riderProfile.courierId} · {riderProfile.areaCode} · {riderProfile.vehicleId}</p>
+              </div>
+            </header>
+
+            <section className="rider-profile-work" aria-labelledby="rider-profile-work-heading">
+              <div className="rider-profile-section-heading">
+                <h2 id="rider-profile-work-heading">오늘 내 업무</h2>
+                <span>{riderProfile.deliveryZone}</span>
+              </div>
+              <dl>
+                <div><dt>배송 진행</dt><dd>{deliveryCompletedCount}/{deliveryTotalCount}</dd></div>
+                <div><dt>남은 배송</dt><dd>{remainingStopCount}건</dd></div>
+                <div><dt>예상 완료</dt><dd>{expectedCompletionLabel}</dd></div>
+              </dl>
             </section>
-            <section className="rider-profile-card">
-              <span>관리자에게 보이는 정보</span>
-              <strong>날씨·경로·작업량에서 계산한 파생 상태</strong>
-              <p>원시 생체정보, 장기 이동궤적과 개인 성과평가는 표시하지 않습니다.</p>
-            </section>
-            <section className="rider-profile-card">
-              <span>이 결정에 사용한 데이터</span>
-              <strong>배송·날씨·경로 상태</strong>
-              <p>같은 기준 시각의 입력만 사용하며 확인되지 않은 값은 계산에 섞지 않습니다.</p>
-            </section>
-            <section className="rider-profile-card">
-              <span>데이터 안내</span>
-              <strong>{riderProfileSource === "SERVER" ? "기사별 기록을 서버에서 불러옴" : "저장된 기본 기록으로 표시 중"}</strong>
-              <p>대회용 고정 기사 정보이며 실제 이름·주소·정밀 위치는 포함하지 않습니다.</p>
-            </section>
-            <section className="rider-profile-card">
-              <span>이의제기와 도움</span>
-              <strong>수정·거절·정정 요청에 불이익이 없습니다</strong>
-              <p>안전지원 탭의 수정 요청과 거절로 운영팀의 재검토를 요청할 수 있습니다.</p>
-            </section>
-            <section className="rider-profile-card rider-pwa-card">
-              <span>기기 설치와 오프라인</span>
-              <strong>{pwa.installStatus === "INSTALLED" ? "이 기기에 설치됨" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치할 수 있음" : pwa.shellReady ? "오프라인 앱 셸 준비됨" : "설치 조건 확인 중"}</strong>
-              <p>마지막 승인·적용 계획만 30분 동안 기기에 최소 필드로 저장합니다. 오프라인에서는 읽기 전용이며 만료 계획을 최신으로 표시하지 않습니다.</p>
+
+            <section className={`rider-profile-details ${profileGuideOpen ? "is-open" : ""}`} aria-labelledby="rider-ai-guide-heading">
+              <div className="rider-ai-guide-summary">
+                <span aria-hidden="true">AI</span>
+                <div>
+                  <h2 id="rider-ai-guide-heading">AI 사용 안내</h2>
+                  <p>SafeRoute AI는 확인된 안전 계산 결과를 이해하기 쉽게 설명합니다. AI가 임의로 계획을 바꾸거나 승인하지 않습니다.</p>
+                </div>
+              </div>
               <button
                 type="button"
-                className="button button-secondary button-block"
-                disabled={pwa.installStatus !== "AVAILABLE"}
-                onClick={() => void pwa.requestInstall()}
-              >{pwa.installStatus === "INSTALLED" ? "설치 완료" : pwa.installStatus === "AVAILABLE" ? "이 기기에 설치" : "브라우저 설치 조건 확인"}</button>
-              <small>인증·위치 권한·푸시 알림은 준비 중입니다.</small>
+                aria-expanded={profileGuideOpen}
+                aria-controls="rider-profile-guide-content"
+                onClick={() => setProfileGuideOpen((open) => !open)}
+              >AI 사용 방식 <span>{profileGuideOpen ? "접기" : "자세히 보기"}</span></button>
+              {profileGuideOpen && <div id="rider-profile-guide-content">
+                <strong>어떤 도움을 주나요?</strong>
+                <p>예상되는 안전기준 초과 시점과 원인, 가능한 조정안을 기사와 관리자가 이해하기 쉬운 말로 정리합니다.</p>
+                <strong>어떻게 작동하나요?</strong>
+                <p>검증된 배송·날씨·경로 정보와 안전 엔진의 계산 결과만 받아 설명을 만듭니다. 계산값이나 지원 가능 여부는 AI가 정하지 않습니다.</p>
+                <strong>누가 결정하나요?</strong>
+                <p>계획 변경은 기사 동의와 관리자 승인을 거쳐야 합니다. AI는 동의·거절·승인을 대신하지 않습니다.</p>
+                <strong>오류가 생기면 어떻게 하나요?</strong>
+                <p>응답이 잘못되거나 늦으면 AI 설명을 중단하고 검증된 기본 안내를 표시합니다. 중요한 판단은 항상 계산 결과와 확인된 정보를 우선합니다.</p>
+              </div>}
             </section>
-            <code className="rider-decision-code">Decision ID · {session.decision.decisionId}</code>
           </section>
         )}
 
@@ -2250,10 +2246,10 @@ export function App({
     profile: resolveRequestedRiderProfile(
       typeof window === "undefined" ? "" : window.location.search,
     ),
-    source: "BUNDLED",
+    source: "OPERATIONS_BUNDLED_FALLBACK",
   }));
-  const resolvedInitialRole: Role = initialRiderEntry && riderProfileResult.profile.courierId === demoRecipientCourierId
-    ? "RECIPIENT"
+  const resolvedInitialRole: Role = initialRiderEntry
+    ? riderProfileResult.profile.courierId === "R-024" ? "RECIPIENT" : "SOURCE"
     : initialRole;
   const [role, setRole] = useState<Role>(resolvedInitialRole);
   const [riderEntry, setRiderEntry] = useState<Record<"SOURCE" | "RECIPIENT", boolean>>({
@@ -2315,8 +2311,11 @@ export function App({
     setSession(createInitialDemoSession(createResetDemoDecisionId()));
     setExplanation(null);
     setExplanationLoading(false);
-    setRiderEntry({ SOURCE: false, RECIPIENT: false });
-    setRole("ADMIN");
+    setRiderEntry({
+      SOURCE: initialRiderEntry && resolvedInitialRole === "SOURCE",
+      RECIPIENT: initialRiderEntry && resolvedInitialRole === "RECIPIENT",
+    });
+    setRole(initialRiderEntry ? resolvedInitialRole : "ADMIN");
   };
 
   const requestExplanation = async (simulateFailure: boolean) => {
@@ -2354,8 +2353,7 @@ export function App({
           courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
           riderProfile={initialRiderEntry
             ? riderProfileResult.profile
-            : riderProfiles.find((profile) => profile.courierId === (role === "SOURCE" ? "R-017" : "R-024"))!}
-          riderProfileSource={initialRiderEntry ? riderProfileResult.source : "BUNDLED"}
+            : legacyRiderProfiles.find((profile) => profile.courierId === (role === "SOURCE" ? "R-017" : "R-024"))!}
           directRiderEntry={initialRiderEntry}
           isRecipient={role === "RECIPIENT"}
           role={role}

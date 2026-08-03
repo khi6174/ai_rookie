@@ -37,14 +37,14 @@ async function completeDecisionLoop(page: Page, expectedDecisionId = decisionId)
   await enterRider(page, "원 기사");
   await expect(page.getByRole("heading", { name: "서울시 강남구 역삼동 한빛아파트" })).toBeVisible();
   await page.getByRole("tab", { name: "안전지원" }).click();
-  await expect(page.getByText("52분 뒤", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
+  await expect(page.getByText("52분 후", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "10분 쉬고, 배송 8건을 나눌까요?" })).toBeVisible();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
   await expect(page.locator(".rider-response-status").getByText("동의가 기록되었습니다. 계획은 아직 변경되지 않았습니다.")).toBeVisible();
 
   await enterRider(page, "수신 기사");
   await page.getByRole("tab", { name: "안전지원" }).click();
-  await expect(page.getByRole("heading", { name: "배송지 8건을 전달받습니다" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "가까운 배송 8건을 이어받을까요?" })).toBeVisible();
   await page.getByRole("button", { name: "이 조정에 동의", exact: true }).click();
   await expect(page.locator(".rider-response-status").getByText("모든 필수 동의가 완료되어 관리자 승인을 기다립니다.")).toBeVisible();
 
@@ -285,10 +285,11 @@ for (const viewport of [
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
     }
     await page.getByRole("tab", { name: "안전지원" }).click();
-    await expect(page.getByRole("heading", { name: "10분 쉬고, 배송지 8건을 이관합니다" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "10분 쉬고, 배송 8건을 나눌까요?" })).toBeVisible();
     await expect(page.getByLabel("조정 전후와 내 작업 변화 요약")).toBeVisible();
     await expectAboveMobileTabBar(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
-    await expect(page.getByText("수정하거나 거절해도 불이익은 없습니다.", { exact: false })).toBeVisible();
+    await expect(page.getByRole("button", { name: "다른 방법 요청" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "지금은 거절" })).toBeVisible();
     await expectNoPageHorizontalOverflow(page);
     await expectMinimumTouchHeight(page.locator(".rider-role-menu summary"));
     await expectMinimumTouchHeight(page.getByRole("button", { name: "이 조정에 동의", exact: true }));
@@ -383,14 +384,30 @@ test("만료된 오프라인 계획을 최신 계획으로 표시하거나 행�
   }
 });
 
-test("내 정보에서 설치 가능 상태와 실제 미구현 권한 경계를 구분한다", async ({ page }) => {
-  await page.goto("/closed-loop-demo?pwa-test=1");
-  await enterRider(page, "원 기사");
-  await page.getByRole("tab", { name: "내 정보" }).click();
-  await expect(page.getByText("기기 설치와 오프라인")).toBeVisible();
-  await expect(page.getByText("마지막 승인·적용 계획만 30분 동안", { exact: false })).toBeVisible();
-  await expect(page.getByText("인증·위치 권한·푸시 알림은 준비 중입니다.")).toBeVisible();
-  await expectMinimumTouchHeight(page.locator(".rider-pwa-card button"));
+test("내 정보에서 오늘 업무와 AI 사용 경계를 간결하게 안내한다", async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 360, height: 800 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/closed-loop-demo?pwa-test=1");
+    await enterRider(page, "원 기사");
+    await page.getByRole("tab", { name: "내 정보" }).click();
+    await expect(page.getByRole("heading", { name: "강태현 기사" })).toBeVisible();
+    await expect(page.getByRole("heading", { name: "오늘 내 업무" })).toBeVisible();
+    await expect(page.getByText("14/31", { exact: true })).toBeVisible();
+    await expect(page.getByText("온라인", { exact: true })).toBeVisible();
+    await expect(page.getByText("앱 셸 확인 중", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("오프라인 앱 셸 준비됨", { exact: true })).toHaveCount(0);
+    await expect(page.getByText("운영 기록 불러옴", { exact: true })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "정보 공유 범위" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "내 권리" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "앱 사용 상태" })).toHaveCount(0);
+    await expect(page.getByRole("heading", { name: "AI 사용 안내" })).toBeVisible();
+    await expect(page.getByText("AI가 임의로 계획을 바꾸거나 승인하지 않습니다.", { exact: false })).toBeVisible();
+    await page.getByRole("button", { name: "AI 사용 방식 자세히 보기" }).click();
+    await expect(page.getByText("계산값이나 지원 가능 여부는 AI가 정하지 않습니다.", { exact: false })).toBeVisible();
+    await expect(page.getByText("AI는 동의·거절·승인을 대신하지 않습니다.", { exact: false })).toBeVisible();
+    await expectNoPageHorizontalOverflow(page);
+    await expectMinimumTouchHeight(page.locator(".rider-profile-details > button"));
+  }
 });
 
 test("발표용 네 해상도 스크린샷과 SHA-256 manifest를 생성한다", async ({ browser, page }) => {

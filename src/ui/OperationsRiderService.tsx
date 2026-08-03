@@ -219,7 +219,7 @@ export function OperationsRiderService() {
       storage = undefined;
     }
     const result = publishDemoRiderDangerSignal({
-      courierId: "R-022",
+      courierId,
       storage,
       eventTarget: window,
     });
@@ -316,7 +316,7 @@ export function OperationsRiderService() {
                 className="operations-rider-danger-demo-button"
                 onClick={sendDangerDemoSignal}
               >
-                응급 상황 감지 예시
+                응급 상황 전송
               </button>
               {dangerDemoMessage && (
                 <p className="operations-rider-danger-demo-status" role="status">

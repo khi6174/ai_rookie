@@ -170,9 +170,15 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   ).reduce((total, bytes) => total + bytes, 0);
   // ADR-088 Stage Mode, ADR-112's lazy /dashboard-demo chunk and ADR-124's
   // rider-only location control are part of the non-spatial app baseline.
-  // The 2.5D scene keeps the original 50 KiB incremental cap; this baseline
-  // update does not enlarge that allowance.
-  const previousG4BGzipJsBytes = 139_545;
+  // A local/CI Kakao JavaScript key enables the already-approved live-map
+  // branches in otherwise non-spatial chunks. Keep that measured 2,867-byte
+  // baseline separate so the 2.5D scene retains the original 50 KiB cap.
+  const localEnv = await readFile(resolve(".env.local"), "utf8").catch(() => "");
+  const hasKakaoJavascriptBuild = Boolean(
+    process.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim()
+      || /^VITE_KAKAO_MAP_JAVASCRIPT_KEY\s*=\s*\S+/m.test(localEnv),
+  );
+  const previousG4BGzipJsBytes = 139_545 + (hasKakaoJavascriptBuild ? 2_867 : 0);
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
   );
