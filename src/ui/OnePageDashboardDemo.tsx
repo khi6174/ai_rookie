@@ -436,7 +436,15 @@ function DashboardKakaoMap({
           truckImage.alt = "";
           markerDot.setAttribute("aria-hidden", "true");
           button.append(truckImage, markerDot);
-          button.addEventListener("click", () => selectRef.current(courier.id));
+          const selectCourierMarker = (event: Event) => {
+            event.stopPropagation();
+            selectRef.current(courier.id);
+          };
+          button.addEventListener("pointerdown", selectCourierMarker);
+          button.addEventListener("click", (event) => {
+            event.stopPropagation();
+            if (event.detail === 0) selectRef.current(courier.id);
+          });
           buttons.set(courier.id, button);
 
           const markerOverlay = new maps.CustomOverlay({
@@ -818,7 +826,7 @@ export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState("");
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
-  const [pausedMovementSecond, setPausedMovementSecond] = useState<number>();
+  const pausedMovementSecondRef = useRef<number | undefined>(undefined);
   const [dangerSignals, setDangerSignals] = useState<
     Record<string, RiderDangerSignal>
   >(initialDangerSignals);
@@ -850,7 +858,7 @@ export function OnePageDashboardDemo() {
     : undefined;
   const currentTimeLabel = clockFormatter.format(now);
   const liveMovementSecond = Math.floor(now.getTime() / 1_000);
-  const movementSecond = pausedMovementSecond ?? liveMovementSecond;
+  const movementSecond = pausedMovementSecondRef.current ?? liveMovementSecond;
   const movingCouriers = couriers.map((courier) =>
     simulatedCourierPosition(courier, movementSecond),
   );
@@ -1375,19 +1383,21 @@ export function OnePageDashboardDemo() {
           <div
             className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""}`}
             data-movement-second={movementSecond}
-            onPointerEnter={() =>
-              setPausedMovementSecond((current) => current ?? liveMovementSecond)
-            }
-            onPointerMove={() =>
-              setPausedMovementSecond((current) => current ?? liveMovementSecond)
-            }
-            onPointerLeave={() => setPausedMovementSecond(undefined)}
-            onFocusCapture={() =>
-              setPausedMovementSecond((current) => current ?? liveMovementSecond)
-            }
+            onPointerEnter={() => {
+              pausedMovementSecondRef.current ??= liveMovementSecond;
+            }}
+            onPointerMove={() => {
+              pausedMovementSecondRef.current ??= liveMovementSecond;
+            }}
+            onPointerLeave={() => {
+              pausedMovementSecondRef.current = undefined;
+            }}
+            onFocusCapture={() => {
+              pausedMovementSecondRef.current ??= liveMovementSecond;
+            }}
             onBlurCapture={(event) => {
               if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
-                setPausedMovementSecond(undefined);
+                pausedMovementSecondRef.current = undefined;
               }
             }}
           >
