@@ -14,6 +14,17 @@ test("G4-B는 24·96·240명 Fallback 2D 부하에서 승인된 반응 예산을
   await page.setViewportSize(viewport);
   const profiles = [];
 
+  // Vite transforms application modules on the first request in the test server.
+  // Warm that server-only work in a separate context so the measured context
+  // still has a cold browser cache and includes download, parse, and render time.
+  const warmupContext = await browser.newContext({ viewport });
+  const warmupPage = await warmupContext.newPage();
+  await warmupPage.goto(`/closed-loop-demo?map-load-test=${mapPerformanceBudget.loadProfiles[0]}`, {
+    waitUntil: "domcontentloaded",
+  });
+  await expect(warmupPage.getByRole("heading", { name: "3개 권역의 지원 필요 상황" })).toBeVisible();
+  await warmupContext.close();
+
   for (const totalCouriers of mapPerformanceBudget.loadProfiles) {
     const regionCouriers = totalCouriers / 3;
     const readyStartedAt = Date.now();
@@ -123,6 +134,7 @@ test("G4-B는 24·96·240명 Fallback 2D 부하에서 승인된 반응 예산을
     profiles,
     limitations: [
       "Local Windows headless Chromium baseline; not a claim for every presentation or field device.",
+      "Vite on-demand module transformation is warmed in a separate browser context; the measured context keeps a cold browser cache and includes download, parse, and render time.",
       "Fallback schematic 2D only; Kakao SDK network, tile, quota, and provider latency are excluded.",
       "Deterministic synthetic Demo positions only; no GPS, TMS, personal data, battery, or field network measurement.",
       "usedJsHeapMiB is observational and is not a hard gate because browser support varies.",

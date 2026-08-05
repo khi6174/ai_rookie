@@ -364,7 +364,7 @@ G3-B는 manifest·192/512 아이콘·버전된 same-origin app shell, 승인·�
 
 G4-A는 24명·7 frame·5초 cadence와 고정 SHA-256을 계약 테스트로 검증한다. CURRENT 기사만 이동하고 stale·offline 위치 JSON은 frame 전체에서 변하지 않아야 한다. 연결 끊김 두 frame 뒤 새 CURRENT 관측으로만 복구해야 하며 Live 관측 혼합과 깨진 cadence는 100% 거부한다. Playwright는 권역 선택 후 현재 마커 이동·stale 마커 정지, 재생·일시정지·초기화를 확인하고 기존 지도 pan·오류 Fallback·폐루프를 함께 재검증한다.
 
-G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chromium Fallback 2D 환경에서 순차 측정한다. 각 profile은 첫 지도 준비, 권역 drill-down, 5초 frame 적용, keyboard pan, 30개 requestAnimationFrame gap과 관측 가능한 JS heap을 기록한다. 첫 지도 준비 5,000ms, drill-down·frame 1,000ms, pan 500ms, frame gap P95 100ms·최대 250ms를 하드 Gate로 사용한다. 전국 개별 기사 0명, 권역 최대 80명, 동시 경로 24개와 선택 경로 보존도 함께 검증한다. 메모리는 브라우저 지원 차이로 관측값만 기록한다. Kakao SDK, 실제 발표 PC·배터리·현장망과 240명 초과는 이 PASS의 범위가 아니다.
+G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chromium Fallback 2D 환경에서 순차 측정한다. Vite test server의 최초 주문형 모듈 변환은 별도 브라우저 context에서 먼저 끝내고, 측정은 브라우저 캐시가 비어 있는 새 context에서 다운로드·파싱·렌더링 시간을 포함해 수행한다. 각 profile은 첫 지도 준비, 권역 drill-down, 5초 frame 적용, keyboard pan, 30개 requestAnimationFrame gap과 관측 가능한 JS heap을 기록한다. 첫 지도 준비 5,000ms, drill-down·frame 1,000ms, pan 500ms, frame gap P95 100ms·최대 250ms를 하드 Gate로 사용한다. 전국 개별 기사 0명, 권역 최대 80명, 동시 경로 24개와 선택 경로 보존도 함께 검증한다. 메모리는 브라우저 지원 차이로 관측값만 기록한다. Kakao SDK, 실제 발표 PC·배터리·현장망과 240명 초과는 이 PASS의 범위가 아니다.
 
 ## 14. 소규모 사용자 평가
 
