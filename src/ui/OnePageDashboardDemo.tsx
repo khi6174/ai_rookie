@@ -818,6 +818,7 @@ export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState("");
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
+  const [pausedMovementSecond, setPausedMovementSecond] = useState<number>();
   const [dangerSignals, setDangerSignals] = useState<
     Record<string, RiderDangerSignal>
   >(initialDangerSignals);
@@ -848,7 +849,8 @@ export function OnePageDashboardDemo() {
     ? dangerSignals[selectedCourier.id]
     : undefined;
   const currentTimeLabel = clockFormatter.format(now);
-  const movementSecond = Math.floor(now.getTime() / 1_000);
+  const liveMovementSecond = Math.floor(now.getTime() / 1_000);
+  const movementSecond = pausedMovementSecond ?? liveMovementSecond;
   const movingCouriers = couriers.map((courier) =>
     simulatedCourierPosition(courier, movementSecond),
   );
@@ -1373,6 +1375,21 @@ export function OnePageDashboardDemo() {
           <div
             className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""}`}
             data-movement-second={movementSecond}
+            onPointerEnter={() =>
+              setPausedMovementSecond((current) => current ?? liveMovementSecond)
+            }
+            onPointerMove={() =>
+              setPausedMovementSecond((current) => current ?? liveMovementSecond)
+            }
+            onPointerLeave={() => setPausedMovementSecond(undefined)}
+            onFocusCapture={() =>
+              setPausedMovementSecond((current) => current ?? liveMovementSecond)
+            }
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget as Node | null)) {
+                setPausedMovementSecond(undefined);
+              }
+            }}
           >
             <DashboardKakaoMap
               couriers={couriers}

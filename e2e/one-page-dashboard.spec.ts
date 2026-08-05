@@ -153,6 +153,14 @@ test("허브와 겹친 남기석 기사 지도 마커도 직접 선택할 수 �
   await expect(marker).toBeVisible();
   await marker.click();
   await expect(card).toHaveAttribute("aria-pressed", "true");
+  const map = page.locator(".onepage-map-canvas");
+  const pausedSecond = await map.getAttribute("data-movement-second");
+  await page.waitForTimeout(1_200);
+  await expect(map).toHaveAttribute("data-movement-second", pausedSecond!);
+  await card.click();
+  await expect
+    .poll(() => map.getAttribute("data-movement-second"))
+    .not.toBe(pausedSecond);
   await expect(page.getByText("남기석", { exact: true }).last()).toBeVisible();
   await expect(page.locator(".onepage-hub").first()).toHaveCSS(
     "pointer-events",
