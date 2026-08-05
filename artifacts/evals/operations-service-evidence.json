@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-service-evidence-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-08-05T11:03:25.903Z",
+  "capturedAt": "2026-08-05T11:37:18.029Z",
   "inputKind": "DOCUMENT_BUNDLE",
   "sourceDocumentCount": 100,
   "extractionProvider": "SAFEROUTE",
@@ -29,6 +29,6 @@
   "customerNoticeEtaMismatchCount": 0,
   "comparisonEvidencePresent": true,
   "customerNoticeCsvSha256": "ce2d637300107c81830ceefafa7bafc9dc7935f9b52b1aa90f7d416ae20aa525",
-  "exportSha256": "7b29d277ac70068d46c273cf0090a56df15d97fb04ac41536c05af168f79e783",
+  "exportSha256": "254c8650fddaad29bad4a5e8d9f1cdd77d6f49d38e88885f046049d32e6da230",
   "status": "PASSED"
 }

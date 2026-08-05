@@ -1,8 +1,8 @@
 {
   "schemaVersion": "service-goal-readiness-v1",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
-  "capturedAt": "2026-08-05T11:03:30.576Z",
-  "status": "DEPLOYMENT_VALIDATION_REQUIRED",
+  "capturedAt": "2026-08-05T11:37:22.305Z",
+  "status": "HUMAN_VALIDATION_REQUIRED",
   "dataMode": "SYNTHETIC",
   "commands": [
     {
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 1902,
+      "durationMs": 2058,
       "summary": "$ tsc --noEmit --pretty false"
     },
     {
@@ -18,31 +18,31 @@
       "command": "pnpm run test",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 35034,
-      "summary": "      Tests  322 passed (322) |    Start at  19:58:08 |    Duration  33.55s (transform 3.17s, setup 0ms, import 16.34s, tests 35.21s, environment 6ms)"
+      "durationMs": 34540,
+      "summary": "      Tests  322 passed (322) |    Start at  20:32:15 |    Duration  33.08s (transform 3.13s, setup 0ms, import 16.29s, tests 34.43s, environment 6ms)"
     },
     {
       "id": "FULL_E2E",
       "command": "pnpm run test:e2e",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 236217,
-      "summary": "  ok 43 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (3.8s) |   ok 44 e2e\\synthetic-operations-db.spec.ts:3:1 › 검증된 합성 기사 25명을 DB API에서 운영 화면으로 전달한다 (2.4s) |   44 passed (3.9m)"
+      "durationMs": 212859,
+      "summary": "  ok 43 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (3.5s) |   ok 44 e2e\\synthetic-operations-db.spec.ts:3:1 › 검증된 합성 기사 25명을 DB API에서 운영 화면으로 전달한다 (2.3s) |   44 passed (3.5m)"
     },
     {
       "id": "OPERATIONS_SCALE",
       "command": "pnpm run eval:operations:scale",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 33194,
-      "summary": "Operations scale evaluation: PASSED 24=1856ms 96=6517ms 240=18545ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
+      "durationMs": 37897,
+      "summary": "Operations scale evaluation: PASSED 24=1722ms 96=5962ms 240=20280ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
     },
     {
       "id": "OPERATIONS_EVIDENCE",
       "command": "pnpm run eval:operations:evidence",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 15887,
+      "durationMs": 19520,
       "summary": "Operations service evidence: PASSED couriers=25 decisions=17 conflicts=136 | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-service-evidence.json"
     },
     {
@@ -50,8 +50,8 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 3488,
-      "summary": "dist/assets/index-DI9V_59O.js                       303.96 kB │ gzip: 93.17 kB | \u001b[32m✓ built in 482ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
+      "durationMs": 3074,
+      "summary": "dist/assets/index-DI9V_59O.js                       303.96 kB │ gzip: 93.17 kB | \u001b[32m✓ built in 477ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
     }
   ],
   "checks": {
@@ -63,7 +63,7 @@
     "upstageDocumentLive": true,
     "kakaoLive": true,
     "persistence": true,
-    "deployedService": false,
+    "deployedService": true,
     "roleSeparation": true,
     "human": false
   },
@@ -89,7 +89,7 @@
     {
       "id": "EXECUTION",
       "nameKo": "추진성",
-      "passed": false,
+      "passed": true,
       "evidence": [
         "artifacts/evals/upstage-smoke-latest.json",
         "artifacts/evals/upstage-operations-document-live-latest.json",
@@ -129,10 +129,10 @@
     }
   ],
   "blocker": {
-    "code": "PRODUCTION_D1_RUNTIME_NOT_VERIFIED",
-    "currentStatus": "LIVE_PASS",
-    "command": "pnpm run eval:operations:deployed:live",
-    "siteUrl": "https://saferoute-ai-demo.khiyw.chatgpt.site"
+    "code": "INDEPENDENT_HUMAN_REVIEW_NOT_COMPLETE",
+    "admin": "0/3",
+    "rider": "0/5",
+    "reviewPath": "/tools/operations-service-review/"
   },
   "limitations": [
     "No actual courier, customer, precise GPS, biometric, or private TMS data is processed.",

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-08-05T11:03:30.576Z",
+  "capturedAt": "2026-08-05T11:37:22.305Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -28,8 +28,8 @@
     },
     {
       "path": "docs/evals.md",
-      "bytes": 70505,
-      "sha256": "b5fc8657289d9ab14494bcdf9efb1c2be83bc00a1dab80cd021155cfd20945d1"
+      "bytes": 70742,
+      "sha256": "f65086dee66caf53e7013393c186ac7fda8670c74985fd2f6297ebbcd78800b5"
     },
     {
       "path": "docs/operations-service-human-review.md",
@@ -44,12 +44,12 @@
     {
       "path": "artifacts/evals/operations-service-evidence.json",
       "bytes": 1338,
-      "sha256": "f5f407ea1d40d8e436f7eead21cda80497a22a5c02936722b044eff38b6d23fc"
+      "sha256": "feb70e0c2863014ba4abe8c37783ce9a954d97b1562e9cfd44432121fc311817"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
       "bytes": 1171,
-      "sha256": "8f09c5dd59fa799d5bb4a39b31c716013d1d298a12f6718b5d9c98d1f16ed3dc"
+      "sha256": "4293048faf677c99b1e3347477e1cb6cf11d59f50c06c271063ae628652628fc"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -84,7 +84,7 @@
     {
       "path": "artifacts/evals/operations-deployed-smoke-latest.json",
       "bytes": 1317,
-      "sha256": "fbddbf866d0f27270f137c1f8dd582a7d0dab0baa98354d43eff54b40da219eb"
+      "sha256": "fe6862dec11bdcd0c120c94b0cdf75b3fccaaa527b3b1942cf068a6ae9105941"
     },
     {
       "path": "artifacts/evals/human-review-stimuli/1e562287cba7dc8842319b5aeba2343b30f2d5abb04c8ad5f930e046ef4bf7f3.png",
