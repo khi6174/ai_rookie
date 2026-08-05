@@ -57,6 +57,9 @@ export type DashboardOperationsProjection = {
 };
 
 const hubAnchors: Record<string, { x: number; y: number }> = {
+  "demo-hub-01": { x: 54, y: 24 },
+  "demo-hub-02": { x: 62, y: 72 },
+  "demo-hub-03": { x: 25, y: 51 },
   "demo-hub-north": { x: 54, y: 24 },
   "demo-hub-south": { x: 62, y: 72 },
   "demo-hub-west": { x: 25, y: 51 },

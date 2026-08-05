@@ -229,9 +229,18 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
     latitude: marker.getAttribute("data-latitude"),
     longitude: marker.getAttribute("data-longitude"),
   }));
+  await page
+    .getByRole("heading", { name: "Safety Control Tower" })
+    .hover();
   await expect
-    .poll(async () => dashboardMarker.getAttribute("data-latitude"))
-    .not.toBe(firstDashboardPoint.latitude);
+    .poll(async () => {
+      const [latitude, longitude] = await Promise.all([
+        dashboardMarker.getAttribute("data-latitude"),
+        dashboardMarker.getAttribute("data-longitude"),
+      ]);
+      return `${latitude},${longitude}`;
+    })
+    .not.toBe(`${firstDashboardPoint.latitude},${firstDashboardPoint.longitude}`);
 
   const riderPage = await context.newPage();
   await riderPage.setViewportSize({ width: 390, height: 844 });
@@ -246,8 +255,14 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
     longitude: map.getAttribute("data-longitude"),
   }));
   await expect
-    .poll(async () => riderMap.getAttribute("data-latitude"))
-    .not.toBe(firstRiderPoint.latitude);
+    .poll(async () => {
+      const [latitude, longitude] = await Promise.all([
+        riderMap.getAttribute("data-latitude"),
+        riderMap.getAttribute("data-longitude"),
+      ]);
+      return `${latitude},${longitude}`;
+    })
+    .not.toBe(`${firstRiderPoint.latitude},${firstRiderPoint.longitude}`);
 
   await expect.poll(async () => {
     const dashboardSecond = await dashboardMap.getAttribute(

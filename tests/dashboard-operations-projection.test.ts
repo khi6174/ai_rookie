@@ -79,6 +79,23 @@ describe("공개 관제 25명 DB projection", () => {
 
     expect(projection.hubs).toHaveLength(3);
     expect(
+      new Set(projection.hubs.map((hub) => `${hub.mapX},${hub.mapY}`)).size,
+    ).toBe(3);
+    const southCourier = projection.couriers.find(
+      (courier) => courier.id === "demo-courier-014",
+    );
+    const westCourier = projection.couriers.find(
+      (courier) => courier.id === "demo-courier-015",
+    );
+    expect(southCourier).toBeDefined();
+    expect(westCourier).toBeDefined();
+    expect(
+      Math.hypot(
+        southCourier!.mapX - westCourier!.mapX,
+        southCourier!.mapY - westCourier!.mapY,
+      ),
+    ).toBeGreaterThan(20);
+    expect(
       projection.hubs.reduce((total, hub) => total + hub.courierCount, 0),
     ).toBe(25);
     expect(
