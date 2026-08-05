@@ -183,5 +183,6 @@ export default defineConfig(({ mode }) => ({
   },
   test: {
     include: ["tests/**/*.test.ts"],
+    maxWorkers: 2,
   },
 }));

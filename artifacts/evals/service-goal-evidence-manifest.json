@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-08-05T10:31:44.408Z",
+  "capturedAt": "2026-08-05T11:03:30.576Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -44,12 +44,12 @@
     {
       "path": "artifacts/evals/operations-service-evidence.json",
       "bytes": 1338,
-      "sha256": "c49870d0a88487535e526c68bb040c067917da36ba7a00d0c55a3456203622fd"
+      "sha256": "f5f407ea1d40d8e436f7eead21cda80497a22a5c02936722b044eff38b6d23fc"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1170,
-      "sha256": "e4022dd6fd071f7aa02ccf8519d265f51c840eda11ed7db85da05651ee764cfc"
+      "bytes": 1171,
+      "sha256": "8f09c5dd59fa799d5bb4a39b31c716013d1d298a12f6718b5d9c98d1f16ed3dc"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -84,7 +84,7 @@
     {
       "path": "artifacts/evals/operations-deployed-smoke-latest.json",
       "bytes": 1317,
-      "sha256": "f98b2d5471f2c4b03afbbf90ad84fc01e061bfcc171f5a6fefcc6802bc203cd1"
+      "sha256": "fbddbf866d0f27270f137c1f8dd582a7d0dab0baa98354d43eff54b40da219eb"
     },
     {
       "path": "artifacts/evals/human-review-stimuli/1e562287cba7dc8842319b5aeba2343b30f2d5abb04c8ad5f930e046ef4bf7f3.png",
@@ -113,8 +113,8 @@
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-360x800.png",
-      "bytes": 63351,
-      "sha256": "f6e502189c40251d01a372e984d68aa51270fac51adb1c1e954d5c775e7fc796"
+      "bytes": 63806,
+      "sha256": "2ba328a29fd6374acc354d2984873981d10f9fd1c035f1692b028079c04ecfae"
     },
     {
       "path": "e2e/operations-service.spec.ts",
