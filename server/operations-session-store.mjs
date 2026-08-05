@@ -1,5 +1,6 @@
 const MAX_SESSION_BYTES = 2_000_000;
 const WORKSPACE_ID = /^operations-workspace-[a-f0-9-]{36}$/;
+const COURIER_ID = /^[A-Za-z0-9][A-Za-z0-9._-]{2,63}$/;
 const PII_PATTERN =
   /01[016789][-\s]?\d{3,4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/;
 const UUID_PATTERN =
@@ -15,9 +16,45 @@ function json(body, status = 200) {
   });
 }
 
+function sessionJson(body, updatedAt, status = 200) {
+  const response = json(body, status);
+  response.headers.set("ETag", `\"${updatedAt}\"`);
+  return response;
+}
+
+function notModified(updatedAt) {
+  return new Response(null, {
+    status: 304,
+    headers: {
+      "Cache-Control": "no-store",
+      ETag: `\"${updatedAt}\"`,
+    },
+  });
+}
+
+function noLinkedSession() {
+  return new Response(null, {
+    status: 204,
+    headers: { "Cache-Control": "no-store" },
+  });
+}
+
+function matchesVersion(request, updatedAt) {
+  return request.headers.get("if-none-match") === `\"${updatedAt}\"`;
+}
+
 function sessionIdFromUrl(request) {
   const path = new URL(request.url).pathname;
   const match = path.match(/^\/api\/operations\/sessions\/([^/]+)$/);
+  if (!match) return undefined;
+  return decodeURIComponent(match[1]);
+}
+
+function courierIdFromUrl(request) {
+  const path = new URL(request.url).pathname;
+  const match = path.match(
+    /^\/api\/operations\/couriers\/([^/]+)\/latest-session$/,
+  );
   if (!match) return undefined;
   return decodeURIComponent(match[1]);
 }
@@ -39,7 +76,65 @@ async function ensureSchema(database) {
         `CREATE INDEX IF NOT EXISTS operations_sessions_updated_at_idx
          ON operations_sessions(updated_at)`,
       ),
+    database
+      .prepare(
+        `CREATE TABLE IF NOT EXISTS operations_session_participants (
+          workspace_id TEXT NOT NULL,
+          decision_id TEXT NOT NULL,
+          courier_id TEXT NOT NULL,
+          participant_role TEXT NOT NULL CHECK (participant_role IN ('SOURCE', 'RECIPIENT')),
+          updated_at TEXT NOT NULL,
+          PRIMARY KEY (workspace_id, decision_id, courier_id),
+          FOREIGN KEY (workspace_id) REFERENCES operations_sessions(workspace_id) ON DELETE CASCADE
+        )`,
+      ),
+    database
+      .prepare(
+        `CREATE INDEX IF NOT EXISTS idx_operations_session_participants_courier
+         ON operations_session_participants(courier_id, updated_at DESC)`,
+      ),
   ]);
+}
+
+function sessionParticipants(value) {
+  const decisions = Array.isArray(value?.workspace?.decisions)
+    ? value.workspace.decisions
+    : [];
+  return decisions.flatMap((artifacts) => {
+    const decisionId = artifacts?.decision?.decisionId;
+    const sourceCourierId = artifacts?.queueItem?.courierId;
+    const affectedCourierIds = artifacts?.selectedCandidate?.affectedCourierIds;
+    if (
+      typeof decisionId !== "string" ||
+      typeof sourceCourierId !== "string" ||
+      !Array.isArray(affectedCourierIds)
+    ) {
+      return [];
+    }
+    return [...new Set([sourceCourierId, ...affectedCourierIds])]
+      .filter((courierId) =>
+        typeof courierId === "string" && COURIER_ID.test(courierId),
+      )
+      .map((courierId) => ({
+        decisionId,
+        courierId,
+        participantRole:
+          courierId === sourceCourierId ? "SOURCE" : "RECIPIENT",
+      }));
+  });
+}
+
+function latestMemorySessionForCourier(memoryStore, courierId) {
+  return [...memoryStore.values()]
+    .flatMap((session) =>
+      sessionParticipants(session)
+        .filter((participant) => participant.courierId === courierId)
+        .map((participant) => ({ session, participant })),
+    )
+    .sort((left, right) =>
+      right.session.savedAt.localeCompare(left.session.savedAt),
+    )
+    .at(0);
 }
 
 function validatePayload(workspaceId, value) {
@@ -77,9 +172,62 @@ export async function handleOperationsSessionRequest(
   request,
   options = {},
 ) {
+  const courierId = courierIdFromUrl(request);
   const workspaceId = sessionIdFromUrl(request);
-  if (!workspaceId) return undefined;
+  if (!workspaceId && !courierId) return undefined;
+  if (courierId) {
+    if (!COURIER_ID.test(courierId)) {
+      return json({ error: "유효하지 않은 합성 기사 ID입니다." }, 400);
+    }
+    if (request.method !== "GET") {
+      return json({ error: "지원하지 않는 요청 방식입니다." }, 405);
+    }
+  }
   if (!WORKSPACE_ID.test(workspaceId)) {
+    if (courierId) {
+      const database = options.database;
+      const memoryStore = options.memoryStore;
+      if (!database && !memoryStore) {
+        return json({ error: "운영 상태 저장소가 연결되지 않았습니다." }, 503);
+      }
+      if (database) {
+        await ensureSchema(database);
+        const row = await database
+          .prepare(
+            `SELECT s.payload_json, s.updated_at, p.decision_id, p.participant_role
+             FROM operations_session_participants p
+             INNER JOIN operations_sessions s ON s.workspace_id = p.workspace_id
+             WHERE p.courier_id = ?1
+             ORDER BY p.updated_at DESC, p.workspace_id DESC
+             LIMIT 1`,
+          )
+          .bind(courierId)
+          .first();
+        if (!row) return noLinkedSession();
+        if (matchesVersion(request, row.updated_at)) {
+          return notModified(row.updated_at);
+        }
+        return sessionJson({
+          session: JSON.parse(row.payload_json),
+          decisionId: row.decision_id,
+          participantRole: row.participant_role,
+          updatedAt: row.updated_at,
+          storage: "D1",
+        }, row.updated_at);
+      }
+      const latest = latestMemorySessionForCourier(memoryStore, courierId);
+      if (!latest) return noLinkedSession();
+      if (matchesVersion(request, latest.session.savedAt)) {
+        return notModified(latest.session.savedAt);
+      }
+      return sessionJson({
+        session: latest.session,
+        decisionId: latest.participant.decisionId,
+        participantRole: latest.participant.participantRole,
+        updatedAt: latest.session.savedAt,
+        storage: "MEMORY_DEV",
+      }, latest.session.savedAt);
+    }
     return json({ error: "유효하지 않은 합성 workspace ID입니다." }, 400);
   }
   if (!["GET", "PUT"].includes(request.method)) {
@@ -110,19 +258,25 @@ export async function handleOperationsSessionRequest(
         .bind(workspaceId)
         .first();
       if (!row) return json({ error: "저장된 운영 세션이 없습니다." }, 404);
-      return json({
+      if (matchesVersion(request, row.updated_at)) {
+        return notModified(row.updated_at);
+      }
+      return sessionJson({
         session: JSON.parse(row.payload_json),
         updatedAt: row.updated_at,
         storage: "D1",
-      });
+      }, row.updated_at);
     }
     const session = memoryStore.get(workspaceId);
     if (!session) return json({ error: "저장된 운영 세션이 없습니다." }, 404);
-    return json({
+    if (matchesVersion(request, session.savedAt)) {
+      return notModified(session.savedAt);
+    }
+    return sessionJson({
       session,
       updatedAt: session.savedAt,
       storage: "MEMORY_DEV",
-    });
+    }, session.savedAt);
   }
 
   let payload;
@@ -162,8 +316,9 @@ export async function handleOperationsSessionRequest(
         409,
       );
     }
-    await database
-      .prepare(
+    const participants = sessionParticipants(payload);
+    await database.batch([
+      database.prepare(
         `INSERT INTO operations_sessions (
           workspace_id,
           snapshot_id,
@@ -183,8 +338,33 @@ export async function handleOperationsSessionRequest(
         payload.operationsPackage.operationDate,
         serialized,
         payload.savedAt,
-      )
-      .run();
+      ),
+      database
+        .prepare(
+          `DELETE FROM operations_session_participants
+           WHERE workspace_id = ?1`,
+        )
+        .bind(workspaceId),
+      ...participants.map((participant) =>
+        database
+          .prepare(
+            `INSERT INTO operations_session_participants (
+              workspace_id,
+              decision_id,
+              courier_id,
+              participant_role,
+              updated_at
+            ) VALUES (?1, ?2, ?3, ?4, ?5)`,
+          )
+          .bind(
+            workspaceId,
+            participant.decisionId,
+            participant.courierId,
+            participant.participantRole,
+            payload.savedAt,
+          ),
+      ),
+    ]);
   } else {
     const existing = memoryStore.get(workspaceId);
     const expectedSavedAt = request.headers.get(

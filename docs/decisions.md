@@ -1274,6 +1274,31 @@
 - 기각한 대안: 20개 이름 반복 사용, 무작위 이름·점수 생성, 렌더 단계 점수 보정, 임계치나 모델 가중치 변경, 실제 이름 입력.
 - 영향 파일: `server/synthetic-courier-directory.mjs`, `server/synthetic-operations-store.mjs`, `src/adapters/fixtures/syntheticOperationsPackage.ts`, `src/application/operations/createDailyOperationsSnapshot.ts`, `src/application/riderProfileRepository.ts`, `src/ui/App.tsx`, `src/ui/OnePageDashboardDemo.tsx`, 기사 앱·대시보드 테스트, `docs/safety-model.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/decisions.md`
 
+### ADR-129 — 공개 관제의 지원 검토는 같은 화면의 공유상태 모달이 소유한다
+
+- 날짜: 2026-08-04
+- 상태: Approved
+- 사용자 재승인: `전달지시서 검토 및 적용 준비`에서 확정한 메인 대시보드 팝업 흐름을 공개 기본 UX로 복구하고, 25명 운영 DB·결정론 후보·공유 기사 응답 상태에 연결하는 범위를 승인함.
+- 대체 관계: ADR-127의 “후보 비교·동의·승인·적용은 `/operations`가 단독 소유한다”와 ADR-119의 고정 기사 진입 범위를 대체한다. `/operations`와 `/closed-loop-demo`는 기술 검증용 보조 경로로 유지한다.
+- 결정: 공개 `/`의 선택 기사 패널 주 행동은 정확히 `지원 검토`이며 URL을 바꾸지 않고 기존 `InterventionDialog` 디자인 기준선의 `role=dialog` 팝업을 연다. 팝업은 선택한 `courierId`의 실제 결정론 후보와 Risk Transfer Guard 결과를 표시하고, 관리자가 선택한 안전 후보를 `workspaceId`, `decisionId`, `candidateId`와 함께 D1 운영 세션에 저장한 뒤 기사 앱에 확인 요청한다. 기사와 수신 기사는 각자 기사 앱에서만 응답하고, 팝업은 공유 저장 상태를 폴링해 `기사 응답 대기 → 수신 기사 응답 대기 → 관리자 승인 대기 → 적용`을 새로고침 없이 반영한다. 모든 필수 동의 후에만 관리자가 같은 팝업에서 승인할 수 있으며 적용 결과는 경로·배송순서·ETA·고객안내 상태와 함께 표시한다.
+- 화면 경계: 상단 개발·출처 제목과 `선택한 조치` 행은 두지 않는다. 후보는 엔진 결과의 조치명, 결과 상태, ETA, 짧은 추천·차단 사유만 표시하고 `/` 구분자를 사용한다. 배송 분담은 오른쪽 `선택 사항`에 `가능 기사 {n}명 / 최대 {n}건`과 현재 선택 가능 여부로 표시한다. `이관만으로 해소되지 않음`, `순위 아님`, `동일 강우셀 영향 18명`은 렌더링하지 않는다.
+- 안전·권한 경계: 팝업이 기사 동의·수정 요청·거절을 대신 기록하지 않는다. 브라우저 state와 localStorage는 선택·열림 같은 일시 UI만 소유하고 권위 있는 결정 상태는 D1 세션이 소유한다. 후보 계산·실행 가능성·추천·재검증·원자적 적용은 기존 결정론 Application/Domain 계층을 그대로 사용한다.
+- 기각한 대안: `/operations`로 기본 이동, 팝업용 별도 하드코딩 후보·상태기계, 관리자 대리 기사 응답, localStorage를 권위 저장소로 사용, 새 팝업 디자인 작성.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `src/ui/App.tsx`, `src/application/operations/createDecisionWorkspace.ts`, `src/application/operations/persistOperationsSession.ts`, `e2e/one-page-dashboard.spec.ts`, 기사 폐루프 E2E, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/architecture.md`, `docs/decisions.md`
+
+### ADR-130 — 확정 UI를 고정하고 기사별 공유 세션 복구와 조건부 동기화를 추가한다
+
+- 날짜: 2026-08-04
+- 상태: Approved
+- 사용자 승인: 현재 디자인·단어 선택·구조를 고정한 채 관리자와 기사 간 상태 동기화, 지도 갱신과 위치 표기를 포함한 기능 작업을 시작하는 범위를 승인함.
+- 결정: ADR-129의 화면 구조와 확정 문구는 기능 바인딩의 고정 계약으로 유지한다. D1 `operations_sessions`에 `operations_session_participants` 기사–decision 인덱스를 결합하고 `GET /api/operations/couriers/:courierId/latest-session`으로 해당 기사의 최근 공유 세션을 복구한다. 관리자는 새로고침 뒤 같은 기사의 `지원 검토`를 다시 열 때, 기사는 workspace query가 없는 자신의 앱으로 재접속할 때 동일 `workspaceId`, `decisionId`, `candidateId`와 감사 상태를 복구한다. 1초 폴링은 `ETag`·`If-None-Match` 조건부 조회를 사용해 변경이 없으면 payload를 다시 전송하지 않는다.
+- 디자인 고정: 공개 `/`는 URL 이동 없는 `지원 검토` 모달을 유지하고, 기사 안전지원·내 정보의 삭제 문장과 보류 카드, 메인 행동, 후보·선택 사항 구조를 되살리거나 재배치하지 않는다. 새 연결 상태 카드나 개발 배지를 추가하지 않고 기존 상태 문구 안에서 공유 결정만 갱신한다.
+- 위치 경계: 관리자와 기사 지도는 ADR-125의 같은 기사 ID·같은 초 단위 결정론적 합성 경로를 계속 사용한다. 기존 도로 corridor 키가 없는 새 25명 합성 권역도 고정 `mapX`, `mapY` 주위의 짧은 경로를 결정론적으로 생성해 정지 좌표로 남지 않게 한다. 기사 본인이 켠 기기 위치는 현재 기사 페이지 메모리에서만 표시하며 서버·D1·관리자 화면으로 전송하지 않는다. 이번 동기화는 실제 GPS·TMS·푸시·채팅·인증 또는 Live 위치 스트림이 아니다.
+- 이유: 기존 공유 세션은 workspace 링크를 아는 동안에는 동작하지만 관리자 React 메모리와 기사 URL을 잃으면 활성 결정을 찾을 수 없어 서비스 GOAL의 새로고침·재접속 복구 기준을 충족하지 못했다. 기사별 비식별 인덱스는 권위 상태를 브라우저 저장소로 옮기지 않고 이 결함을 해결하며, 조건부 조회는 1초 상호 갱신의 전송 비용을 줄인다.
+- 성능 기준: 공유 세션 복구·조건부 조회·25명 공통 합성 경로의 비공간 기능 증가분 5,973 gzip bytes를 G5 비교 baseline에 분리해 키 없는 기준을 145,518 bytes로 재고정한다. 2.5D 장면의 추가 허용량 50KiB와 프레임·전환 시간 기준은 변경하거나 완화하지 않는다.
+- 기각한 대안: 현재 URL을 workspace 상태 저장소로 사용, localStorage에 전체 세션 저장, 새 실시간 메시지 브로커 도입, 실제 GPS heartbeat를 D1에 저장, 확정 UI에 연결 상태 카드 추가.
+- 영향 파일: `.openai/drizzle/0003_operations_sessions.sql`, `db/schema.ts`, `server/operations-session-store.mjs`, `src/application/operations/persistOperationsSession.ts`, `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/App.tsx`, `vite.config.ts`, 운영 세션·지도 단위 테스트와 관리자·기사 E2E, `docs/architecture.md`, `docs/data-contracts.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

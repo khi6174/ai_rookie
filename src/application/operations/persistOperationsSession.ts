@@ -140,6 +140,7 @@ export type OperationsPersistenceResult =
       updatedAt: string;
       session: OperationsPersistedSession;
     }
+  | { status: "UNCHANGED"; updatedAt: string }
   | { status: "EMPTY" }
   | { status: "CONFLICT"; message: string; updatedAt?: string }
   | { status: "UNAVAILABLE"; message: string }
@@ -283,15 +284,25 @@ export async function saveOperationsPersistedSession(
 
 export async function loadOperationsPersistedSession(
   workspaceId: string,
+  options: { ifUpdatedAt?: string } = {},
 ): Promise<OperationsPersistenceResult> {
   try {
     const response = await fetch(
       `/api/operations/sessions/${encodeURIComponent(workspaceId)}`,
       {
         method: "GET",
-        headers: { Accept: "application/json" },
+        headers: {
+          Accept: "application/json",
+          ...(options.ifUpdatedAt
+            ? { "If-None-Match": `\"${options.ifUpdatedAt}\"` }
+            : {}),
+        },
       },
     );
+    if (response.status === 304 && options.ifUpdatedAt) {
+      return { status: "UNCHANGED", updatedAt: options.ifUpdatedAt };
+    }
+    if (response.status === 204) return { status: "EMPTY" };
     if (response.status === 404) return { status: "EMPTY" };
     const body = (await response.json()) as {
       error?: string;
@@ -316,6 +327,95 @@ export async function loadOperationsPersistedSession(
       status: "LOADED",
       storage: body.storage ?? "D1",
       updatedAt: body.updatedAt ?? parsed.data.savedAt,
+      session: parsed.data,
+    };
+  } catch {
+    return {
+      status: "UNAVAILABLE",
+      message: "운영 저장소에 연결할 수 없습니다.",
+    };
+  }
+}
+
+export type LatestOperationsSessionForCourierResult =
+  | {
+      status: "LOADED";
+      storage: "D1" | "MEMORY_DEV";
+      updatedAt: string;
+      decisionId: string;
+      participantRole: "SOURCE" | "RECIPIENT";
+      session: OperationsPersistedSession;
+    }
+  | { status: "UNCHANGED"; updatedAt: string }
+  | { status: "EMPTY" }
+  | { status: "UNAVAILABLE"; message: string }
+  | { status: "INVALID"; message: string };
+
+export async function loadLatestOperationsSessionForCourier(
+  courierId: string,
+  options: { ifUpdatedAt?: string } = {},
+): Promise<LatestOperationsSessionForCourierResult> {
+  try {
+    const response = await fetch(
+      `/api/operations/couriers/${encodeURIComponent(courierId)}/latest-session`,
+      {
+        method: "GET",
+        headers: {
+          Accept: "application/json",
+          ...(options.ifUpdatedAt
+            ? { "If-None-Match": `\"${options.ifUpdatedAt}\"` }
+            : {}),
+        },
+      },
+    );
+    if (response.status === 304 && options.ifUpdatedAt) {
+      return { status: "UNCHANGED", updatedAt: options.ifUpdatedAt };
+    }
+    if (response.status === 204) return { status: "EMPTY" };
+    if (response.status === 404) return { status: "EMPTY" };
+    const body = (await response.json()) as {
+      error?: string;
+      updatedAt?: string;
+      storage?: "D1" | "MEMORY_DEV";
+      decisionId?: string;
+      participantRole?: "SOURCE" | "RECIPIENT";
+      session?: unknown;
+    };
+    if (!response.ok) {
+      return {
+        status: "UNAVAILABLE",
+        message: body.error ?? "운영 저장소를 사용할 수 없습니다.",
+      };
+    }
+    const parsed = OperationsPersistedSessionSchema.safeParse(body.session);
+    if (
+      !parsed.success ||
+      typeof body.decisionId !== "string" ||
+      !["SOURCE", "RECIPIENT"].includes(body.participantRole ?? "")
+    ) {
+      return {
+        status: "INVALID",
+        message: "기사와 연결된 운영 세션 계약이 유효하지 않습니다.",
+      };
+    }
+    const artifacts = parsed.data.workspace.decisions.find(
+      (item) => item.decision.decisionId === body.decisionId,
+    );
+    if (
+      !artifacts ||
+      !artifacts.selectedCandidate.affectedCourierIds.includes(courierId)
+    ) {
+      return {
+        status: "INVALID",
+        message: "기사와 decision 연결이 저장된 운영 세션과 다릅니다.",
+      };
+    }
+    return {
+      status: "LOADED",
+      storage: body.storage ?? "D1",
+      updatedAt: body.updatedAt ?? parsed.data.savedAt,
+      decisionId: body.decisionId,
+      participantRole: body.participantRole as "SOURCE" | "RECIPIENT",
       session: parsed.data,
     };
   } catch {

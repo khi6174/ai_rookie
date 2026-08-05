@@ -103,6 +103,13 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
                     ),
                   }
                 : {}),
+              ...(incoming.headers["if-none-match"]
+                ? {
+                    "if-none-match": String(
+                      incoming.headers["if-none-match"],
+                    ),
+                  }
+                : {}),
             },
             body,
           }),

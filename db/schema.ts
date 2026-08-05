@@ -70,3 +70,24 @@ export const syntheticDeliveryStopsTableSql = `CREATE TABLE IF NOT EXISTS synthe
   FOREIGN KEY (parent_record_id) REFERENCES synthetic_courier_records(parent_record_id),
   UNIQUE (parent_record_id, sequence)
 )`;
+
+export const operationsSessionsTableSql = `CREATE TABLE IF NOT EXISTS operations_sessions (
+  workspace_id TEXT PRIMARY KEY,
+  snapshot_id TEXT NOT NULL,
+  operation_date TEXT NOT NULL,
+  payload_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+)`;
+
+export const operationsSessionParticipantsTableSql = `CREATE TABLE IF NOT EXISTS operations_session_participants (
+  workspace_id TEXT NOT NULL,
+  decision_id TEXT NOT NULL,
+  courier_id TEXT NOT NULL,
+  participant_role TEXT NOT NULL CHECK (participant_role IN ('SOURCE', 'RECIPIENT')),
+  updated_at TEXT NOT NULL,
+  PRIMARY KEY (workspace_id, decision_id, courier_id),
+  FOREIGN KEY (workspace_id) REFERENCES operations_sessions(workspace_id) ON DELETE CASCADE
+)`;
+
+export const operationsSessionParticipantsCourierIndexSql = `CREATE INDEX IF NOT EXISTS idx_operations_session_participants_courier
+ON operations_session_participants(courier_id, updated_at DESC)`;

@@ -1759,6 +1759,9 @@ type DailyOperationsSnapshot = {
 - 브라우저에는 무작위 합성 `workspaceId`만 보존하며 운영 상태는 Sites D1 또는 개발 메모리 어댑터가 보존한다.
 - PUT은 `X-SafeRoute-Base-Saved-At`를 사용한다. 저장된 `updated_at`과 다르면 `409 SESSION_CONFLICT`로 거부하고 최신 상태 재로딩을 요구한다.
 - 기사 응답과 관리자 승인은 같은 세션·decision ID를 사용하며 stale 화면의 last-write-wins 덮어쓰기를 허용하지 않는다.
+- `operations_session_participants`는 `workspaceId`, `decisionId`, 합성 `courierId`, `SOURCE | RECIPIENT`, `updatedAt`만 저장한다. 좌표·이동 이력·연락처·기기 위치를 저장하지 않는다.
+- `GET /api/operations/couriers/{courierId}/latest-session`은 해당 합성 기사가 실제로 선택 후보의 영향 대상인 최근 세션 하나만 반환한다. 반환된 decision과 후보의 `affectedCourierIds`를 클라이언트 계약에서 다시 검증한다.
+- 세션 GET은 `ETag`를 반환하고 `If-None-Match`가 현재 `updated_at`과 같으면 `304`로 응답한다. 조건부 조회는 상태 전이를 만들지 않으며 감사 시각을 변경하지 않는다.
 
 ### 28.5 기사 응급 합성 예시 신호
 
@@ -1840,7 +1843,9 @@ type SyntheticOperationDayProjection = {
 - 현재 Budget, 예상 최저 Budget, 위험 밴드, Time-to-Breach와 decision ID는 같은 패키지로 생성한 `DailyOperationsSnapshot`과 `FleetEvaluation`에서만 가져온다.
 - 화면 좌표는 `hubId`와 패키지 내 고정 순번으로 만든 비정밀 합성 projection이다. 실제 주소·GPS 또는 이동 이력으로 표현하지 않는다.
 - 저장소 상태는 `D1`, `MEMORY_DEV`, `BUNDLED_FALLBACK` 중 하나로 표시하며 Fallback을 정상 Live 조회처럼 숨기지 않는다.
-- 공개 관제는 별도의 개입 수치나 이관 가능량을 만들지 않는다. 지원 검토는 `courierId`를 `/operations`에 전달하고 결정론적 후보 엔진이 다시 계산한다.
+- 공개 관제는 별도의 개입 수치나 이관 가능량을 만들지 않는다. `지원 검토` 모달은 선택한 `courierId`로 같은 운영 패키지·스냅샷·Fleet 평가에서 decision과 후보를 초기화하고, 선택 후보의 `candidateId`와 기사별 동의 요구사항을 기존 `OperationsPersistedSession`에 저장한다.
+- 기사 확인 요청 이후 관제와 `/rider-demo`는 같은 `workspaceId`, `decisionId`, `candidateId`를 사용한다. 기사 앱은 자신의 `courierId`와 일치하는 pending 요구사항만 응답할 수 있고 관리자는 기사 응답을 쓰지 않는다.
+- 공유 상태의 권위 소스는 D1 `operations_sessions`다. React state는 렌더링과 아직 전송하지 않은 후보 선택만, localStorage는 권위 없는 화면 편의값만 소유한다. `savedAt` 낙관적 동시성 충돌은 최신 세션 재조회 후 사용자가 다시 시도하게 하며 last-write-wins로 덮어쓰지 않는다.
 
 ### 28.9 합성 기사 디렉터리와 앱 profile projection
 

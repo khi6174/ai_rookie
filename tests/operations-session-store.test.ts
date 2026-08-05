@@ -5,6 +5,7 @@ import {
   createOperationsDecisionWorkspace,
   createOperationsPersistedSession,
   evaluateOperationsFleet,
+  initializeOperationsDecision,
   restoreOperationsPersistedSession,
 } from "../src/application/operations";
 import {
@@ -20,7 +21,13 @@ async function persistedSession(
     { createdAt: "2026-07-27T00:00:00.000Z" },
   );
   const fleet = evaluateOperationsFleet(snapshot);
-  const workspace = createOperationsDecisionWorkspace(snapshot, fleet);
+  const queueItem = fleet.supportQueue[0];
+  const workspace = initializeOperationsDecision(
+    createOperationsDecisionWorkspace(snapshot, fleet),
+    snapshot,
+    fleet,
+    queueItem.decisionId,
+  );
   return createOperationsPersistedSession({
     workspaceId,
     savedAt: "2026-07-27T01:00:00.000Z",
@@ -85,6 +92,50 @@ describe("operations session persistence boundary", () => {
     );
     expect(staleWrite?.status).toBe(409);
     expect(await staleWrite?.text()).toContain("최신 상태");
+
+    const unchanged = await handleOperationsSessionRequest(
+      new Request(url, {
+        headers: { "If-None-Match": `\"${session.savedAt}\"` },
+      }),
+      { memoryStore: store },
+    );
+    expect(unchanged?.status).toBe(304);
+    expect(unchanged?.headers.get("etag")).toBe(`\"${session.savedAt}\"`);
+
+    const artifacts = session.workspace.decisions[0];
+    const sourceCourierId = artifacts.queueItem.courierId;
+    const participantResponse = await handleOperationsSessionRequest(
+      new Request(
+        `http://localhost/api/operations/couriers/${sourceCourierId}/latest-session`,
+      ),
+      { memoryStore: store },
+    );
+    expect(participantResponse?.status).toBe(200);
+    const participantBody = (await participantResponse?.json()) as {
+      decisionId: string;
+      participantRole: string;
+      session: typeof session;
+    };
+    expect(participantBody.decisionId).toBe(
+      artifacts.decision.decisionId,
+    );
+    expect(participantBody.participantRole).toBe("SOURCE");
+    expect(participantBody.session.workspaceId).toBe(session.workspaceId);
+
+    const recipientCourierId = artifacts.selectedCandidate.affectedCourierIds
+      .find((courierId) => courierId !== sourceCourierId);
+    if (recipientCourierId) {
+      const recipientResponse = await handleOperationsSessionRequest(
+        new Request(
+          `http://localhost/api/operations/couriers/${recipientCourierId}/latest-session`,
+        ),
+        { memoryStore: store },
+      );
+      expect(recipientResponse?.status).toBe(200);
+      expect((await recipientResponse?.json()).participantRole).toBe(
+        "RECIPIENT",
+      );
+    }
   });
 
   it("rejects invalid workspace ids and non-synthetic or PII payloads", async () => {

@@ -34,4 +34,17 @@ describe("shared rider map presentation", () => {
     expect(riderMapMarkerScale(6)).toBe("OVERVIEW");
     expect(riderMapMarkerScale(12)).toBe("OVERVIEW");
   });
+
+  it("moves an unknown synthetic area on a deterministic short route", () => {
+    const profile = {
+      courierId: "demo-courier-001",
+      areaCode: "합성 북부권역 A구역",
+      mapX: 52,
+      mapY: 48,
+    };
+    const first = riderRoutePosition(profile, 1_785_544_400);
+    const next = riderRoutePosition(profile, 1_785_544_401);
+    expect(next).not.toEqual(first);
+    expect(riderRoutePosition(profile, 1_785_544_401)).toEqual(next);
+  });
 });

@@ -239,7 +239,9 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
         {mapStatus !== "READY" && (
           <div
             className="rider-live-map-fallback"
+            data-courier-id={profile.courierId}
             data-location-source={hasDevicePoint ? "DEVICE" : "ROUTE"}
+            data-movement-second={movementSecond}
             data-latitude={displayPoint.latitude.toFixed(6)}
             data-longitude={displayPoint.longitude.toFixed(6)}
           >

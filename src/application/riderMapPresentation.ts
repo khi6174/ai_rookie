@@ -64,16 +64,22 @@ export function riderRoutePosition(
   profile: Pick<RiderProfile, "courierId" | "areaCode" | "mapX" | "mapY">,
   movementSecond: number,
 ): RiderRoutePoint {
-  const corridor = roadCorridors[riderAreaKey(profile)];
-  if (!corridor) {
-    return {
-      mapX: profile.mapX,
-      mapY: profile.mapY,
-      latitude: 37.55 - profile.mapY * 0.00105,
-      longitude: 126.99 + profile.mapX * 0.00142,
-    };
-  }
   const courierPhase = Number.parseInt(profile.courierId.replace(/\D/g, ""), 10) || 0;
+  const corridor = roadCorridors[riderAreaKey(profile)] ?? (() => {
+    const horizontalDirection = courierPhase % 2 === 0 ? 1 : -1;
+    const verticalDirection = courierPhase % 3 === 0 ? 1 : -1;
+    const startMapX = Math.max(20, Math.min(83, profile.mapX - 4 * horizontalDirection));
+    const startMapY = Math.max(24, Math.min(85, profile.mapY - 1.5 * verticalDirection));
+    const endMapX = Math.max(20, Math.min(83, profile.mapX + 4 * horizontalDirection));
+    const endMapY = Math.max(24, Math.min(85, profile.mapY + 1.5 * verticalDirection));
+    const point = (mapX: number, mapY: number): RiderRoutePoint => ({
+      mapX,
+      mapY,
+      latitude: 37.55 - mapY * 0.00105,
+      longitude: 126.99 + mapX * 0.00142,
+    });
+    return [point(startMapX, startMapY), point(endMapX, endMapY)] as const;
+  })();
   const normalizedSecond = Number.isFinite(movementSecond) ? Math.floor(movementSecond) : 0;
   const cycle = (((normalizedSecond + courierPhase * 5) % 24) + 24) % 24 / 12;
   const progress = cycle <= 1 ? cycle : 2 - cycle;

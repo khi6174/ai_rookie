@@ -22,6 +22,7 @@ import {
   approveAndApplyOperationsDecision,
   initializeOperationsDecision,
   respondToOperationsDecision,
+  selectOperationsDecisionCandidate,
   evaluateOperationsFleet,
 } from "../src/application/operations";
 import {
@@ -273,6 +274,60 @@ describe("fleet-wide safety evaluation", () => {
 });
 
 describe("multi-decision operations workspace", () => {
+  it("switches only to a feasible candidate before any courier response", async () => {
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      { createdAt: "2026-07-27T00:00:00.000Z" },
+    );
+    const fleet = evaluateOperationsFleet(snapshot);
+    const decisionId = fleet.supportQueue[0].decisionId;
+    let workspace = initializeOperationsDecision(
+      createOperationsDecisionWorkspace(snapshot, fleet),
+      snapshot,
+      fleet,
+      decisionId,
+    );
+    const initial = workspace.decisions[0];
+    const alternative = initial.evaluations.find(
+      (evaluation) =>
+        evaluation.feasibility.status === "FEASIBLE" &&
+        evaluation.candidateId !== initial.selectedCandidate.candidateId,
+    );
+    expect(alternative).toBeDefined();
+
+    workspace = selectOperationsDecisionCandidate(workspace, {
+      decisionId,
+      candidateId: alternative!.candidateId,
+    });
+    const selected = workspace.decisions[0];
+    expect(selected.selectedCandidate.candidateId).toBe(
+      alternative!.candidateId,
+    );
+    expect(selected.decision.selectedCandidateId).toBe(
+      alternative!.candidateId,
+    );
+    expect(
+      selected.decision.consentRequirements.every(
+        (requirement) => requirement.status === "PENDING",
+      ),
+    ).toBe(true);
+
+    const firstRequirement = selected.decision.consentRequirements.find(
+      (requirement) => requirement.required,
+    )!;
+    workspace = respondToOperationsDecision(workspace, {
+      decisionId,
+      courierId: firstRequirement.courierId,
+      response: "CONSENTED",
+    });
+    expect(() =>
+      selectOperationsDecisionCandidate(workspace, {
+        decisionId,
+        candidateId: initial.selectedCandidate.candidateId,
+      }),
+    ).toThrow("기사 확인 요청 이후에는 후보를 변경할 수 없습니다.");
+  });
+
   it("keeps every support item selectable and initializes decisions on demand", async () => {
     const snapshot = await createDailyOperationsSnapshot(
       bundledDailyOperationsPackage,

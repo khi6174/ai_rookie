@@ -85,7 +85,7 @@ ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderMode
 
 ADR-124의 `src/application/riderLiveLocation.ts`는 기사 본인이 버튼을 누른 뒤 시작한 브라우저 `watchPosition`만 소유한다. 관측값은 React 메모리 상태로만 전달하고 API·D1·localStorage·Cache Storage와 관리자 projection에는 쓰지 않는다. 기사 지도는 같은 Kakao SDK 인스턴스의 `CustomOverlay.setPosition`으로 탑차 상단만 보이는 2D 마커를 갱신하며, 연속 기기 관측 사이는 `requestAnimationFrame`으로 화면에서만 보간한다. 첫 기기 좌표와 움직임 줄이기 설정은 즉시 반영한다. `zoom_changed`와 `ResizeObserver`는 지도 단계·폭에 따른 표시 크기만 갱신하며 도메인 관측을 만들지 않는다. 30초 이상 새 관측이 없으면 stale 상태로 내린다. 권한 거절·위치 사용 불가·SDK 실패에서는 기사 profile의 공유 가상 도로 위치와 schematic 경로를 `경로 위치`로 렌더링한다. 이 어댑터는 주소 검색·Directions 요청·Safety·배송계획·동의 상태에 좌표를 전달하지 않으며 컴포넌트 해제 시 `clearWatch`하고 애니메이션을 취소한다.
 
-ADR-125의 `src/application/riderMapPresentation.ts`는 `RiderProfile`의 권역과 초 단위 기준시각으로 도로 위 가상 위치를 계산하는 유일한 표현 함수다. `/dashboard-demo`와 `/rider-demo`의 권한 요청 전 지도는 이 함수를 공유한다. `riderProfileRepository`는 두 화면 모두 `/api/riders`를 우선 읽고 동일 bundled 목록을 fallback으로 사용한다. 현재 점수와 예상 최저 점수는 별도 필드로 유지한다. Kakao `zoom_changed`는 공통 `STREET`·`DISTRICT`·`OVERVIEW` 표현 단계만 바꾸며 Safety나 위치 관측을 변경하지 않는다. 기사 기기 좌표는 이 공유 projection으로 역전송하지 않는다.
+ADR-125의 `src/application/riderMapPresentation.ts`는 `RiderProfile`의 권역과 초 단위 기준시각으로 도로 위 가상 위치를 계산하는 유일한 표현 함수다. `/dashboard-demo`와 `/rider-demo`의 권한 요청 전 지도는 이 함수를 공유한다. 알려진 권역은 승인된 corridor를 사용하고, 새 25명 운영 projection처럼 corridor 키가 없는 합성 권역은 고정 표시 좌표 주위의 짧은 합성 경로를 만들어 정지 마커가 되지 않게 한다. `riderProfileRepository`는 두 화면 모두 `/api/riders`를 우선 읽고 동일 bundled 목록을 fallback으로 사용한다. 현재 점수와 예상 최저 점수는 별도 필드로 유지한다. Kakao `zoom_changed`는 공통 `STREET`·`DISTRICT`·`OVERVIEW` 표현 단계만 바꾸며 Safety나 위치 관측을 변경하지 않는다. 기사 기기 좌표는 이 공유 projection으로 역전송하지 않는다.
 
 아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 합성 위치의 자동차 경로 미리보기와 외부 Kakao Map Demo 길찾기만 제공하며, 화물차 높이·중량·통행제한, 실제 GPS·주소, 오더 배차와 내장 턴바이턴 안내는 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
 
@@ -356,7 +356,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 
 ADR-126부터 번들 샘플의 검증된 25개 `extractedRecords`는 D1의 운영일·기사 레코드·남은 배송지 테이블에 먼저 적재한다. `/operations`는 이 DB projection으로 `DailyOperationsPackage`를 복원한 뒤 기존 계약 검증과 스냅샷 생성을 수행한다. D1에는 합성 원문 100개를 저장하지 않으며 Safety 결과는 seed하지 않고 같은 엔진에서 재계산한다. 기존 20명 `rider_profiles`는 제출 영상 회귀 경로에만 남고 신규 운영 서비스의 권위 소스가 아니다.
 
-ADR-127부터 공개 `/`와 `/dashboard-demo`도 같은 패키지·스냅샷·Fleet 평가를 읽는 `DashboardOperationsProjection`을 사용한다. 표시용 좌표와 허브 집계만 Application 계층에서 파생하고 Safety 수치·지원 여부는 UI에서 다시 만들지 않는다. 공개 화면의 지원 행동은 선택한 `courierId`를 `/operations`에 전달하며 후보 비교와 적용 상태는 운영 폐루프가 단독 소유한다.
+ADR-127부터 공개 `/`와 `/dashboard-demo`도 같은 패키지·스냅샷·Fleet 평가를 읽는 `DashboardOperationsProjection`을 사용한다. 표시용 좌표와 허브 집계만 Application 계층에서 파생하고 Safety 수치·지원 여부는 UI에서 다시 만들지 않는다. ADR-129부터 공개 화면의 `지원 검토`는 URL을 유지한 채 기존 `InterventionDialog`를 열고, 같은 Application 계층의 후보·Risk Transfer Guard·결정 상태를 D1 `operations_sessions`에 저장한다. `/operations`는 보조 검증 경로로 남으며 기본 관리자 흐름을 소유하지 않는다.
 
 ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합성 별칭과 Mock 초기 Budget을 연결하는 버전 설정이다. Ingestion이 별칭을 적용한 `named-v2` 패키지를 D1과 메모리 Fallback에 동일하게 제공하고, Snapshot 계층은 초기 Budget을 `derivedFromHistory=false`로 명시해 같은 Safety 엔진을 실행한다. 디렉터리의 분포 앵커는 정확히 일치하는 25개 ID에만 적용하며 확장 부하 등 다른 검증된 합성 ID는 패키지 위험입력 기준값으로 일반화한다. 기사 앱 repository는 별도 `/api/riders` 점수를 읽지 않고 이 Dashboard/Fleet projection을 `RiderProfile` 표시 계약으로 변환한다.
 
@@ -364,7 +364,8 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 
 ### 12.2 배포 런타임 경계
 
-- `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답
+- `/api/operations/sessions/:workspaceId`: 합성 운영 세션 GET/PUT, D1 영속화, 2MB 제한, PII 패턴 거부, 낙관적 동시성 충돌 응답, `ETag` 조건부 조회
+- `/api/operations/couriers/:courierId/latest-session`: 비식별 합성 기사–decision 인덱스로 최근 공유 세션을 복구하는 GET. URL query가 없는 기사 재접속과 관리자 새로고침 복구에만 사용하며 위치를 저장하지 않는다.
 - `/api/operations/days/current`, `/api/operations/days/current/package`: D1에 적재된 25명 정규화 합성 운영일 요약과 검증 패키지 조회
 - `/api/riders`, `/api/riders/:courierId`: 대회용 고정 기사 목록·개별 프로필 GET, D1 저장과 개발 메모리 어댑터
 - `/api/upstage-explanation`: 검증된 합성 결정 사실만 Upstage로 전달하고 공급자 원문 대신 strict JSON만 반환
@@ -372,6 +373,8 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 - `/api/kakao-directions`: 고정 Demo 또는 `deterministic-synthetic-operations`로 표시된 국내 범위 합성 좌표만 Kakao Mobility에 전달
 - `/operations`: 관리자 전체 운영·지원 큐·승인·내보내기
 - `/operations/rider`: 동일 decision의 별도 기사 응답 화면
+
+공개 관제 팝업과 `/rider-demo`는 동일 `workspaceId`를 세션 조회 키로 사용한다. 관제는 선택 후보를 저장하고 기사 앱은 자신의 `courierId` 요구사항만 갱신한다. 양쪽은 `savedAt` 기반 낙관적 동시성을 유지하며 1초 간격의 조건부 읽기 폴링으로 상태를 반영한다. 변경이 없으면 `304`로 payload 재전송을 생략하고, workspace 링크가 사라지면 `operations_session_participants`에서 해당 합성 기사의 최근 decision을 복구한다. 폴링은 표현 계층일 뿐 별도 메시지 브로커나 Live 운영 연동을 주장하지 않는다.
 
 배포 완료는 Worker 패키지 생성이나 D1 binding 선언만으로 판정하지 않는다. 공개 URL의 고정 합성 smoke workspace에서 저장·재조회·snapshot 복구·stale 쓰기 `409 SESSION_CONFLICT`가 확인되어야 한다.
 

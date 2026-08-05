@@ -142,11 +142,85 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   await expect(page.locator(".rider-profile-options a")).toHaveCount(25);
 });
 
-test("선택한 DB 지원 decision을 운영 폐루프에 같은 courierId로 전달한다", async ({
+test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 함께 갱신한다", async ({
   page,
+  context,
 }) => {
   await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto("/dashboard-demo");
+  await page.goto("/");
+  const targetCard = page.locator("[data-courier-card]").first();
+  const courierId = await targetCard.getAttribute("data-courier-card");
+  expect(courierId).toBeTruthy();
+  await targetCard.click();
+
+  const dashboardMap = page.locator(".onepage-map-canvas");
+  const dashboardMarker = page.locator(
+    `[data-map-marker="${courierId}"]`,
+  );
+  await expect(dashboardMarker).toBeVisible();
+  const firstDashboardPoint = await dashboardMarker.evaluate((marker) => ({
+    latitude: marker.getAttribute("data-latitude"),
+    longitude: marker.getAttribute("data-longitude"),
+  }));
+  await expect
+    .poll(async () => dashboardMarker.getAttribute("data-latitude"))
+    .not.toBe(firstDashboardPoint.latitude);
+
+  const riderPage = await context.newPage();
+  await riderPage.setViewportSize({ width: 390, height: 844 });
+  await riderPage.goto(
+    `/rider-demo?courier=${encodeURIComponent(courierId!)}`,
+  );
+  const riderMap = riderPage.locator(".rider-live-map-fallback");
+  await expect(riderMap).toHaveAttribute("data-courier-id", courierId!);
+  await expect(riderMap).toHaveAttribute("data-location-source", "ROUTE");
+  const firstRiderPoint = await riderMap.evaluate((map) => ({
+    latitude: map.getAttribute("data-latitude"),
+    longitude: map.getAttribute("data-longitude"),
+  }));
+  await expect
+    .poll(async () => riderMap.getAttribute("data-latitude"))
+    .not.toBe(firstRiderPoint.latitude);
+
+  await expect.poll(async () => {
+    const dashboardSecond = await dashboardMap.getAttribute(
+      "data-movement-second",
+    );
+    const riderSecond = await riderMap.getAttribute("data-movement-second");
+    if (!dashboardSecond || !riderSecond) return false;
+    const [dashboardLatitude, dashboardLongitude, riderLatitude, riderLongitude] =
+      await Promise.all([
+        dashboardMarker.getAttribute("data-latitude"),
+        dashboardMarker.getAttribute("data-longitude"),
+        riderMap.getAttribute("data-latitude"),
+        riderMap.getAttribute("data-longitude"),
+      ]);
+    if (
+      !dashboardLatitude ||
+      !dashboardLongitude ||
+      !riderLatitude ||
+      !riderLongitude
+    ) return false;
+    return (
+      Math.abs(Number(dashboardSecond) - Number(riderSecond)) <= 1 &&
+      Math.abs(Number(dashboardLatitude) - Number(riderLatitude)) <= 0.0015 &&
+      Math.abs(Number(dashboardLongitude) - Number(riderLongitude)) <= 0.0015
+    );
+  }).toBe(true);
+});
+
+test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 폐루프를 완료한다", async ({
+  page,
+  context,
+  request,
+}) => {
+  const browserErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error") browserErrors.push(message.text());
+  });
+  page.on("pageerror", (error) => browserErrors.push(error.message));
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
 
   const supportCard = page
@@ -155,23 +229,175 @@ test("선택한 DB 지원 decision을 운영 폐루프에 같은 courierId로 �
   const courierId = await supportCard.getAttribute("data-courier-card");
   expect(courierId).toBeTruthy();
   await supportCard.click();
-  const operationsLink = page.getByRole("link", {
-    name: "운영 폐루프에서 검토",
-  });
-  await expect(operationsLink).toHaveAttribute(
-    "href",
-    `/operations?courier=${courierId}`,
-  );
-  await operationsLink.click();
-  await expect(page).toHaveURL(
-    new RegExp(`/operations\\?courier=${courierId}$`),
-  );
+  const dashboardUrl = page.url();
+  const reviewButton = page.getByRole("button", { name: "지원 검토" });
+  await reviewButton.click();
+  await expect(page).toHaveURL(dashboardUrl);
+
+  let dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByRole("heading", { name: /기사$/ })).toBeVisible();
+  await expect(dialog.getByText("지원 선택", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("선택 사항", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "지원 검토 닫기" }),
+  ).toBeFocused();
+  await page.keyboard.press("Shift+Tab");
+  await expect(
+    dialog.getByRole("button", { name: "기사 확인 요청" }),
+  ).toBeFocused();
+  await page.keyboard.press("Tab");
+  await expect(
+    dialog.getByRole("button", { name: "지원 검토 닫기" }),
+  ).toBeFocused();
+  const bounds = await dialog.boundingBox();
+  expect(bounds).not.toBeNull();
+  expect(bounds!.x).toBeGreaterThanOrEqual(0);
+  expect(bounds!.y).toBeGreaterThanOrEqual(0);
+  expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(1280);
+  expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(720);
+
+  await page.keyboard.press("Escape");
+  await expect(dialog).toBeHidden();
+  await expect(page).toHaveURL(dashboardUrl);
+  await expect(reviewButton).toBeFocused();
+  await reviewButton.click();
+  dialog = page.getByRole("dialog");
+
+  const transferCandidate = dialog
+    .locator(".onepage-candidate-list button:not([disabled])")
+    .filter({ hasText: /배송 \d+건 분담/ })
+    .first();
+  await expect(transferCandidate).toBeVisible();
+  await transferCandidate.click();
+  await expect(transferCandidate).toHaveAttribute("aria-pressed", "true");
+  await expect(dialog.getByText(/현재 선택 \d+건 \/ 가능/)).toBeVisible();
+  await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
+  await expect(
+    dialog.getByRole("button", { name: "기사 응답 기다리는 중" }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(dashboardUrl);
+
+  await page.reload();
   await page
-    .getByRole("button", { name: "운영일 확정·전체 계산" })
+    .locator(`[data-courier-card="${courierId}"]`)
+    .click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
+  dialog = page.getByRole("dialog");
+  await expect(
+    dialog.getByRole("button", { name: "기사 응답 기다리는 중" }),
+  ).toBeVisible();
+  await expect(page).toHaveURL(dashboardUrl);
+
+  const riderHref = await page
+    .getByRole("link", { name: "기사 앱" })
+    .getAttribute("href");
+  expect(riderHref).toBeTruthy();
+  const riderUrl = new URL(riderHref!, page.url());
+  const workspaceId = riderUrl.searchParams.get("workspace");
+  const decisionId = riderUrl.searchParams.get("decision");
+  expect(workspaceId).toBeTruthy();
+  expect(decisionId).toBeTruthy();
+  expect(riderUrl.searchParams.get("courier")).toBe(courierId);
+
+  const persistedResponse = await request.get(
+    `/api/operations/sessions/${workspaceId}`,
+  );
+  expect(persistedResponse.ok()).toBe(true);
+  const persisted = (await persistedResponse.json()) as {
+    session: {
+      workspace: {
+        decisions: Array<{
+          decision: {
+            decisionId: string;
+            selectedCandidateId: string;
+          };
+          selectedCandidate: {
+            candidateId: string;
+            actions: Array<{
+              type: string;
+              recipientCourierId?: string;
+            }>;
+          };
+        }>;
+      };
+    };
+  };
+  const persistedDecision = persisted.session.workspace.decisions.find(
+    (item) => item.decision.decisionId === decisionId,
+  )!;
+  expect(persistedDecision.selectedCandidate.candidateId).toBe(
+    persistedDecision.decision.selectedCandidateId,
+  );
+  const recipientId = persistedDecision.selectedCandidate.actions.find(
+    (action) => action.type === "TRANSFER_STOPS",
+  )?.recipientCourierId;
+  expect(recipientId).toBeTruthy();
+
+  const sourcePage = await context.newPage();
+  await sourcePage.setViewportSize({ width: 390, height: 844 });
+  await sourcePage.goto(
+    `/rider-demo?courier=${encodeURIComponent(courierId!)}`,
+  );
+  await sourcePage.getByRole("tab", { name: "안전지원" }).click();
+  await expect(sourcePage.getByText("운영 지표", { exact: true })).toBeVisible();
+  await expect(
+    sourcePage.getByText("사고확률이 아닌 운영 지표", { exact: true }),
+  ).toHaveCount(0);
+  await expect(
+    sourcePage.getByText(
+      "수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.",
+      { exact: true },
+    ),
+  ).toHaveCount(0);
+  await expect(
+    sourcePage.getByRole("button", { name: "이 조정에 동의" }),
+  ).toBeEnabled();
+  await sourcePage.screenshot({
+    path: "test-results/rider-shared-source-390x844.png",
+    fullPage: true,
+  });
+  await sourcePage.getByRole("button", { name: "이 조정에 동의" }).click();
+  await expect(sourcePage.getByText("내 동의 기록됨", { exact: true })).toBeVisible();
+
+  await expect(dialog.getByText("수신 기사 응답 대기", { exact: true })).toBeVisible();
+  const recipientPage = await context.newPage();
+  await recipientPage.setViewportSize({ width: 360, height: 800 });
+  await recipientPage.goto(
+    `/rider-demo?courier=${encodeURIComponent(recipientId!)}`,
+  );
+  await recipientPage.getByRole("tab", { name: "안전지원" }).click();
+  await expect(
+    recipientPage.getByRole("button", { name: "이 조정에 동의" }),
+  ).toBeEnabled();
+  await recipientPage.screenshot({
+    path: "test-results/rider-shared-recipient-360x800.png",
+    fullPage: true,
+  });
+  await recipientPage.getByRole("button", { name: "이 조정에 동의" }).click();
+  await expect(
+    recipientPage.getByText("내 동의 기록됨", { exact: true }),
+  ).toBeVisible();
+
+  await expect(dialog.getByText("관리자 승인 대기", { exact: true })).toBeVisible();
+  await dialog
+    .getByRole("button", { name: "관리자 승인 및 적용" })
     .click();
   await expect(
-    page.getByRole("tab", { name: "개입 검토" }),
-  ).toHaveAttribute("aria-selected", "true");
+    dialog.getByText("경로 / 배송순서 / ETA / 고객 안내 상태를 갱신했습니다."),
+  ).toBeVisible();
+  await expect(
+    sourcePage.getByRole("heading", { name: "조정된 계획이 적용되었습니다" }),
+  ).toBeVisible();
+  await expectNoPageOverflow(sourcePage);
+  expect(
+    await recipientPage.evaluate(() => document.documentElement.scrollWidth),
+  ).toBeLessThanOrEqual(361);
+  await expect(page).toHaveURL(dashboardUrl);
+  await expect(
+    page.getByRole("link", { name: "운영 폐루프에서 검토" }),
+  ).toHaveCount(0);
+  expect(browserErrors).toEqual([]);
 });
 
 test("1920 데스크톱은 62px 헤더·384px 패널·16px 간격을 유지한다", async ({
@@ -222,6 +448,20 @@ test("1440×900에서도 25명 카드·지도·지원 패널이 한 화면에 �
   await expect(page.locator(".onepage-support-panel")).toBeVisible();
   await expect(page.locator(".onepage-map-section")).toBeVisible();
   await expectNoPageOverflow(page);
+  const supportCard = page
+    .locator('[data-courier-card][data-decision-id]:not([data-decision-id=""])')
+    .first();
+  await supportCard.click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
+  const dialog = page.getByRole("dialog");
+  const dialogBounds = await dialog.boundingBox();
+  expect(dialogBounds).not.toBeNull();
+  expect(dialogBounds!.x + dialogBounds!.width).toBeLessThanOrEqual(1440);
+  expect(dialogBounds!.y + dialogBounds!.height).toBeLessThanOrEqual(900);
+  const dialogButtonHeights = await dialog.getByRole("button").evaluateAll(
+    (buttons) => buttons.map((button) => button.getBoundingClientRect().height),
+  );
+  expect(dialogButtonHeights.every((height) => height >= 44)).toBe(true);
   await page.screenshot({
     path: "test-results/dashboard-demo-1440x900.png",
     fullPage: false,

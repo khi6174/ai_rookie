@@ -75,6 +75,20 @@ import {
   type DemoSession,
 } from "./demoSession";
 import {
+  createOperationsPersistedSession,
+  loadLatestOperationsSessionForCourier,
+  loadOperationsPersistedSession,
+  respondToOperationsDecision,
+  restoreOperationsPersistedSession,
+  saveOperationsPersistedSession,
+  type FleetEvaluation,
+  type OperationsDecisionWorkspace,
+} from "../application/operations";
+import type {
+  DailyOperationsPackage,
+  DailyOperationsSnapshot,
+} from "../domain/operations";
+import {
   demoAdminExplanationInput,
   generateDemoAdminExplanation,
 } from "./demoExplanation";
@@ -89,6 +103,21 @@ type AppProps = {
   initialRole?: Role;
   initialRiderEntry?: boolean;
 };
+
+type SharedRiderDecisionContext = {
+  workspaceId: string;
+  decisionId: string;
+  operationsPackage: DailyOperationsPackage;
+  snapshot: DailyOperationsSnapshot;
+  fleet: FleetEvaluation;
+  workspace: OperationsDecisionWorkspace;
+  baseSavedAt: string;
+};
+
+type RiderDecisionResponse =
+  | "CONSENTED"
+  | "MODIFICATION_REQUESTED"
+  | "DECLINED";
 
 const formatBudget = (value: number) => value.toFixed(1);
 
@@ -124,6 +153,53 @@ function candidateLabel(candidate: InterventionCandidate) {
   }
   if (types.includes("REST")) return "10분 휴식";
   return "계획 조정안";
+}
+
+function riderInterventionActionLabel(
+  action: InterventionCandidate["actions"][number],
+) {
+  switch (action.type) {
+    case "REST":
+      return `${action.restMinutes}분 휴식`;
+    case "TRANSFER_STOPS":
+      return `배송 ${action.stopIds.length}건 분담`;
+    case "REORDER_STOPS":
+      return "배송 순서 변경";
+    case "SAFER_ROUTE":
+      return "안전 경로 변경";
+    case "SAFE_DELAY":
+      return "배송 시간 재약정";
+  }
+}
+
+function riderInterventionLabel(candidate: InterventionCandidate) {
+  return candidate.actions.map(riderInterventionActionLabel).join(" + ");
+}
+
+function riderInterventionQuestion(
+  candidate: InterventionCandidate,
+  isRecipient: boolean,
+) {
+  const transfer = candidate.actions.find(
+    (action) => action.type === "TRANSFER_STOPS",
+  );
+  if (isRecipient && transfer?.type === "TRANSFER_STOPS") {
+    return `가까운 배송 ${transfer.stopIds.length}건을 이어받을까요?`;
+  }
+  const rest = candidate.actions.find((action) => action.type === "REST");
+  if (rest?.type === "REST" && transfer?.type === "TRANSFER_STOPS") {
+    return `${rest.restMinutes}분 쉬고, 배송 ${transfer.stopIds.length}건을 나눌까요?`;
+  }
+  return `${riderInterventionLabel(candidate)}을 진행할까요?`;
+}
+
+function formatRiderExpectedCompletion(isoDateTime: string) {
+  return new Intl.DateTimeFormat("ko-KR", {
+    timeZone: "Asia/Seoul",
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+  }).format(new Date(isoDateTime));
 }
 
 function consentLabel(status: ReturnType<typeof consentStatusFor>) {
@@ -175,6 +251,18 @@ function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
   const availableProfiles = profile.courierId.startsWith("demo-courier-")
     ? riderProfiles
     : legacyRiderProfiles;
+  const sharedParameters =
+    typeof window === "undefined"
+      ? undefined
+      : new URLSearchParams(window.location.search);
+  const profileHref = (courierId: string) => {
+    const parameters = new URLSearchParams({ courier: courierId });
+    const workspaceId = sharedParameters?.get("workspace");
+    const decisionId = sharedParameters?.get("decision");
+    if (workspaceId) parameters.set("workspace", workspaceId);
+    if (decisionId) parameters.set("decision", decisionId);
+    return `/rider-demo?${parameters.toString()}`;
+  };
   return (
     <details className="rider-role-menu rider-profile-menu">
       <summary aria-label={`${profile.displayName} 기사 화면 전환`}>
@@ -189,7 +277,7 @@ function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
         {availableProfiles.map((rider) => (
           <a
             key={rider.courierId}
-            href={`/rider-demo?courier=${encodeURIComponent(rider.courierId)}`}
+            href={profileHref(rider.courierId)}
             aria-current={rider.courierId === profile.courierId ? "page" : undefined}
           >
             <strong>{rider.displayName}</strong>
@@ -1873,6 +1961,10 @@ function RiderView({
   riderProfile,
   directRiderEntry,
   isRecipient,
+  sharedDecisionRequested,
+  sharedDecision,
+  sharedResponseBusy,
+  sharedMessage,
   role,
   onRoleChange,
   onReset,
@@ -1885,10 +1977,14 @@ function RiderView({
   riderProfile: RiderProfile;
   directRiderEntry: boolean;
   isRecipient: boolean;
+  sharedDecisionRequested: boolean;
+  sharedDecision?: SharedRiderDecisionContext;
+  sharedResponseBusy: boolean;
+  sharedMessage?: string;
   role: Exclude<Role, "ADMIN">;
   onRoleChange: (role: Role) => void;
   onReset: () => void;
-  onResponse: (response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED") => void;
+  onResponse: (response: RiderDecisionResponse) => void | Promise<void>;
   pwa: {
     online: boolean;
     shellReady: boolean;
@@ -1900,13 +1996,39 @@ function RiderView({
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
   const [profileGuideOpen, setProfileGuideOpen] = useState(false);
-  const consentStatus = consentStatusFor(session, courierId);
-  const canRespond = pwa.online && session.decision.status === "RIDER_RESPONSE_PENDING" && consentStatus === "PENDING";
+  const sharedArtifacts = sharedDecision?.workspace.decisions.find(
+    (item) => item.decision.decisionId === sharedDecision.decisionId,
+  );
+  const sharedRequirement = sharedArtifacts?.decision.consentRequirements.find(
+    (requirement) => requirement.courierId === courierId,
+  );
+  const consentStatus =
+    sharedRequirement?.status ?? consentStatusFor(session, courierId);
+  const decisionStatus = sharedArtifacts?.decision.status ?? session.decision.status;
+  const canRespond =
+    pwa.online &&
+    !sharedResponseBusy &&
+    (!sharedDecisionRequested || Boolean(sharedArtifacts)) &&
+    decisionStatus === "RIDER_RESPONSE_PENDING" &&
+    consentStatus === "PENDING";
   const offlinePlan = !pwa.online && pwa.cacheState.status === "FRESH" ? pwa.cacheState.plan : null;
-  const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(session.decision.status) || Boolean(offlinePlan);
+  const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(decisionStatus) ||
+    (!sharedArtifacts && Boolean(offlinePlan));
   const sourceImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "SOURCE")!;
   const recipientImpact = demoRecommendedEvaluation.courierImpacts.find((impact) => impact.role === "RECIPIENT")!;
-  const impact = isRecipient ? recipientImpact : sourceImpact;
+  const impact = sharedArtifacts?.selectedEvaluation.courierImpacts.find(
+    (item) => item.courierId === courierId,
+  ) ?? (isRecipient ? recipientImpact : sourceImpact);
+  const selectedCandidate = sharedArtifacts?.selectedCandidate;
+  const transfer = selectedCandidate?.actions.find(
+    (action) => action.type === "TRANSFER_STOPS",
+  );
+  const transferCount = transfer?.type === "TRANSFER_STOPS"
+    ? transfer.stopIds.length
+    : 0;
+  const sourceName = sharedDecision?.operationsPackage.records.find(
+    (record) => record.courier.courierId === sharedArtifacts?.queueItem.courierId,
+  )?.courier.displayLabel;
   const personalResponseLabel = applied
     ? "새 계획 적용됨"
     : consentStatus === "CONSENTED"
@@ -1916,23 +2038,61 @@ function RiderView({
         : consentStatus === "DECLINED"
           ? "거절 기록됨"
           : "내 응답 대기";
-  const supportSteps = isRecipient
-    ? [["지금", "현재 배송 유지"], ["확인 후", "가까운 8건 수신"], ["적용 뒤", "새 순서로 운행"]]
-    : [["지금", "14번째 배송"], ["먼저", "10분 휴식"], ["그 다음", "8건 인계"]];
-  const activeWorkload = session.store.activePlan.workloads.find((workload) => workload.courierId === courierId)!;
+  const sharedActionLabel = selectedCandidate
+    ? isRecipient && transferCount > 0
+      ? `배송 ${transferCount}건 수신`
+      : riderInterventionLabel(selectedCandidate)
+    : undefined;
+  const supportSteps = sharedArtifacts
+    ? [
+        ["지금", "현재 배송 유지"],
+        ["먼저", sharedActionLabel ?? "지원안 확인"],
+        ["그 다음", applied ? "새 계획으로 운행" : "확인 후 계획 적용"],
+      ]
+    : isRecipient
+      ? [["지금", "현재 배송 유지"], ["먼저", "가까운 8건 수신"], ["그 다음", "새 순서로 운행"]]
+      : [["지금", "14번째 배송"], ["먼저", "10분 휴식"], ["그 다음", "8건 인계"]];
+  const activeWorkload = sharedDecision?.workspace.store.activePlan.workloads.find(
+    (workload) => workload.courierId === courierId,
+  ) ?? session.store.activePlan.workloads.find(
+    (workload) => workload.courierId === courierId,
+  );
   const cachedCourierPlan = offlinePlan?.couriers.find((courier) => courier.courierId === courierId);
   const deliveryCompletedCount = riderProfile.completedCount;
   const deliveryTotalCount = riderProfile.totalCount;
-  const remainingStopCount = directRiderEntry
+  const projectedRemainingStopCount = activeWorkload?.remainingLoad.stopCount;
+  const remainingStopCount = sharedArtifacts && applied && projectedRemainingStopCount !== undefined
+    ? projectedRemainingStopCount
+    : directRiderEntry
     ? Math.max(0, deliveryTotalCount - deliveryCompletedCount)
-    : cachedCourierPlan?.remainingStopCount ?? activeWorkload.remainingLoad.stopCount;
+    : cachedCourierPlan?.remainingStopCount ?? projectedRemainingStopCount ?? 0;
   const deliveryRate = deliveryTotalCount
     ? Math.round((deliveryCompletedCount / deliveryTotalCount) * 100)
     : 0;
-  const expectedCompletionLabel = riderProfile.expectedCompletion;
+  const expectedCompletionLabel = sharedArtifacts && applied
+    ? formatRiderExpectedCompletion(impact.projectedEndAt)
+    : riderProfile.expectedCompletion;
   const dangerMinutes = riderProfile.criticalMinute ?? undefined;
   const dangerStopOrdinal = riderProfile.criticalStopOrdinal ?? undefined;
-  const hasDecisionSupport = ["R-017", "R-024"].includes(riderProfile.courierId);
+  const hasDecisionSupport = Boolean(sharedArtifacts) || ["R-017", "R-024"].includes(riderProfile.courierId);
+  const baselineStopCount = sharedDecision?.snapshot.fixture.workloads.find(
+    (workload) => workload.courierId === courierId,
+  )?.remainingLoad.stopCount ?? remainingStopCount;
+  const candidateStopCount = Math.max(0, baselineStopCount + impact.stopCountDelta);
+  const workMinutesLabel = impact.workMinutesDelta === 0
+    ? "변화 없음"
+    : `약 ${Math.abs(impact.workMinutesDelta)}분 ${impact.workMinutesDelta > 0 ? "연장" : "단축"}`;
+  const riderAnnouncement = sharedMessage ?? (sharedArtifacts
+    ? decisionStatus === "ADMIN_APPROVAL_REQUIRED"
+      ? "필수 기사 확인이 끝났습니다. 관리자 승인 전까지 현재 계획을 유지합니다."
+      : decisionStatus === "MODIFICATION_REQUESTED"
+        ? "다른 방법을 요청했습니다. 현재 계획을 유지합니다."
+        : decisionStatus === "RIDER_DECLINED"
+          ? "지금은 거절했습니다. 현재 계획을 유지합니다."
+          : applied
+            ? "승인된 새 계획과 배송 순서가 반영되었습니다."
+            : "기사 확인 전까지 현재 계획을 유지합니다."
+    : session.announcement);
   const tabContentId = `rider-${tab.toLowerCase()}-panel`;
   const selectTab = (nextTab: RiderTab) => {
     setTab(nextTab);
@@ -1959,7 +2119,7 @@ function RiderView({
         <div className="rider-demo-toolbar">
           <div className="rider-toolbar-title">
             <span aria-hidden="true">{tab === "ROUTE" ? "SR" : tab === "SUPPORT" ? "◈" : "●"}</span>
-            <strong>{tab === "ROUTE" ? "SafeRoute AI" : tab === "SUPPORT" ? "안전지원 검토" : "내 정보"}</strong>
+            <strong>{tab === "PROFILE" ? "내 정보" : "SafeRoute AI"}</strong>
           </div>
           <div className="rider-toolbar-actions">
             <a className="rider-dashboard-link" href="/">관제</a>
@@ -2029,22 +2189,28 @@ function RiderView({
               <div className="rider-support-timing" aria-label="안전지원 시점과 안전 여유">
                 <div>
                   <span>{isRecipient ? "요청받은 조정" : "지원 시점"}</span>
-                  <strong>{isRecipient ? "배송 8건 수신" : `${dangerMinutes ?? 52}분 후`}</strong>
-                  <small>{isRecipient ? "강태현 기사 지원 계획" : `${dangerStopOrdinal ?? 17}번째 배송 전`}</small>
+                  <strong>{isRecipient ? (sharedActionLabel ?? "배송 8건 수신") : `${dangerMinutes ?? 52}분 후`}</strong>
+                  <small>{isRecipient ? `${sourceName ?? "원 기사"} 기사 지원 계획` : `${dangerStopOrdinal ?? 17}번째 배송 전`}</small>
                 </div>
                 <div>
                   <span>안전 여유</span>
                   <strong>{formatBudget(riderProfile.safetyScore)}</strong>
-                  <small>사고확률이 아닌 운영 지표</small>
+                  <small>운영 지표</small>
                 </div>
               </div>
               <div className="rider-support-question">
                 <span>{applied ? "새 계획이 적용됐어요" : isRecipient ? "내 작업 변화 확인" : "추천 조정"}</span>
-                <h1 id="rider-support-decision-heading">{applied ? "조정된 계획이 적용되었습니다" : isRecipient ? "가까운 배송 8건을 이어받을까요?" : "10분 쉬고, 배송 8건을 나눌까요?"}</h1>
+                <h1 id="rider-support-decision-heading">{applied
+                  ? "조정된 계획이 적용되었습니다"
+                  : selectedCandidate
+                    ? riderInterventionQuestion(selectedCandidate, isRecipient)
+                    : isRecipient
+                      ? "가까운 배송 8건을 이어받을까요?"
+                      : "10분 쉬고, 배송 8건을 나눌까요?"}</h1>
                 <p>{applied
                   ? `현재 남은 배송은 ${remainingStopCount}건입니다. 실제 적용된 계획과 ETA만 안내합니다.`
                   : isRecipient
-                    ? "가까운 배송지 8건을 이어받아도 내 안전기준을 지키는지 전체 계획을 다시 계산했습니다."
+                    ? `이 조정 후에도 내 안전기준을 지키는지 전체 계획을 다시 계산했습니다.`
                     : "동의 시 AI 추천 계획을 실행합니다."}</p>
               </div>
               <ol className="rider-support-steps" aria-label="안전지원 실행 순서">
@@ -2061,11 +2227,15 @@ function RiderView({
             <section className="rider-decision-brief rider-impact-summary" aria-label="조정 전후와 내 작업 변화 요약">
               <div>
                 <span>남은 배송</span>
-                <strong>{isRecipient ? `${remainingStopCount}건 → ${remainingStopCount + 8}건` : "17건 → 9건"}</strong>
+                <strong>{sharedArtifacts
+                  ? `${baselineStopCount}건 → ${candidateStopCount}건`
+                  : isRecipient
+                    ? `${remainingStopCount}건 → ${remainingStopCount + 8}건`
+                    : "17건 → 9건"}</strong>
               </div>
               <div>
                 <span>예상 종료</span>
-                <strong>{isRecipient ? "약 25분 연장" : "약 15분 단축"}</strong>
+                <strong>{sharedArtifacts ? workMinutesLabel : isRecipient ? "약 25분 연장" : "약 15분 단축"}</strong>
               </div>
               <div className={isRecipient ? "is-boundary" : "is-safe"}>
                 <span>{isRecipient ? "이관 후 최소" : "조정 후 최소"}</span>
@@ -2076,7 +2246,7 @@ function RiderView({
 
             <div className="rider-response-status" aria-live="polite">
               <strong className="rider-personal-status">{personalResponseLabel}</strong>
-              <span>{!pwa.online ? "오프라인에서는 동의·수정·거절을 기록하지 않습니다." : canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : session.announcement}</span>
+              <span>{!pwa.online ? "오프라인에서는 동의·수정·거절을 기록하지 않습니다." : canRespond ? "선택 전까지 현재 계획은 변경되지 않습니다." : riderAnnouncement}</span>
             </div>
             <div className="rider-actions" aria-label="조치 응답">
               <button type="button" className="button button-primary" disabled={!canRespond} onClick={() => onResponse("CONSENTED")}>이 조정에 동의</button>
@@ -2248,6 +2418,17 @@ export function App({
     ),
     source: "OPERATIONS_BUNDLED_FALLBACK",
   }));
+  const linkedSharedDecisionRequest = useMemo(() => {
+    if (typeof window === "undefined") return undefined;
+    const parameters = new URLSearchParams(window.location.search);
+    const workspaceId = parameters.get("workspace")?.trim();
+    const decisionId = parameters.get("decision")?.trim();
+    return workspaceId && decisionId ? { workspaceId, decisionId } : undefined;
+  }, []);
+  const [discoveredSharedDecisionRequest, setDiscoveredSharedDecisionRequest] =
+    useState<{ workspaceId: string; decisionId: string }>();
+  const sharedDecisionRequest =
+    linkedSharedDecisionRequest ?? discoveredSharedDecisionRequest;
   const resolvedInitialRole: Role = initialRiderEntry
     ? riderProfileResult.profile.courierId === "R-024" ? "RECIPIENT" : "SOURCE"
     : initialRole;
@@ -2264,6 +2445,10 @@ export function App({
     initialExplanation ?? null,
   );
   const [explanationLoading, setExplanationLoading] = useState(false);
+  const [sharedDecision, setSharedDecision] =
+    useState<SharedRiderDecisionContext>();
+  const [sharedMessage, setSharedMessage] = useState<string>();
+  const [sharedResponseBusy, setSharedResponseBusy] = useState(false);
   const pwaRuntime = usePwaRuntime();
   const [cachedPlanState, setCachedPlanState] = useState<CachedApprovedDemoPlanState>(
     () => readCachedApprovedDemoPlan(),
@@ -2282,6 +2467,123 @@ export function App({
       .catch(() => undefined);
     return () => controller.abort();
   }, [initialRiderEntry, riderProfileResult.profile.courierId]);
+
+  useEffect(() => {
+    if (!initialRiderEntry || linkedSharedDecisionRequest) return;
+    let cancelled = false;
+    let loading = false;
+    let lastUpdatedAt: string | undefined;
+    const discover = async () => {
+      if (loading) return;
+      loading = true;
+      try {
+        const latest = await loadLatestOperationsSessionForCourier(
+          riderProfileResult.profile.courierId,
+          { ifUpdatedAt: lastUpdatedAt },
+        );
+        if (cancelled || latest.status !== "LOADED") return;
+        lastUpdatedAt = latest.updatedAt;
+        setDiscoveredSharedDecisionRequest((current) =>
+          current?.workspaceId === latest.session.workspaceId &&
+          current.decisionId === latest.decisionId
+            ? current
+            : {
+                workspaceId: latest.session.workspaceId,
+                decisionId: latest.decisionId,
+              },
+        );
+      } finally {
+        loading = false;
+      }
+    };
+    void discover();
+    const timer = window.setInterval(() => void discover(), 1_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [
+    initialRiderEntry,
+    linkedSharedDecisionRequest,
+    riderProfileResult.profile.courierId,
+  ]);
+
+  useEffect(() => {
+    if (!initialRiderEntry || !sharedDecisionRequest) return;
+    let cancelled = false;
+    let loading = false;
+    let lastUpdatedAt: string | undefined;
+    const refresh = async (announceFailure: boolean) => {
+      if (loading) return;
+      loading = true;
+      try {
+        const loaded = await loadOperationsPersistedSession(
+          sharedDecisionRequest.workspaceId,
+          { ifUpdatedAt: lastUpdatedAt },
+        );
+        if (cancelled) return;
+        if (loaded.status !== "LOADED") {
+          if (announceFailure) {
+            setSharedMessage(
+              loaded.status === "EMPTY"
+                ? "전송된 지원안을 찾지 못했습니다. 관제에서 다시 안내해 주세요."
+                : "message" in loaded
+                  ? loaded.message
+                  : "지원안을 불러오지 못했습니다.",
+            );
+          }
+          return;
+        }
+        if (loaded.updatedAt === lastUpdatedAt) return;
+        const restored = await restoreOperationsPersistedSession(loaded.session);
+        if (cancelled) return;
+        const artifacts = restored.workspace.decisions.find(
+          (item) => item.decision.decisionId === sharedDecisionRequest.decisionId,
+        );
+        const courierId = riderProfileResult.profile.courierId;
+        if (
+          !artifacts ||
+          !artifacts.selectedCandidate.affectedCourierIds.includes(courierId)
+        ) {
+          setSharedDecision(undefined);
+          setSharedMessage(
+            artifacts
+              ? "이 지원안의 확인 대상 기사가 아닙니다."
+              : "전송된 결정 정보를 찾지 못했습니다.",
+          );
+          lastUpdatedAt = loaded.updatedAt;
+          return;
+        }
+        setSharedDecision({
+          workspaceId: sharedDecisionRequest.workspaceId,
+          decisionId: sharedDecisionRequest.decisionId,
+          operationsPackage: restored.operationsPackage,
+          snapshot: restored.snapshot,
+          fleet: restored.fleet,
+          workspace: restored.workspace,
+          baseSavedAt: loaded.updatedAt,
+        });
+        setSharedMessage(undefined);
+        lastUpdatedAt = loaded.updatedAt;
+      } catch {
+        if (!cancelled && announceFailure) {
+          setSharedMessage("지원안의 검증된 상태를 불러오지 못했습니다.");
+        }
+      } finally {
+        loading = false;
+      }
+    };
+    void refresh(true);
+    const timer = window.setInterval(() => void refresh(false), 1_000);
+    return () => {
+      cancelled = true;
+      window.clearInterval(timer);
+    };
+  }, [
+    initialRiderEntry,
+    riderProfileResult.profile.courierId,
+    sharedDecisionRequest,
+  ]);
 
   useEffect(() => {
     const planVersion = session.store.appliedDecisionVersions[session.decision.decisionId];
@@ -2311,6 +2613,7 @@ export function App({
     setSession(createInitialDemoSession(createResetDemoDecisionId()));
     setExplanation(null);
     setExplanationLoading(false);
+    setSharedMessage(undefined);
     setRiderEntry({
       SOURCE: initialRiderEntry && resolvedInitialRole === "SOURCE",
       RECIPIENT: initialRiderEntry && resolvedInitialRole === "RECIPIENT",
@@ -2331,6 +2634,89 @@ export function App({
     setSession((current) => respondToDemo(current, courierId, response));
   };
 
+  const respondToSharedDecision = async (response: RiderDecisionResponse) => {
+    if (!sharedDecisionRequest) return;
+    setSharedResponseBusy(true);
+    setSharedMessage(undefined);
+    try {
+      const loaded = await loadOperationsPersistedSession(
+        sharedDecisionRequest.workspaceId,
+      );
+      if (loaded.status !== "LOADED") {
+        setSharedMessage(
+          loaded.status === "EMPTY"
+            ? "전송된 지원안을 찾지 못했습니다."
+            : "message" in loaded
+              ? loaded.message
+              : "지원안을 불러오지 못했습니다.",
+        );
+        return;
+      }
+      const restored = await restoreOperationsPersistedSession(loaded.session);
+      const courierId = riderProfileResult.profile.courierId;
+      const workspace = respondToOperationsDecision(restored.workspace, {
+        decisionId: sharedDecisionRequest.decisionId,
+        courierId,
+        response,
+      });
+      const persisted = createOperationsPersistedSession({
+        workspaceId: sharedDecisionRequest.workspaceId,
+        operationsPackage: restored.operationsPackage,
+        snapshot: restored.snapshot,
+        fleet: restored.fleet,
+        workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(persisted, {
+        baseSavedAt: loaded.updatedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setSharedMessage(
+          "message" in saved
+            ? saved.message
+            : "기사 응답을 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setSharedDecision({
+        workspaceId: sharedDecisionRequest.workspaceId,
+        decisionId: sharedDecisionRequest.decisionId,
+        operationsPackage: restored.operationsPackage,
+        snapshot: restored.snapshot,
+        fleet: restored.fleet,
+        workspace,
+        baseSavedAt: saved.updatedAt,
+      });
+      setSharedMessage(
+        response === "CONSENTED"
+          ? "내 응답을 기록했습니다. 필요한 확인이 끝날 때까지 현재 계획을 유지합니다."
+          : response === "MODIFICATION_REQUESTED"
+            ? "다른 방법 요청을 기록했습니다. 현재 계획을 유지합니다."
+            : "지금은 거절로 기록했습니다. 현재 계획을 유지합니다.",
+      );
+    } catch (error) {
+      setSharedMessage(
+        error instanceof Error
+          ? error.message
+          : "기사 응답을 기록하지 못했습니다.",
+      );
+    } finally {
+      setSharedResponseBusy(false);
+    }
+  };
+
+  const activeRiderCourierId = initialRiderEntry
+    ? riderProfileResult.profile.courierId
+    : role === "SOURCE"
+      ? demoSourceCourierId
+      : demoRecipientCourierId;
+  const activeSharedArtifacts = sharedDecision?.workspace.decisions.find(
+    (item) => item.decision.decisionId === sharedDecision.decisionId,
+  );
+  const activeRiderIsRecipient = activeSharedArtifacts
+    ? activeSharedArtifacts.queueItem.courierId !== activeRiderCourierId
+    : role === "RECIPIENT";
+
   return (
     <>
       <a className="skip-link" href="#main-content">본문으로 건너뛰기</a>
@@ -2350,16 +2736,22 @@ export function App({
       ) : riderEntry[role] ? (
         <RiderView
           session={session}
-          courierId={role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId}
+          courierId={activeRiderCourierId}
           riderProfile={initialRiderEntry
             ? riderProfileResult.profile
             : legacyRiderProfiles.find((profile) => profile.courierId === (role === "SOURCE" ? "R-017" : "R-024"))!}
           directRiderEntry={initialRiderEntry}
-          isRecipient={role === "RECIPIENT"}
+          isRecipient={activeRiderIsRecipient}
+          sharedDecisionRequested={Boolean(sharedDecisionRequest)}
+          sharedDecision={sharedDecision}
+          sharedResponseBusy={sharedResponseBusy}
+          sharedMessage={sharedMessage}
           role={role}
           onRoleChange={setRole}
           onReset={reset}
-          onResponse={(response) => respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
+          onResponse={(response) => sharedDecisionRequest
+            ? respondToSharedDecision(response)
+            : respond(role === "SOURCE" ? demoSourceCourierId : demoRecipientCourierId, response)}
           pwa={{ ...pwaRuntime, cacheState: cachedPlanState }}
           mapModel={riderMapModel}
         />

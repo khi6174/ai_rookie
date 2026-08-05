@@ -219,6 +219,40 @@ function createCandidates(
   return candidates;
 }
 
+export function createOperationsTransferCapacity(
+  snapshot: DailyOperationsSnapshot,
+  fleet: FleetEvaluation,
+  queueItem: SupportQueueItem,
+) {
+  const workload = snapshot.fixture.workloads.find(
+    (item) => item.courierId === queueItem.courierId,
+  );
+  const recipientCourierId = selectTransferRecipient(
+    snapshot,
+    fleet,
+    queueItem.courierId,
+  );
+  if (!workload || !recipientCourierId || workload.remainingStopIds.length < 4) {
+    return { recipientCount: 0, maxStopCount: 0 };
+  }
+  const candidate = createTransferCandidate(snapshot.fixture, queueItem.decisionId, {
+    sourceCourierId: queueItem.courierId,
+    recipientCourierId,
+    stopIds: workload.remainingStopIds.slice(-4),
+  });
+  const evaluation = evaluateIntervention(snapshot.fixture, candidate);
+  const transfer = candidate.actions.find(
+    (action) => action.type === "TRANSFER_STOPS",
+  );
+  return evaluation.feasibility.status === "FEASIBLE"
+    ? {
+        recipientCount: 1,
+        maxStopCount:
+          transfer?.type === "TRANSFER_STOPS" ? transfer.stopIds.length : 0,
+      }
+    : { recipientCount: 0, maxStopCount: 0 };
+}
+
 export function createOperationsDecisionArtifacts(
   snapshot: DailyOperationsSnapshot,
   fleet: FleetEvaluation,
@@ -363,6 +397,77 @@ export function initializeOperationsDecision(
       ),
     ],
   };
+}
+
+export function selectOperationsDecisionCandidate(
+  workspace: OperationsDecisionWorkspace,
+  input: { decisionId: string; candidateId: string },
+) {
+  return updateDecisionArtifacts(workspace, input.decisionId, (artifacts) => {
+    if (
+      artifacts.decision.status !== "RIDER_RESPONSE_PENDING" ||
+      artifacts.decision.consentRequirements.some(
+        (requirement) => requirement.required && requirement.status !== "PENDING",
+      )
+    ) {
+      throw new Error("기사 확인 요청 이후에는 후보를 변경할 수 없습니다.");
+    }
+    const selectedCandidate = artifacts.candidates.find(
+      (candidate) => candidate.candidateId === input.candidateId,
+    );
+    const selectedEvaluation = artifacts.evaluations.find(
+      (evaluation) => evaluation.candidateId === input.candidateId,
+    );
+    if (
+      !selectedCandidate ||
+      !selectedEvaluation ||
+      selectedEvaluation.feasibility.status !== "FEASIBLE"
+    ) {
+      throw new Error("실행 가능한 현재 decision 후보만 선택할 수 있습니다.");
+    }
+
+    const baseAt = artifacts.decision.createdAt;
+    const baseline = createDecisionRecord({
+      decisionId: artifacts.decision.decisionId,
+      at: baseAt,
+      dataMode: artifacts.decision.dataMode,
+      baselinePlanId: artifacts.decision.baselinePlanId,
+      baselinePlanVersion: artifacts.decision.baselinePlanVersion,
+      baselineSnapshotIds: [selectedEvaluation.baselineSnapshotId],
+      versionContext: selectedEvaluation.versionContext,
+    });
+    const generated = recordGeneratedCandidates(
+      baseline,
+      artifacts.candidates,
+      atSequence(baseAt, 1),
+    );
+    const evaluated = recordEvaluatedCandidates(
+      generated,
+      artifacts.evaluations,
+      selectedCandidate.candidateId,
+      atSequence(baseAt, 2),
+    );
+    const review = requestCourierReview(evaluated, atSequence(baseAt, 3));
+    const decision = startCourierResponses(review, atSequence(baseAt, 4));
+    const baselinePlanVersions = Object.fromEntries(
+      selectedCandidate.affectedCourierIds.map((courierId) => {
+        const workload = workspace.store.activePlan.workloads.find(
+          (item) => item.courierId === courierId,
+        );
+        if (!workload) {
+          throw new Error(`Missing affected workload for ${courierId}`);
+        }
+        return [courierId, workload.planVersion];
+      }),
+    );
+    return {
+      ...artifacts,
+      decision,
+      selectedCandidate,
+      selectedEvaluation,
+      baselinePlanVersions,
+    };
+  });
 }
 
 export function detectDecisionWorkspaceConflicts(

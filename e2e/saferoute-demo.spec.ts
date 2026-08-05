@@ -285,6 +285,10 @@ for (const viewport of [
       await expectMinimumTouchHeight(page.getByRole("tab", { name: tabName }));
     }
     await page.getByRole("tab", { name: "안전지원" }).click();
+    await expect(page.getByText("운영 지표", { exact: true })).toBeVisible();
+    await expect(
+      page.getByText("사고확률이 아닌 운영 지표", { exact: true }),
+    ).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "10분 쉬고, 배송 8건을 나눌까요?" })).toBeVisible();
     await expect(page.getByLabel("조정 전후와 내 작업 변화 요약")).toBeVisible();
     await expectAboveMobileTabBar(page, page.getByRole("button", { name: "이 조정에 동의", exact: true }));
@@ -401,6 +405,12 @@ test("내 정보에서 오늘 업무와 AI 사용 경계를 간결하게 안내�
     await expect(page.getByRole("heading", { name: "내 권리" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "앱 사용 상태" })).toHaveCount(0);
     await expect(page.getByRole("heading", { name: "AI 사용 안내" })).toBeVisible();
+    await expect(
+      page.getByText(
+        "수정하거나 거절해도 불이익은 없습니다. 다른 안전한 방법을 다시 검토합니다.",
+        { exact: true },
+      ),
+    ).toHaveCount(0);
     await expect(page.getByText("AI가 임의로 계획을 바꾸거나 승인하지 않습니다.", { exact: false })).toBeVisible();
     await page.getByRole("button", { name: "AI 사용 방식 자세히 보기" }).click();
     await expect(page.getByText("계산값이나 지원 가능 여부는 AI가 정하지 않습니다.", { exact: false })).toBeVisible();

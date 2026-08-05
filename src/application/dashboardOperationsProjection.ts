@@ -2,6 +2,7 @@ import { bundledDailyOperationsPackage } from "../adapters/fixtures/syntheticOpe
 import type { DailyOperationsPackage } from "../domain/operations";
 import {
   createDailyOperationsSnapshot,
+  createOperationsTransferCapacity,
   evaluateOperationsFleet,
   loadCurrentDailyOperationsPackage,
 } from "./operations";
@@ -31,6 +32,8 @@ export type DashboardCourierProjection = {
   decisionId?: string;
   confidence: "HIGH" | "MEDIUM" | "LOW";
   missingInputCount: number;
+  transferRecipientCount: number;
+  maxTransferStopCount: number;
 };
 
 export type DashboardHubProjection = {
@@ -103,6 +106,12 @@ export async function createDashboardOperationsProjection(
     fleet.evaluations.map((evaluation) => [evaluation.courierId, evaluation]),
   );
   const hubIndex = new Map<string, number>();
+  const transferCapacityByCourier = new Map(
+    fleet.supportQueue.map((queueItem) => [
+      queueItem.courierId,
+      createOperationsTransferCapacity(snapshot, fleet, queueItem),
+    ] as const),
+  );
 
   const couriers = operationsPackage.records.map((record) => {
     const evaluation = evaluationByCourier.get(record.courier.courierId);
@@ -121,6 +130,9 @@ export async function createDashboardOperationsProjection(
         : breach.status === "PREDICTED"
           ? Math.round(breach.timeToBreachMinutes)
           : null;
+    const transferCapacity = transferCapacityByCourier.get(
+      record.courier.courierId,
+    ) ?? { recipientCount: 0, maxStopCount: 0 };
 
     return {
       id: record.courier.courierId,
@@ -144,6 +156,8 @@ export async function createDashboardOperationsProjection(
       decisionId: evaluation.decisionId,
       confidence: evaluation.safety.confidence,
       missingInputCount: evaluation.safety.missingInputs.length,
+      transferRecipientCount: transferCapacity.recipientCount,
+      maxTransferStopCount: transferCapacity.maxStopCount,
     } satisfies DashboardCourierProjection;
   });
 

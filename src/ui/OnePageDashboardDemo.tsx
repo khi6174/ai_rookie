@@ -17,6 +17,31 @@ import {
   type DashboardHubProjection,
   type DashboardOperationsProjection,
 } from "../application/dashboardOperationsProjection";
+import { bundledDailyOperationsPackage } from "../adapters/fixtures/syntheticOperationsPackage";
+import {
+  approveAndApplyOperationsDecision,
+  createDailyOperationsSnapshot,
+  createOperationsDecisionWorkspace,
+  createOperationsPersistedSession,
+  evaluateOperationsFleet,
+  initializeOperationsDecision,
+  loadCurrentDailyOperationsPackage,
+  loadLatestOperationsSessionForCourier,
+  loadOperationsPersistedSession,
+  restoreOperationsPersistedSession,
+  saveOperationsPersistedSession,
+  selectOperationsDecisionCandidate,
+  type FleetEvaluation,
+  type OperationsDecisionWorkspace,
+} from "../application/operations";
+import type {
+  InterventionCandidate,
+  InterventionEvaluation,
+} from "../domain/contracts";
+import type {
+  DailyOperationsPackage,
+  DailyOperationsSnapshot,
+} from "../domain/operations";
 import {
   riderAreaKey,
   riderMapMarkerScale,
@@ -29,32 +54,6 @@ import "./one-page-dashboard.css";
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "READY" | "FALLBACK";
-type InterventionStage =
-  | "COMPARE"
-  | "REQUESTED"
-  | "RECIPIENT_REQUESTED"
-  | "CONSENTED"
-  | "MODIFY"
-  | "DECLINED"
-  | "APPLIED";
-
-type InterventionOption = {
-  id:
-    | "REST_RESEQUENCE"
-    | "REST_SAFE_DELAY"
-    | "REST_TRANSFER"
-    | "TRANSFER_12"
-      | "REST_ONLY";
-  label: string;
-  resultBand: "지원 필요" | "주의";
-  etaLabel: string;
-  guard: string;
-  feasible: boolean;
-  transferDependent: boolean;
-  recommended?: boolean;
-  compensation: string;
-};
-
 type Courier = DashboardCourierProjection;
 
 type PositionedCourier = Courier & RiderRoutePoint;
@@ -72,59 +71,15 @@ const clockFormatter = new Intl.DateTimeFormat("ko-KR", {
   second: "2-digit",
   hour12: false,
 });
-const interventionOptions: InterventionOption[] = [
-  {
-    id: "REST_RESEQUENCE",
-    label: "10분 휴식 + 순서 변경",
-    resultBand: "지원 필요",
-    etaLabel: "+6분",
-    guard: "초과 해소 · 실행 가능",
-    feasible: true,
-    transferDependent: false,
-    compensation: "배송시간 목표 조정 가정",
-  },
-  {
-    id: "REST_SAFE_DELAY",
-    label: "10분 휴식 + 시간 재약정",
-    resultBand: "주의",
-    etaLabel: "+12분",
-    guard: "초과 해소 · 실행 가능",
-    feasible: true,
-    transferDependent: false,
-    compensation: "지연 미집계 가정",
-  },
-  {
-    id: "REST_TRANSFER",
-    label: "10분 휴식 + 배송 8건 분담",
-    resultBand: "주의",
-    etaLabel: "−15분",
-    guard: "수신 기사 기준 45 통과",
-    feasible: true,
-    transferDependent: true,
-    recommended: true,
-    compensation: "이관 8건 보전 검토",
-  },
-  {
-    id: "TRANSFER_12",
-    label: "배송 12건 분담",
-    resultBand: "주의",
-    etaLabel: "−37분",
-    guard: "차단 · 수신 기사 41 / 기준 45 미달",
-    feasible: false,
-    transferDependent: true,
-    compensation: "적용 불가",
-  },
-  {
-    id: "REST_ONLY",
-    label: "10분 휴식",
-    resultBand: "지원 필요",
-    etaLabel: "+10분",
-    guard: "초과 해소 · 실행 가능",
-    feasible: true,
-    transferDependent: false,
-    compensation: "배송시간 목표 조정 가정",
-  },
-];
+type DashboardDecisionContext = {
+  workspaceId: string;
+  operationsPackage: DailyOperationsPackage;
+  snapshot: DailyOperationsSnapshot;
+  fleet: FleetEvaluation;
+  workspace: OperationsDecisionWorkspace;
+  baseSavedAt?: string;
+  sent: boolean;
+};
 
 function hubClusters(couriers: Courier[]) {
   return [...new Set(couriers.map((courier) => courier.hubId))].map((hubId) => {
@@ -183,6 +138,66 @@ const stateLabel: Record<SupportState, string> = {
   CAUTION: "주의",
   STABLE: "정상",
 };
+
+function interventionActionLabel(
+  action: InterventionCandidate["actions"][number],
+) {
+  switch (action.type) {
+    case "REST":
+      return `${action.restMinutes}분 휴식`;
+    case "TRANSFER_STOPS":
+      return `배송 ${action.stopIds.length}건 분담`;
+    case "REORDER_STOPS":
+      return "순서 변경";
+    case "SAFER_ROUTE":
+      return "안전 경로";
+    case "SAFE_DELAY":
+      return "시간 재약정";
+  }
+}
+
+function interventionCandidateLabel(candidate: InterventionCandidate) {
+  return candidate.actions.map(interventionActionLabel).join(" + ");
+}
+
+function interventionEtaLabel(evaluation: InterventionEvaluation) {
+  if (evaluation.etaDeltaMinutes === 0) return "변화 없음";
+  return `${evaluation.etaDeltaMinutes > 0 ? "+" : "−"}${Math.abs(evaluation.etaDeltaMinutes)}분`;
+}
+
+function interventionResultLabel(evaluation: InterventionEvaluation) {
+  if (evaluation.feasibility.status !== "FEASIBLE") return "차단";
+  const source = evaluation.courierImpacts.find(
+    (impact) => impact.role === "SOURCE",
+  );
+  const budget = source?.candidateMinimumBudget ?? 0;
+  return stateLabel[supportState(budget)];
+}
+
+function transferAction(candidate: InterventionCandidate) {
+  return candidate.actions.find(
+    (action) => action.type === "TRANSFER_STOPS",
+  );
+}
+
+function candidateGuardLabel(
+  candidate: InterventionCandidate,
+  evaluation: InterventionEvaluation,
+) {
+  if (evaluation.feasibility.status !== "FEASIBLE") {
+    return transferAction(candidate)
+      ? "수신 기사 기준 미달"
+      : "안전 기준 미달";
+  }
+  const recipient = evaluation.courierImpacts.find(
+    (impact) => impact.role === "RECIPIENT",
+  );
+  return recipient
+    ? `최소 ${recipient.candidateMinimumBudget.toFixed(1)} / 기준 45 통과`
+    : evaluation.breachOutcome === "AVOIDED"
+      ? "예상 초과 해소"
+      : "안전 기준 통과";
+}
 
 function supportTimingLabel(courier: Courier) {
   if (courier.criticalMinute === 0) return "현재 한계 초과";
@@ -529,44 +544,72 @@ function DashboardKakaoMap({
 
 function InterventionDialog({
   courier,
+  context,
+  busy,
+  message,
   onClose,
-  onApplied,
+  onSelectCandidate,
+  onRequestReview,
+  onApprove,
 }: {
   courier: Courier;
+  context: DashboardDecisionContext;
+  busy: boolean;
+  message?: string;
   onClose: () => void;
-  onApplied: (label: string) => void;
+  onSelectCandidate: (candidateId: string) => void;
+  onRequestReview: () => void;
+  onApprove: () => void;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
-  const [selectedOptionId, setSelectedOptionId] =
-    useState<InterventionOption["id"]>("REST_TRANSFER");
-  const [stage, setStage] = useState<InterventionStage>("COMPARE");
-  const [transferAvailable, setTransferAvailable] = useState(true);
-  const selectedOption =
-    interventionOptions.find((option) => option.id === selectedOptionId) ??
-    interventionOptions[0];
-  const selectedTransferCount =
-    selectedOption.id === "REST_TRANSFER"
-      ? 8
-      : selectedOption.id === "TRANSFER_12"
-        ? 12
-        : 0;
-  const selectedTransferFeasible =
-    transferAvailable &&
-    selectedOption.feasible &&
-    selectedTransferCount > 0 &&
-    selectedTransferCount <= 11;
-  const selectedTransferLabel =
-    selectedTransferCount === 0
-      ? "분담 없음"
-      : `현재 선택 ${selectedTransferCount}건 / ${selectedTransferFeasible ? "가능" : "불가"}`;
-  const courierIndex = Math.max(0, Number.parseInt(courier.id.slice(-3), 10) - 1);
-
-  useEffect(() => {
-    if (transferAvailable || !selectedOption.transferDependent) return;
-    setSelectedOptionId("REST_RESEQUENCE");
-    setStage("COMPARE");
-  }, [selectedOption.transferDependent, transferAvailable]);
+  const [showBlockedTransfer, setShowBlockedTransfer] = useState(false);
+  const artifacts = context.workspace.decisions.find(
+    (item) => item.decision.decisionId === courier.decisionId,
+  )!;
+  const selectedCandidate = artifacts.selectedCandidate;
+  const selectedEvaluation = artifacts.selectedEvaluation;
+  const selectedTransfer = transferAction(selectedCandidate);
+  const candidatePairs = artifacts.candidates.map((candidate) => ({
+    candidate,
+    evaluation: artifacts.evaluations.find(
+      (evaluation) => evaluation.candidateId === candidate.candidateId,
+    )!,
+  }));
+  const feasibleTransfers = candidatePairs.filter(
+    ({ candidate, evaluation }) =>
+      Boolean(transferAction(candidate)) &&
+      evaluation.feasibility.status === "FEASIBLE",
+  );
+  const recipientCount = new Set(
+    feasibleTransfers.flatMap(({ candidate }) => {
+      const action = transferAction(candidate);
+      return action?.type === "TRANSFER_STOPS"
+        ? [action.recipientCourierId]
+        : [];
+    }),
+  ).size;
+  const maximumTransferCount = Math.max(
+    0,
+    ...feasibleTransfers.map(({ candidate }) => {
+      const action = transferAction(candidate);
+      return action?.type === "TRANSFER_STOPS" ? action.stopIds.length : 0;
+    }),
+  );
+  const courierIndex = Math.max(
+    0,
+    Number.parseInt(courier.id.slice(-3), 10) - 1,
+  );
+  const decision = artifacts.decision;
+  const sourceRequirement = decision.consentRequirements.find(
+    (requirement) => requirement.courierId === courier.id,
+  );
+  const recipientRequirement = decision.consentRequirements.find(
+    (requirement) => requirement.courierId !== courier.id && requirement.required,
+  );
+  const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(
+    decision.status,
+  );
 
   useEffect(() => {
     const previousFocus =
@@ -574,7 +617,6 @@ function InterventionDialog({
         ? document.activeElement
         : null;
     closeButtonRef.current?.focus();
-
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.key === "Escape") {
         event.preventDefault();
@@ -587,7 +629,7 @@ function InterventionDialog({
           'button:not([disabled]), [href], input, select, textarea, [tabindex]:not([tabindex="-1"])',
         ) ?? [],
       );
-      if (focusable.length === 0) return;
+      if (!focusable.length) return;
       const first = focusable[0];
       const last = focusable[focusable.length - 1];
       if (event.shiftKey && document.activeElement === first) {
@@ -603,16 +645,7 @@ function InterventionDialog({
       document.removeEventListener("keydown", handleKeyDown);
       previousFocus?.focus();
     };
-  }, [onClose]);
-
-  const resetComparison = () => {
-    setStage("COMPARE");
-  };
-
-  const applyPlan = () => {
-    setStage("APPLIED");
-    onApplied(selectedOption.label);
-  };
+  }, []);
 
   return (
     <div
@@ -634,14 +667,11 @@ function InterventionDialog({
               className="onepage-support-photo"
               aria-hidden="true"
               style={{
-                backgroundPosition:
-                  `${(courierIndex % 5) * 25}% ${Math.floor(courierIndex / 5) * (100 / 3)}%`,
+                backgroundPosition: `${(courierIndex % 5) * 25}% ${Math.floor(courierIndex / 5) * (100 / 3)}%`,
               }}
             />
             <div>
-              <h2 id="intervention-dialog-title">
-                {courier.name} 기사
-              </h2>
+              <h2 id="intervention-dialog-title">{courier.name} 기사</h2>
               <span>{courier.area} | 배송 {courier.completed}/{courier.total}</span>
             </div>
           </div>
@@ -649,7 +679,7 @@ function InterventionDialog({
             ref={closeButtonRef}
             type="button"
             className="onepage-dialog-close"
-            aria-label="지원안 검토 닫기"
+            aria-label="지원 검토 닫기"
             onClick={onClose}
           >
             ×
@@ -659,208 +689,119 @@ function InterventionDialog({
         <div className="onepage-dialog-body">
           <section className="onepage-intervention-candidates" aria-labelledby="candidate-title">
             <div className="onepage-dialog-section-title">
-              <div>
-                <h3 id="candidate-title">지원 선택</h3>
-              </div>
-              <span>5개</span>
+              <div><h3 id="candidate-title">지원 선택</h3></div>
+              <span>{candidatePairs.length}개</span>
             </div>
             <div className="onepage-candidate-list">
-              {interventionOptions.map((option) => {
-                const isSelected = option.id === selectedOptionId;
-                const isAvailable =
-                  option.feasible &&
-                  (!option.transferDependent || transferAvailable);
+              {candidatePairs.map(({ candidate, evaluation }) => {
+                const feasible = evaluation.feasibility.status === "FEASIBLE";
+                const selected = candidate.candidateId === selectedCandidate.candidateId;
                 return (
                   <button
-                    key={option.id}
+                    key={candidate.candidateId}
                     type="button"
-                    aria-pressed={isSelected}
-                    disabled={!isAvailable}
-                    onClick={() => {
-                      setSelectedOptionId(option.id);
-                      setStage("COMPARE");
-                    }}
-                    >
-                      <span>
-                        <strong>{option.label}</strong>
-                      </span>
-                      <span>
-                        <b className={!option.feasible ? "is-blocked" : "is-band"}>
-                          {option.feasible
-                            ? `${option.resultBand} / ${option.etaLabel}`
-                            : "차단"}
-                        </b>
-                        {!option.feasible || option.recommended || (option.transferDependent && !transferAvailable) ? (
-                          <em>
-                            {!option.feasible
-                              ? "수신 기사 기준 미달"
-                              : option.transferDependent && !transferAvailable
-                                ? "분담 불가"
-                                : "추천"}
-                          </em>
-                        ) : null}
-                      </span>
-                    </button>
+                    aria-pressed={selected}
+                    disabled={context.sent || !feasible || busy}
+                    onClick={() => onSelectCandidate(candidate.candidateId)}
+                  >
+                    <span><strong>{interventionCandidateLabel(candidate)}</strong></span>
+                    <span>
+                      <b className={feasible ? "is-band" : "is-blocked"}>
+                        {interventionResultLabel(evaluation)} / {interventionEtaLabel(evaluation)}
+                      </b>
+                      {!feasible || evaluation.rank === 1 ? (
+                        <em>{feasible ? "추천" : candidateGuardLabel(candidate, evaluation)}</em>
+                      ) : null}
+                    </span>
+                  </button>
                 );
               })}
             </div>
-            <p className="onepage-prescription-ladder">
-              <strong>분담 불가 시:</strong>
-              <span>휴식 → 순서 변경 → 시간 재약정</span>
-            </p>
           </section>
 
           <aside className="onepage-decision-summary" aria-live="polite">
             <div className="onepage-dialog-section-title">
-              <div>
-                <h3>선택 사항</h3>
-              </div>
+              <div><h3>선택 사항</h3></div>
             </div>
-            <div className="onepage-before-after">
-              <div>
-                <small>현재</small>
-                <b>{stateLabel[supportState(courier.budget)]}</b>
-              </div>
+            <div className="onepage-before-after" aria-label="현재 → 조정 후">
+              <div><small>현재</small><b>{stateLabel[supportState(courier.budget)]}</b></div>
               <span aria-hidden="true">→</span>
-              <div>
-                <small>조정 후</small>
-                <b>{selectedOption.resultBand}</b>
-              </div>
+              <div><small>조정 후</small><b>{interventionResultLabel(selectedEvaluation)}</b></div>
             </div>
             <dl className="onepage-decision-facts">
+              <div><dt>배송 시간</dt><dd>{interventionEtaLabel(selectedEvaluation)}</dd></div>
               <div>
-                <dt>배송 시간</dt>
-                <dd>{selectedOption.etaLabel}</dd>
-              </div>
-              <div>
-                <dt>{selectedOption.transferDependent ? "수신 기사 기준" : "안전 기준"}</dt>
-                <dd>{selectedOption.guard}</dd>
+                <dt>{selectedTransfer ? "수신 기사 기준" : "안전 기준"}</dt>
+                <dd>{candidateGuardLabel(selectedCandidate, selectedEvaluation)}</dd>
               </div>
               <div>
                 <dt>배송 보전</dt>
-                <dd>{selectedOption.compensation}</dd>
+                <dd>영향 {selectedEvaluation.affectedCustomerCount}건 / 고객안내 준비</dd>
               </div>
             </dl>
 
             <div className="onepage-transfer-guard">
-              <div>
-                <strong>배송 분담</strong>
-                <b>{transferAvailable ? "가능" : "불가"}</b>
-              </div>
-              <span>
-                {transferAvailable
-                  ? "가능 기사 4명 / 최대 11건"
-                  : "가능 기사 없음"}
-              </span>
-              <em>{selectedTransferLabel}</em>
+              <div><strong>배송 분담</strong><b>{maximumTransferCount > 0 ? "가능" : "불가"}</b></div>
+              <span>가능 기사 {recipientCount}명 / 최대 {maximumTransferCount}건</span>
+              <em>
+                {selectedTransfer?.type === "TRANSFER_STOPS"
+                  ? `현재 선택 ${selectedTransfer.stopIds.length}건 / ${selectedEvaluation.feasibility.status === "FEASIBLE" ? "가능" : "불가"}`
+                  : "분담 없음"}
+              </em>
               <button
                 type="button"
-                aria-pressed={!transferAvailable}
-                onClick={() => setTransferAvailable((current) => !current)}
+                aria-expanded={showBlockedTransfer}
+                onClick={() => setShowBlockedTransfer((current) => !current)}
               >
-                {transferAvailable ? "분담 불가 상황 보기" : "기본 상태로"}
+                분담 불가 상황 보기
               </button>
+              {showBlockedTransfer && (
+                <p>수신 기사 기준 45 미달, 용량 초과 또는 시간창 위반 후보는 선택할 수 없습니다.</p>
+              )}
             </div>
 
-            <div className={`onepage-workflow-state is-${stage.toLowerCase()}`}>
-              {stage === "COMPARE" && (
-                <strong>기사 확인 전 · 현재 계획 유지</strong>
+            <div className={`onepage-workflow-state is-${decision.status.toLowerCase()}`}>
+              {!context.sent && <strong>기사 확인 전 / 현재 계획 유지</strong>}
+              {context.sent && decision.status === "RIDER_RESPONSE_PENDING" && sourceRequirement?.status === "PENDING" && (
+                <><small>기사 응답 대기</small><strong>{courier.name} 기사 확인을 기다립니다</strong><span>현재 계획은 유지됩니다.</span></>
               )}
-              {stage === "REQUESTED" && (
-                <>
-                  <small>2 · 원 기사 확인</small>
-                  <strong>{courier.name} 기사 응답을 선택하세요</strong>
-                  <span>동의·수정 요청·거절에 불이익이 없고, 거절 사유는 개인 단위로 저장하지 않습니다.</span>
-                </>
+              {context.sent && decision.status === "RIDER_RESPONSE_PENDING" && sourceRequirement?.status === "CONSENTED" && recipientRequirement?.status === "PENDING" && (
+                <><small>수신 기사 응답 대기</small><strong>배송을 나눠 맡는 기사 확인을 기다립니다</strong><span>두 기사 응답 전에는 계획을 적용하지 않습니다.</span></>
               )}
-              {stage === "RECIPIENT_REQUESTED" && (
-                <>
-                  <small>3 · 수신 기사 확인</small>
-                  <strong>배송을 나눠 맡는 기사 검토</strong>
-                  <span>수신 기사도 같은 수준으로 동의·수정 요청·거절할 수 있습니다.</span>
-                </>
+              {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
+                <><small>관리자 승인 대기</small><strong>필수 기사 확인 완료</strong><span>승인 직전에 최신 계획을 다시 검증합니다.</span></>
               )}
-              {stage === "CONSENTED" && (
-                <>
-                  <small>4 · 관리자 승인</small>
-                  <strong>{selectedOption.transferDependent ? "두 기사 동의 완료" : "기사 동의 완료"}</strong>
-                  <span>최종 승인 후 계획과 고객 안내를 함께 갱신합니다.</span>
-                </>
+              {decision.status === "MODIFICATION_REQUESTED" && (
+                <><small>다른 방법 요청</small><strong>현재 계획을 유지합니다</strong><span>새 후보가 확정되기 전에는 다시 요청하지 않습니다.</span></>
               )}
-              {stage === "MODIFY" && (
-                <>
-                  <small>기사 수정 요청</small>
-                  <strong>계획은 적용하지 않았습니다</strong>
-                  <span>후보를 다시 비교한 뒤 재요청할 수 있습니다.</span>
-                </>
+              {decision.status === "RIDER_DECLINED" && (
+                <><small>지금은 거절</small><strong>현재 계획을 유지합니다</strong></>
               )}
-              {stage === "DECLINED" && (
-                <>
-                  <small>기사 거절</small>
-                  <strong>현재 계획을 유지합니다</strong>
-                  <span>거절은 성과나 불이익 상태로 기록하지 않습니다.</span>
-                </>
+              {applied && (
+                <><small>적용</small><strong>{interventionCandidateLabel(selectedCandidate)} 반영</strong><span>경로 / 배송순서 / ETA / 고객 안내 상태를 갱신했습니다.</span></>
               )}
-              {stage === "APPLIED" && (
-                <>
-                  <small>5 · 적용됨</small>
-                  <strong>{selectedOption.label} 반영</strong>
-                  <span>경로·배송순서·ETA·고객 안내를 함께 갱신했습니다.</span>
-                </>
-              )}
+              {message && <span role="status">{message}</span>}
             </div>
           </aside>
         </div>
 
         <footer className="onepage-dialog-footer">
           <div>
-            {stage === "COMPARE" && (
-              <button type="button" className="is-primary" onClick={() => setStage("REQUESTED")}>
+            {!context.sent && (
+              <button type="button" className="is-primary" disabled={busy} onClick={onRequestReview}>
                 기사 확인 요청
               </button>
             )}
-            {stage === "REQUESTED" && (
-              <>
-                <button type="button" onClick={() => setStage("DECLINED")}>지금은 거절</button>
-                <button type="button" onClick={() => setStage("MODIFY")}>다른 방법 요청</button>
-                <button
-                  type="button"
-                  className="is-primary"
-                  onClick={() =>
-                    setStage(
-                      selectedOption.transferDependent
-                        ? "RECIPIENT_REQUESTED"
-                        : "CONSENTED",
-                    )
-                  }
-                >
-                  이 조정에 동의
-                </button>
-              </>
+            {context.sent && decision.status === "RIDER_RESPONSE_PENDING" && (
+              <button type="button" disabled>기사 응답 기다리는 중</button>
             )}
-            {stage === "RECIPIENT_REQUESTED" && (
-              <>
-                <button type="button" onClick={() => setStage("DECLINED")}>지금은 거절</button>
-                <button type="button" onClick={() => setStage("MODIFY")}>다른 방법 요청</button>
-                <button type="button" className="is-primary" onClick={() => setStage("CONSENTED")}>
-                  이어받기에 동의
-                </button>
-              </>
-            )}
-            {(stage === "MODIFY" || stage === "DECLINED") && (
-              <button type="button" className="is-primary" onClick={resetComparison}>
-                후보 다시 비교
-              </button>
-            )}
-            {stage === "CONSENTED" && (
-              <button type="button" className="is-primary" onClick={applyPlan}>
+            {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
+              <button type="button" className="is-primary" disabled={busy} onClick={onApprove}>
                 관리자 승인 및 적용
               </button>
             )}
-            {stage === "APPLIED" && (
-              <button type="button" className="is-primary" onClick={onClose}>
-                완료
-              </button>
+            {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED") && (
+              <button type="button" className="is-primary" onClick={onClose}>완료</button>
             )}
           </div>
         </footer>
@@ -879,8 +820,14 @@ export function OnePageDashboardDemo() {
   const [dangerSignals, setDangerSignals] = useState<
     Record<string, RiderDangerSignal>
   >(initialDangerSignals);
+  const [decisionContext, setDecisionContext] =
+    useState<DashboardDecisionContext>();
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogBusy, setDialogBusy] = useState(false);
+  const [dialogMessage, setDialogMessage] = useState<string>();
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
+  const supportReviewButtonRef = useRef<HTMLButtonElement>(null);
 
   const couriers = projection?.couriers ?? [];
   const hubs = projection?.hubs ?? [];
@@ -1019,6 +966,47 @@ export function OnePageDashboardDemo() {
     }
   }, [dangerSignals, filter, selectedId]);
 
+  useEffect(() => {
+    if (!dialogOpen || !decisionContext?.sent) return;
+    let loading = false;
+    const refresh = async () => {
+      if (loading) return;
+      loading = true;
+      try {
+        const loaded = await loadOperationsPersistedSession(
+          decisionContext.workspaceId,
+          { ifUpdatedAt: decisionContext.baseSavedAt },
+        );
+        if (
+          loaded.status === "LOADED" &&
+          loaded.updatedAt !== decisionContext.baseSavedAt
+        ) {
+          const restored = await restoreOperationsPersistedSession(
+            loaded.session,
+          );
+          setDecisionContext((current) =>
+            current?.workspaceId === decisionContext.workspaceId
+              ? {
+                  ...current,
+                  operationsPackage: restored.operationsPackage,
+                  snapshot: restored.snapshot,
+                  fleet: restored.fleet,
+                  workspace: restored.workspace,
+                  baseSavedAt: loaded.updatedAt,
+                  sent: true,
+                }
+              : current,
+          );
+        }
+      } finally {
+        loading = false;
+      }
+    };
+    void refresh();
+    const timer = window.setInterval(() => void refresh(), 1_000);
+    return () => window.clearInterval(timer);
+  }, [dialogOpen, decisionContext?.workspaceId, decisionContext?.sent, decisionContext?.baseSavedAt]);
+
   const selectCourier = (id: string, revealCard = false) => {
     setSelectedId(id);
     if (revealCard) {
@@ -1043,6 +1031,187 @@ export function OnePageDashboardDemo() {
     setFilter(nextFilter);
   };
 
+  const openSupportReview = async () => {
+    if (!selectedCourier?.decisionId) return;
+    if (
+      decisionContext?.workspace.decisions.some(
+        (item) => item.decision.decisionId === selectedCourier.decisionId,
+      )
+    ) {
+      setDialogMessage(undefined);
+      setDialogOpen(true);
+      return;
+    }
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const latest = await loadLatestOperationsSessionForCourier(
+        selectedCourier.id,
+      );
+      if (
+        latest.status === "LOADED" &&
+        latest.decisionId === selectedCourier.decisionId
+      ) {
+        const restored = await restoreOperationsPersistedSession(
+          latest.session,
+        );
+        setDecisionContext({
+          workspaceId: latest.session.workspaceId,
+          operationsPackage: restored.operationsPackage,
+          snapshot: restored.snapshot,
+          fleet: restored.fleet,
+          workspace: restored.workspace,
+          baseSavedAt: latest.updatedAt,
+          sent: true,
+        });
+        setDialogOpen(true);
+        return;
+      }
+      const loaded = await loadCurrentDailyOperationsPackage();
+      const operationsPackage =
+        loaded.status === "LOADED"
+          ? loaded.operationsPackage
+          : bundledDailyOperationsPackage;
+      const snapshot = await createDailyOperationsSnapshot(
+        operationsPackage,
+        { createdAt: operationsPackage.evaluatedAt },
+      );
+      const fleet = evaluateOperationsFleet(snapshot);
+      const queueItem = fleet.supportQueue.find(
+        (item) => item.courierId === selectedCourier.id,
+      );
+      if (!queueItem) {
+        setDialogMessage("현재 기사에 보낼 수 있는 안전지원 후보가 없습니다.");
+        return;
+      }
+      const workspace = initializeOperationsDecision(
+        createOperationsDecisionWorkspace(snapshot, fleet),
+        snapshot,
+        fleet,
+        queueItem.decisionId,
+      );
+      setDecisionContext({
+        workspaceId: `operations-workspace-${globalThis.crypto.randomUUID()}`,
+        operationsPackage,
+        snapshot,
+        fleet,
+        workspace,
+        sent: false,
+      });
+      setDialogOpen(true);
+    } catch {
+      setDialogMessage("지원 검토 정보를 준비하지 못했습니다.");
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
+  const selectDialogCandidate = (candidateId: string) => {
+    if (!decisionContext || !selectedCourier?.decisionId) return;
+    try {
+      setDecisionContext({
+        ...decisionContext,
+        workspace: selectOperationsDecisionCandidate(
+          decisionContext.workspace,
+          { decisionId: selectedCourier.decisionId, candidateId },
+        ),
+      });
+      setDialogMessage(undefined);
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error ? error.message : "후보를 선택하지 못했습니다.",
+      );
+    }
+  };
+
+  const requestCourierReviewFromDialog = async () => {
+    if (!decisionContext) return;
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const session = createOperationsPersistedSession({
+        workspaceId: decisionContext.workspaceId,
+        operationsPackage: decisionContext.operationsPackage,
+        snapshot: decisionContext.snapshot,
+        fleet: decisionContext.fleet,
+        workspace: decisionContext.workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(session, {
+        baseSavedAt: decisionContext.baseSavedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setDialogMessage(
+          "message" in saved
+            ? saved.message
+            : "기사 확인 요청을 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setDecisionContext({
+        ...decisionContext,
+        baseSavedAt: saved.updatedAt,
+        sent: true,
+      });
+      setDialogMessage("기사 앱에 지원안을 보냈습니다.");
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
+  const approveDialogDecision = async () => {
+    if (!decisionContext || !selectedCourier?.decisionId) return;
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const result = approveAndApplyOperationsDecision(
+        decisionContext.workspace,
+        selectedCourier.decisionId,
+      );
+      const session = createOperationsPersistedSession({
+        workspaceId: decisionContext.workspaceId,
+        operationsPackage: decisionContext.operationsPackage,
+        snapshot: decisionContext.snapshot,
+        fleet: decisionContext.fleet,
+        workspace: result.workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(session, {
+        baseSavedAt: decisionContext.baseSavedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setDialogMessage(
+          "message" in saved
+            ? saved.message
+            : "최종 적용 상태를 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setDecisionContext({
+        ...decisionContext,
+        workspace: result.workspace,
+        baseSavedAt: saved.updatedAt,
+        sent: true,
+      });
+      setDialogMessage(
+        result.status === "APPLIED" || result.status === "ALREADY_APPLIED"
+          ? "승인된 계획과 고객 안내 상태를 갱신했습니다."
+          : "최신 계획 재검증이 필요합니다.",
+      );
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error ? error.message : "승인 적용을 완료하지 못했습니다.",
+      );
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
+  const closeSupportReview = () => {
+    setDialogOpen(false);
+    window.requestAnimationFrame(() => supportReviewButtonRef.current?.focus());
+  };
+
   if (!projection || !selectedCourier || !movingSelectedCourier) {
     return (
       <main className="onepage-demo">
@@ -1055,6 +1224,12 @@ export function OnePageDashboardDemo() {
 
   const selectedIsClustered = clusteredIds.has(selectedId);
   const selectedHub = hubs.find((hub) => hub.hubId === selectedCourier.hubId)!;
+  const activeDialogArtifacts = decisionContext?.workspace.decisions.find(
+    (item) => item.queueItem.courierId === selectedCourier.id,
+  );
+  const riderAppHref = activeDialogArtifacts && decisionContext?.sent
+    ? `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&workspace=${encodeURIComponent(decisionContext.workspaceId)}&decision=${encodeURIComponent(activeDialogArtifacts.decision.decisionId)}`
+    : `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}`;
 
   return (
     <main className="onepage-demo">
@@ -1077,11 +1252,8 @@ export function OnePageDashboardDemo() {
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>
-          <a className="onepage-rider-app-link" href={`/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}`}>
+          <a className="onepage-rider-app-link" href={riderAppHref}>
             기사 앱
-          </a>
-          <a className="onepage-rider-app-link" href={`/operations?courier=${encodeURIComponent(selectedCourier.id)}`}>
-            운영 검토
           </a>
         </div>
       </header>
@@ -1302,10 +1474,10 @@ export function OnePageDashboardDemo() {
             <SafetyMarginTrack value={selectedCourier.budget} />
             <div className="onepage-transfer-capacity">
               <div>
-                <strong>같은 허브 운영 현황</strong>
+                <strong>배송 분담 · {selectedHub.label.replace("합성 ", "")}</strong>
               </div>
               <span>
-                {selectedHub.label} · 기사 {selectedHub.courierCount}명 · 남은 배송 {selectedHub.remainingStopCount}건
+                수신 가능 {selectedCourier.transferRecipientCount}명 / 최대 {selectedCourier.maxTransferStopCount}건
               </span>
               <i aria-hidden="true"><span /></i>
             </div>
@@ -1319,12 +1491,16 @@ export function OnePageDashboardDemo() {
               </span>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
-            <a
+            <button
+              ref={supportReviewButtonRef}
+              type="button"
               className="onepage-open-intervention"
-              href={`/operations?courier=${encodeURIComponent(selectedCourier.id)}`}
+              disabled={!selectedCourier.decisionId || dialogBusy}
+              onClick={() => void openSupportReview()}
             >
-              운영 폐루프에서 검토
-            </a>
+              지원 검토
+            </button>
+            {dialogMessage && !dialogOpen && <small role="status">{dialogMessage}</small>}
           </div>
 
           <div className="onepage-support-queue">
@@ -1357,6 +1533,18 @@ export function OnePageDashboardDemo() {
           </div>
         </aside>
       </section>
+      {dialogOpen && decisionContext && activeDialogArtifacts && (
+        <InterventionDialog
+          courier={selectedCourier}
+          context={decisionContext}
+          busy={dialogBusy}
+          message={dialogMessage}
+          onClose={closeSupportReview}
+          onSelectCandidate={selectDialogCandidate}
+          onRequestReview={() => void requestCourierReviewFromDialog()}
+          onApprove={() => void approveDialogDecision()}
+        />
+      )}
     </main>
   );
 }
