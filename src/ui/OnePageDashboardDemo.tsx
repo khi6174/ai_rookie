@@ -3,6 +3,7 @@ import {
   DEMO_RIDER_DANGER_SIGNAL_EVENT,
   DEMO_RIDER_DANGER_SIGNAL_STORAGE_KEY,
   loadDemoRiderDangerSignal,
+  loadDemoRiderDangerSignalsFromOperationsStore,
   parseDemoRiderDangerSignal,
 } from "../application/demoRiderDangerSignal";
 import {
@@ -820,6 +821,7 @@ export function OnePageDashboardDemo() {
   const [dangerSignals, setDangerSignals] = useState<
     Record<string, RiderDangerSignal>
   >(initialDangerSignals);
+  const dangerSignalEtagRef = useRef<string | undefined>(undefined);
   const [decisionContext, setDecisionContext] =
     useState<DashboardDecisionContext>();
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -858,6 +860,44 @@ export function OnePageDashboardDemo() {
     const timer = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let loading = false;
+    const refresh = async () => {
+      if (loading) return;
+      loading = true;
+      try {
+        const result = await loadDemoRiderDangerSignalsFromOperationsStore({
+          etag: dangerSignalEtagRef.current,
+          signal: controller.signal,
+        });
+        if (result.status === "LOADED") {
+          dangerSignalEtagRef.current = result.etag;
+          const knownSignals = Object.fromEntries(
+            result.signals
+              .filter((signal) =>
+                couriers.some((courier) => courier.id === signal.courierId),
+              )
+              .map((signal) => [signal.courierId, signal]),
+          );
+          setDangerSignals(knownSignals);
+        }
+      } catch (error) {
+        if (!(error instanceof DOMException && error.name === "AbortError")) {
+          // The validated browser signal remains a presentation-only fallback.
+        }
+      } finally {
+        loading = false;
+      }
+    };
+    void refresh();
+    const timer = window.setInterval(refresh, 1_000);
+    return () => {
+      controller.abort();
+      window.clearInterval(timer);
+    };
+  }, [couriers]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -954,7 +994,7 @@ export function OnePageDashboardDemo() {
       );
       window.removeEventListener("storage", handleStoredDangerSignal);
     };
-  }, []);
+  }, [couriers]);
 
   useEffect(() => {
     if (filter !== "SIGNAL" || dangerSignals[selectedId]) return;

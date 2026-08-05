@@ -11,7 +11,10 @@ import type {
   MapSelection,
   MultiRegionMapFixture,
 } from "../domain/contracts";
-import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
+import {
+  publishDemoRiderDangerSignal,
+  saveDemoRiderDangerSignal,
+} from "../application/demoRiderDangerSignal";
 import {
   loadRiderProfile,
   legacyRiderProfiles,
@@ -2105,11 +2108,12 @@ function RiderView({
     } catch {
       storage = undefined;
     }
-    publishDemoRiderDangerSignal({
+    const { signal } = publishDemoRiderDangerSignal({
       courierId: riderProfile.courierId,
       storage,
       eventTarget: window,
     });
+    void saveDemoRiderDangerSignal(signal).catch(() => undefined);
   };
 
   return (

@@ -9,6 +9,10 @@ import {
   createMemoryRiderProfileStore,
   handleRiderProfileRequest,
 } from "./server/rider-profile-store.mjs";
+import {
+  createMemoryRiderDangerSignalStore,
+  handleRiderDangerSignalRequest,
+} from "./server/rider-danger-signal-store.mjs";
 import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
 import {
   createMemorySyntheticOperationsStore,
@@ -42,6 +46,7 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
   };
   const operationsSessionStore = createMemoryOperationsSessionStore();
   const riderProfileStore = createMemoryRiderProfileStore();
+  const riderDangerSignalStore = createMemoryRiderDangerSignalStore();
   const syntheticOperationsStore = createMemorySyntheticOperationsStore(
     bundledSyntheticOperationsDocument,
   );
@@ -88,6 +93,34 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
             response.setHeader(name, value);
           });
           response.end(await syntheticOperationsResponse.text());
+          return;
+        }
+        const riderDangerSignalResponse =
+          await handleRiderDangerSignalRequest(
+            new Request(requestUrl, {
+              method,
+              headers: {
+                "content-type": String(
+                  incoming.headers["content-type"] ?? "application/json",
+                ),
+                ...(incoming.headers["if-none-match"]
+                  ? {
+                      "if-none-match": String(
+                        incoming.headers["if-none-match"],
+                      ),
+                    }
+                  : {}),
+              },
+              body,
+            }),
+            { memoryStore: riderDangerSignalStore },
+          );
+        if (riderDangerSignalResponse) {
+          response.statusCode = riderDangerSignalResponse.status;
+          riderDangerSignalResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await riderDangerSignalResponse.text());
           return;
         }
         const operationsResponse = await handleOperationsSessionRequest(

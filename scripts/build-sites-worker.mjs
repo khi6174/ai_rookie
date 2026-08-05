@@ -24,6 +24,10 @@ const syntheticCourierDirectorySource = resolve(
   "server/synthetic-courier-directory.mjs",
 );
 const riderProfileStoreSource = resolve(root, "server/rider-profile-store.mjs");
+const riderDangerSignalStoreSource = resolve(
+  root,
+  "server/rider-danger-signal-store.mjs",
+);
 const riderProfilesSource = resolve(root, "server/rider-profiles.mjs");
 const upstageExplanationProxySource = resolve(
   root,
@@ -61,6 +65,7 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
 const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
 import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
 import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
+import { handleRiderDangerSignalRequest } from "./rider-danger-signal-store.mjs";
 import { handleSyntheticOperationsRequest } from "./synthetic-operations-store.mjs";
 import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
 
@@ -123,6 +128,13 @@ const worker = {
       if (syntheticOperationsResponse) {
         return secure(syntheticOperationsResponse);
       }
+    }
+    const riderDangerSignalResponse = await handleRiderDangerSignalRequest(
+      request,
+      { database: env.DB },
+    );
+    if (riderDangerSignalResponse) {
+      return secure(riderDangerSignalResponse);
     }
     const operationsResponse = await handleOperationsSessionRequest(request, {
       database: env.DB,
@@ -349,6 +361,10 @@ await copyFile(
 await copyFile(
   riderProfileStoreSource,
   resolve(workerDirectory, "rider-profile-store.mjs"),
+);
+await copyFile(
+  riderDangerSignalStoreSource,
+  resolve(workerDirectory, "rider-danger-signal-store.mjs"),
 );
 await copyFile(
   riderProfilesSource,

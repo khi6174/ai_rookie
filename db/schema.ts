@@ -91,3 +91,15 @@ export const operationsSessionParticipantsTableSql = `CREATE TABLE IF NOT EXISTS
 
 export const operationsSessionParticipantsCourierIndexSql = `CREATE INDEX IF NOT EXISTS idx_operations_session_participants_courier
 ON operations_session_participants(courier_id, updated_at DESC)`;
+
+export const operationsRiderDangerSignalsTableSql = `CREATE TABLE IF NOT EXISTS operations_rider_danger_signals (
+  courier_id TEXT PRIMARY KEY,
+  label TEXT NOT NULL,
+  received_at TEXT NOT NULL,
+  created_at TEXT NOT NULL,
+  expires_at TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+)`;
+
+export const operationsRiderDangerSignalsExpiresIndexSql = `CREATE INDEX IF NOT EXISTS idx_operations_rider_danger_signals_expires
+ON operations_rider_danger_signals(expires_at)`;

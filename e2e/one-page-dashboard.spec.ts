@@ -142,6 +142,59 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   await expect(page.locator(".rider-profile-options a")).toHaveCount(25);
 });
 
+test("허브와 겹친 남기석 기사 지도 마커도 직접 선택할 수 있다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  const card = page.locator('[data-courier-card="demo-courier-014"]');
+  await card.click();
+  const marker = page.locator('[data-map-marker="demo-courier-014"]');
+  await expect(marker).toBeVisible();
+  await marker.click();
+  await expect(card).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("남기석", { exact: true }).last()).toBeVisible();
+  await expect(page.locator(".onepage-hub").first()).toHaveCSS(
+    "pointer-events",
+    "none",
+  );
+});
+
+test("별도 기사 앱의 응급 합성 신호가 새로고침 없이 열린 관제에 반영된다", async ({
+  page,
+  browser,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  const origin = new URL(page.url()).origin;
+  const riderContext = await browser.newContext({
+    viewport: { width: 390, height: 844 },
+  });
+  const riderPage = await riderContext.newPage();
+  try {
+    await riderPage.goto(
+      `${origin}/rider-demo?courier=demo-courier-014`,
+    );
+    await riderPage.getByRole("tab", { name: "안전지원" }).click();
+    await riderPage.getByRole("button", { name: "응급 상황 전송" }).click();
+
+    await expect
+      .poll(
+        async () =>
+          page
+            .locator('[data-courier-card="demo-courier-014"]')
+            .getAttribute("data-rider-danger-signal"),
+        { timeout: 10_000 },
+      )
+      .toBe("active");
+    await expect(
+      page.getByRole("button", { name: /위험신호 [1-9]\d*/ }),
+    ).toBeVisible();
+  } finally {
+    await riderContext.close();
+  }
+});
+
 test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 함께 갱신한다", async ({
   page,
   context,

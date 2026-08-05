@@ -1765,7 +1765,7 @@ type DailyOperationsSnapshot = {
 
 ### 28.5 기사 응급 합성 예시 신호
 
-`DemoRiderDangerSignal`은 기사 앱에서 관제 화면으로 넘어오는 위험 신호를 재현하기 위한 브라우저 전용 계약이다.
+`DemoRiderDangerSignal`은 기사 앱에서 관제 화면으로 넘어오는 위험 신호를 재현하기 위한 합성 운영 계약이다.
 
 - `schemaVersion`: `demo-rider-danger-signal-v1`
 - `courierId`: `R-000` 형식의 고정 합성 ID
@@ -1774,7 +1774,9 @@ type DailyOperationsSnapshot = {
 - `createdAt`, `expiresAt`: ISO 8601이며 유효시간은 15분
 - `source`: `SYNTHETIC_RIDER_APP`
 
-손상·만료·알 수 없는 기사 ID는 관제 화면에서 버린다. 이 계약에는 실제 위치, 생체정보, 센서 원본, 연락처와 신고 전송 상태를 넣지 않으며 운영 저장소나 외부 서비스로 보내지 않는다.
+`PUT /api/operations/danger-signals/{courierId}`는 기사 ID와 `SYNTHETIC_RIDER_APP` 출처만 받으며 서버가 고정 label·수신시각·15분 만료시각을 만든다. Sites D1의 `operations_rider_danger_signals`는 기사별 최신 합성 신호 하나만 보존하고, `GET /api/operations/danger-signals`는 만료되지 않은 신호만 `ETag` 조건부 조회로 반환한다. 개발 환경은 같은 계약의 메모리 저장소를 사용한다.
+
+손상·만료·알 수 없는 기사 ID는 관제 화면에서 버린다. 이 계약에는 실제 위치, 생체정보, 센서 원본, 연락처와 실제 신고 전송 상태를 넣지 않으며 Safety Budget·추천·동의·승인 상태의 입력으로 사용하지 않는다. localStorage와 브라우저 이벤트는 D1 연결 실패 때 현재 브라우저에서만 쓰는 비권위 Fallback이다.
 
 ### 28.6 기사 앱 표시 프로필과 서버 조회
 

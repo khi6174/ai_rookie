@@ -15,6 +15,13 @@ const demoRiderDangerSignalSchema = z.object({
   source: z.literal("SYNTHETIC_RIDER_APP"),
 });
 
+const demoRiderDangerSignalCollectionSchema = z.object({
+  schemaVersion: z.literal("demo-rider-danger-signal-collection-v1"),
+  signals: z.array(demoRiderDangerSignalSchema),
+  version: z.string().min(1),
+  storage: z.enum(["D1", "MEMORY_DEV"]),
+});
+
 export type DemoRiderDangerSignal = z.infer<
   typeof demoRiderDangerSignalSchema
 >;
@@ -87,4 +94,59 @@ export function publishDemoRiderDangerSignal(input: {
   );
 
   return { signal, persisted };
+}
+
+export async function saveDemoRiderDangerSignal(
+  signal: DemoRiderDangerSignal,
+  requestSignal?: AbortSignal,
+) {
+  const validated = demoRiderDangerSignalSchema.parse(signal);
+  const response = await fetch(
+    `/api/operations/danger-signals/${encodeURIComponent(validated.courierId)}`,
+    {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        schemaVersion: "demo-rider-danger-signal-command-v1",
+        courierId: validated.courierId,
+        source: validated.source,
+      }),
+      signal: requestSignal,
+    },
+  );
+  if (!response.ok) {
+    throw new Error(`응급 합성 신호 저장 실패 (${response.status})`);
+  }
+  const body = (await response.json()) as { signal?: unknown };
+  const storedSignal = parseDemoRiderDangerSignal(body.signal);
+  if (!storedSignal) {
+    throw new Error("응급 합성 신호 저장 응답이 계약과 다릅니다.");
+  }
+  return storedSignal;
+}
+
+export async function loadDemoRiderDangerSignalsFromOperationsStore(options?: {
+  etag?: string;
+  signal?: AbortSignal;
+}) {
+  const response = await fetch("/api/operations/danger-signals", {
+    headers: options?.etag ? { "If-None-Match": options.etag } : undefined,
+    signal: options?.signal,
+    cache: "no-store",
+  });
+  if (response.status === 304) {
+    return { status: "NOT_MODIFIED" as const, etag: options?.etag };
+  }
+  if (!response.ok) {
+    throw new Error(`응급 합성 신호 조회 실패 (${response.status})`);
+  }
+  const parsed = demoRiderDangerSignalCollectionSchema.parse(
+    await response.json(),
+  );
+  return {
+    status: "LOADED" as const,
+    signals: parsed.signals,
+    etag: response.headers.get("ETag") ?? undefined,
+    storage: parsed.storage,
+  };
 }

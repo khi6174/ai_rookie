@@ -646,6 +646,7 @@
   color: var(--text);
   background: var(--surface);
   box-shadow: var(--sh-flat);
+  pointer-events: none;
 }
 
 .onepage-hub-icon {

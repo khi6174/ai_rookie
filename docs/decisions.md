@@ -1299,6 +1299,18 @@
 - 기각한 대안: 현재 URL을 workspace 상태 저장소로 사용, localStorage에 전체 세션 저장, 새 실시간 메시지 브로커 도입, 실제 GPS heartbeat를 D1에 저장, 확정 UI에 연결 상태 카드 추가.
 - 영향 파일: `.openai/drizzle/0003_operations_sessions.sql`, `db/schema.ts`, `server/operations-session-store.mjs`, `src/application/operations/persistOperationsSession.ts`, `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/App.tsx`, `vite.config.ts`, 운영 세션·지도 단위 테스트와 관리자·기사 E2E, `docs/architecture.md`, `docs/data-contracts.md`, `docs/decisions.md`
 
+### ADR-131 — 응급 합성 신호를 공유 저장하고 지도 허브는 마커 입력을 가로채지 않는다
+
+- 날짜: 2026-08-05
+- 상태: Approved
+- 사용자 승인: 공개 브라우저 전수 클릭 감사에서 확인한 지도 마커 겹침과 응급 신호 새로고침 의존 결함을 확정 디자인 안에서 수정하는 범위를 승인함.
+- 결정: 기사 앱의 `응급 상황 전송`은 현재 합성 `courierId`와 고정 출처 명령만 D1 `operations_rider_danger_signals`에 저장한다. 서버가 고정 문구, 수신시각과 15분 만료를 생성하며 공개 관제는 1초 `ETag` 조건부 조회로 열린 화면을 갱신한다. 브라우저 저장소·이벤트는 공유 저장 실패 때의 비권위 Fallback으로만 남긴다. 관제 지도 허브 배지는 비대화형 표시이므로 `pointer-events: none`을 적용해 동일 위치의 기사 마커 클릭·키보드 동작을 막지 않게 한다.
+- 디자인 고정: 확정 문구·색·카드·탭·모달·동의 상태는 변경하지 않는다. 합성 신호는 실제 신고, 푸시, 인증, 센서 감지 또는 위치 공유로 표현하지 않는다.
+- 데이터 경계: 기사 ID, 고정 label, 생성·만료·갱신시각과 `SYNTHETIC_RIDER_APP`만 저장한다. 실제 좌표·위치 이력·생체·센서·연락처를 받지 않으며 Safety·추천·기사 동의·관리자 승인 계산에 연결하지 않는다.
+- 이유: 브라우저 localStorage만으로는 다른 세션과 이미 열린 관제 화면이 신호를 공유할 수 없고, 허브 오버레이가 마커 위에서 포인터를 가로채면 25명 지도 선택 계약을 충족하지 못한다.
+- 기각한 대안: 새 메시지 브로커·실제 푸시 도입, 위치·센서 payload 저장, 관제 새로고침 요구, 허브 배지 삭제, 클릭을 강제하는 테스트만 추가.
+- 영향 파일: `.openai/drizzle/0004_rider_danger_signals.sql`, `db/schema.ts`, `server/rider-danger-signal-store.mjs`, `src/application/demoRiderDangerSignal.ts`, `src/ui/App.tsx`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, 응급 신호 단위·E2E, `docs/architecture.md`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

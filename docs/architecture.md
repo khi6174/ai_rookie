@@ -103,7 +103,7 @@ G3-A는 배포 단위나 런타임 능력을 바꾸지 않는 UI 계층 변경�
 
 G3-B의 `public/sw.js`는 같은 origin의 정적 app shell만 버전된 Cache Storage에 저장한다. `src/pwa/approvedPlanCache.ts`는 `APPROVED + APPLIED`된 합성 계획의 decision·plan 버전과 기사별 남은 건수만 localStorage에 30분 TTL로 저장한다. 캐시는 Safety 계산·추천·동의·승인 상태를 만들거나 변경할 수 없고 오프라인에서는 모든 응답 행동을 비활성화한다. 만료·손상·저장소 차단은 각각 명시적 상태로 전환하며 최신 계획으로 승격하지 않는다.
 
-ADR-118의 기사 응급 예시는 `src/application/demoRiderDangerSignal.ts`의 검증된 브라우저 Demo 경계를 사용한다. 기사 화면이 고정 합성 기사 `R-022` 신호를 localStorage에 최대 15분 보존하고 같은 문서에는 `CustomEvent`, 다른 탭에는 브라우저 `storage` 이벤트로 알린다. 관제 화면은 알려진 합성 기사 ID만 반영한다. 서버, 알림, 위치·센서 API를 호출하지 않으며 Safety Budget·지원 추천·동의·승인 상태의 입력이 아니다.
+ADR-131의 기사 응급 예시는 `src/application/demoRiderDangerSignal.ts`와 `server/rider-danger-signal-store.mjs`의 검증된 합성 운영 경계를 사용한다. 기사 화면은 현재 `courierId`의 고정 합성 신호 명령만 D1에 쓰고, 관제 화면은 `ETag` 조건부 조회를 1초마다 수행해 만료 전 15분 동안 새로고침 없이 반영한다. localStorage와 브라우저 이벤트는 공유 저장소 장애 때 현재 브라우저에서만 유지하는 비권위 Fallback이다. 실제 알림·위치·센서 API를 호출하지 않으며 Safety Budget·지원 추천·동의·승인 상태의 입력이 아니다.
 
 ### 4.2 권장 디렉터리
 
@@ -139,6 +139,7 @@ src/
   pwa/                  # service worker 등록, 설치 상태와 최소 승인 Demo 계획 캐시
 server/                 # Sites Worker 서버 전용 런타임
   operations-session-store.mjs  # D1 세션 저장·복구·낙관적 동시성
+  rider-danger-signal-store.mjs # 15분 합성 응급 신호와 조건부 조회
   rider-profile-store.mjs       # 기사별 표시 프로필 D1 조회
   rider-profiles.mjs            # 20명 고정 seed와 클라이언트 공통 계약
   upstage-explanation-proxy.mjs # strict 합성 결정 설명 프록시

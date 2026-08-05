@@ -9,7 +9,10 @@ import {
   type FleetEvaluation,
   type OperationsDecisionWorkspace,
 } from "../application/operations";
-import { publishDemoRiderDangerSignal } from "../application/demoRiderDangerSignal";
+import {
+  publishDemoRiderDangerSignal,
+  saveDemoRiderDangerSignal,
+} from "../application/demoRiderDangerSignal";
 import type {
   DailyOperationsPackage,
   DailyOperationsSnapshot,
@@ -211,7 +214,7 @@ export function OperationsRiderService() {
     }
   };
 
-  const sendDangerDemoSignal = () => {
+  const sendDangerDemoSignal = async () => {
     let storage: Storage | undefined;
     try {
       storage = window.localStorage;
@@ -223,11 +226,16 @@ export function OperationsRiderService() {
       storage,
       eventTarget: window,
     });
-    setDangerDemoMessage(
-      result.persisted
-        ? "관제 화면에 합성 위험 신호를 보냈습니다."
-        : "브라우저 저장소가 차단되어 신호를 보존하지 못했습니다.",
-    );
+    try {
+      await saveDemoRiderDangerSignal(result.signal);
+      setDangerDemoMessage("관제 화면에 합성 위험 신호를 보냈습니다.");
+    } catch {
+      setDangerDemoMessage(
+        result.persisted
+          ? "공유 저장소 연결이 지연되어 이 브라우저에만 신호를 표시합니다."
+          : "응급 합성 신호를 보존하지 못했습니다.",
+      );
+    }
   };
 
   if (loadState.status === "LOADING") {
