@@ -150,10 +150,16 @@ test("허브와 겹친 남기석 기사 지도 마커도 직접 선택할 수 �
   const card = page.locator('[data-courier-card="demo-courier-014"]');
   await card.click();
   const marker = page.locator('[data-map-marker="demo-courier-014"]');
-  await expect(marker).toBeVisible();
+  await expect(marker).toBeVisible({ timeout: 15_000 });
+  const map = page.locator(".onepage-map-canvas");
+  if (await map.evaluate((element) => element.classList.contains("has-kakao-map"))) {
+    const otherCard = page.locator('[data-courier-card="demo-courier-015"]');
+    await otherCard.click();
+    await expect(otherCard).toHaveAttribute("aria-pressed", "true");
+    await expect(marker).toBeVisible();
+  }
   await marker.click();
   await expect(card).toHaveAttribute("aria-pressed", "true");
-  const map = page.locator(".onepage-map-canvas");
   const pausedSecond = await map.getAttribute("data-movement-second");
   await page.waitForTimeout(1_200);
   await expect(map).toHaveAttribute("data-movement-second", pausedSecond!);

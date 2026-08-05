@@ -481,7 +481,7 @@ function DashboardKakaoMap({
             content: hub,
             xAnchor: 0.5,
             yAnchor: 0.5,
-            zIndex: 7,
+            zIndex: 1,
           }));
           bounds.extend(hubPosition);
         });
