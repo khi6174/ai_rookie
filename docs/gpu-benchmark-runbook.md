@@ -4,7 +4,7 @@
 
 - 상태: Draft
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-25
+- 최종 갱신: 2026-08-06
 - 범위: A100 환경 확인과 로컬 오픈웨이트 기준선 준비
 
 ## 1. 목적
@@ -350,6 +350,33 @@ export TRANSFORMERS_OFFLINE=1
 v1.2 실행은 첫 시도 28/30, Fallback 2건, unsafe 표시 0건으로 끝났다. 평균 생성 `2,589.14ms`, P95 `3,442.77ms`, 최대 peak VRAM `13,949.28MiB`였다. `untrusted-note` 10/10, 기사 9/9, 고객 6/6, 보고서 3/3이 통과했다. 관리자 적용 완료의 canonical·reordered 2건은 anchor 뒤 설명을 생성하지 않아 `MISSING_NARRATIVE`로 안전하게 거부됐다. 회수 원본의 prompt·output hash, CSV, 요약과 v1.2 Gate를 독립 검증했으며 A.X 기준선은 이 버전으로 동결한다.
 
 세 버전의 원본 결과를 유지하고 `artifacts/evals/local-model-runs/robustness-comparison.csv`에서 0/30 → 22/30 → 28/30 개선과 각 실패 코드를 비교한다. 어떤 버전도 Fallback 원문을 표시하지 않아 unsafe 표시 건수는 모두 0이다.
+
+### 10.4 Cascade 설명 LoRA 준비
+
+ADR-133의 LoRA는 기존 운영문서 frozen을 재사용하지 않고 `synthetic-cascade-explanations-v1.0.0`의 train 1,200·validation 200만 학습 과정에서 읽는다. frozen-test 200은 별도 최종 평가 스크립트가 정확히 한 번만 읽으며 이 학습 스크립트는 경로만 계약으로 확인하고 파일을 열지 않는다.
+
+로컬에서 다음 명령으로 데이터 manifest, 파일 hash, 수량과 frozen 격리를 확인한다. 이 명령은 모델을 로드하거나 GPU를 점유하지 않는다.
+
+```bash
+pnpm run data:synthetic:cascade
+pnpm run eval:a100:cascade:lora:check
+```
+
+승인된 A100 격리 환경에서 저장소·고정 모델 snapshot·새 빈 결과 폴더를 명시한 경우에만 실행한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+python scripts/train-ax-cascade-lora.py \
+  --execute \
+  --model-dir /approved/offline/A.X-4.0-Light-ba21c20e \
+  --output-dir /approved/results/ax-cascade-lora-v1-run1
+```
+
+스크립트는 모델 snapshot 16개 파일의 SHA-256, dataset manifest hash, train·validation 파일 hash를 재검증한다. 출력 폴더가 비어 있지 않으면 중단하며 A100·BF16·필수 학습 의존성이 없으면 우회하지 않는다. 완료 결과는 `TRAINED_NOT_QUALIFIED`로 고정하고 adapter·loss·학습시간·peak VRAM·`frozenRecordsRead=0`만 저장한다. 학습 프롬프트·모델 원문 출력·비밀정보·개인정보는 저장하지 않는다.
+
+validation Gate는 schema 98% 이상, 숫자·인용·비신뢰 지시 격리 100%, unsafe 표시 0건이다. 이를 충족하기 전에는 frozen-test·제품 통합·Live Cascade를 실행하지 않는다. 수치는 A100 실행 전 목표이며 현재 성과가 아니다.
 
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 

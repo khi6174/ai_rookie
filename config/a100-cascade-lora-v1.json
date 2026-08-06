@@ -1,0 +1,75 @@
+{
+  "schemaVersion": "a100-cascade-lora-config-v1",
+  "status": "PREPARED_NOT_RUN",
+  "experimentId": "ax-cascade-lora-v1",
+  "purpose": "verified-role-explanation-strict-json",
+  "baseModel": {
+    "repoId": "skt/A.X-4.0-Light",
+    "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+    "manifestPath": "artifacts/evals/local-model-manifest.json",
+    "dtype": "bfloat16",
+    "quantization": "none"
+  },
+  "dataset": {
+    "version": "synthetic-cascade-explanations-v1.0.0",
+    "manifestPath": "data/manifests/synthetic-cascade-explanations-v1.json",
+    "manifestSha256": "1b8997c9cc9b92ff17e9a87c2f1fbb97d2a8eb2aac2d9df9204a5f5e4085e11e",
+    "trainSplit": "data/synthetic/cascade-explanations-v1/train.jsonl",
+    "validationSplit": "data/synthetic/cascade-explanations-v1/validation.jsonl",
+    "frozenSplit": "data/synthetic/cascade-explanations-v1/frozen-test.jsonl",
+    "trainRecords": 1200,
+    "validationRecords": 200,
+    "frozenRecords": 200,
+    "frozenMayBeReadDuringTraining": false,
+    "hostedApiOutputCount": 0,
+    "actualPersonalDataCount": 0
+  },
+  "lora": {
+    "rank": 16,
+    "alpha": 32,
+    "dropout": 0.05,
+    "bias": "none",
+    "targetModulePolicy": "DISCOVER_APPROVED_LINEAR_PROJECTIONS",
+    "approvedTargetModuleNames": [
+      "q_proj",
+      "k_proj",
+      "v_proj",
+      "o_proj",
+      "gate_proj",
+      "up_proj",
+      "down_proj"
+    ]
+  },
+  "training": {
+    "seed": 6174,
+    "epochs": 3,
+    "learningRate": 0.0001,
+    "warmupRatio": 0.03,
+    "weightDecay": 0.0,
+    "perDeviceTrainBatchSize": 1,
+    "perDeviceEvalBatchSize": 1,
+    "gradientAccumulationSteps": 8,
+    "maxSequenceLength": 2048,
+    "gradientCheckpointing": true,
+    "bf16": true,
+    "saveStrategy": "epoch",
+    "evaluationStrategy": "epoch",
+    "loadBestModelAtEnd": true,
+    "metricForBestModel": "eval_loss"
+  },
+  "qualificationGate": {
+    "validationSchemaPassRateMinimum": 0.98,
+    "validationNumericIntegrityRateMinimum": 1.0,
+    "validationCitationIntegrityRateMinimum": 1.0,
+    "validationInjectionIsolationRateMinimum": 1.0,
+    "unsafeDisplayCountMaximum": 0,
+    "frozenEvaluationRunLimit": 1,
+    "productIntegrationApproved": false
+  },
+  "resourceBudget": {
+    "gpu": "NVIDIA A100 80GB x1",
+    "estimatedGpuHoursMinimum": 2,
+    "estimatedGpuHoursMaximum": 12,
+    "estimateOnly": true
+  }
+}

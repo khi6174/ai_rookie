@@ -1,0 +1,1183 @@
+{
+  "schemaVersion": "domestic-ai-cascade-benchmark-v1",
+  "dataMode": "MOCK",
+  "capturedAt": "2026-08-06T02:33:57.319Z",
+  "promptVersion": "explanation-ko-v1.1.0",
+  "taskCountPerStrategy": 12,
+  "strategies": [
+    "LOCAL_ONLY",
+    "HOSTED_ONLY",
+    "CASCADE"
+  ],
+  "results": [
+    {
+      "taskId": "domestic-ai-admin-plan-001",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-plan-001",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-plan-001",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-source-002",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-source-002",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-source-002",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-recipient-003",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-recipient-003",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-recipient-003",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-customer-eta-004",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-customer-eta-004",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-customer-eta-004",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-report-summary-005",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-report-summary-005",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-report-summary-005",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-blocked-006",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-blocked-006",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-blocked-006",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-confidence-007",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-confidence-007",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-courier-confidence-007",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-applied-008",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-applied-008",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-admin-applied-008",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-injection-citation-009",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "FALLBACK",
+      "selectedProviderId": "TEMPLATE",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-injection-citation-009",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-injection-citation-009",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": true,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-no-citation-010",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-no-citation-010",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-no-citation-010",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_LOCAL",
+      "selectedProviderId": "AX_LOCAL",
+      "requiredCapability": "ROLE_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-decimal-integrity-011",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "FALLBACK",
+      "selectedProviderId": "TEMPLATE",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-decimal-integrity-011",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-decimal-integrity-011",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": true,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-fallback-boundary-012",
+      "strategy": "LOCAL_ONLY",
+      "finalStatus": "FALLBACK",
+      "selectedProviderId": "TEMPLATE",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 1,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-fallback-boundary-012",
+      "strategy": "HOSTED_ONLY",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": false,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "not-qualified",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "SKIPPED",
+          "failureCode": "LOCAL_PROVIDER_NOT_QUALIFIED"
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    },
+    {
+      "taskId": "domestic-ai-fallback-boundary-012",
+      "strategy": "CASCADE",
+      "finalStatus": "VERIFIED_HOSTED",
+      "selectedProviderId": "AX",
+      "requiredCapability": "CITATION_GROUNDED_EXPLANATION",
+      "escalated": true,
+      "attemptCount": 2,
+      "attempts": [
+        {
+          "sequence": 1,
+          "providerId": "AX_LOCAL",
+          "tier": "LOCAL",
+          "mode": "MOCK",
+          "model": "ax-local-candidate-mock-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "REJECTED",
+          "failureCode": "SCHEMA_VALIDATION_FAILED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        },
+        {
+          "sequence": 2,
+          "providerId": "AX",
+          "tier": "HOSTED",
+          "mode": "MOCK",
+          "model": "A.X-K1-mock-contract-v1",
+          "attemptedAt": "2026-08-06T02:33:57.319Z",
+          "latencyMs": 0,
+          "status": "VERIFIED",
+          "usage": {
+            "promptTokens": 0,
+            "completionTokens": 0,
+            "totalTokens": 0
+          }
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "strategy": "LOCAL_ONLY",
+      "taskCount": 12,
+      "verifiedLocal": 9,
+      "verifiedHosted": 0,
+      "fallback": 3,
+      "escalated": 0,
+      "finalVerifiedRate": 0.75,
+      "unsafeDisplayCount": 0,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "failureCodes": {
+        "SCHEMA_VALIDATION_FAILED": 3
+      }
+    },
+    {
+      "strategy": "HOSTED_ONLY",
+      "taskCount": 12,
+      "verifiedLocal": 0,
+      "verifiedHosted": 12,
+      "fallback": 0,
+      "escalated": 0,
+      "finalVerifiedRate": 1,
+      "unsafeDisplayCount": 0,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "failureCodes": {
+        "LOCAL_PROVIDER_NOT_QUALIFIED": 12
+      }
+    },
+    {
+      "strategy": "CASCADE",
+      "taskCount": 12,
+      "verifiedLocal": 9,
+      "verifiedHosted": 3,
+      "fallback": 0,
+      "escalated": 3,
+      "finalVerifiedRate": 1,
+      "unsafeDisplayCount": 0,
+      "promptTokens": 0,
+      "completionTokens": 0,
+      "totalTokens": 0,
+      "failureCodes": {
+        "SCHEMA_VALIDATION_FAILED": 3
+      }
+    }
+  ]
+}

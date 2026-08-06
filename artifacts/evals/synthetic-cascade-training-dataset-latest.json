@@ -1,0 +1,82 @@
+{
+  "schemaVersion": "synthetic-cascade-training-validation-v1",
+  "reportId": "synthetic-cascade-explanations-validation-v1",
+  "datasetVersion": "synthetic-cascade-explanations-v1.0.0",
+  "passed": true,
+  "parentCount": 400,
+  "recordCount": 1600,
+  "parentSplitCounts": {
+    "train": 300,
+    "validation": 50,
+    "frozen-test": 50
+  },
+  "splitCounts": {
+    "train": 1200,
+    "validation": 200,
+    "frozen-test": 200
+  },
+  "roleCounts": {
+    "COURIER": 400,
+    "ADMIN": 400,
+    "CUSTOMER": 400,
+    "REPORT": 400
+  },
+  "scenarioCounts": {
+    "RAIN_TRAFFIC": 50,
+    "HEAT_STAIRS": 50,
+    "LOW_VISIBILITY": 50,
+    "API_PARTIAL": 50,
+    "TRANSFER_GUARD": 50,
+    "CONSENT_WAIT": 50,
+    "STALE_DATA": 50,
+    "PROMPT_INJECTION": 50
+  },
+  "promptInjectionCases": 150,
+  "schemaViolationCount": 0,
+  "splitLeakageCount": 0,
+  "privacyViolationCount": 0,
+  "outputIntegrityViolationCount": 0,
+  "exactDuplicateCount": 0,
+  "validationCodes": {
+    "PASS": 1600
+  },
+  "limitations": [
+    "규칙 기반 합성 설명 계약 데이터이며 실제 기사·배송·교통·사고 분포가 아니다.",
+    "표시 수치는 설명 무결성 학습용 계약 anchor이며 Safety 엔진의 예측 정답이 아니다.",
+    "Hosted API 응답을 포함하지 않으며 공급자 약관 확인 전 증류·학습 라벨로 재사용하지 않는다.",
+    "이 데이터셋의 통과는 LoRA 성능, 제품 통합 또는 현장 안전효과를 의미하지 않는다."
+  ],
+  "capturedAt": "2026-08-06T02:24:48.501Z",
+  "generatorVersion": "deterministic-cascade-explanation-generator-v1.0.0",
+  "seedSpecSha256": "e39aee1f9741453a24e39c07934ac1f408d15b75bfe18f88f0a69261259e0f7a",
+  "manifestSha256": "1b8997c9cc9b92ff17e9a87c2f1fbb97d2a8eb2aac2d9df9204a5f5e4085e11e",
+  "datasetFiles": [
+    {
+      "split": "train",
+      "relativePath": "data/synthetic/cascade-explanations-v1/train.jsonl",
+      "parentCount": 300,
+      "recordCount": 1200,
+      "bytes": 2997365,
+      "sha256": "d8c3c0004d405a8778f0eb7b94c99110de95b5904814c3af9f7d6e7f7de5f917"
+    },
+    {
+      "split": "validation",
+      "relativePath": "data/synthetic/cascade-explanations-v1/validation.jsonl",
+      "parentCount": 50,
+      "recordCount": 200,
+      "bytes": 500872,
+      "sha256": "38b8d67771a44727174be49d3558f6fa0b3bcc4ace10e60124605f2555c655ec"
+    },
+    {
+      "split": "frozen-test",
+      "relativePath": "data/synthetic/cascade-explanations-v1/frozen-test.jsonl",
+      "parentCount": 50,
+      "recordCount": 200,
+      "bytes": 501264,
+      "sha256": "9e1bfd3c3c36962928b5f2c4007b33de8b4081150ed2294d779b54709fb9da20"
+    }
+  ],
+  "rawModelOutputStored": false,
+  "hostedApiOutputStored": false,
+  "acceptedDatasetStoredUnderDataDirectory": true
+}

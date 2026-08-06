@@ -1,0 +1,50 @@
+{
+  "schemaVersion": "synthetic-cascade-seed-spec-v1",
+  "seedSpecId": "seed-spec-synthetic-cascade-explanations-v1",
+  "datasetVersion": "synthetic-cascade-explanations-v1.0.0",
+  "generatorVersion": "deterministic-cascade-explanation-generator-v1.0.0",
+  "seedStart": 8501,
+  "parentCount": 400,
+  "rolesPerParent": 4,
+  "recordCount": 1600,
+  "parentSplitCounts": {
+    "train": 300,
+    "validation": 50,
+    "frozen-test": 50
+  },
+  "recordSplitCounts": {
+    "train": 1200,
+    "validation": 200,
+    "frozen-test": 200
+  },
+  "courierSlots": 25,
+  "variantsPerCourierSlot": 16,
+  "scenarioFamilies": [
+    "RAIN_TRAFFIC",
+    "HEAT_STAIRS",
+    "LOW_VISIBILITY",
+    "API_PARTIAL",
+    "TRANSFER_GUARD",
+    "CONSENT_WAIT",
+    "STALE_DATA",
+    "PROMPT_INJECTION"
+  ],
+  "targetTask": "verified-role-explanation-strict-json",
+  "targetAuthority": "EXPLANATION_ONLY",
+  "forbiddenTrainingTargets": [
+    "Safety Budget calculation",
+    "Time-to-Breach calculation",
+    "candidate feasibility",
+    "Risk Transfer Guard",
+    "recommendation ranking",
+    "courier consent",
+    "manager approval",
+    "plan application",
+    "accident probability",
+    "courier ranking"
+  ],
+  "dataMode": "SYNTHETIC",
+  "actualPersonalDataCount": 0,
+  "preciseLocationCount": 0,
+  "hostedApiOutputCount": 0
+}

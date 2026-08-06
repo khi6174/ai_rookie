@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-23
+- 최종 갱신: 2026-08-06
 - 기준: 대회 운영 가이드 5·7·8쪽, 국내 AI 기업별 활용 가이드, `docs/privacy-and-ai-policy.md`, ADR-021
 
 ## 1. 결정사항
@@ -22,6 +22,8 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 | SKT `skt/A.X-4.0-Light` | A100 고정 revision 오프라인 생성 기준선 | 12/12 배치 통과, 강건성 28/30·2건 안전 Fallback | 안전 수치·추천 정답 생성 금지 | `artifacts/evals/local-model-runs/` |
 | LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/` |
 | NC VARCO | 후속 3D·이미지·음성·번역 에셋 후보 | P0 미연동 | 텍스트 LLM으로 추정하지 않음 | ADR-021과 `docs/synthetic-data-plan.md` |
+
+ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고, 객관적 계약 실패나 capability 부족일 때만 A.X-K1·K-EXAONE·Solar 중 허용 공급자로 승격하는 국내 AI Cascade다. 현재 A.X-4.0-Light 기준선은 학습되지 않은 `PARTIAL_RESEARCH_BASELINE`이므로 로컬 제품 계층으로 활성화하지 않는다. Hosted API 출력은 각 공급자의 학습·증류 조건을 확인하기 전에는 로컬 학습 라벨로 재사용하지 않는다.
 
 기상청 API허브는 공개 날씨 입력이며 생성형 AI 공급자가 아니다. 불완전한 Live 필드는 Safety 계산에 섞지 않고 전체 Demo 타임라인으로 Fallback한다.
 
@@ -78,6 +80,7 @@ pnpm run eval:domestic-track:audit
 - 자동 감사의 모든 검사가 통과한다.
 - 제품·평가 실행 경로에 비국내 생성형 AI endpoint·SDK·credential이 없다.
 - 국내 AI별 역할·모델·상태·증거가 활용명세에서 추적된다.
+- Cascade의 모든 시도는 공급자·모델·계층·검증 결과·실패 코드로 추적되고, 숫자·추천·실행 상태는 어떤 모델도 변경하지 않는다.
 - `OpenAI-compatible`을 OpenAI 모델 사용으로 오해하지 않도록 설명한다.
 - 격리형 디자인 참고물과 제품 런타임을 제출 범위에서 분리한다.
 - 실제 실행하지 않은 VARCO를 사용 성과로 주장하지 않고, A.X K1은 [공식 가이드](https://portal.adot.ai/docs/ax-k1-api-guide)의 고정 12과업 Live 결과 범위만 주장한다.

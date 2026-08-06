@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-01
+- 최종 갱신: 2026-08-06
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -271,20 +271,21 @@ BASELINE_EVALUATED
 
 생성 AI는 정답 Safety Budget, 추천 후보와 합격 라벨을 만들지 않는다. 결정론 엔진이 채택된 입력을 라벨링한다. 모든 산출물에는 모델, 프롬프트 버전, seed, parent ID, 검증 결과와 거절 사유를 기록한다. 대회 제공 가이드에서 동일한 OpenAI-compatible 텍스트 계약이 확인된 A.X K1과 K-EXAONE만 공통 12과업으로 비교하며, VARCO를 텍스트 LLM으로 추정하지 않는다.
 
-### 8.2 제품 런타임 Upstage 계층
+### 8.2 제품 런타임 국내 AI 설명 Cascade
 
 ```text
-합성 안전문서
-→ Document Parse
-→ 허용 필드 Information Extract
-→ Zod 검증 + 출처 페이지/섹션 고정
-→ 결정론적 결과 JSON과 결합
-→ Solar 역할별 strict JSON 설명
-→ 숫자 불변·인용·금지문구 검증
-→ UI 또는 결정론적 템플릿 fallback
+검증된 결정론 결과 JSON
+→ 자격을 갖춘 A.X 로컬 모델 1차 설명
+→ 숫자 불변·인용·역할·금지문구 검증
+→ 통과 시 채택
+→ 실패·미지원 capability일 때 A.X-K1/K-EXAONE/Solar 중 허용 공급자로 승격
+→ 동일 검증을 다시 적용
+→ 첫 통과 결과 또는 결정론적 템플릿 fallback
 ```
 
-Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다.
+모든 국내 AI 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추천과 적용 상태를 변경할 권한이 없다. Upstage Document Parse·Extract는 이 설명 Cascade 앞에서 합성 문서의 허용 필드와 정확 인용을 만드는 별도 전문 경로로 유지한다. 승격은 schema·숫자·인용·정책 검증 실패, 공급자 오류 또는 사전 선언 capability 부족으로만 발생한다. 모델 자체 confidence, 응답 다수결과 자유문장 병합은 사용하지 않는다. 시도 이력은 공급자·모델·결과·실패 코드만 기록하고 원문 출력과 비밀정보는 보존하지 않는다.
+
+기존 `skt/A.X-4.0-Light` 17/20 결과는 학습되지 않은 부분 연구 기준선이므로 현재 제품의 로컬 1차 계층이 아니다. 새 LoRA/adapter는 별도 데이터셋 카드, parent 단위 분할, 라이선스·출력물 재사용 조건, 사전 성공 기준과 독립 frozen 평가를 통과한 뒤에만 로컬 슬롯에 연결한다. 그 전까지 제품 런타임은 기존 검증된 Hosted/Template 경계를 유지하고 Cascade의 로컬 경로는 Mock·평가에서만 사용한다.
 
 현재 MVP 구현은 합성 안전문서 fixture, strict 설명 계약, Upstage Mock 어댑터와 timeout·malformed·무결성 실패용 결정론적 템플릿 Fallback을 포함한다. 서버 전용 Live 어댑터는 공식 HTTPS chat endpoint와 모델 식별자를 exact 계약으로 고정하고 API 키·timeout·크기 제한을 명시적으로 주입받으며 브라우저 실행을 차단한다. Upstage `solar-pro3` Live 12과업은 11건을 승인하고 malformed 1건을 Fallback으로 전환했다. 문서 왕복 기반은 합성 Markdown 60쌍의 strict 기대 규칙·원문 근거·비신뢰 지시·비저장 경계를 Mock 60/60으로 검증했다. 별도 `synthetic-operations-documents-v1.0.0`은 25개 구조화 상위 레코드에서 작업표·근무표·경로표·사고예방 보고서 100개를 생성하고 parent record 단위로 60/20/20 분할한다. 2026-07-27에는 이 중 고정 합성 상위 레코드 한 건을 4쪽 PDF로 렌더링해 Upstage Document Parse `200`, 필수 표식 14/14, Solar strict 추출 exact match와 비신뢰 지시 비수용을 실제 호출로 확인했다. 원문·공급자 원응답은 증거에 저장하지 않는다. K-EXAONE은 Live 12/12를 통과했다. A.X는 2026-07-21 공개 gateway의 401 안전 Fallback을 불변 보존한 뒤, 공급자 수정 후 2026-07-23 같은 exact 계약의 Live 12과업을 12/12·Fallback 0건으로 통과했다. 두 Hosted 모델은 설명 Gate 뒤의 선택적 근거 계층이며 P0 폐루프나 Safety 판정의 의존성이 아니다. Mock을 Live로 표시하지 않는다.
 
@@ -293,6 +294,7 @@ Solar 출력은 설명문만 제공하며 Safety Budget, 실행 가능성, 추�
 - 국내 AI API: 동일한 10~20개 smoke 과업으로 구조 유효성, 제약 위반, 지연, 비용과 중복을 비교한다.
 - A100: 로컬 오픈 웨이트 생성 기준선, 임베딩 기반 중복·커버리지 분석을 우선한다.
 - 조건부 학습: 데이터량과 검증셋이 충분하고 기준선 대비 개선을 측정할 수 있을 때만 수행한다.
+- Cascade 비교: 동일 동결셋에서 `LOCAL_ONLY`, `HOSTED_ONLY`, `CASCADE`의 품질·승격 사유·지연·토큰·Fallback을 비교한다.
 - 증빙: 실행 명령, 환경, 모델·프롬프트 버전, 사용량, 결과 CSV와 실패 로그를 보존한다.
 
 ## 9. 오류와 Fallback

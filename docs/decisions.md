@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-01
+- 최종 갱신: 2026-08-06
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -1310,6 +1310,30 @@
 - 이유: 브라우저 localStorage만으로는 다른 세션과 이미 열린 관제 화면이 신호를 공유할 수 없고, 허브 오버레이가 마커 위에서 포인터를 가로채면 25명 지도 선택 계약을 충족하지 못한다.
 - 기각한 대안: 새 메시지 브로커·실제 푸시 도입, 위치·센서 payload 저장, 관제 새로고침 요구, 허브 배지 삭제, 클릭을 강제하는 테스트만 추가.
 - 영향 파일: `.openai/drizzle/0004_rider_danger_signals.sql`, `db/schema.ts`, `server/rider-danger-signal-store.mjs`, `src/application/demoRiderDangerSignal.ts`, `src/ui/App.tsx`, `src/ui/OperationsRiderService.tsx`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `vite.config.ts`, `scripts/build-sites-worker.mjs`, 응급 신호 단위·E2E, `docs/architecture.md`, `docs/data-contracts.md`, `docs/design-system.md`, `docs/decisions.md`
+
+### ADR-132 — 국내 AI 설명은 검증 기반 로컬 우선 Cascade로 확장한다
+
+- 날짜: 2026-08-05
+- 상태: Approved
+- 사용자 승인: A100에서 새 split과 사전 Gate를 거쳐 파인튜닝할 국내 A.X 로컬 모델을 1차 처리 계층으로 두고, 객관적 검증 실패·미지원 능력·길이 제한일 때 국내 연계기업 Hosted API로 승격해 응답을 보완하는 방향을 승인함.
+- 결정: 역할별 `ExplanationInput`은 먼저 자격을 갖춘 `AX_LOCAL` 공급자에 전달한다. 각 출력은 기존 숫자 불변·허용 인용·허용 행동·역할·데이터 모드 검증을 통과해야 하며, schema 실패, 숫자·인용 불일치, 금지 문구, timeout·network·rate limit 또는 사전 선언된 capability 부족만 승격 사유로 사용한다. Hosted 공급자는 SKT `A.X-K1`, LG `K-EXAONE`, Upstage `Solar` 중 요청 capability를 지원하는 국내 AI만 순서대로 시도하고, 첫 검증 통과 결과 하나만 채택한다. 모든 시도가 실패하면 기존 결정론 템플릿으로 전환한다. 각 시도에는 공급자·모델·계층·시각·결과·실패 코드만 남기고 프롬프트·원문 출력·비밀정보·개인정보는 저장하지 않는다.
+- 현재 활성화 경계: `skt/A.X-4.0-Light`의 기존 17/20 frozen 결과는 학습되지 않은 `PARTIAL_RESEARCH_BASELINE`이므로 제품 로컬 계층으로 승격하지 않는다. 로컬 슬롯은 새 데이터셋 카드, parent 단위 train/validation/frozen 분할, 학습·재배포 조건 확인, 사전 성공 기준과 독립 검증을 통과한 새 LoRA/adapter에만 연결한다. 그 전까지 Cascade는 Mock·평가 하네스에서만 로컬 경로를 재현하고 공개 제품은 기존 검증된 Hosted/Template 경계를 유지한다.
+- 안전·권한 경계: AI 간 다수결·자유문장 병합·모델 자체 신뢰도는 라우팅 근거가 아니다. 어떤 AI도 Safety Budget, Time-to-Breach, 후보 생성·실행 가능성·Risk Transfer Guard·추천 순위·동의·승인·적용 상태를 만들거나 변경하지 않는다. 사용자 자연어가 계획 변경을 요구하면 제한된 의도 계약으로만 구조화한 뒤 결정론 엔진이 후보를 다시 계산하며, AI가 직접 실행하지 않는다.
+- 데이터·약관 경계: Hosted API 응답은 추론 보완과 비교 평가에 사용할 수 있지만, 해당 공급자의 출력물 학습·증류 허용 조건을 확인하기 전에는 로컬 학습 라벨로 저장하거나 재사용하지 않는다. 외부 전송 입력은 비식별 합성 사실과 최소 필드로 제한한다.
+- 평가 Gate: 동일 parent 분리 동결셋에서 `LOCAL_ONLY`, `HOSTED_ONLY`, `CASCADE`를 비교하고 로컬 해결률, 승격률·사유, 최종 schema·숫자·인용 통과율, unsafe 표시, P50/P95 지연, 토큰, 장애 Fallback을 기록한다. 실패 run과 부분 연구 결과를 삭제하거나 합쳐 성공률을 만들지 않는다.
+- 기각한 대안: 모델 응답 다수결, Hosted 모델이 로컬 답의 Safety 수치·추천을 교정, 모든 요청을 무조건 여러 API에 병렬 전송, API 출력 자동 증류, 자체 보고 confidence만으로 승격, 실패 시 검증 전 자유문 표시.
+- 영향 파일: `src/application/explanations/`, `src/evals/`, 국내 AI 공급자 어댑터와 테스트, `docs/architecture.md`, `docs/evals.md`, `docs/domestic-ai-track-compliance.md`, `docs/decisions.md`
+
+### ADR-133 — 로컬 설명 LoRA는 새 400-parent 합성 계약과 격리된 frozen Gate를 사용한다
+
+- 날짜: 2026-08-05
+- 상태: Approved
+- 사용자 승인: ADR-132 국내 AI Cascade의 다음 단계로 로컬 모델 학습용 새 합성 데이터·검증·A100 준비를 진행하는 범위를 승인함.
+- 결정: `synthetic-cascade-explanations-v1.0.0`은 비식별 합성 parent 400개에서 관리자·기사·고객·보고서 네 역할 1,600개 strict 설명 레코드를 결정론적으로 생성한다. parent 300/50/50을 train/validation/frozen-test로 나눠 1,200/200/200 레코드로 고정하고 같은 사건의 역할을 서로 다른 split에 넣지 않는다. 여덟 시나리오 family를 각각 parent 50개로 구성하며 비신뢰 문서 지시 150건을 포함한다. 기대 출력은 기존 결정론 템플릿과 strict validator가 생성·검증하고 Hosted API 출력은 포함하지 않는다.
+- 학습 경계: A100 LoRA는 train과 validation만 읽고 frozen-test 경로를 열지 않는다. base model은 기존 manifest의 `skt/A.X-4.0-Light@ba21c20…`, BF16·비양자화로 고정하며 LoRA rank 16 후보를 시작점으로 기록한다. 실제 실행 결과는 먼저 `TRAINED_NOT_QUALIFIED`로 저장하고 validation의 schema 98% 이상, 숫자·인용·인젝션 100%, unsafe 0건을 확인한 뒤에만 frozen-test 200건을 정확히 한 번 실행한다. frozen 결과 후 설정을 바꾸려면 새 데이터셋·실험 버전과 새 frozen split을 만든다.
+- 안전·개인정보 경계: 표시 수치는 설명 복사 계약용 합성 anchor이며 Safety 엔진 정답이나 현실 분포가 아니다. 데이터에 실제 이름·연락처·주소·좌표·GPS·생체정보, 사고확률·기사평가·추천·동의·승인 라벨을 넣지 않는다. 고객 역할에는 기사 응답·배송 분담·문서 인용을 전달하지 않는다. 학습 완료·제품 통합·현장효과는 별도 Gate 전까지 주장하지 않는다.
+- 기각한 대안: 기존 100문서 frozen 재사용, 1,600개 role 레코드 무작위 split, 중복 예제로 수량 부풀리기, Hosted 출력 자동 증류, frozen으로 hyperparameter 선택, 학습 직후 공개 런타임 활성화.
+- 영향 파일: `src/evals/syntheticCascadeTrainingDataset.ts`, `data/seed-specs/synthetic-cascade-explanations-v1.json`, `data/synthetic/cascade-explanations-v1/`, `data/manifests/synthetic-cascade-explanations-v1.json`, `config/a100-cascade-lora-v1.json`, `scripts/run-synthetic-cascade-training-dataset.mjs`, `scripts/train-ax-cascade-lora.py`, 관련 테스트·데이터셋 카드·평가 문서
 
 ## 4. 심사기준 연결
 

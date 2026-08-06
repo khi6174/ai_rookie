@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-25
+- 최종 갱신: 2026-08-06
 - 승인 조건: 평가 스크립트·fixtures·재현 명령과 최초 결과가 저장소에서 확인될 것
 
 ## 1. 목적
@@ -302,6 +302,18 @@ timeout을 60초로 조정한 단일 과업 진단은 26,800ms에 1/1, Fallback 
 이 과정에서 완료한 “튜닝”은 모델 가중치 학습이나 fine-tuning이 아니다. 공개 A.X 고정 revision의 가중치는 변경하지 않았고, 프롬프트·출력 계약·검증 Gate·Fallback 경계를 v1.2.0까지 보강한 뒤 동결했다.
 
 같은 날 접근 가능한 로컬 호스트에서 ADR-020의 `skt/A.X-4.0-Light` revision `ba21c20ea1b31ded1ec3e2fb432335077dc4be98` snapshot 16개 파일, 14,532,308,097바이트를 받았다. `artifacts/evals/local-model-manifest.json`에 절대경로·자격증명 없이 파일별 SHA-256을 기록했고 `scripts/verify-model-manifest.py`로 16개 전부 재검증했다. 서버 전송 후 같은 manifest로 16개·14,532,308,097바이트 전부 다시 통과했다. 고정 revision의 12과업은 모델 로드 `3,176.29ms`, 평균 생성 `2,741.56ms`, P95 `4,532.12ms`, 최대 peak VRAM `13,907.91MiB`로 끝났다. 이는 주어진 고정 JSON 계약을 그대로 재현하는 구조화 출력 기준선이며 자유 생성·범용 추론·실제 운영 효과를 입증하지 않는다.
+
+### 12.3 검증 기반 국내 AI Cascade
+
+ADR-132의 Cascade는 같은 12개 역할별 설명 과업을 `LOCAL_ONLY`, `HOSTED_ONLY`, `CASCADE`로 분리 비교한다. 모든 출력은 기존 schema·숫자 불변·허용 인용·역할·금지문구 검증을 통과해야 하며 모델 자체 confidence, 다수결과 자유문장 병합은 사용하지 않는다. 결과에는 생성문을 저장하지 않고 공급자·모델·계층·시도 시각·지연·토큰·검증 상태와 실패 코드만 남긴다.
+
+```bash
+pnpm run eval:domestic-ai:cascade:mock
+```
+
+2026-08-05 Mock 기준선은 로컬 후보의 3개 고정 계약 실패를 보존해 `LOCAL_ONLY` 9/12·Fallback 3건, `HOSTED_ONLY` 12/12, `CASCADE` 로컬 9건+Hosted 승격 3건으로 최종 12/12·Fallback 0건을 기록했다. unsafe 표시 0건이며 산출물은 `artifacts/evals/domestic-ai-cascade-mock-latest.json`이다. 이는 라우터·검증·승격·증거 스키마의 Mock 계약 통과일 뿐, 파인튜닝된 로컬 모델이나 Hosted Live 결합 성능이 아니다. 기존 A.X-4.0-Light 기준선은 자격 미달 로컬 슬롯으로 표시하고, 새 LoRA/adapter와 확대 동결셋이 승인되기 전에는 Live Cascade 명령을 제공하지 않는다.
+
+ADR-133의 새 LoRA 후보 데이터는 `pnpm run data:synthetic:cascade`로 400 parent·1,600 역할별 레코드를 생성한다. train 1,200, validation 200, frozen-test 200을 parent 단위로 격리했고 schema·split 누출·개인정보·strict 출력 무결성·exact content duplicate 위반은 모두 0건, 비신뢰 지시 레코드는 150건이다. `pnpm run eval:a100:cascade:lora:check`는 manifest와 train·validation hash·수량을 검증하고 frozen 파일을 읽지 않은 채 `TRAINING_NOT_RUN`으로 종료한다. 이 결과는 데이터·실행 준비 증거이며 A100 학습 실행 또는 성능 개선 증거가 아니다.
 
 ## 13. E2E·시각 검증
 
