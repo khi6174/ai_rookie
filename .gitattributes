@@ -4,9 +4,12 @@ artifacts/evals/a100-operations-documents/*.json text eol=lf
 data/synthetic/operations/documents/*.md text eol=lf
 public/templates/*.json text eol=lf
 config/a100-cascade-lora*.json text eol=lf
+config/ax-cascade-product-review*.json text eol=lf
 data/manifests/synthetic-cascade-explanations-v1.json text eol=lf
 data/synthetic/cascade-explanations-v1/*.jsonl text eol=lf
 artifacts/evals/local-model-runs/ax-cascade-lora-v1/** text eol=lf
 artifacts/evals/ax-cascade-lora-evidence-latest.json text eol=lf
+artifacts/evals/ax-cascade-product-review-v1.json text eol=lf
 scripts/*ax-cascade-lora*.py text eol=lf
+scripts/*ax-cascade-product-review*.py text eol=lf
 *.pdf binary

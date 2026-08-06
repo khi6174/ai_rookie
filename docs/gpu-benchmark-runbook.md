@@ -427,6 +427,31 @@ pnpm run eval:a100:cascade:lora:evidence:verify
 
 검증 산출물은 `artifacts/evals/ax-cascade-lora-evidence-latest.json`이다. 다음 Gate는 frozen 재실행이 아니라 `LOCAL_ONLY/HOSTED_ONLY/CASCADE` 독립 비교와 제품 사람 검토다.
 
+### 10.5 동일 12과업 제품검토 비교
+
+frozen은 이미 1회를 소비했으므로 다시 열지 않는다. `artifacts/evals/ax-cascade-product-review-v1.json`은 기존 A.X-K1 Live 12/12 증거와 정확히 같은 `domestic-ai-benchmark-v1` task ID·순서·output contract를 새 비교 bundle로 고정한다. 먼저 로컬에서 bundle drift와 평가기 자체 테스트를 확인한다.
+
+```bash
+node scripts/prepare-ax-cascade-product-review.mjs --check
+python scripts/evaluate-ax-cascade-product-review-local.py --self-test
+```
+
+로컬 LoRA 비교는 새 출력 폴더에서 terminal 1회만 실행한다. 모든 dependency·model·adapter·training/frozen 증거·Hosted 증거·bundle hash를 먼저 검사하고 모델을 정상 로드한 뒤 `product-review-local-consumed.json`을 배타적으로 생성한다. 실행이 시작되면 결과와 관계없이 재실행하지 않는다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+python -u scripts/evaluate-ax-cascade-product-review-local.py \
+  --execute-qualification-run \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --adapter-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/adapter" \
+  --training-summary "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/training-summary.json" \
+  --output-dir "$HOME/ai_rookie-gpu/results/ax-cascade-product-review-v1-local-run1"
+```
+
+사전 기준은 12/12, schema·숫자·인용·역할·인젝션·필수 fact·필수 citation·필수 표시값 100%, unsafe 0건이다. 결과는 `local-only-results.jsonl`과 `local-only-summary.json`에 원문 없이 저장한다. 다음 조립 단계는 동일 task ID의 기존 Hosted 결과와 로컬 결과를 비교해 실제 로컬 해결률, 예상 승격률, P50/P95, 토큰과 장애 Fallback 증거를 사람 검토 패키지로 만든다. `productIntegrationApproved=false`는 별도 승인 전까지 유지한다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계

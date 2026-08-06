@@ -53,6 +53,8 @@
     "eval:a100:cascade:lora:validation:self-test": "python scripts/evaluate-ax-cascade-lora.py --self-test",
     "eval:a100:cascade:lora:frozen:self-test": "python scripts/evaluate-ax-cascade-lora-frozen.py --self-test",
     "eval:a100:cascade:lora:evidence:verify": "node scripts/verify-ax-cascade-lora-evidence.mjs",
+    "eval:a100:cascade:product-review:prepare": "node scripts/prepare-ax-cascade-product-review.mjs",
+    "eval:a100:cascade:product-review:local:self-test": "python scripts/evaluate-ax-cascade-product-review-local.py --self-test",
     "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
     "eval:rider-reference:stimulus": "node scripts/build-rider-reference-stimulus.mjs",
     "eval:rider-reference:comprehension": "node scripts/run-rider-reference-comprehension.mjs",

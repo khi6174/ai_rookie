@@ -321,6 +321,8 @@ ADR-133의 새 LoRA 후보 데이터는 `pnpm run data:synthetic:cascade`로 400
 
 terminal frozen 1회 실행은 2026-08-06 `FROZEN_GATE_PASS`로 종료됐다. 200/200 VERIFIED, Fallback 0, schema·숫자·인용·역할 정책·비신뢰 지시 격리·exact 계약 모두 `1.0`, unsafe 표시 0건이다. P50 생성은 `11,218.43ms`, P95는 `13,161.94ms`, 전체 평가시간은 `2,064.76초`, peak VRAM은 `14,194.11MiB`였다. 소비 표식은 `terminalAttempt=true`, `rerunPermitted=false`로 보존한다. 회수한 validation/frozen 400행은 `scripts/verify-ax-cascade-lora-evidence.mjs`가 원본 split·manifest·config·summary·adapter manifest와 독립 대조하고 모든 집계를 재계산해 `artifacts/evals/ax-cascade-lora-evidence-latest.json`에 `VERIFIED`로 기록했다. 이 결과도 제품 통합 승인이 아니며 다음 단계는 독립 Cascade 비교와 사람 검토다.
 
+독립 Cascade 비교는 소비된 frozen을 다시 열지 않는다. 기존 A.X-K1 Live 12/12 증거와 동일한 `domestic-ai-benchmark-v1` 12과업을 `domestic-ai-product-review-v1.0.0`으로 잠그고, LoRA adapter가 A100에서 같은 입력·필수 fact·citation·표시값 계약을 통과하는지 terminal 1회로 측정한다. bundle hash는 `b5c39862…`, 기존 Hosted 증거 hash는 `07697017…`이며 둘의 task ID·순서·prompt version을 사전 대조한다. 로컬 결과는 prompt·원문 출력을 저장하지 않고 검증 상태·출력 hash·지연·토큰만 기록한다. 이 실행은 frozen 재평가나 제품 활성화가 아니다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

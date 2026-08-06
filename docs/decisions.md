@@ -1356,6 +1356,17 @@
 - 기각한 대안: summary만 복사해 독립 검증 생략, PASS를 곧바로 제품 자격으로 해석, 실패행 원문을 수동 선별, frozen 재실행, 기존 학습되지 않은 기준선 결과와 합쳐 성능 주장.
 - 영향 파일: `artifacts/evals/local-model-runs/ax-cascade-lora-v1/`, `artifacts/evals/ax-cascade-lora-evidence-latest.json`, `scripts/verify-ax-cascade-lora-evidence.mjs`, `tests/a100-cascade-lora-evidence.test.ts`, `docs/evals.md`, `docs/gpu-benchmark-runbook.md`, `docs/domestic-ai-track-compliance.md`
 
+### ADR-136 — 제품검토 비교는 소비된 frozen 대신 기존 Hosted와 동일한 12과업을 사용한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 결정: frozen 200건은 ADR-134의 terminal 1회를 이미 소비했으므로 `LOCAL_ONLY/HOSTED_ONLY/CASCADE` 비교를 위해 다시 열지 않는다. 대신 기존 A.X-K1 Live 12/12 증거가 사용한 `domestic-ai-benchmark-v1`의 동일 task ID·순서·입력·필수 fact·citation·표시값을 `domestic-ai-product-review-v1.0.0` bundle로 잠근다. LoRA adapter는 이 12과업에서 A100 terminal 1회 생성 평가를 받고, 기존 Hosted 증거와 task-by-task 비교한다.
+- 실행 경계: bundle·qualification evidence·training config·training summary·adapter·Hosted 증거의 SHA-256을 실행 전에 검증한다. 로컬 모델과 adapter가 정상 로드된 뒤 배타적 소비 표식을 만들며 시작된 실행은 실패·중단을 포함해 재실행하지 않는다. 사전 Gate는 12/12와 schema·숫자·인용·역할·인젝션·필수 fact·필수 citation·필수 표시값 100%, unsafe 표시 0건이다. prompt·원문 출력은 저장하지 않는다.
+- 비교 경계: 과거 LoRA frozen 200과 Hosted 12를 같은 모집단처럼 합치지 않는다. 제품검토 12과업 안에서만 로컬 해결률, Hosted 기준, Cascade 예상 승격과 지연·토큰을 비교한다. router 장애·capability·전체 실패 Fallback은 기존 실제 Cascade 단위 테스트와 Mock 12과업으로 별도 검증한다. 이 단계도 제품 통합 승인이 아니다.
+- 이유: 서로 다른 task set의 성공률을 직접 비교하면 과장이고, frozen 재실행은 독립성 위반이다. 기존 Hosted 성공 증거와 정확히 같은 공개된 합성 과업에 로컬 후보만 추가하면 외부 API를 반복 호출하거나 frozen을 훼손하지 않고 공정한 비교가 가능하다.
+- 기각한 대안: frozen 200을 Hosted로 다시 실행, 서로 다른 200/12 성공률을 head-to-head로 표시, 새 API secret 요청, Hosted Live 12과업 반복 호출, local raw output 저장 후 수동 비교.
+- 영향 파일: `artifacts/evals/ax-cascade-product-review-v1.json`, `config/ax-cascade-product-review-v1.json`, `scripts/prepare-ax-cascade-product-review.mjs`, `scripts/evaluate-ax-cascade-product-review-local.py`, 관련 테스트·runbook·평가 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

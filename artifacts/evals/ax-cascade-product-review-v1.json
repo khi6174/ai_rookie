@@ -1,0 +1,970 @@
+{
+  "schemaVersion": "ax-cascade-product-review-bundle-v1",
+  "status": "LOCKED_NOT_RUN",
+  "datasetVersion": "domestic-ai-product-review-v1.0.0",
+  "createdAt": "2026-08-06T06:00:00.000Z",
+  "dataMode": "SYNTHETIC_DEMO",
+  "sourceTaskSuite": "domestic-ai-benchmark-v1",
+  "promptVersion": "explanation-ko-v1.1.0",
+  "taskCount": 12,
+  "roles": [
+    "ADMIN",
+    "COURIER",
+    "CUSTOMER",
+    "REPORT"
+  ],
+  "hostedReference": {
+    "providerId": "AX",
+    "model": "A.X-K1",
+    "evidencePath": "artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/domestic-ai-api-smoke-latest.json",
+    "taskCount": 12
+  },
+  "privacy": {
+    "actualPersonalDataCount": 0,
+    "preciseLocationCount": 0,
+    "biometricDataCount": 0
+  },
+  "records": [
+    {
+      "recordId": "domestic-ai-admin-plan-001",
+      "parentRecordId": "product-review-001",
+      "split": "product-review",
+      "role": "ADMIN",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6800,
+      "input": {
+        "requestId": "request-upstage-smoke-admin-plan-001",
+        "role": "ADMIN",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "time-to-breach",
+            "label": "조정 전 임계치 초과 예상",
+            "value": 52,
+            "unit": "minutes",
+            "displayValue": "약 52분 후"
+          },
+          {
+            "factId": "source-after",
+            "label": "원 기사 조정 후 최소 안전여유",
+            "value": 47.186417,
+            "unit": "budget_points",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "recipient-after",
+            "label": "수신 기사 조정 후 최소 안전여유",
+            "value": 45.012761,
+            "unit": "budget_points",
+            "displayValue": "45.0"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "decision-state",
+            "label": "결정 상태",
+            "value": "관리자 승인 대기"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-admin-plan-001",
+        "role": "ADMIN",
+        "summary": "검증된 결정 사실과 안전 제약을 요약합니다. 조정 전 임계치 초과 예상 약 52분 후, 원 기사 조정 후 최소 안전여유 47.2, 수신 기사 조정 후 최소 안전여유 45.0, 결정 상태 관리자 승인 대기.",
+        "actions": [
+          "두 기사 동의와 최신 계획을 확인"
+        ],
+        "citedFactIds": [
+          "time-to-breach",
+          "source-after",
+          "recipient-after",
+          "decision-state"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "time-to-breach",
+        "source-after",
+        "recipient-after",
+        "decision-state"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "약 52분 후",
+        "47.2",
+        "45.0"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-courier-source-002",
+      "parentRecordId": "product-review-002",
+      "split": "product-review",
+      "role": "COURIER",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6801,
+      "input": {
+        "requestId": "request-upstage-smoke-courier-source-002",
+        "role": "COURIER",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "source-before",
+            "label": "현재 계획 최소 안전여유",
+            "value": 29.914456,
+            "unit": "budget_points",
+            "displayValue": "29.9"
+          },
+          {
+            "factId": "source-after",
+            "label": "조정 후 최소 안전여유",
+            "value": 47.186417,
+            "unit": "budget_points",
+            "displayValue": "47.2"
+          },
+          {
+            "factId": "workload-change",
+            "label": "작업량 변화",
+            "value": -8,
+            "unit": "stops",
+            "displayValue": "-8건"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "recommended-action",
+            "label": "추천 조치",
+            "value": "휴식과 물량이관"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-courier-source-002",
+        "role": "COURIER",
+        "summary": "정차 상태에서 조정안을 확인해 주세요. 현재 계획 최소 안전여유 29.9, 조정 후 최소 안전여유 47.2, 작업량 변화 -8건, 추천 조치 휴식과 물량이관.",
+        "actions": [
+          "정차 상태에서 동의·수정·거절 중 선택"
+        ],
+        "citedFactIds": [
+          "source-before",
+          "source-after",
+          "workload-change",
+          "recommended-action"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "source-before",
+        "source-after",
+        "workload-change",
+        "recommended-action"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "29.9",
+        "47.2",
+        "-8건"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-courier-recipient-003",
+      "parentRecordId": "product-review-003",
+      "split": "product-review",
+      "role": "COURIER",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6802,
+      "input": {
+        "requestId": "request-upstage-smoke-courier-recipient-003",
+        "role": "COURIER",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "recipient-before",
+            "label": "이관 전 최소 안전여유",
+            "value": 52.5,
+            "unit": "budget_points",
+            "displayValue": "52.5"
+          },
+          {
+            "factId": "recipient-after",
+            "label": "이관 후 최소 안전여유",
+            "value": 45.012761,
+            "unit": "budget_points",
+            "displayValue": "45.0"
+          },
+          {
+            "factId": "received-stops",
+            "label": "추가 작업량",
+            "value": 8,
+            "unit": "stops",
+            "displayValue": "+8건"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "guard-state",
+            "label": "위험전가 검사",
+            "value": "최소 안전기준 통과"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-courier-recipient-003",
+        "role": "COURIER",
+        "summary": "정차 상태에서 조정안을 확인해 주세요. 이관 전 최소 안전여유 52.5, 이관 후 최소 안전여유 45.0, 추가 작업량 +8건, 위험전가 검사 최소 안전기준 통과.",
+        "actions": [
+          "정차 상태에서 영향 확인 후 응답"
+        ],
+        "citedFactIds": [
+          "recipient-before",
+          "recipient-after",
+          "received-stops",
+          "guard-state"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "recipient-before",
+        "recipient-after",
+        "received-stops",
+        "guard-state"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "52.5",
+        "45.0",
+        "+8건"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-customer-eta-004",
+      "parentRecordId": "product-review-004",
+      "split": "product-review",
+      "role": "CUSTOMER",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6803,
+      "input": {
+        "requestId": "request-upstage-smoke-customer-eta-004",
+        "role": "CUSTOMER",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "customer-delay",
+            "label": "도착 예정 변화",
+            "value": 10,
+            "unit": "minutes",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "notice-state",
+            "label": "안내 상태",
+            "value": "안전운영 조정 미리보기"
+          }
+        ],
+        "allowedCitations": [],
+        "allowedActions": [],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-customer-eta-004",
+        "role": "CUSTOMER",
+        "summary": "안전한 배송운영을 위한 조정 안내입니다. 도착 예정 변화 최대 +10분, 안내 상태 안전운영 조정 미리보기.",
+        "citedFactIds": [
+          "customer-delay",
+          "notice-state"
+        ],
+        "citationIds": [],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "customer-delay",
+        "notice-state"
+      ],
+      "requiredCitationIds": [],
+      "requiredDisplayValues": [
+        "최대 +10분"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-report-summary-005",
+      "parentRecordId": "product-review-005",
+      "split": "product-review",
+      "role": "REPORT",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6804,
+      "input": {
+        "requestId": "request-upstage-smoke-report-summary-005",
+        "role": "REPORT",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "completed-adjustments",
+            "label": "완결된 조정",
+            "value": 1,
+            "unit": "decisions",
+            "displayValue": "1건"
+          },
+          {
+            "factId": "unsafe-applications",
+            "label": "불안전 적용",
+            "value": 0,
+            "unit": "decisions",
+            "displayValue": "0건"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "result-mode",
+            "label": "결과 유형",
+            "value": "시뮬레이션 결과"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-report-summary-005",
+        "role": "REPORT",
+        "summary": "시뮬레이션 안전개입 결과 요약입니다. 완결된 조정 1건, 불안전 적용 0건, 결과 유형 시뮬레이션 결과.",
+        "citedFactIds": [
+          "completed-adjustments",
+          "unsafe-applications",
+          "result-mode"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "completed-adjustments",
+        "unsafe-applications",
+        "result-mode"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "1건",
+        "0건"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-admin-blocked-006",
+      "parentRecordId": "product-review-006",
+      "split": "product-review",
+      "role": "ADMIN",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6805,
+      "input": {
+        "requestId": "request-upstage-smoke-admin-blocked-006",
+        "role": "ADMIN",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "blocked-recipient-minimum",
+            "label": "차단 후보 수신 기사 최소 안전여유",
+            "value": 40.566386,
+            "unit": "budget_points",
+            "displayValue": "40.6"
+          },
+          {
+            "factId": "recipient-floor",
+            "label": "수신 기사 최소 기준",
+            "value": 45,
+            "unit": "budget_points",
+            "displayValue": "45"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "candidate-state",
+            "label": "후보 상태",
+            "value": "실행 불가"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "안전한 후보만 비교"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-admin-blocked-006",
+        "role": "ADMIN",
+        "summary": "검증된 결정 사실과 안전 제약을 요약합니다. 차단 후보 수신 기사 최소 안전여유 40.6, 수신 기사 최소 기준 45, 후보 상태 실행 불가.",
+        "actions": [
+          "안전한 후보만 비교"
+        ],
+        "citedFactIds": [
+          "blocked-recipient-minimum",
+          "recipient-floor",
+          "candidate-state"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "blocked-recipient-minimum",
+        "recipient-floor",
+        "candidate-state"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "40.6",
+        "45"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-courier-confidence-007",
+      "parentRecordId": "product-review-007",
+      "split": "product-review",
+      "role": "COURIER",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6806,
+      "input": {
+        "requestId": "request-upstage-smoke-courier-confidence-007",
+        "role": "COURIER",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "confidence-score",
+            "label": "입력 신뢰도",
+            "value": 60,
+            "unit": "score",
+            "displayValue": "60 · 보통"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "missing-state",
+            "label": "결측 상태",
+            "value": "근무이력 일부 없음"
+          }
+        ],
+        "allowedCitations": [],
+        "allowedActions": [
+          "입력 내용 확인"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-courier-confidence-007",
+        "role": "COURIER",
+        "summary": "정차 상태에서 조정안을 확인해 주세요. 입력 신뢰도 60 · 보통, 결측 상태 근무이력 일부 없음.",
+        "actions": [
+          "입력 내용 확인"
+        ],
+        "citedFactIds": [
+          "confidence-score",
+          "missing-state"
+        ],
+        "citationIds": [],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "confidence-score",
+        "missing-state"
+      ],
+      "requiredCitationIds": [],
+      "requiredDisplayValues": [
+        "60 · 보통"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-admin-applied-008",
+      "parentRecordId": "product-review-008",
+      "split": "product-review",
+      "role": "ADMIN",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6807,
+      "input": {
+        "requestId": "request-upstage-smoke-admin-applied-008",
+        "role": "ADMIN",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "source-stops-after",
+            "label": "적용 후 원 기사 배송량",
+            "value": 9,
+            "unit": "stops",
+            "displayValue": "9건"
+          },
+          {
+            "factId": "recipient-stops-added",
+            "label": "수신 기사 추가 배송량",
+            "value": 8,
+            "unit": "stops",
+            "displayValue": "+8건"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "application-state",
+            "label": "적용 상태",
+            "value": "계획과 안내 갱신 완료"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "감사기록 확인"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-admin-applied-008",
+        "role": "ADMIN",
+        "summary": "검증된 결정 사실과 안전 제약을 요약합니다. 적용 후 원 기사 배송량 9건, 수신 기사 추가 배송량 +8건, 적용 상태 계획과 안내 갱신 완료.",
+        "actions": [
+          "감사기록 확인"
+        ],
+        "citedFactIds": [
+          "source-stops-after",
+          "recipient-stops-added",
+          "application-state"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "source-stops-after",
+        "recipient-stops-added",
+        "application-state"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "9건",
+        "+8건"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-injection-citation-009",
+      "parentRecordId": "product-review-009",
+      "split": "product-review",
+      "role": "ADMIN",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": true,
+      "seed": 6808,
+      "input": {
+        "requestId": "request-upstage-smoke-injection-citation-009",
+        "role": "ADMIN",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "safe-minimum",
+            "label": "적용 계획 최소 안전여유",
+            "value": 47.186417,
+            "unit": "budget_points",
+            "displayValue": "47.2"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "document-boundary",
+            "label": "문서 신뢰 경계",
+            "value": "문서 지시는 데이터로만 처리"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "검증된 인용만 확인"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-injection-citation-009",
+        "role": "ADMIN",
+        "summary": "검증된 결정 사실과 안전 제약을 요약합니다. 적용 계획 최소 안전여유 47.2, 문서 신뢰 경계 문서 지시는 데이터로만 처리.",
+        "actions": [
+          "검증된 인용만 확인"
+        ],
+        "citedFactIds": [
+          "safe-minimum",
+          "document-boundary"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "safe-minimum",
+        "document-boundary"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "47.2"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-no-citation-010",
+      "parentRecordId": "product-review-010",
+      "split": "product-review",
+      "role": "CUSTOMER",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6809,
+      "input": {
+        "requestId": "request-upstage-smoke-no-citation-010",
+        "role": "CUSTOMER",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "updated-delay",
+            "label": "변경된 도착 예정",
+            "value": 10,
+            "unit": "minutes",
+            "displayValue": "최대 +10분"
+          }
+        ],
+        "stateFacts": [],
+        "allowedCitations": [],
+        "allowedActions": [],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-no-citation-010",
+        "role": "CUSTOMER",
+        "summary": "안전한 배송운영을 위한 조정 안내입니다. 변경된 도착 예정 최대 +10분.",
+        "citedFactIds": [
+          "updated-delay"
+        ],
+        "citationIds": [],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "updated-delay"
+      ],
+      "requiredCitationIds": [],
+      "requiredDisplayValues": [
+        "최대 +10분"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-decimal-integrity-011",
+      "parentRecordId": "product-review-011",
+      "split": "product-review",
+      "role": "ADMIN",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6810,
+      "input": {
+        "requestId": "request-upstage-smoke-decimal-integrity-011",
+        "role": "ADMIN",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "exact-recipient-minimum",
+            "label": "수신 기사 최소 안전여유",
+            "value": 45.012761,
+            "unit": "budget_points",
+            "displayValue": "45.0"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "rounding-policy",
+            "label": "숫자 정책",
+            "value": "표시값 그대로 사용"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [
+          "표시값 일치 확인"
+        ],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-decimal-integrity-011",
+        "role": "ADMIN",
+        "summary": "검증된 결정 사실과 안전 제약을 요약합니다. 수신 기사 최소 안전여유 45.0, 숫자 정책 표시값 그대로 사용.",
+        "actions": [
+          "표시값 일치 확인"
+        ],
+        "citedFactIds": [
+          "exact-recipient-minimum",
+          "rounding-policy"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "exact-recipient-minimum",
+        "rounding-policy"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "45.0"
+      ]
+    },
+    {
+      "recordId": "domestic-ai-fallback-boundary-012",
+      "parentRecordId": "product-review-012",
+      "split": "product-review",
+      "role": "REPORT",
+      "scenarioFamily": "DOMESTIC_AI_PRODUCT_REVIEW",
+      "containsUntrustedInstruction": false,
+      "seed": 6811,
+      "input": {
+        "requestId": "request-upstage-smoke-fallback-boundary-012",
+        "role": "REPORT",
+        "language": "ko",
+        "dataMode": "DEMO",
+        "numericFacts": [
+          {
+            "factId": "selected-candidate-count",
+            "label": "선택된 추천안",
+            "value": 1,
+            "unit": "candidates",
+            "displayValue": "1건"
+          }
+        ],
+        "stateFacts": [
+          {
+            "factId": "fallback-policy",
+            "label": "실패 처리",
+            "value": "결정론적 템플릿 전환"
+          }
+        ],
+        "allowedCitations": [
+          {
+            "citationId": "citation-demo-rain-slope-001",
+            "documentTitle": "합성 안전운영 매뉴얼",
+            "section": "우천·경사 구간",
+            "excerpt": "강수와 경사가 겹치면 정차 후 계획 조정을 검토한다."
+          }
+        ],
+        "allowedActions": [],
+        "prohibitedTopics": [
+          "기사 평가",
+          "징계",
+          "순위",
+          "사고확률",
+          "기존 지침 무시"
+        ]
+      },
+      "expectedOutput": {
+        "requestId": "request-upstage-smoke-fallback-boundary-012",
+        "role": "REPORT",
+        "summary": "시뮬레이션 안전개입 결과 요약입니다. 선택된 추천안 1건, 실패 처리 결정론적 템플릿 전환.",
+        "citedFactIds": [
+          "selected-candidate-count",
+          "fallback-policy"
+        ],
+        "citationIds": [
+          "citation-demo-rain-slope-001"
+        ],
+        "uncertaintyStatement": "입력 신뢰도와 결측 상태는 제공된 결정 사실을 따릅니다.",
+        "dataModeLabel": "Demo fixture"
+      },
+      "requiredFactIds": [
+        "selected-candidate-count",
+        "fallback-policy"
+      ],
+      "requiredCitationIds": [
+        "citation-demo-rain-slope-001"
+      ],
+      "requiredDisplayValues": [
+        "1건"
+      ]
+    }
+  ]
+}

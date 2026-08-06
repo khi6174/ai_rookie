@@ -25,6 +25,8 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 
 ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고, 객관적 계약 실패나 capability 부족일 때만 A.X-K1·K-EXAONE·Solar 중 허용 공급자로 승격하는 국내 AI Cascade다. 기존 A.X-4.0-Light 기준선은 학습되지 않은 `PARTIAL_RESEARCH_BASELINE`이다. 새 LoRA 후보는 validation과 terminal frozen을 통과했지만 독립 Cascade 비교와 사람 검토 전에는 로컬 제품 계층으로 활성화하지 않는다. Hosted API 출력은 각 공급자의 학습·증류 조건을 확인하기 전에는 로컬 학습 라벨로 재사용하지 않는다.
 
+독립 비교는 frozen을 재실행하거나 Hosted 출력을 학습 라벨로 사용하지 않는다. 기존 A.X-K1 Live 12과업과 동일한 합성 입력 bundle에서 LoRA 로컬 결과만 새로 측정하고, 두 증거의 task ID·계약·hash를 대조한다. 비교 결과와 관계없이 사람 검토와 별도 모델 경계 승인 전에는 공개 제품의 `AX_LOCAL`을 활성화하지 않는다.
+
 기상청 API허브는 공개 날씨 입력이며 생성형 AI 공급자가 아니다. 불완전한 Live 필드는 Safety 계산에 섞지 않고 전체 Demo 타임라인으로 Fallback한다.
 
 ## 3. 통신 계약 설명
