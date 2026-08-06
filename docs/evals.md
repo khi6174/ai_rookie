@@ -509,12 +509,12 @@ G4-B는 24·96·240명 합성 profile을 같은 1440×900 Windows headless Chrom
 | A.X 30과업 생성 강건성 v1.2 | 결정론적 사실 anchor·생성 설명 분리·독립 결과 검증 | 첫 시도 28/30, Fallback 2건, 평균 2,589.14ms·P95 3,442.77ms·최대 13,949.28MiB, unsafe 표시 0건 |
 | 지정 해상도·포인터 폐루프 | 인앱 브라우저 수동 QA | 4개 해상도, 두 기사 동의→승인→적용 통과 |
 | 여섯 심사기준 최종 GOAL 감사 | `pnpm run audit:goal` | 여섯 기준의 원자 check·근거 SHA-256·사람 blocker 판정; G5-B Round 4 미실시는 `DISCLOSED_VALIDATION_GAP`, 전체 상태는 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`이며 사람 통과로 계산하지 않음 |
-| Playwright 폐루프·접근성·PWA E2E | `pnpm run test:e2e` | 47/47 통과, 공개 지원 검토의 Upstage 검증·Template Fallback 출처, 기존 폐루프·reset·키보드·4개 해상도·지도 Fallback·offline/PWA·G4-B 부하·G5-A 2.5D 전환·복귀·reduced-motion과 익명 검토 도구 검증 |
+| Playwright 폐루프·접근성·PWA E2E | `pnpm run test:e2e` | 47/47 통과, 공개 지원 검토의 Upstage 검증·Template Fallback 출처와 A.X v2 집계·제품 미활성 Q&A, 기존 폐루프·reset·키보드·4개 해상도·지도 Fallback·offline/PWA·G4-B 부하·G5-A 2.5D 전환·복귀·reduced-motion 검증 |
 | 서버 clean start 3회 | `pnpm run test:e2e:clean-start` | Vite·브라우저 매회 재기동, 핵심 폐루프 3/3, 기사 제품 경계 도구 반영 후 최종 재실행 총 20.1초 |
 | 발표 스크린샷 | `pnpm run test:e2e` | 네 지정 해상도에서 6개 PNG 생성, 해상도·SHA-256 manifest 독립 검증 6/6 |
 | TypeScript 검사 | `pnpm run typecheck` | 오류 0건 |
 | 프로덕션 빌드 | `pnpm run build` | Vite 빌드 성공 |
-| 최신 전체 Vitest | `pnpm test` | 64개 파일, 383/383 통과 |
+| 최신 전체 Vitest | `pnpm test` | 65개 파일, 385/385 통과; A.X v2 화면 aggregate를 독립 training·제품검토 evidence에 직접 대조 |
 | G2-A 다지역 fixture·MapAdapter | `pnpm test` | 19개 파일, 198개 테스트 통과: 3지역·24기사 참조 무결성, 동일 seed 재현, national 개별 기사 0명, region 8명, decision 1명, 지도·큐 동일 decision |
 | G2-B 지도 Fallback·접근성 E2E | `pnpm run test:e2e` | 12/12 통과: 지도 오류→지역·기사·decision·배송순서 목록, 지도 복구, 지도·지원 큐 왕복, 키보드 전용 구조화 대안, 네 지정 해상도, 기존 승인 폐루프·독립 세션 3회 |
 | G3-A 기사 모바일 첫 화면 | `pnpm run test:e2e` | 390×844·360×800에서 Safe-until·다음 배송·합성 현재 위치·주요 안전지원 행동과 조정 전후·동의 행동이 하단 탭 위에 표시, 44px·48px 터치 기준과 가로 넘침 0건 |

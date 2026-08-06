@@ -51,6 +51,7 @@ import {
   riderRoutePosition,
   type RiderRoutePoint,
 } from "../application/riderMapPresentation";
+import { axModelQualification } from "./axModelQualification";
 import { generateOperationsAdminExplanation } from "./operationsExplanation";
 import "./one-page-dashboard.css";
 
@@ -891,6 +892,59 @@ function InterventionDialog({
                     )}
                   </div>
                 )}
+                <details className="onepage-model-evidence">
+                  <summary>
+                    <span>A.X v2 검증 근거</span>
+                    <small>{axModelQualification.statusLabel}</small>
+                  </summary>
+                  <div className="onepage-model-evidence-body">
+                    <div className="onepage-model-runtime">
+                      <span>현재 공개 실행</span>
+                      <strong>{axModelQualification.publicRuntimeLabel}</strong>
+                      <small>A.X Local runtime은 활성화하지 않았습니다.</small>
+                    </div>
+                    <dl className="onepage-model-metrics">
+                      <div>
+                        <dt>학습</dt>
+                        <dd>{axModelQualification.evidence.trainingRecords.toLocaleString("ko-KR")}건</dd>
+                      </div>
+                      <div>
+                        <dt>Validation</dt>
+                        <dd>{axModelQualification.evidence.validationPassed}/{axModelQualification.evidence.validationTotal}</dd>
+                      </div>
+                      <div>
+                        <dt>Frozen</dt>
+                        <dd>{axModelQualification.evidence.frozenPassed}/{axModelQualification.evidence.frozenTotal}</dd>
+                      </div>
+                      <div>
+                        <dt>동일 과업</dt>
+                        <dd>{axModelQualification.evidence.productReviewPassed}/{axModelQualification.evidence.productReviewTotal}</dd>
+                      </div>
+                      <div>
+                        <dt>Local P95</dt>
+                        <dd>{axModelQualification.evidence.localP95Label}</dd>
+                      </div>
+                      <div>
+                        <dt>Hosted P95</dt>
+                        <dd>{axModelQualification.evidence.hostedP95Label}</dd>
+                      </div>
+                    </dl>
+                    <p>
+                      {axModelQualification.modelLabel} · {axModelQualification.dataModeLabel} · {axModelQualification.evidenceLabel} · Fallback {axModelQualification.evidence.fallbackCount} · unsafe 표시 {axModelQualification.evidence.unsafeDisplayCount}
+                    </p>
+                    <section className="onepage-model-qa" aria-labelledby="onepage-model-qa-title">
+                      <h4 id="onepage-model-qa-title">심사 Q&amp;A</h4>
+                      <dl>
+                        {axModelQualification.questions.map((item) => (
+                          <div key={item.question}>
+                            <dt>{item.question}</dt>
+                            <dd>{item.answer}</dd>
+                          </div>
+                        ))}
+                      </dl>
+                    </section>
+                  </div>
+                </details>
               </div>
             </details>
 

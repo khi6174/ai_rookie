@@ -178,6 +178,9 @@ test("지원 검토 안에서 검증된 AI 설명 출처와 안전 템플릿 전
   await page.getByRole("button", { name: "지원 검토" }).click();
   let dialog = page.getByRole("dialog");
   await dialog.getByText("AI 근거 설명", { exact: true }).click();
+  await expect(
+    dialog.getByText("Local 모델 슬롯 자격 · 제품 미활성", { exact: true }),
+  ).toBeVisible();
   await dialog.getByRole("button", { name: "근거 설명 생성" }).click();
   await expect(dialog.getByText("Upstage · 검증 완료", { exact: true })).toHaveCount(1);
   await expect(dialog.locator('[data-explanation-status="LIVE"]')).toContainText(
@@ -202,9 +205,27 @@ test("지원 검토 안에서 검증된 AI 설명 출처와 안전 템플릿 전
   await expect(dialog.locator('[data-explanation-status="FALLBACK"]')).toContainText(
     "동일한 결정 사실을 안전 템플릿으로 설명했습니다.",
   );
+  await dialog.getByText("A.X v2 검증 근거", { exact: true }).click();
+  await expect(
+    dialog.getByText("Upstage Hosted + 안전 템플릿", { exact: true }),
+  ).toBeVisible();
+  await expect(dialog.getByText("A.X Local runtime은 활성화하지 않았습니다.")).toBeVisible();
+  await expect(dialog.getByText("1,800건", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("300/300", { exact: true })).toHaveCount(2);
+  await expect(dialog.getByText("12/12", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("8.41초", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("4.25초", { exact: true })).toBeVisible();
+  await expect(dialog.getByText(/Fallback 0 · unsafe 표시 0/)).toBeVisible();
+  await expect(
+    dialog.getByText("현재 설명을 A.X Local이 생성하나요?", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByText(/추천·실행 가능성·승인 상태를 변경하지 않습니다/),
+  ).toBeVisible();
   await expectNoPageOverflow(page);
+  await dialog.locator(".onepage-model-evidence").scrollIntoViewIfNeeded();
   await page.screenshot({
-    path: "test-results/dashboard-ai-explanation-1280x720.png",
+    path: "test-results/dashboard-ax-v2-evidence-1280x720.png",
     fullPage: true,
   });
 });

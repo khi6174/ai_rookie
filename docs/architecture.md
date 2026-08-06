@@ -107,6 +107,8 @@ ADR-131의 기사 응급 예시는 `src/application/demoRiderDangerSignal.ts`와
 
 ADR-142의 공개 지원 검토 설명은 `src/ui/operationsExplanation.ts`에서 `/`와 `/operations`가 공유하는 최소 합성 설명 입력을 구성한다. 입력은 현재·조정 후 Safety 값, Time-to-Breach·예상 배송지, ETA 변화, 결정 상태·지원 유형·신뢰도만 허용하며 `src/application/explanations`의 strict 스키마·숫자·역할 검증과 `src/adapters/upstage`의 서버 프록시를 그대로 사용한다. 공개 모달은 요청 전에는 네트워크 호출을 하지 않고, Live 검증 실패 시 같은 입력의 결정론적 Template 결과만 표시한다. 이 프레젠테이션 경로는 Safety 계산, 후보 선택, Risk Transfer Guard, 동의와 승인 상태기계의 입력이 아니다.
 
+ADR-143의 `src/ui/axModelQualification.ts`는 A.X v2 evidence 두 개에서 승인된 aggregate만 브라우저에 투영하는 프레젠테이션 계약이다. 런타임 JSON 전체, 개별 결과행, prompt, 원문 출력과 adapter를 가져오지 않으며 별도 단위 테스트가 validation·frozen·동일 과업·Fallback·unsafe·P95 표시를 저장된 evidence와 직접 대조한다. 이 모듈은 생성 공급자 adapter가 아니고 Cascade routing·Safety·추천·승인 상태에 연결되지 않는다.
+
 ### 4.2 권장 디렉터리
 
 ```text

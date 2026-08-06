@@ -1436,6 +1436,18 @@
 - 기각한 대안: 공개 `/`를 `/stage` 또는 `/operations`로 교체, 전역 탐색·패널 비율·색상 체계 전면 변경, A.X v2 자격을 Local runtime 활성화처럼 표시, STT를 이번 제출 UI에 함께 추가, 장식 차트·대형 신규 섹션으로 첫 화면을 확장.
 - 영향 파일: `docs/design-system.md`, 공개 루트 대시보드와 기사 앱 UI, 관련 단위·E2E·시각 회귀 증거
 
+### ADR-143 — A.X v2 자격 증거는 공개 설명 안의 접이식 심사 근거로만 표시한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 사용자 결정: 현재 Demo 대시보드를 유지하는 ADR-142 방향 아래에서 다음 가산형 개선으로 A.X v2 검증 근거와 심사 질의응답을 진행하도록 승인했다.
+- 결정: 공개 `/`의 기존 `AI 근거 설명` 안에 `A.X v2 검증 근거`를 한 단계 더 접어 제공한다. 화면은 독립 검증된 집계에서 학습 1,800건, validation 300/300, terminal frozen 300/300, 동일 잠금 제품 과업 12/12, Fallback·unsafe 표시 0건과 Local/Hosted P95 8.41초/4.25초를 표시한다. 바로 위에 `현재 공개 실행: Upstage Hosted + 안전 템플릿`, `A.X Local runtime은 활성화하지 않았습니다`를 고정하고, 자격의 의미·미활성 이유·AI 권한을 네 개 짧은 Q&A로 설명한다.
+- 증거 경계: `src/ui/axModelQualification.ts`는 표시 전용 aggregate projection이며 `tests/ax-model-qualification-presentation.test.ts`가 `artifacts/evals/ax-cascade-lora-v2-evidence-latest.json`과 `artifacts/evals/ax-cascade-product-review-v2-latest.json`에 직접 대조한다. prompt·원문 출력·adapter·원격 실행 경로·개인정보는 브라우저 bundle이나 화면에 포함하지 않는다. 합성 검증 PASS를 현장 일반화, 사고감소 또는 제품 runtime 활성화로 표현하지 않는다.
+- 성능 기준: 접이식 aggregate와 Q&A의 비공간 증가분은 직전 승인 build 대비 gzip JS `1,055 bytes`다. 이를 G5 비교 baseline에 분리해 키 없는 기준을 `148,043 bytes`로 재고정한다. 2.5D 장면의 추가 허용량 `50KiB`와 프레임·전환 시간 기준은 변경하거나 완화하지 않는다.
+- 이유: 모델 자격과 실제 제품 활성화를 구분해 보여주면 A100 활용 결과를 숨기지 않으면서도 현재 실행 공급자를 오인시키지 않는다. 기본 접힘 상태는 기존 대시보드의 정보 밀도와 결정 흐름을 보존하며 심사 질문이 있을 때만 세부 증거를 연다.
+- 기각한 대안: 헤더에 대형 A.X 배지 추가, Local이 현재 설명을 생성하는 것처럼 표시, 원시 결과행·prompt·adapter 다운로드 제공, 제출 본편에 전체 benchmark 수치 나열, 지연 차이와 미배포 운영 Gate 은폐.
+- 영향 파일: `src/ui/axModelQualification.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, A.X 표시 계약 단위 테스트·공개 대시보드 E2E, `docs/product-spec.md`, `docs/architecture.md`, `docs/demo-script.md`, `docs/evals.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
