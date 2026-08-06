@@ -7,22 +7,41 @@ import process from "node:process";
 
 const root = process.cwd();
 const checkOnly = process.argv.includes("--check");
+const experimentArgumentIndex = process.argv.indexOf("--experiment");
+const experimentVersion =
+  experimentArgumentIndex === -1
+    ? "v1"
+    : process.argv[experimentArgumentIndex + 1];
+if (!["v1", "v2"].includes(experimentVersion)) {
+  throw new Error(
+    "AX_CASCADE_PRODUCT_REVIEW_ASSEMBLY_FAILED code=EXPERIMENT_ARGUMENT",
+  );
+}
+const experimentId = `ax-cascade-product-review-${experimentVersion}`;
 const localRoot = path.join(
   root,
-  "artifacts/evals/local-model-runs/ax-cascade-product-review-v1",
+  `artifacts/evals/local-model-runs/${experimentId}`,
 );
 const paths = {
-  config: path.join(root, "config/ax-cascade-product-review-v1.json"),
+  config: path.join(
+    root,
+    `config/ax-cascade-product-review-${experimentVersion}.json`,
+  ),
   bundle: path.join(root, "artifacts/evals/ax-cascade-product-review-v1.json"),
   localSummary: path.join(
     localRoot,
-    "ax-cascade-product-review-v1-local-run1/local-only-summary.json",
+    `${experimentId}-local-run1/local-only-summary.json`,
   ),
   localResults: path.join(
     localRoot,
-    "ax-cascade-product-review-v1-local-run1/local-only-results.jsonl",
+    `${experimentId}-local-run1/local-only-results.jsonl`,
   ),
-  marker: path.join(localRoot, "product-review-local-consumed.json"),
+  marker: path.join(
+    localRoot,
+    experimentVersion === "v1"
+      ? "product-review-local-consumed.json"
+      : "product-review-v2-local-consumed.json",
+  ),
   hosted:
     path.join(
       root,
@@ -33,6 +52,12 @@ const paths = {
     "artifacts/evals/domestic-ai-cascade-mock-latest.json",
   ),
   output: path.join(
+    root,
+    experimentVersion === "v1"
+      ? "artifacts/evals/ax-cascade-product-review-latest.json"
+      : "artifacts/evals/ax-cascade-product-review-v2-latest.json",
+  ),
+  priorComparison: path.join(
     root,
     "artifacts/evals/ax-cascade-product-review-latest.json",
   ),
@@ -117,6 +142,10 @@ const localRows = await readJsonl(paths.localResults);
 const marker = await readJson(paths.marker);
 const hostedEvidence = await readJson(paths.hosted);
 const cascadeMock = await readJson(paths.cascadeMock);
+const priorComparison =
+  experimentVersion === "v2"
+    ? await readJson(paths.priorComparison)
+    : undefined;
 const hashes = {
   config: await sha256(paths.config),
   bundle: await sha256(paths.bundle),
@@ -125,13 +154,22 @@ const hashes = {
   marker: await sha256(paths.marker),
   hosted: await sha256(paths.hosted),
   cascadeMock: await sha256(paths.cascadeMock),
+  ...(experimentVersion === "v2"
+    ? { priorComparison: await sha256(paths.priorComparison) }
+    : {}),
 };
 
 requireValue(hashes.bundle === config.bundleSha256, "BUNDLE_HASH");
 requireValue(hashes.hosted === config.hostedReference.sha256, "HOSTED_HASH");
 requireValue(localSummary.bundleSha256 === hashes.bundle, "LOCAL_BUNDLE_HASH");
 requireValue(localSummary.configSha256 === hashes.config, "LOCAL_CONFIG_HASH");
-requireValue(localSummary.status === "LOCAL_COMPARISON_FAIL", "LOCAL_STATUS");
+requireValue(
+  localSummary.status ===
+    (experimentVersion === "v1"
+      ? "LOCAL_COMPARISON_FAIL"
+      : "LOCAL_COMPARISON_PASS"),
+  "LOCAL_STATUS",
+);
 requireValue(localSummary.taskCount === 12, "LOCAL_SUMMARY_TASK_COUNT");
 requireValue(localSummary.frozenRecordsRead === 0, "LOCAL_FROZEN_READ");
 requireValue(localSummary.evaluationAttempts === 1, "LOCAL_ATTEMPT_COUNT");
@@ -217,6 +255,7 @@ const hostedLatencies = hostedProvider.results.map((row) => row.latencyMs);
 const cascadeLatencies = comparisonRows.map((row) => row.sequentialLatencyMs);
 const localPassed = localRows.filter((row) => row.status === "PASSED").length;
 const escalated = comparisonRows.filter((row) => row.escalated).length;
+const localGatePassed = localPassed === 12;
 const metrics = [
   {
     strategy: "LOCAL_ONLY",
@@ -278,20 +317,62 @@ const mockCascade = cascadeMock.metrics.find(
 requireValue(mockCascade?.finalVerifiedRate === 1, "CASCADE_MOCK_FINAL_RATE");
 requireValue(mockCascade?.unsafeDisplayCount === 0, "CASCADE_MOCK_UNSAFE");
 
+const priorLocalMetric = priorComparison?.metrics?.find(
+  (metric) => metric.strategy === "LOCAL_ONLY",
+);
+if (experimentVersion === "v2") {
+  requireValue(
+    priorComparison?.experimentId === "ax-cascade-product-review-v1",
+    "PRIOR_COMPARISON_EXPERIMENT",
+  );
+  requireValue(
+    priorComparison?.taskSuite === bundle.sourceTaskSuite,
+    "PRIOR_COMPARISON_TASK_SUITE",
+  );
+  requireValue(priorLocalMetric?.verifiedLocal === 7, "PRIOR_LOCAL_PASS_COUNT");
+  requireValue(localGatePassed, "V2_LOCAL_GATE");
+}
+
+const recommendation =
+  experimentVersion === "v1"
+    ? "DEFER_LOCAL_PRODUCT_ACTIVATION"
+    : "QUALIFY_LOCAL_MODEL_RETAIN_ACTIVATION_REVIEW";
+
 const artifact = {
   schemaVersion: "ax-cascade-product-review-comparison-v1",
   capturedAt: localSummary.capturedAt,
-  status: "CASCADE_COMPARISON_PASS_LOCAL_NOT_QUALIFIED",
+  status: localGatePassed
+    ? "CASCADE_COMPARISON_PASS_LOCAL_QUALIFIED"
+    : "CASCADE_COMPARISON_PASS_LOCAL_NOT_QUALIFIED",
   experimentId: config.experimentId,
   taskSuite: bundle.sourceTaskSuite,
   taskCountPerStrategy: 12,
   evidenceMode: "RECORDED_SAME_TASK_COMPARISON",
   evidenceHashes: hashes,
+  ...(experimentVersion === "v2"
+    ? {
+        improvementFromV1: {
+          sameTaskSuite: true,
+          priorExperimentId: priorComparison.experimentId,
+          priorVerifiedLocal: priorLocalMetric.verifiedLocal,
+          currentVerifiedLocal: localPassed,
+          verifiedLocalDelta: localPassed - priorLocalMetric.verifiedLocal,
+          priorFallback: priorLocalMetric.fallback,
+          currentFallback: 12 - localPassed,
+          fallbackDelta: 12 - localPassed - priorLocalMetric.fallback,
+          priorFinalVerifiedRate:
+            priorComparison.metrics.find(
+              (metric) => metric.strategy === "LOCAL_ONLY",
+            ).finalVerifiedRate,
+          currentFinalVerifiedRate: localPassed / 12,
+        },
+      }
+    : {}),
   results: comparisonRows,
   metrics,
   gates: {
     sameTaskOrderVerified: true,
-    localGatePassed: false,
+    localGatePassed,
     hostedReferencePassed: true,
     cascadeFinalVerifiedRateMinimum: 1,
     cascadeUnsafeDisplayCountMaximum: 0,
@@ -308,16 +389,24 @@ const artifact = {
     unsafeDisplayCount: mockCascade.unsafeDisplayCount,
   },
   humanReview: {
-    recommendation: "DEFER_LOCAL_PRODUCT_ACTIVATION",
+    recommendation,
     cascadeContractQualified: true,
-    localProductSlotQualified: false,
+    localProductSlotQualified: localGatePassed,
     runtimeActivationReady: false,
-    reasons: [
-      "LOCAL_GATE_FAILED_7_OF_12",
-      "HOSTED_ESCALATION_REQUIRED_5_OF_12",
-      "CASCADE_P95_EXCEEDS_HOSTED_ONLY",
-      "LOCAL_PRODUCTION_RUNTIME_NOT_DEPLOYED",
-    ],
+    reasons:
+      experimentVersion === "v1"
+        ? [
+            "LOCAL_GATE_FAILED_7_OF_12",
+            "HOSTED_ESCALATION_REQUIRED_5_OF_12",
+            "CASCADE_P95_EXCEEDS_HOSTED_ONLY",
+            "LOCAL_PRODUCTION_RUNTIME_NOT_DEPLOYED",
+          ]
+        : [
+            "LOCAL_GATE_PASSED_12_OF_12",
+            "LOCAL_P95_EXCEEDS_HOSTED_ONLY",
+            "LOCAL_PRODUCTION_RUNTIME_NOT_DEPLOYED",
+            "PRODUCT_ACTIVATION_REQUIRES_USER_APPROVAL",
+          ],
   },
   privacy: {
     promptStored: false,
@@ -325,7 +414,9 @@ const artifact = {
     actualPersonalDataCount: 0,
   },
   productIntegrationApproved: false,
-  nextGate: "human-product-review-decision",
+  nextGate: localGatePassed
+    ? "controlled-runtime-and-human-activation-decision"
+    : "human-product-review-decision",
 };
 
 const serialized = `${JSON.stringify(artifact, null, 2)}\n`;

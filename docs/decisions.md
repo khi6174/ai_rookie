@@ -1401,6 +1401,17 @@
 - 기각한 대안: v2 frozen 재실행, v1과 다른 쉬운 제품 과업 선택, v1 실패 출력으로 사후 튜닝, Local Gate 완화, frozen PASS만으로 공개 runtime 활성화.
 - 영향 파일: `scripts/verify-ax-cascade-lora-evidence.mjs`, `artifacts/evals/local-model-runs/ax-cascade-lora-v2/`, `artifacts/evals/ax-cascade-lora-v2-evidence-latest.json`, `config/ax-cascade-product-review-v2.json`, 관련 테스트·runbook·평가 문서
 
+### ADR-140 — v2 Local 모델 슬롯은 자격을 얻었지만 제품 runtime 활성화는 별도 검토한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 결과: v2 terminal 제품검토는 v1과 동일한 잠금 12과업에서 Local 12/12, Fallback 0, schema·숫자·인용·역할·인젝션·필수 fact·citation·표시값 100%, unsafe 0건으로 `LOCAL_COMPARISON_PASS`를 기록했다. v1 Local 7/12 대비 통과 +5건, Fallback -5건이며 기존 A.X-K1 Hosted도 같은 과업 12/12다. v2 Local P50/P95는 `6,064.27ms`/`8,411.80ms`, Hosted는 `3,192.50ms`/`4,251ms`다.
+- 판정: `AX_LOCAL` 모델 슬롯의 합성 strict 설명 품질 Gate는 통과했다. 모든 v2 요청이 Local에서 검증돼 기록 기반 Cascade의 Hosted 승격은 0건이다. 다만 이는 adapter 품질 자격이며 제품 runtime 활성화 승인이 아니다. Local P95가 Hosted보다 느리고 공개 runtime·인증·health check·timeout·rate limit·장애 E2E·배포 rollback이 없으므로 권고를 `QUALIFY_LOCAL_MODEL_RETAIN_ACTIVATION_REVIEW`로 고정하고 `productIntegrationApproved=false`를 유지한다.
+- 해석 경계: exact deterministic template 문자열 일치율은 5/12지만, 제품 Gate가 요구하는 schema·허용 사실·숫자 표시값·인용·역할·인젝션·필수 항목은 12/12다. 이를 원문 자유도나 실제 현장 일반화 성능으로 과장하지 않는다. v1·v2 비교는 같은 합성 12과업의 모델 개선 증거이며 사고감소·실사용자 효과가 아니다.
+- 다음 Gate: 사용자가 Local 제품 활성화를 별도 승인할 경우에만 controlled runtime 설계와 비공개 pilot 검증을 시작한다. 현재 공개 제품은 기존 Hosted·Template 경계를 유지한다.
+- 기각한 대안: frozen PASS만으로 활성화, 12/12만 보고 지연·runtime 부재 은폐, Hosted 즉시 제거, exact template 5/12를 실패로 사후 재정의, 평가 재실행으로 더 좋은 지연 선택.
+- 영향 파일: `artifacts/evals/local-model-runs/ax-cascade-product-review-v2/`, `artifacts/evals/ax-cascade-product-review-v2-latest.json`, `scripts/assemble-ax-cascade-product-review.mjs`, 관련 테스트, `docs/ax-cascade-product-review.md`, 평가·국내 트랙 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

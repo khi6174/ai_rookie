@@ -19,7 +19,7 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 |---|---|---|---|---|
 | Upstage `solar-pro3` | 문서 왕복 기반과 검증된 JSON·인용 역할별 설명 | 설명 Live 12과업 중 11건 통과·1건 안전 Fallback, 합성 문서 Mock 계약 60/60 | 수치·추천·실행 가능성 변경 금지, Mock을 Parse·Extract Live로 주장 금지 | `artifacts/evals/upstage-document-roundtrip-mock-latest.json` |
 | SKT `A.X-K1` | K-EXAONE과 같은 12과업 API 계약 | 공식 exact 계약으로 Live 12/12·Fallback 0건·unsafe 표시 0건; 이전 401 run은 복구 전 실패 증거로 보존 | 설명 Gate 뒤에서만 사용, P0·Safety 판정 비의존 | `artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/` |
-| SKT `skt/A.X-4.0-Light` | A100 고정 revision 기준선과 설명 LoRA 후보 | v1 validation·terminal frozen 각각 200/200, 동일 제품 과업 Local 7/12; v2 신규 600-parent 계약 준비 완료·A100 미실행 | 안전 수치·추천 정답 생성 금지, v1 frozen·제품검토 재사용 금지, v2 새 validation·terminal frozen·제품검토 전 비활성 | `artifacts/evals/ax-cascade-lora-evidence-latest.json`, `artifacts/evals/synthetic-cascade-training-dataset-v2-latest.json`, ADR-133~138 |
+| SKT `skt/A.X-4.0-Light` | A100 고정 revision 기준선과 설명 LoRA 후보 | v1 제품 과업 7/12; v2 validation·terminal frozen 각각 300/300 및 동일 제품 과업 12/12·unsafe 0 | 안전 수치·추천 정답 생성 금지, v1/v2 terminal 재실행 금지, runtime·사람 활성화 결정 전 공개 제품 비활성 | `artifacts/evals/ax-cascade-lora-v2-evidence-latest.json`, `artifacts/evals/ax-cascade-product-review-v2-latest.json`, ADR-133~140 |
 | LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/` |
 | NC VARCO | 후속 3D·이미지·음성·번역 에셋 후보 | P0 미연동 | 텍스트 LLM으로 추정하지 않음 | ADR-021과 `docs/synthetic-data-plan.md` |
 

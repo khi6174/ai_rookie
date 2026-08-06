@@ -329,6 +329,8 @@ ADR-138의 v2 강화 데이터는 v1·소비된 frozen·제품검토 prompt·원
 
 v2 A100 학습은 3 epoch, train loss `0.02288693`, eval loss `0.00003303668`, peak VRAM `16,287.34MiB`로 끝났다. validation 300/300과 terminal frozen 300/300은 모든 계약률 1.0, Fallback·unsafe 0건이며 frozen 시도는 1회로 소비됐다. frozen P50/P95는 `13,179.54ms`/`18,709.47ms`, 평가시간 `3,785.09초`, peak VRAM `14,291.46MiB`다. 회수한 600개 결과행과 summary·표식은 공용 verifier가 원본 v2 split과 다시 대조해 `VERIFIED`로 기록했다. 다음 terminal 제품 비교는 v2 학습에 사용되지 않은 기존 잠금 12과업을 그대로 사용해 v1·v2·Hosted를 같은 모집단에서 비교하며, 실행 전까지 제품 통합은 승인되지 않는다.
 
+v2 terminal 제품검토는 동일 12과업 12/12, Fallback·Hosted 승격·unsafe 0건으로 Local 품질 Gate를 통과했다. v1 7/12 대비 +5건이며 schema·숫자·인용·역할·인젝션·필수 fact·citation·표시값은 모두 1.0이다. Local P50/P95 `6,064.27ms`/`8,411.80ms`는 Hosted `3,192.50ms`/`4,251ms`보다 느리다. 따라서 비교 artifact는 `CASCADE_COMPARISON_PASS_LOCAL_QUALIFIED`, 권고는 `QUALIFY_LOCAL_MODEL_RETAIN_ACTIVATION_REVIEW`로 기록한다. 제품 runtime과 운영 Gate가 없으므로 `productIntegrationApproved=false`와 기존 공개 Hosted·Template 경계는 유지한다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

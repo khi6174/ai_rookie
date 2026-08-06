@@ -549,6 +549,8 @@ echo "PRODUCT_REVIEW_V2_PROCESS=STARTED pid=$!"
 
 모델 로드 뒤 `product-review-v2-local-consumed.json`이 생성되면 결과·중단 여부와 관계없이 1회가 소비된다. Local 출력 실패는 화면에 표시하지 않고 결과행에는 hash·검증 상태·실패 코드·지연·토큰만 저장한다. 12/12와 모든 무결성 100%, unsafe 0건을 충족해도 비교 조립과 사람 검토 전 제품 통합은 승인되지 않는다.
 
+실제 v2 terminal 제품검토는 12/12, Fallback·Hosted 승격·unsafe 0건으로 끝났다. Local P50/P95는 `6,064.27ms`/`8,411.80ms`이며 기존 Hosted P50/P95 `3,192.50ms`/`4,251ms`보다 느리다. `pnpm run eval:a100:cascade:product-review:v2:assemble`은 회수한 12행과 소비 표식을 잠금 bundle·v1 비교·Hosted 증거에 다시 대조해 v1 7/12에서 v2 12/12로의 개선을 기록한다. 판정은 Local 모델 품질 자격 통과, runtime 활성화 검토 유지이며 제품 통합은 승인되지 않는다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계
