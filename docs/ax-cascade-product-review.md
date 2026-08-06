@@ -31,7 +31,8 @@ Local 실패는 schema 2건, 표시값 누락 3건, malformed response 1건, 필
 - LoRA adapter와 A100 결과는 연구·심사 증거로만 보존한다.
 - consumed frozen과 product-review 12과업을 재실행하거나 결과로 재튜닝하지 않는다.
 - 새 Local 실험은 새 dataset·experiment·held-out split에서만 시작한다.
-- 현재 기능 순서에 따라 다음 작업인 기사 앱 제한적 STT 설계로 이동한다.
+- 현재 기능 순서에 따라 새 dataset·experiment·held-out split을 사용하는 A.X Local v2 설명 강화로 이동한다.
+- 기사 앱 제한적 STT는 현재 구현하지 않고 향후 발전 후보로 보존한다.
 
 ### 비권고 — Local 제품 활성화 승인
 
@@ -48,7 +49,8 @@ Local 실패는 schema 2건, 표시값 누락 3건, malformed response 1건, 필
 ## 5. 미결사항
 
 - 사용자가 권고안인 Local 제품 활성화 보류를 승인하는가?
-- 후속 새 Local 실험을 최종 제출 전 수행할 필요가 있는가?
+- 후속 새 Local v2 실험의 validation·새 terminal frozen·신규 제품 비교가 사전 Gate를 통과하는가?
+- 향후 STT를 검토할 때 실제 음성 수집·보존·외부 전송과 운전 중 사용 경계를 어떻게 승인할 것인가?
 
 ## 6. 비목표
 

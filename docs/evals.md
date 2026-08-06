@@ -325,6 +325,8 @@ terminal frozen 1회 실행은 2026-08-06 `FROZEN_GATE_PASS`로 종료됐다. 20
 
 terminal Local 제품검토는 7/12·안전 Fallback 5건으로 `LOCAL_COMPARISON_FAIL`이었다. 동일 task의 기존 A.X-K1 Hosted는 12/12였고, 기록 증거를 순차 route replay한 Cascade는 Local 7건·Hosted 승격 5건으로 12/12·Fallback 0·unsafe 0건을 기록했다. Local/Hosted/Cascade P95는 각각 `8,435.46ms`/`4,251ms`/`12,590.46ms`다. 따라서 `artifacts/evals/ax-cascade-product-review-latest.json`은 `CASCADE_COMPARISON_PASS_LOCAL_NOT_QUALIFIED`, 사람 검토 권고는 `DEFER_LOCAL_PRODUCT_ACTIVATION`으로 고정한다.
 
+ADR-138의 v2 강화 데이터는 v1·소비된 frozen·제품검토 prompt·원문 출력·Hosted 출력을 학습 라벨로 재사용하지 않는다. 신규 seed의 600 parent·2,400 역할 레코드를 train 1,800, validation 300, frozen-test 300으로 parent 격리하며, 열 개 시나리오와 여섯 계약 프로필을 균등하게 구성한다. 생성 검증은 숫자 표시값 anchor 8,900개, 인용 anchor 2,250개, 비신뢰 지시 360건과 schema·split·개인정보·출력·표시값·인용·오염·중복 위반 0건을 확인했다. `pnpm run eval:a100:cascade:lora:v2:check`는 manifest와 train·validation만 검증해 `frozen_read=false`로 종료한다. validation·새 terminal frozen을 실제 실행하기 전까지 이는 준비 증거일 뿐 강화 성능이나 제품 자격이 아니다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

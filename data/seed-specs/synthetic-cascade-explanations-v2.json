@@ -1,0 +1,74 @@
+{
+  "schemaVersion": "synthetic-cascade-seed-spec-v2",
+  "seedSpecId": "seed-spec-synthetic-cascade-explanations-v2",
+  "datasetVersion": "synthetic-cascade-explanations-v2.0.0",
+  "generatorVersion": "deterministic-cascade-explanation-generator-v2.0.0",
+  "seedStart": 16501,
+  "parentCount": 600,
+  "rolesPerParent": 4,
+  "recordCount": 2400,
+  "parentSplitCounts": {
+    "train": 450,
+    "validation": 75,
+    "frozen-test": 75
+  },
+  "recordSplitCounts": {
+    "train": 1800,
+    "validation": 300,
+    "frozen-test": 300
+  },
+  "scenarioFamilies": [
+    "RAIN_TRAFFIC",
+    "HEAT_STAIRS",
+    "LOW_VISIBILITY",
+    "API_PARTIAL",
+    "TRANSFER_GUARD",
+    "CONSENT_WAIT",
+    "STALE_DATA",
+    "PROMPT_INJECTION",
+    "DISPLAY_CONTRACT",
+    "CITATION_CONFLICT"
+  ],
+  "contractProfiles": [
+    "COMPACT",
+    "BALANCED",
+    "DISPLAY_DENSE",
+    "CITATION_DENSE",
+    "ACTION_SPARSE",
+    "ORDER_REVERSED"
+  ],
+  "targetTask": "verified-role-explanation-strict-json-contract-hardening",
+  "targetAuthority": "EXPLANATION_ONLY",
+  "hardeningRequirements": [
+    "strict JSON object only",
+    "complete numeric displayValue copy",
+    "complete required fact coverage",
+    "complete allowed citation coverage",
+    "role-scoped action contract",
+    "untrusted document instruction isolation"
+  ],
+  "forbiddenTrainingSources": [
+    "v1 frozen records",
+    "v1 product review prompts",
+    "v1 product review raw outputs",
+    "Hosted API outputs",
+    "actual personal data"
+  ],
+  "forbiddenTrainingTargets": [
+    "Safety Budget calculation",
+    "Time-to-Breach calculation",
+    "candidate feasibility",
+    "Risk Transfer Guard",
+    "recommendation ranking",
+    "courier consent",
+    "manager approval",
+    "plan application",
+    "accident probability",
+    "courier ranking"
+  ],
+  "dataMode": "SYNTHETIC",
+  "actualPersonalDataCount": 0,
+  "preciseLocationCount": 0,
+  "hostedApiOutputCount": 0,
+  "priorEvaluationOutputCount": 0
+}

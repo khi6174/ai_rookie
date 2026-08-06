@@ -1378,6 +1378,18 @@
 - 기각한 대안: Local 실패 5건 제외, frozen 200/200과 합산, Cascade 12/12만으로 Local 활성화, threshold 사후 완화, raw output 수동 수정, 제품검토 재실행.
 - 영향 파일: `artifacts/evals/ax-cascade-product-review-latest.json`, `scripts/assemble-ax-cascade-product-review.mjs`, `tests/ax-cascade-product-review-comparison.test.ts`, `docs/ax-cascade-product-review.md`, 평가·국내 트랙 문서
 
+### ADR-138 — Local 설명 강화는 새 v2 합성 계약과 새 frozen으로만 진행한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 사용자 승인: 기사 앱 STT 같은 신규 기능은 향후 발전 항목으로 미루고, 현재 학습한 A.X Local 설명 기능을 먼저 강화하기로 승인함.
+- 결정: `ax-cascade-lora-v2`는 v1 adapter를 덮어쓰거나 소비된 평가를 재실행하지 않고, 신규 seed와 parent ID를 사용하는 `synthetic-cascade-explanations-v2.0.0`에서 처음부터 별도 학습한다. v2는 비식별 합성 parent 600개와 역할별 2,400개 레코드를 parent 단위로 train 450/validation 75/frozen-test 75, 레코드 1,800/300/300으로 격리한다. 열 개 시나리오 family와 여섯 계약 프로필을 균등하게 구성해 strict JSON, 필수 표시값 복사, 사실·인용 완전성, 역할별 action, 비신뢰 문서 지시 격리를 함께 보강한다.
+- 오염 방지: v1 train·validation·소비된 frozen 원문과 terminal 제품검토 12과업의 prompt·원문 출력은 v2 학습 레코드나 라벨로 복사하지 않는다. ADR-137에 집계된 실패 코드 `SCHEMA_VALIDATION_FAILED`, `DISPLAY_VALUE_OMISSION`, `MALFORMED_RESPONSE`, `REQUIRED_FACT_OMISSION`, `REQUIRED_CITATION_OMISSION`만 데이터 다양성 설계의 상위 요구로 사용한다. Hosted 출력은 학습 라벨로 사용하지 않는다.
+- Gate: base model revision과 설명 전용 AI 권한은 v1과 동일하게 고정한다. 학습기는 train·validation만 읽고 새 frozen 경로를 열지 않는다. validation은 schema 99%, 숫자·인용·역할·인젝션 100%, unsafe 0건을 요구하며, 통과 후에만 미리 잠근 새 frozen 300건을 terminal 1회 실행한다. frozen은 같은 기준과 실행 한도 1회를 사용하고, 결과와 관계없이 재실행하지 않는다. v2 PASS도 제품 통합 승인이 아니며 별도 신규 제품 비교와 사람 검토 전까지 `productIntegrationApproved=false`다.
+- 신규 기능 경계: 기사 음성 STT는 현재 제출 본편과 v2 강화 범위에서 구현하지 않는다. 향후 발전 후보로만 유지하며, 실제 음성 수집·보존·외부 전송·운전 중 사용 정책은 별도 개인정보 및 사용자 재승인 전에는 확정하지 않는다.
+- 기각한 대안: v1 adapter에 소비된 실패 출력 추가 학습, 기존 frozen 재사용, 동일 12과업 반복 실행으로 최선 결과 선택, Hosted 출력 자동 증류, Local Gate 완화, STT를 동시에 구현해 강화 검증 범위를 확대하는 방식.
+- 영향 파일: v2 합성 데이터 생성기·seed spec·manifest, `config/a100-cascade-lora-v2.json`, `config/a100-cascade-lora-frozen-v2.json`, 관련 테스트·runbook·평가 문서, `docs/ax-cascade-product-review.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

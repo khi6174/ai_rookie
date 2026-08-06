@@ -460,6 +460,65 @@ node scripts/assemble-ax-cascade-product-review.mjs --check
 
 결과 artifact는 `artifacts/evals/ax-cascade-product-review-latest.json`, 사람 검토 문서는 `docs/ax-cascade-product-review.md`다. Local Gate 실패와 지연·runtime 부재 때문에 권고는 `DEFER_LOCAL_PRODUCT_ACTIVATION`이며 사용자 결정 전 제품 경계를 변경하지 않는다.
 
+### 10.6 새 v2 계약 강화 실행
+
+ADR-138의 v2는 v1 adapter를 이어 학습하지 않고 base snapshot에서 새로 시작한다. 신규 합성 parent 600개를 train 450·validation 75·frozen-test 75로 격리하고 역할별 레코드는 1,800/300/300이다. v1 frozen·제품검토 prompt·원문 출력·Hosted 출력은 학습에 사용하지 않는다.
+
+로컬 준비 확인은 frozen 파일을 열지 않는다.
+
+```bash
+pnpm run data:synthetic:cascade:v2
+pnpm run eval:a100:cascade:lora:v2:check
+```
+
+A100에서 새 빈 결과 폴더로 학습한다.
+
+```bash
+cd "$HOME/ai_rookie-gpu/saferoute-src-e7c305f"
+PYTHON="$HOME/ai_rookie-gpu/.venv/bin/python"
+MODEL_DIR="$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e"
+OUTPUT_DIR="$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1"
+LOG="$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-training.log"
+
+nohup "$PYTHON" -u scripts/train-ax-cascade-lora.py \
+  --config config/a100-cascade-lora-v2.json \
+  --execute \
+  --model-dir "$MODEL_DIR" \
+  --output-dir "$OUTPUT_DIR" > "$LOG" 2>&1 &
+echo "A100_LORA_V2_TRAINING_STARTED pid=$!"
+```
+
+완료 여부는 process, 종료 marker, summary를 함께 확인한다.
+
+```bash
+PID="$(pgrep -f 'train-ax-cascade-lora.py.*a100-cascade-lora-v2.json' | head -n 1 || true)"
+if [ -n "$PID" ]; then
+  echo "TRAINING_PROCESS=RUNNING pid=$PID"
+else
+  echo "TRAINING_PROCESS=STOPPED"
+fi
+tail -n 30 "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-training.log"
+if [ -f "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1/training-summary.json" ]; then
+  echo "TRAINING_SUMMARY=READY"
+  cat "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1/training-summary.json"
+else
+  echo "TRAINING_SUMMARY=NOT_READY"
+fi
+```
+
+`A100_CASCADE_LORA_TRAINING_COMPLETE`와 `training-summary.json`의 `status=TRAINED_NOT_QUALIFIED`, `experimentId=ax-cascade-lora-v2`, `frozenRecordsRead=0`을 모두 확인해야 학습 완료다. 그 다음에만 새 폴더에서 validation 300건을 실행한다.
+
+```bash
+"$HOME/ai_rookie-gpu/.venv/bin/python" -u scripts/evaluate-ax-cascade-lora.py \
+  --config config/a100-cascade-lora-v2.json \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --adapter-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1/adapter" \
+  --training-summary "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1/training-summary.json" \
+  --output-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-validation-run1"
+```
+
+validation이 사전 고정된 schema 99%, 숫자·인용·역할·인젝션 100%, unsafe 0건을 충족하기 전에는 `config/a100-cascade-lora-frozen-v2.json`의 새 frozen 300건을 열지 않는다. terminal frozen은 결과와 관계없이 단 한 번만 실행하며 별도 지시와 사전점검 후 진행한다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계

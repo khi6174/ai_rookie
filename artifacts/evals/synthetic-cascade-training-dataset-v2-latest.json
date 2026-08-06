@@ -1,0 +1,98 @@
+{
+  "schemaVersion": "synthetic-cascade-training-validation-v2",
+  "reportId": "synthetic-cascade-explanations-validation-v2",
+  "datasetVersion": "synthetic-cascade-explanations-v2.0.0",
+  "passed": true,
+  "parentCount": 600,
+  "recordCount": 2400,
+  "parentSplitCounts": {
+    "train": 450,
+    "validation": 75,
+    "frozen-test": 75
+  },
+  "splitCounts": {
+    "train": 1800,
+    "validation": 300,
+    "frozen-test": 300
+  },
+  "roleCounts": {
+    "COURIER": 600,
+    "ADMIN": 600,
+    "CUSTOMER": 600,
+    "REPORT": 600
+  },
+  "scenarioCounts": {
+    "RAIN_TRAFFIC": 60,
+    "HEAT_STAIRS": 60,
+    "LOW_VISIBILITY": 60,
+    "API_PARTIAL": 60,
+    "TRANSFER_GUARD": 60,
+    "CONSENT_WAIT": 60,
+    "STALE_DATA": 60,
+    "PROMPT_INJECTION": 60,
+    "DISPLAY_CONTRACT": 60,
+    "CITATION_CONFLICT": 60
+  },
+  "contractProfileCounts": {
+    "COMPACT": 100,
+    "BALANCED": 100,
+    "DISPLAY_DENSE": 100,
+    "CITATION_DENSE": 100,
+    "ACTION_SPARSE": 100,
+    "ORDER_REVERSED": 100
+  },
+  "promptInjectionCases": 360,
+  "numericDisplayAnchors": 8900,
+  "citationAnchors": 2250,
+  "schemaViolationCount": 0,
+  "splitLeakageCount": 0,
+  "privacyViolationCount": 0,
+  "outputIntegrityViolationCount": 0,
+  "displayCoverageViolationCount": 0,
+  "citationCoverageViolationCount": 0,
+  "contaminationBoundaryViolationCount": 0,
+  "exactDuplicateCount": 0,
+  "validationCodes": {
+    "PASS": 2400
+  },
+  "limitations": [
+    "규칙 기반 비식별 합성 설명 계약 데이터이며 실제 기사·배송·교통·사고 분포가 아니다.",
+    "v1 데이터, 소비된 frozen 원문, 제품검토 prompt·원문 출력, Hosted 출력은 학습 라벨로 포함하지 않는다.",
+    "표시 수치는 설명 복사 계약용 합성 anchor이며 Safety 엔진의 예측 정답이 아니다.",
+    "통과는 LoRA 제품 자격, 현장 안전효과 또는 STT 기능 승인을 의미하지 않는다."
+  ],
+  "capturedAt": "2026-08-06T07:00:49.588Z",
+  "generatorVersion": "deterministic-cascade-explanation-generator-v2.0.0",
+  "seedSpecSha256": "4dee5b75909f79e2cf058f4ca5d919605195534fa749279e06d753c37c4e3f4b",
+  "manifestSha256": "60dfbe64335bcbfb79ca62f211724eac6b26d6ad654a12fed4f6d97c8e7f32aa",
+  "datasetFiles": [
+    {
+      "split": "train",
+      "relativePath": "data/synthetic/cascade-explanations-v2/train.jsonl",
+      "parentCount": 450,
+      "recordCount": 1800,
+      "bytes": 5052169,
+      "sha256": "2685d143848863e01cc35e19938d261435936683fa4b0d8c9cf2d3bafa99bcfa"
+    },
+    {
+      "split": "validation",
+      "relativePath": "data/synthetic/cascade-explanations-v2/validation.jsonl",
+      "parentCount": 75,
+      "recordCount": 300,
+      "bytes": 858047,
+      "sha256": "a36243b7952aa0d5d84314f7df97829ab835237044cd17705d98a7ab29737c18"
+    },
+    {
+      "split": "frozen-test",
+      "relativePath": "data/synthetic/cascade-explanations-v2/frozen-test.jsonl",
+      "parentCount": 75,
+      "recordCount": 300,
+      "bytes": 841348,
+      "sha256": "c3b7ac75b550022a981d28095b9650adbfe2fd6589e14afc90f51fff44d5c700"
+    }
+  ],
+  "rawModelOutputStored": false,
+  "hostedApiOutputStored": false,
+  "priorEvaluationOutputStored": false,
+  "acceptedDatasetStoredUnderDataDirectory": true
+}
