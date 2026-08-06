@@ -27,6 +27,8 @@ ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고
 
 독립 비교는 frozen을 재실행하거나 Hosted 출력을 학습 라벨로 사용하지 않는다. 기존 A.X-K1 Live 12과업과 동일한 합성 입력 bundle에서 LoRA 로컬 결과만 새로 측정하고, 두 증거의 task ID·계약·hash를 대조한다. 비교 결과와 관계없이 사람 검토와 별도 모델 경계 승인 전에는 공개 제품의 `AX_LOCAL`을 활성화하지 않는다.
 
+동일 12과업 결과는 Local 7/12, Hosted 12/12, 기록 기반 순차 Cascade 12/12·Hosted 승격 5건이다. 안전한 승격 계약은 통과했지만 Local Gate와 지연 기준은 통과하지 못했으므로 현재 권고는 제품 활성화 보류다. 이 결과는 `artifacts/evals/ax-cascade-product-review-latest.json`에 원문 출력 없이 보존한다.
+
 기상청 API허브는 공개 날씨 입력이며 생성형 AI 공급자가 아니다. 불완전한 Live 필드는 Safety 계산에 섞지 않고 전체 Demo 타임라인으로 Fallback한다.
 
 ## 3. 통신 계약 설명

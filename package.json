@@ -55,6 +55,7 @@
     "eval:a100:cascade:lora:evidence:verify": "node scripts/verify-ax-cascade-lora-evidence.mjs",
     "eval:a100:cascade:product-review:prepare": "node scripts/prepare-ax-cascade-product-review.mjs",
     "eval:a100:cascade:product-review:local:self-test": "python scripts/evaluate-ax-cascade-product-review-local.py --self-test",
+    "eval:a100:cascade:product-review:assemble": "node scripts/assemble-ax-cascade-product-review.mjs",
     "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
     "eval:rider-reference:stimulus": "node scripts/build-rider-reference-stimulus.mjs",
     "eval:rider-reference:comprehension": "node scripts/run-rider-reference-comprehension.mjs",

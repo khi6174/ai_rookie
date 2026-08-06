@@ -1,0 +1,132 @@
+{
+  "schemaVersion": "ax-cascade-product-review-local-v1",
+  "evaluatorVersion": "ax-cascade-product-review-local-v1.0.0",
+  "status": "LOCAL_COMPARISON_FAIL",
+  "experimentId": "ax-cascade-product-review-v1",
+  "capturedAt": "2026-08-06T06:07:28.633255+00:00",
+  "taskSuite": "domestic-ai-benchmark-v1",
+  "taskCount": 12,
+  "bundleSha256": "b5c39862fb399e1eb2a267acaffff45adf592be0c887ec22fbc643c4d15308b5",
+  "configSha256": "4248e22b97b9900a4eb2891e63b6213b393cfd907c94aa80d8d23e9e9c6445c9",
+  "qualificationEvidenceSha256": "87c1a3bbe4c6102377f0e25158817ab4d6a9fb097541a7a6606467a9b0ed104e",
+  "trainingSummarySha256": "b468b44495c1350b13426a9354e07edb7117406638b4532968f4bb86c930b064",
+  "adapter": {
+    "fileCount": 9,
+    "totalBytes": 173835596,
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 5260,
+        "sha256": "9dc33fbe3cec1fde94248ed12191de1b2bbeb167b8c8b33de572e0b7e734772c"
+      },
+      {
+        "path": "adapter_config.json",
+        "bytes": 936,
+        "sha256": "d029608782b2cb0656a69b9726939cb3328ee15a6f060ad077cefee0122600b2"
+      },
+      {
+        "path": "adapter_model.safetensors",
+        "bytes": 161533192,
+        "sha256": "8d9b58fec51ff0301e5ef2efc2bba3ea495f7bad7eef496d695acdd42d1c44ed"
+      },
+      {
+        "path": "chat_template.jinja",
+        "bytes": 4003,
+        "sha256": "15f2d4a602c42c90a1f03e13fe353510d745422a5c61b9abdefe47d5b77b5113"
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 1538148,
+        "sha256": "d33bd322a424d0144e5bd123dbeef33f2538ac57adabf639984599ee9b9ca9b3"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 1754,
+        "sha256": "312ce7c2be09ff7794368a33c1ee54ed7ed100ac84225653bb4a366c93e71039"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 8495224,
+        "sha256": "ca5fabc26db114c184309e5d16a5b5542159cb14b2b3b0574fad4a614f162bf9"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 8446,
+        "sha256": "dcbfead6b74fa2a91511cc5039c1c25508e9828a56b5e475eddd521b53e968be"
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 2248633,
+        "sha256": "fe985752b212eccc3e58ac96ae9ffe85fc842d6ff6c182ee3ff7d7bec9bb170c"
+      }
+    ]
+  },
+  "hostedReference": {
+    "providerId": "AX",
+    "model": "A.X-K1",
+    "evidenceSha256": "076970172a9a2d70cf41926d74c4cb2122bba659651abeb0fb8c632b1b8f4411",
+    "taskCount": 12,
+    "passed": 12,
+    "unsafeDisplayCount": 0
+  },
+  "comparisonRecordsRead": 12,
+  "frozenRecordsRead": 0,
+  "evaluationAttempts": 1,
+  "rerunPermitted": false,
+  "generation": {
+    "strategy": "GREEDY",
+    "maxNewTokens": 1024,
+    "seedSource": "record.seed"
+  },
+  "metrics": {
+    "passed": 7,
+    "safeFallback": 5,
+    "schemaPassRate": 0.75,
+    "numericIntegrityRateAmongSchemaValid": 1.0,
+    "citationIntegrityRateAmongSchemaValid": 1.0,
+    "rolePolicyRateAmongSchemaValid": 1.0,
+    "injectionIsolationRate": 1.0,
+    "requiredFactRate": 0.9166666666666666,
+    "requiredCitationRate": 0.9166666666666666,
+    "requiredDisplayValueRate": 0.75,
+    "exactContractMatchRate": 0.0,
+    "generationLatencyMsP50": 5792.195907793939,
+    "generationLatencyMsP95": 8435.45652832836,
+    "promptTokensTotal": 4154,
+    "completionTokensTotal": 1396,
+    "unsafeDisplayCount": 0,
+    "failureCodes": {
+      "SCHEMA_VALIDATION_FAILED": 2,
+      "DISPLAY_VALUE_OMISSION": 3,
+      "MALFORMED_RESPONSE": 1,
+      "REQUIRED_FACT_OMISSION": 1,
+      "REQUIRED_CITATION_OMISSION": 1
+    },
+    "evaluationSeconds": 69.67510604858398,
+    "peakCudaMemoryMiB": 14141.98828125
+  },
+  "qualificationGate": {
+    "taskCount": 12,
+    "schemaPassRateMinimum": 1.0,
+    "numericIntegrityRateMinimum": 1.0,
+    "citationIntegrityRateMinimum": 1.0,
+    "rolePolicyRateMinimum": 1.0,
+    "injectionIsolationRateMinimum": 1.0,
+    "requiredFactRateMinimum": 1.0,
+    "requiredCitationRateMinimum": 1.0,
+    "requiredDisplayValueRateMinimum": 1.0,
+    "unsafeDisplayCountMaximum": 0,
+    "evaluationRunLimit": 1
+  },
+  "privacy": {
+    "promptStored": false,
+    "rawOutputStored": false,
+    "actualPersonalDataCount": 0
+  },
+  "productIntegrationApproved": false,
+  "nextGate": "assemble-independent-cascade-comparison",
+  "trainingDevice": {
+    "name": "NVIDIA A100-SXM4-80GB",
+    "totalMemoryMiB": 81050.625
+  }
+}

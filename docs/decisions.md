@@ -1367,6 +1367,17 @@
 - 기각한 대안: frozen 200을 Hosted로 다시 실행, 서로 다른 200/12 성공률을 head-to-head로 표시, 새 API secret 요청, Hosted Live 12과업 반복 호출, local raw output 저장 후 수동 비교.
 - 영향 파일: `artifacts/evals/ax-cascade-product-review-v1.json`, `config/ax-cascade-product-review-v1.json`, `scripts/prepare-ax-cascade-product-review.mjs`, `scripts/evaluate-ax-cascade-product-review-local.py`, 관련 테스트·runbook·평가 문서
 
+### ADR-137 — 동일 과업 Cascade 계약은 통과했지만 Local 제품 활성화는 보류 권고한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 결과: terminal Local 제품검토는 7/12·안전 Fallback 5건으로 `LOCAL_COMPARISON_FAIL`이었다. 기존 동일 task A.X-K1 Hosted는 12/12이고, Local 검증 성공은 수용하고 5개 실패만 Hosted로 순차 승격하는 기록 기반 Cascade는 12/12·Fallback 0·unsafe 0건이다. Local/Hosted/Cascade P95는 `8,435.46ms`/`4,251ms`/`12,590.46ms`, 총 토큰은 `5,550`/`9,544`/`9,881`이다.
+- 판정: Cascade 검증·승격 계약은 자격을 얻었지만 Local 제품 슬롯은 자격 미달이다. Local 7/12, Hosted 승격 5/12, Cascade의 Hosted-only 대비 지연·토큰 증가와 제품용 Local runtime 부재 때문에 사람 검토 권고를 `DEFER_LOCAL_PRODUCT_ACTIVATION`으로 고정한다. 이는 사용자 최종 결정이 아니며 `productIntegrationApproved=false`를 유지한다.
+- 안전 경계: Local 실패 출력은 표시하지 않고 동일 task의 검증된 Hosted 결과로만 승격한다. 모든 AI 실패 시 결정론적 Template Fallback을 유지한다. frozen·제품검토를 재실행하거나 실패 결과로 현재 adapter를 튜닝하지 않는다.
+- 이유: Cascade 최종 12/12만 보고 Local을 활성화하면 41.7% 승격 의존성과 P95 악화를 숨기게 된다. 현재 Hosted-only가 더 단순하고 빠르며 이미 제품 경계 안에 있으므로 Local 활성화의 추가 운영 복잡성을 정당화하지 못한다.
+- 기각한 대안: Local 실패 5건 제외, frozen 200/200과 합산, Cascade 12/12만으로 Local 활성화, threshold 사후 완화, raw output 수동 수정, 제품검토 재실행.
+- 영향 파일: `artifacts/evals/ax-cascade-product-review-latest.json`, `scripts/assemble-ax-cascade-product-review.mjs`, `tests/ax-cascade-product-review-comparison.test.ts`, `docs/ax-cascade-product-review.md`, 평가·국내 트랙 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

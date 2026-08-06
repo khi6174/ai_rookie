@@ -1,0 +1,11 @@
+{
+  "schemaVersion": "ax-cascade-product-review-consumption-v1",
+  "experimentId": "ax-cascade-product-review-v1",
+  "startedAt": "2026-08-06T06:06:18.955773+00:00",
+  "terminalAttempt": true,
+  "rerunPermitted": false,
+  "configSha256": "4248e22b97b9900a4eb2891e63b6213b393cfd907c94aa80d8d23e9e9c6445c9",
+  "bundleSha256": "b5c39862fb399e1eb2a267acaffff45adf592be0c887ec22fbc643c4d15308b5",
+  "adapterModelSha256": "8d9b58fec51ff0301e5ef2efc2bba3ea495f7bad7eef496d695acdd42d1c44ed",
+  "outputDirectory": "/home/tta/ai_rookie-gpu/results/ax-cascade-product-review-v1-local-run1"
+}

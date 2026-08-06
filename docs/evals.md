@@ -323,6 +323,8 @@ terminal frozen 1회 실행은 2026-08-06 `FROZEN_GATE_PASS`로 종료됐다. 20
 
 독립 Cascade 비교는 소비된 frozen을 다시 열지 않는다. 기존 A.X-K1 Live 12/12 증거와 동일한 `domestic-ai-benchmark-v1` 12과업을 `domestic-ai-product-review-v1.0.0`으로 잠그고, LoRA adapter가 A100에서 같은 입력·필수 fact·citation·표시값 계약을 통과하는지 terminal 1회로 측정한다. bundle hash는 `b5c39862…`, 기존 Hosted 증거 hash는 `07697017…`이며 둘의 task ID·순서·prompt version을 사전 대조한다. 로컬 결과는 prompt·원문 출력을 저장하지 않고 검증 상태·출력 hash·지연·토큰만 기록한다. 이 실행은 frozen 재평가나 제품 활성화가 아니다.
 
+terminal Local 제품검토는 7/12·안전 Fallback 5건으로 `LOCAL_COMPARISON_FAIL`이었다. 동일 task의 기존 A.X-K1 Hosted는 12/12였고, 기록 증거를 순차 route replay한 Cascade는 Local 7건·Hosted 승격 5건으로 12/12·Fallback 0·unsafe 0건을 기록했다. Local/Hosted/Cascade P95는 각각 `8,435.46ms`/`4,251ms`/`12,590.46ms`다. 따라서 `artifacts/evals/ax-cascade-product-review-latest.json`은 `CASCADE_COMPARISON_PASS_LOCAL_NOT_QUALIFIED`, 사람 검토 권고는 `DEFER_LOCAL_PRODUCT_ACTIVATION`으로 고정한다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

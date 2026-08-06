@@ -452,6 +452,14 @@ python -u scripts/evaluate-ax-cascade-product-review-local.py \
 
 사전 기준은 12/12, schema·숫자·인용·역할·인젝션·필수 fact·필수 citation·필수 표시값 100%, unsafe 0건이다. 결과는 `local-only-results.jsonl`과 `local-only-summary.json`에 원문 없이 저장한다. 다음 조립 단계는 동일 task ID의 기존 Hosted 결과와 로컬 결과를 비교해 실제 로컬 해결률, 예상 승격률, P50/P95, 토큰과 장애 Fallback 증거를 사람 검토 패키지로 만든다. `productIntegrationApproved=false`는 별도 승인 전까지 유지한다.
 
+2026-08-06 terminal Local 결과는 7/12·Fallback 5로 `LOCAL_COMPARISON_FAIL`이었다. 재실행하지 않는다. 동일 task A.X-K1 Hosted 12/12와 결합한 기록 기반 순차 Cascade는 Local 7·Hosted 승격 5·최종 12/12·Fallback 0·unsafe 0이다. Local/Hosted/Cascade P95는 `8,435.46ms`/`4,251ms`/`12,590.46ms`이고 Cascade 총 토큰 `9,881`은 Hosted-only `9,544`보다 많다.
+
+```bash
+node scripts/assemble-ax-cascade-product-review.mjs --check
+```
+
+결과 artifact는 `artifacts/evals/ax-cascade-product-review-latest.json`, 사람 검토 문서는 `docs/ax-cascade-product-review.md`다. Local Gate 실패와 지연·runtime 부재 때문에 권고는 `DEFER_LOCAL_PRODUCT_ACTIVATION`이며 사용자 결정 전 제품 경계를 변경하지 않는다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계
