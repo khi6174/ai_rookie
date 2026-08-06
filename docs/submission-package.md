@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-30
+- 최종 갱신: 2026-08-06
 - 기준: `docs/final-readiness.md`, `docs/domestic-ai-track-compliance.md`
 
 ## 0. 2026-08-14 제출용 메시지 패키지
@@ -26,7 +26,7 @@ SafeRoute AI는 배송기사를 감시하거나 사고확률을 매기는 시스
 | 창의성 | 현재 위험점수가 아니라 남은 계획의 `Time-to-Breach`를 배송지 단위로 예측한다. | 52분·17번째 배송지 |
 | 혁신성 | 안전을 ETA와 교환하지 않고, 수신 기사까지 검사하는 Risk Transfer Guard를 둔다. | 12건 이관 실행 불가 |
 | 추진성 | 단일 화면 제안이 아니라 동의·승인·계획 적용까지 실제 폐루프로 구현했다. | 배포 Demo, E2E, 빌드 |
-| 성장성 | 결정론 엔진과 국내 AI 설명 계층을 분리해 TMS·문서·다지역 운영으로 확장할 수 있다. | strict 계약, 합성 운영문서, provider adapter |
+| 성장성 | 결정론 엔진과 국내 AI 설명 계층을 분리해 TMS·문서·다지역 운영으로 확장할 수 있다. | A.X Local v2 12/12, strict 계약, 합성 운영문서, provider adapter |
 | 실효성 | 승인 후 경로·순서·작업량·ETA·고객안내가 하나의 decision으로 함께 갱신된다. | 적용 전후 화면과 감사기록 |
 | 가치성 | 기사 거절권, 위험전가 방지, 개인정보 최소화와 Demo 경계를 제품 규칙으로 강제한다. | 양측 동의, 비징벌 문구, Live 0명 |
 
@@ -36,6 +36,7 @@ SafeRoute AI는 배송기사를 감시하거나 사고확률을 매기는 시스
 - 실제 GPS·TMS·고객 메시지 발송과 운영 현장 효과는 검증 범위에 포함하지 않는다.
 - 기사 화면의 제품 경계 이해도 Round 2는 통과했지만, 관리자 공간 화면의 마지막 독립 이해도 평가는 제출 일정상 미실시다.
 - 국내 AI는 설명·문서 구조화 계층이며 Safety 수치와 추천 판정을 소유하지 않는다.
+- A.X Local v2의 12/12는 잠금 합성 과업의 모델 자격 증거이며 실제 운영 효과가 아니다. 공개 제품은 더 빠르고 운영 경계가 갖춰진 Hosted·Template 구성을 유지한다.
 
 ### 0.5 제출 규격의 권위 순서
 
@@ -73,9 +74,10 @@ pnpm run package:submission
 - React·TypeScript 소스와 결정론 도메인 엔진
 - 테스트·E2E·평가·검증 스크립트
 - `.env.example`과 재현 가능한 패키지 lock
-- Approved 핵심 문서 19개
+- Approved 핵심 문서 20개
 - 합성 운영문서 dataset card, seed spec, manifest와 검증 통과 문서 100개
 - 최신 평가 요약, 기사 제품 경계 고정 자극 manifest와 체크인된 스크린샷
+- A.X Local v2의 재현 설정·비식별 데이터 manifest·validation/frozen 독립 검증·동일 잠금 제품 비교 집계
 - 최신 core evidence run과 final readiness run
 - 같은 commit에서 생성한 `demo-dist/`
 
@@ -85,6 +87,8 @@ G5-B 공간 이해도는 Round 1·2·3 실패 원본과 요약을 보존하고, 
 
 이번 마감 제출은 `config/final-release-policy.json`에 따라 G5-B Round 4를 미실시로 공개한다. 패키지는 `DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP`으로 표시하며, 이를 관리자 이해도나 현장 사용성 검증 완료로 해석하지 않는다.
 
+A.X Local 증거는 v1 동일 과업 7/12에서 v2 12/12로 개선된 결과와 v2 validation·terminal frozen 각 300/300 독립 검증을 포함한다. 원시 prompt·원문 출력·adapter 파일·원격 GPU 경로는 포함하지 않는다. 이는 Local 모델 슬롯의 합성 strict 설명 품질 자격이며 제품 runtime 승인이 아니다. 공개 Demo는 Hosted·Template 경계를 유지한다.
+
 ## 4. 명시적 제외
 
 - 별도 전략 디자인 PDF
@@ -92,6 +96,7 @@ G5-B 공간 이해도는 Round 1·2·3 실패 원본과 요약을 보존하고, 
 - `.env.local`, API 키, 인증정보
 - `node_modules/`, Playwright report, test-results
 - 이전 중복 core·API·날씨 실행 전체
+- A.X LoRA adapter, 원시 prompt·원문 모델 출력, 원격 GPU 경로와 개별 로컬 실행 폴더
 - 실제 배송·근무·사고 원문과 개인정보가 포함된 운영문서
 
 제외는 과거 작업을 숨기기 위한 것이 아니라 제품 런타임·국내 AI 평가·최종 증거의 제출 범위를 명확하게 만들기 위한 것이다. GitHub 저장소의 개발 이력과 제출 패키지는 별도로 관리한다.

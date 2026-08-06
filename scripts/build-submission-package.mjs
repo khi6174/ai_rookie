@@ -151,6 +151,9 @@ const rootFiles = new Set([
   ".openai/hosting.json",
   "AGENTS.md",
   "README.md",
+  "config/a100-cascade-lora-frozen-v2.json",
+  "config/a100-cascade-lora-v2.json",
+  "config/ax-cascade-product-review-v2.json",
   "config/final-release-policy.json",
   "index.html",
   "package.json",
@@ -162,6 +165,7 @@ const rootFiles = new Set([
 ]);
 const approvedDocuments = new Set([
   "docs/architecture.md",
+  "docs/ax-cascade-product-review.md",
   "docs/data-contracts.md",
   "docs/dataset-card-synthetic-operations.md",
   "docs/decisions.md",
@@ -183,6 +187,10 @@ const approvedDocuments = new Set([
 ]);
 const latestEvidenceFiles = new Set([
   "artifacts/evals/accessibility-summary.json",
+  "artifacts/evals/ax-cascade-lora-v2-evidence-latest.json",
+  "artifacts/evals/ax-cascade-product-review-latest.json",
+  "artifacts/evals/ax-cascade-product-review-v1.json",
+  "artifacts/evals/ax-cascade-product-review-v2-latest.json",
   "artifacts/evals/baseline-comparison.csv",
   "artifacts/evals/data-provenance-audit.json",
   "artifacts/evals/decision-workflow-boundaries.csv",
@@ -226,6 +234,7 @@ const latestEvidenceFiles = new Set([
   "artifacts/evals/run-manifest.json",
   "artifacts/evals/scenario-results.csv",
   "artifacts/evals/spatial-scene-summary.json",
+  "artifacts/evals/synthetic-cascade-training-dataset-v2-latest.json",
   "artifacts/evals/synthetic-operations-documents-latest.csv",
   "artifacts/evals/synthetic-operations-documents-latest.json",
   "artifacts/evals/unit-summary.json",
@@ -238,6 +247,8 @@ const latestEvidenceFiles = new Set([
 ]);
 const sourcePrefixes = ["e2e/", "fixtures/", "scripts/", "src/", "tests/", "tools/"];
 const approvedDataPrefixes = [
+  "data/seed-specs/synthetic-cascade-explanations-v2.json",
+  "data/manifests/synthetic-cascade-explanations-v2.json",
   "data/seed-specs/synthetic-operations-documents-v1.json",
   "data/manifests/synthetic-operations-documents-v1.json",
   "data/synthetic/operations-documents-v1/",
@@ -387,6 +398,8 @@ const packageReadme = `# SafeRoute AI 국내 AI 트랙 제출 패키지
 - 패키지 구분: ${diagnostic ? "DIAGNOSTIC_ONLY" : disclosedGapRelease ? "DEMO_SUBMISSION_CANDIDATE_WITH_DISCLOSED_GAP" : "FINAL_SUBMISSION_CANDIDATE"}
 - 관리자 이해도 검증: ${disclosedGapRelease ? "일정상 미실시 · 통과로 간주하지 않음" : "승인된 사람 Gate 통과"}
 - 데이터: 합성 Demo fixture, 공개 날씨 증거, 비식별 AI 평가 요약
+- 국내 AI 후보 증거: A.X-4.0-Light LoRA v2 validation·terminal frozen 각 300/300, 동일 잠금 제품 과업 12/12
+- 제품 활성화 경계: Local 모델 슬롯만 자격 인정, 공개 제품은 Hosted·Template 유지
 
 ## 실행
 

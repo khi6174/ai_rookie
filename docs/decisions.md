@@ -1412,6 +1412,17 @@
 - 기각한 대안: frozen PASS만으로 활성화, 12/12만 보고 지연·runtime 부재 은폐, Hosted 즉시 제거, exact template 5/12를 실패로 사후 재정의, 평가 재실행으로 더 좋은 지연 선택.
 - 영향 파일: `artifacts/evals/local-model-runs/ax-cascade-product-review-v2/`, `artifacts/evals/ax-cascade-product-review-v2-latest.json`, `scripts/assemble-ax-cascade-product-review.mjs`, 관련 테스트, `docs/ax-cascade-product-review.md`, 평가·국내 트랙 문서
 
+### ADR-141 — v2 Local 모델 자격을 인정하고 공개 제품은 Hosted·Template로 유지한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 사용자 결정: ADR-140의 결과와 권고를 확인한 뒤 다음 단계 진행을 승인했다. 이에 v2 Local 모델 슬롯의 합성 strict 설명 품질 자격은 인정하되, 이번 제출과 공개 Demo에서는 Local runtime을 활성화하지 않고 기존 Hosted·Template 경계를 유지한다.
+- 결정: v2 adapter·validation/frozen 독립 검증·동일 잠금 12과업 비교는 연구·심사 증거로 보존한다. 제출 패키지는 재현 설정, 비식별 데이터 manifest와 집계 증거만 allowlist로 포함하고 원시 prompt·원문 출력·adapter·개별 원격 실행 경로를 제외한다. `productIntegrationApproved=false`는 Local runtime 자체에 대한 별도 승인과 인증·health check·timeout·rate limit·장애 E2E·rollback 검증 전까지 유지한다.
+- 이유: v2는 Local 12/12로 품질 Gate를 통과했지만 P95 `8,411.80ms`로 기존 Hosted `4,251ms`보다 느리고 공개 runtime 운영 계약이 없다. 현재 Hosted-only도 같은 과업 12/12이며 Template 전체 실패 Fallback이 이미 제품 경계에 있으므로, 제출 직전에 runtime 복잡성을 추가할 이익이 없다.
+- 향후 경계: controlled Local runtime pilot과 기사 앱 STT는 이번 제출 범위가 아니다. 필요성이 생길 때 각각 별도 사용자 승인, 개인정보·외부전송 검토와 운영 Gate를 먼저 확정한다.
+- 기각한 대안: 12/12만으로 즉시 Local 활성화, Hosted 제거, adapter를 제출 ZIP에 포함, 원격 GPU 경로와 raw output 공개, 제출 전에 controlled pilot과 STT를 동시에 추가.
+- 영향 파일: `scripts/build-submission-package.mjs`, `docs/submission-package.md`, `docs/ax-cascade-product-review.md`, A.X v2 집계 evidence·config·manifest, 제출 패키지 allowlist 테스트
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
