@@ -519,6 +519,36 @@ fi
 
 validation이 사전 고정된 schema 99%, 숫자·인용·역할·인젝션 100%, unsafe 0건을 충족하기 전에는 `config/a100-cascade-lora-frozen-v2.json`의 새 frozen 300건을 열지 않는다. terminal frozen은 결과와 관계없이 단 한 번만 실행하며 별도 지시와 사전점검 후 진행한다.
 
+2026-08-06 실제 실행은 validation 300/300과 terminal frozen 300/300 VERIFIED, 모든 계약률 1.0, Fallback·unsafe 0건으로 종료됐다. frozen P50/P95는 `13,179.54ms`/`18,709.47ms`이며 terminal 시도 1회가 소비돼 재실행하지 않는다. 회수한 600행은 다음 명령으로 v2 원본 split과 독립 대조한다.
+
+```bash
+pnpm run eval:a100:cascade:lora:v2:evidence:verify
+```
+
+독립 검증 후 v2는 v1과 동일한 잠금 12개 제품 과업을 terminal 1회로 실행한다. 동일 과업은 v2 학습에 사용되지 않았고, 기존 v1 제품검토나 Hosted API를 재실행하지 않는다.
+
+```bash
+cd "$HOME/ai_rookie-gpu/saferoute-src-e7c305f"
+PYTHON="$HOME/ai_rookie-gpu/.venv/bin/python"
+MODEL_DIR="$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e"
+TRAINING_RUN="$HOME/ai_rookie-gpu/results/ax-cascade-lora-v2-run1"
+OUTPUT_DIR="$HOME/ai_rookie-gpu/results/ax-cascade-product-review-v2-local-run1"
+LOG="$HOME/ai_rookie-gpu/results/ax-cascade-product-review-v2-local.log"
+
+"$PYTHON" scripts/evaluate-ax-cascade-product-review-local.py --self-test
+
+nohup "$PYTHON" -u scripts/evaluate-ax-cascade-product-review-local.py \
+  --config config/ax-cascade-product-review-v2.json \
+  --execute-qualification-run \
+  --model-dir "$MODEL_DIR" \
+  --adapter-dir "$TRAINING_RUN/adapter" \
+  --training-summary "$TRAINING_RUN/training-summary.json" \
+  --output-dir "$OUTPUT_DIR" > "$LOG" 2>&1 &
+echo "PRODUCT_REVIEW_V2_PROCESS=STARTED pid=$!"
+```
+
+모델 로드 뒤 `product-review-v2-local-consumed.json`이 생성되면 결과·중단 여부와 관계없이 1회가 소비된다. Local 출력 실패는 화면에 표시하지 않고 결과행에는 hash·검증 상태·실패 코드·지연·토큰만 저장한다. 12/12와 모든 무결성 100%, unsafe 0건을 충족해도 비교 조립과 사람 검토 전 제품 통합은 승인되지 않는다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계

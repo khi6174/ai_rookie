@@ -327,6 +327,8 @@ terminal Local 제품검토는 7/12·안전 Fallback 5건으로 `LOCAL_COMPARISO
 
 ADR-138의 v2 강화 데이터는 v1·소비된 frozen·제품검토 prompt·원문 출력·Hosted 출력을 학습 라벨로 재사용하지 않는다. 신규 seed의 600 parent·2,400 역할 레코드를 train 1,800, validation 300, frozen-test 300으로 parent 격리하며, 열 개 시나리오와 여섯 계약 프로필을 균등하게 구성한다. 생성 검증은 숫자 표시값 anchor 8,900개, 인용 anchor 2,250개, 비신뢰 지시 360건과 schema·split·개인정보·출력·표시값·인용·오염·중복 위반 0건을 확인했다. `pnpm run eval:a100:cascade:lora:v2:check`는 manifest와 train·validation만 검증해 `frozen_read=false`로 종료한다. validation·새 terminal frozen을 실제 실행하기 전까지 이는 준비 증거일 뿐 강화 성능이나 제품 자격이 아니다.
 
+v2 A100 학습은 3 epoch, train loss `0.02288693`, eval loss `0.00003303668`, peak VRAM `16,287.34MiB`로 끝났다. validation 300/300과 terminal frozen 300/300은 모든 계약률 1.0, Fallback·unsafe 0건이며 frozen 시도는 1회로 소비됐다. frozen P50/P95는 `13,179.54ms`/`18,709.47ms`, 평가시간 `3,785.09초`, peak VRAM `14,291.46MiB`다. 회수한 600개 결과행과 summary·표식은 공용 verifier가 원본 v2 split과 다시 대조해 `VERIFIED`로 기록했다. 다음 terminal 제품 비교는 v2 학습에 사용되지 않은 기존 잠금 12과업을 그대로 사용해 v1·v2·Hosted를 같은 모집단에서 비교하며, 실행 전까지 제품 통합은 승인되지 않는다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

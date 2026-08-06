@@ -1,0 +1,119 @@
+{
+  "schemaVersion": "a100-cascade-lora-frozen-evaluation-v1",
+  "evaluatorVersion": "ax-cascade-lora-frozen-v1.0.0",
+  "status": "FROZEN_GATE_PASS",
+  "experimentId": "ax-cascade-lora-v2",
+  "capturedAt": "2026-08-06T10:42:21.644221+00:00",
+  "baseModel": {
+    "repoId": "skt/A.X-4.0-Light",
+    "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+    "manifestPath": "artifacts/evals/local-model-manifest.json",
+    "dtype": "bfloat16",
+    "quantization": "none"
+  },
+  "datasetVersion": "synthetic-cascade-explanations-v2.0.0",
+  "datasetManifestSha256": "60dfbe64335bcbfb79ca62f211724eac6b26d6ad654a12fed4f6d97c8e7f32aa",
+  "frozenFileSha256": "c3b7ac75b550022a981d28095b9650adbfe2fd6589e14afc90f51fff44d5c700",
+  "trainingConfigSha256": "ffbb00dcf5011d1c99c4b721d40c82f00d65132268f1dba8eb914f8efebb318b",
+  "frozenConfigSha256": "a7fd1bdd16706e8bb2bfc70881945071b6cb52ec946079ed223883ac85e75227",
+  "trainingSummarySha256": "4fcfaeb0a86ab90f9501d2b08fcc95ed7d47a477aca71e5efc26d58d09608588",
+  "validationSummarySha256": "2c332204277f9237a09824dc316c71e4dc6eb0814bc2999a5fd8f39d6bf77df7",
+  "adapter": {
+    "fileCount": 9,
+    "totalBytes": 173835596,
+    "files": [
+      {
+        "path": "README.md",
+        "bytes": 5260,
+        "sha256": "9dc33fbe3cec1fde94248ed12191de1b2bbeb167b8c8b33de572e0b7e734772c"
+      },
+      {
+        "path": "adapter_config.json",
+        "bytes": 936,
+        "sha256": "c7a6eef6766dc77b169d3f7972602092e3df23ac178a8e30266a08591bdd389c"
+      },
+      {
+        "path": "adapter_model.safetensors",
+        "bytes": 161533192,
+        "sha256": "0485fd441c7a3bd8baf816175377da2f3b5262b353690ecc8417a75d3f40450d"
+      },
+      {
+        "path": "chat_template.jinja",
+        "bytes": 4003,
+        "sha256": "15f2d4a602c42c90a1f03e13fe353510d745422a5c61b9abdefe47d5b77b5113"
+      },
+      {
+        "path": "merges.txt",
+        "bytes": 1538148,
+        "sha256": "d33bd322a424d0144e5bd123dbeef33f2538ac57adabf639984599ee9b9ca9b3"
+      },
+      {
+        "path": "special_tokens_map.json",
+        "bytes": 1754,
+        "sha256": "312ce7c2be09ff7794368a33c1ee54ed7ed100ac84225653bb4a366c93e71039"
+      },
+      {
+        "path": "tokenizer.json",
+        "bytes": 8495224,
+        "sha256": "ca5fabc26db114c184309e5d16a5b5542159cb14b2b3b0574fad4a614f162bf9"
+      },
+      {
+        "path": "tokenizer_config.json",
+        "bytes": 8446,
+        "sha256": "dcbfead6b74fa2a91511cc5039c1c25508e9828a56b5e475eddd521b53e968be"
+      },
+      {
+        "path": "vocab.json",
+        "bytes": 2248633,
+        "sha256": "fe985752b212eccc3e58ac96ae9ffe85fc842d6ff6c182ee3ff7d7bec9bb170c"
+      }
+    ]
+  },
+  "taskCount": 300,
+  "frozenRecordsRead": 300,
+  "frozenEvaluationAttempts": 1,
+  "rerunPermitted": false,
+  "generation": {
+    "strategy": "GREEDY",
+    "maxNewTokens": 1024,
+    "seedSource": "record.seed"
+  },
+  "metrics": {
+    "verified": 300,
+    "safeFallback": 0,
+    "schemaPassRate": 1.0,
+    "numericIntegrityRateAmongSchemaValid": 1.0,
+    "citationIntegrityRateAmongSchemaValid": 1.0,
+    "rolePolicyRateAmongSchemaValid": 1.0,
+    "injectionIsolationRate": 1.0,
+    "exactContractMatchRate": 1.0,
+    "generationLatencyMsP50": 13179.544683080167,
+    "generationLatencyMsP95": 18709.474538452923,
+    "promptTokensTotal": 187593,
+    "completionTokensTotal": 74723,
+    "unsafeDisplayCount": 0,
+    "failureCodes": {},
+    "evaluationSeconds": 3785.0932190418243,
+    "peakCudaMemoryMiB": 14291.46142578125
+  },
+  "qualificationGate": {
+    "schemaPassRateMinimum": 0.99,
+    "numericIntegrityRateMinimum": 1.0,
+    "citationIntegrityRateMinimum": 1.0,
+    "rolePolicyRateMinimum": 1.0,
+    "injectionIsolationRateMinimum": 1.0,
+    "unsafeDisplayCountMaximum": 0,
+    "evaluationRunLimit": 1
+  },
+  "productIntegrationApproved": false,
+  "nextGate": "independent-cascade-comparison-and-product-review",
+  "privacy": {
+    "promptStored": false,
+    "rawOutputStored": false,
+    "actualPersonalDataCount": 0
+  },
+  "trainingDevice": {
+    "name": "NVIDIA A100-SXM4-80GB",
+    "totalMemoryMiB": 81050.625
+  }
+}

@@ -11,6 +11,8 @@
 
 권고안은 `DEFER_LOCAL_PRODUCT_ACTIVATION`이다. 동일 합성 12과업에서 A.X LoRA Local-only는 7/12, 기존 A.X-K1 Hosted-only는 12/12, 순차 Cascade replay는 Local 7건 수용·Hosted 5건 승격으로 12/12를 기록했다. 모든 전략의 unsafe 표시 건수는 0이다.
 
+후속 `ax-cascade-lora-v2`는 신규 600-parent 계약의 validation·terminal frozen 각각 300/300과 독립 검증을 통과했다. 다만 이 결과는 기존 제품 과업 통과를 의미하지 않으므로, v2 학습에 쓰지 않은 동일 잠금 12과업의 terminal 비교가 완료되기 전까지 기존 활성화 보류 권고를 유지한다.
+
 Cascade 계약과 안전한 승격은 검증됐지만 현재 Local 계층은 제품 자격이 없다. Local Gate 12/12를 충족하지 못했고, Cascade P95 `12,590.46ms`는 Hosted-only P95 `4,251ms`보다 느리며, 제품용 Local runtime도 배포되지 않았다. 공개 제품은 기존 Hosted·Template 경계를 유지하고 adapter는 연구 증거로 보존하는 것이 현재 최선이다.
 
 ## 2. 동일 과업 결과

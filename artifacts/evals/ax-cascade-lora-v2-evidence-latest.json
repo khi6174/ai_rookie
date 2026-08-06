@@ -1,0 +1,83 @@
+{
+  "schemaVersion": "ax-cascade-lora-evidence-verification-v1",
+  "capturedAt": "2026-08-06T11:03:02.477Z",
+  "status": "VERIFIED",
+  "experimentId": "ax-cascade-lora-v2",
+  "terminalEvaluatorCommit": "732b85c1af8b8432d965b7a021ceb370f1d74e7c",
+  "evidenceHashes": {
+    "trainingConfig": "ffbb00dcf5011d1c99c4b721d40c82f00d65132268f1dba8eb914f8efebb318b",
+    "frozenConfig": "a7fd1bdd16706e8bb2bfc70881945071b6cb52ec946079ed223883ac85e75227",
+    "datasetManifest": "60dfbe64335bcbfb79ca62f211724eac6b26d6ad654a12fed4f6d97c8e7f32aa",
+    "trainingSummary": "4fcfaeb0a86ab90f9501d2b08fcc95ed7d47a477aca71e5efc26d58d09608588",
+    "consumptionMarker": "2fb3253c1b9825c682848a5843b03d5c1bc6efad8411fbdba649b7876224d347",
+    "validationSummary": "2c332204277f9237a09824dc316c71e4dc6eb0814bc2999a5fd8f39d6bf77df7",
+    "validationResults": "31e07d7ad7075a70a84bfd0c78fa19586986421532d03917aa9d6990347f242b",
+    "frozenSummary": "ac7b1786939e6965a4f53bc9a8929b5a3924d6813e36d14ac77faefd4ef01b82",
+    "frozenResults": "908dcf1b7894f5d13f4cec197c9cfdf9d162523849e9360b2f610f7129e7772a"
+  },
+  "dataset": {
+    "version": "synthetic-cascade-explanations-v2.0.0",
+    "manifestSha256": "60dfbe64335bcbfb79ca62f211724eac6b26d6ad654a12fed4f6d97c8e7f32aa",
+    "validationFileSha256": "a36243b7952aa0d5d84314f7df97829ab835237044cd17705d98a7ab29737c18",
+    "frozenFileSha256": "c3b7ac75b550022a981d28095b9650adbfe2fd6589e14afc90f51fff44d5c700"
+  },
+  "training": {
+    "status": "TRAINED_NOT_QUALIFIED",
+    "trainRecords": 1800,
+    "validationRecords": 300,
+    "frozenRecordsRead": 0
+  },
+  "validation": {
+    "status": "VALIDATION_GATE_PASS",
+    "taskCount": 300,
+    "metrics": {
+      "verified": 300,
+      "safeFallback": 0,
+      "schemaPassRate": 1,
+      "numericIntegrityRateAmongSchemaValid": 1,
+      "citationIntegrityRateAmongSchemaValid": 1,
+      "rolePolicyRateAmongSchemaValid": 1,
+      "injectionIsolationRate": 1,
+      "exactContractMatchRate": 1,
+      "generationLatencyMsP50": 14224.839930888265,
+      "generationLatencyMsP95": 18612.44338285178,
+      "promptTokensTotal": 190841,
+      "completionTokensTotal": 76190,
+      "unsafeDisplayCount": 0,
+      "failureCodes": {}
+    },
+    "frozenRecordsRead": 0
+  },
+  "frozen": {
+    "status": "FROZEN_GATE_PASS",
+    "taskCount": 300,
+    "metrics": {
+      "verified": 300,
+      "safeFallback": 0,
+      "schemaPassRate": 1,
+      "numericIntegrityRateAmongSchemaValid": 1,
+      "citationIntegrityRateAmongSchemaValid": 1,
+      "rolePolicyRateAmongSchemaValid": 1,
+      "injectionIsolationRate": 1,
+      "exactContractMatchRate": 1,
+      "generationLatencyMsP50": 13179.544683080167,
+      "generationLatencyMsP95": 18709.474538452923,
+      "promptTokensTotal": 187593,
+      "completionTokensTotal": 74723,
+      "unsafeDisplayCount": 0,
+      "failureCodes": {}
+    },
+    "evaluationSeconds": 3785.0932190418243,
+    "peakCudaMemoryMiB": 14291.46142578125,
+    "frozenRecordsRead": 300,
+    "frozenEvaluationAttempts": 1,
+    "rerunPermitted": false
+  },
+  "privacy": {
+    "promptStored": false,
+    "rawOutputStored": false,
+    "actualPersonalDataCount": 0
+  },
+  "productIntegrationApproved": false,
+  "nextGate": "independent-cascade-comparison-and-product-review"
+}

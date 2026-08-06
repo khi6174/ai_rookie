@@ -7,16 +7,33 @@ import process from "node:process";
 
 const root = process.cwd();
 const checkOnly = process.argv.includes("--check");
+const experimentArgumentIndex = process.argv.indexOf("--experiment");
+const experimentVersion =
+  experimentArgumentIndex === -1
+    ? "v1"
+    : process.argv[experimentArgumentIndex + 1];
+if (!["v1", "v2"].includes(experimentVersion)) {
+  throw new Error(
+    "AX_CASCADE_LORA_EVIDENCE_VERIFY_FAILED code=EXPERIMENT_ARGUMENT",
+  );
+}
+const experimentId = `ax-cascade-lora-${experimentVersion}`;
 const evidenceRoot = path.join(
   root,
-  "artifacts/evals/local-model-runs/ax-cascade-lora-v1",
+  `artifacts/evals/local-model-runs/${experimentId}`,
 );
 const paths = {
-  trainingConfig: path.join(root, "config/a100-cascade-lora-v1.json"),
-  frozenConfig: path.join(root, "config/a100-cascade-lora-frozen-v1.json"),
+  trainingConfig: path.join(
+    root,
+    `config/a100-cascade-lora-${experimentVersion}.json`,
+  ),
+  frozenConfig: path.join(
+    root,
+    `config/a100-cascade-lora-frozen-${experimentVersion}.json`,
+  ),
   datasetManifest: path.join(
     root,
-    "data/manifests/synthetic-cascade-explanations-v1.json",
+    `data/manifests/synthetic-cascade-explanations-${experimentVersion}.json`,
   ),
   trainingSummary: path.join(evidenceRoot, "training-summary.json"),
   consumptionMarker: path.join(
@@ -25,23 +42,25 @@ const paths = {
   ),
   validationSummary: path.join(
     evidenceRoot,
-    "ax-cascade-lora-v1-validation-run1/validation-summary.json",
+    `${experimentId}-validation-run1/validation-summary.json`,
   ),
   validationResults: path.join(
     evidenceRoot,
-    "ax-cascade-lora-v1-validation-run1/validation-results.jsonl",
+    `${experimentId}-validation-run1/validation-results.jsonl`,
   ),
   frozenSummary: path.join(
     evidenceRoot,
-    "ax-cascade-lora-v1-frozen-run1/frozen-summary.json",
+    `${experimentId}-frozen-run1/frozen-summary.json`,
   ),
   frozenResults: path.join(
     evidenceRoot,
-    "ax-cascade-lora-v1-frozen-run1/frozen-results.jsonl",
+    `${experimentId}-frozen-run1/frozen-results.jsonl`,
   ),
   output: path.join(
     root,
-    "artifacts/evals/ax-cascade-lora-evidence-latest.json",
+    experimentVersion === "v1"
+      ? "artifacts/evals/ax-cascade-lora-evidence-latest.json"
+      : `artifacts/evals/${experimentId}-evidence-latest.json`,
   ),
 };
 
@@ -167,9 +186,9 @@ function aggregate(rows) {
   };
 }
 
-function verifyRows(rows, sourceRecords, split) {
-  requireValue(rows.length === 200, `${split}_RESULT_COUNT`);
-  requireValue(sourceRecords.length === 200, `${split}_SOURCE_COUNT`);
+function verifyRows(rows, sourceRecords, split, expectedCount) {
+  requireValue(rows.length === expectedCount, `${split}_RESULT_COUNT`);
+  requireValue(sourceRecords.length === expectedCount, `${split}_SOURCE_COUNT`);
   requireValue(
     new Set(rows.map((row) => row.recordId)).size === rows.length,
     `${split}_DUPLICATE_RESULT_ID`,
@@ -307,7 +326,10 @@ requireValue(sameJson(trainingSummary.baseModel, trainingConfig.baseModel), "TRA
 requireValue(trainingSummary.datasetVersion === trainingConfig.dataset.version, "TRAINING_DATASET_VERSION");
 requireValue(trainingSummary.datasetManifestSha256 === hashes.datasetManifest, "TRAINING_DATASET_HASH");
 requireValue(validationSummary.status === "VALIDATION_GATE_PASS", "VALIDATION_STATUS");
-requireValue(validationSummary.taskCount === 200, "VALIDATION_TASK_COUNT");
+requireValue(
+  validationSummary.taskCount === trainingConfig.dataset.validationRecords,
+  "VALIDATION_TASK_COUNT",
+);
 requireValue(validationSummary.frozenRecordsRead === 0, "VALIDATION_FROZEN_READ");
 requireValue(validationSummary.trainingConfigSha256 === hashes.trainingConfig, "VALIDATION_CONFIG_HASH");
 requireValue(validationSummary.trainingSummarySha256 === hashes.trainingSummary, "VALIDATION_TRAINING_HASH");
@@ -320,8 +342,14 @@ requireValue(
   "VALIDATION_QUALIFICATION_GATE",
 );
 requireValue(frozenSummary.status === "FROZEN_GATE_PASS", "FROZEN_STATUS");
-requireValue(frozenSummary.taskCount === 200, "FROZEN_TASK_COUNT");
-requireValue(frozenSummary.frozenRecordsRead === 200, "FROZEN_READ_COUNT");
+requireValue(
+  frozenSummary.taskCount === trainingConfig.dataset.frozenRecords,
+  "FROZEN_TASK_COUNT",
+);
+requireValue(
+  frozenSummary.frozenRecordsRead === trainingConfig.dataset.frozenRecords,
+  "FROZEN_READ_COUNT",
+);
 requireValue(frozenSummary.frozenEvaluationAttempts === 1, "FROZEN_ATTEMPT_COUNT");
 requireValue(frozenSummary.rerunPermitted === false, "FROZEN_RERUN_BOUNDARY");
 requireValue(frozenSummary.trainingConfigSha256 === hashes.trainingConfig, "FROZEN_CONFIG_HASH");
@@ -375,8 +403,18 @@ requireValue(frozenManifestEntry?.sha256 === hashes.frozenSource, "FROZEN_SOURCE
 requireValue(validationSummary.validationFileSha256 === hashes.validationSource, "VALIDATION_SUMMARY_SOURCE_HASH");
 requireValue(frozenSummary.frozenFileSha256 === hashes.frozenSource, "FROZEN_SUMMARY_SOURCE_HASH");
 
-verifyRows(validationRows, validationSource, "validation");
-verifyRows(frozenRows, frozenSource, "frozen-test");
+verifyRows(
+  validationRows,
+  validationSource,
+  "validation",
+  trainingConfig.dataset.validationRecords,
+);
+verifyRows(
+  frozenRows,
+  frozenSource,
+  "frozen-test",
+  trainingConfig.dataset.frozenRecords,
+);
 const validationMetrics = aggregate(validationRows);
 const frozenMetrics = aggregate(frozenRows);
 verifySummaryMetrics(validationSummary, validationMetrics, false);
@@ -387,7 +425,10 @@ const artifact = {
   capturedAt: new Date().toISOString(),
   status: "VERIFIED",
   experimentId: trainingConfig.experimentId,
-  terminalEvaluatorCommit: "361fde02af15c4fb8ea106991c9a34f3b14b088d",
+  terminalEvaluatorCommit:
+    experimentVersion === "v1"
+      ? "361fde02af15c4fb8ea106991c9a34f3b14b088d"
+      : "732b85c1af8b8432d965b7a021ceb370f1d74e7c",
   evidenceHashes: Object.fromEntries(
     Object.entries(hashes)
       .filter(([key]) => !["validationSource", "frozenSource"].includes(key))
@@ -434,8 +475,9 @@ if (!checkOnly) {
   await writeFile(paths.output, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
 }
 console.log(
-  `AX_CASCADE_LORA_EVIDENCE_VERIFY_PASS validation=${validationRows.length}/200 ` +
-    `frozen=${frozenRows.length}/200 unsafe=${frozenMetrics.unsafeDisplayCount} ` +
+  `AX_CASCADE_LORA_EVIDENCE_VERIFY_PASS experiment=${experimentId} ` +
+    `validation=${validationRows.length}/${trainingConfig.dataset.validationRecords} ` +
+    `frozen=${frozenRows.length}/${trainingConfig.dataset.frozenRecords} unsafe=${frozenMetrics.unsafeDisplayCount} ` +
     `rerun=${frozenSummary.rerunPermitted} write=${checkOnly ? "false" : "true"}`,
 );
 if (!checkOnly) console.log(`artifact=${paths.output}`);

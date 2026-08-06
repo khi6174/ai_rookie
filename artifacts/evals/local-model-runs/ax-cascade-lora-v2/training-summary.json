@@ -1,0 +1,49 @@
+{
+  "schemaVersion": "a100-cascade-lora-training-summary-v1",
+  "status": "TRAINED_NOT_QUALIFIED",
+  "experimentId": "ax-cascade-lora-v2",
+  "baseModel": {
+    "repoId": "skt/A.X-4.0-Light",
+    "revision": "ba21c20ea1b31ded1ec3e2fb432335077dc4be98",
+    "manifestPath": "artifacts/evals/local-model-manifest.json",
+    "dtype": "bfloat16",
+    "quantization": "none"
+  },
+  "datasetVersion": "synthetic-cascade-explanations-v2.0.0",
+  "datasetManifestSha256": "60dfbe64335bcbfb79ca62f211724eac6b26d6ad654a12fed4f6d97c8e7f32aa",
+  "trainRecords": 1800,
+  "validationRecords": 300,
+  "frozenRecordsRead": 0,
+  "targetModules": [
+    "down_proj",
+    "gate_proj",
+    "k_proj",
+    "o_proj",
+    "q_proj",
+    "up_proj",
+    "v_proj"
+  ],
+  "trainingSeconds": 1980.1023681163788,
+  "peakCudaMemoryMiB": 16287.3388671875,
+  "trainingDevice": {
+    "name": "NVIDIA A100-SXM4-80GB",
+    "totalMemoryMiB": 81050.625
+  },
+  "trainMetrics": {
+    "train_runtime": 1949.6339,
+    "train_samples_per_second": 2.77,
+    "train_steps_per_second": 0.346,
+    "total_flos": 1.9694459062404403e+17,
+    "train_loss": 0.02288693282392126,
+    "epoch": 3.0
+  },
+  "validationMetrics": {
+    "eval_loss": 3.303668199805543e-05,
+    "eval_runtime": 29.9948,
+    "eval_samples_per_second": 10.002,
+    "eval_steps_per_second": 10.002,
+    "epoch": 3.0
+  },
+  "productIntegrationApproved": false,
+  "nextGate": "independent-validation-and-single-frozen-evaluation"
+}

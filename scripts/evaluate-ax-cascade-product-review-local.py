@@ -200,6 +200,8 @@ def main() -> None:
     if validation.sha256_file(training_config_path) != config["trainingConfigSha256"]:
         raise SystemExit("TRAINING_CONFIG_HASH_MISMATCH")
     training_config = validation.load_json(training_config_path)
+    if training_config.get("experimentId") != config.get("localModelExperimentId"):
+        raise SystemExit("LOCAL_MODEL_EXPERIMENT_CONFIG_MISMATCH")
     bundle_path = validation.resolve_under(root, config["bundlePath"])
     if validation.sha256_file(bundle_path) != config["bundleSha256"]:
         raise SystemExit("PRODUCT_REVIEW_BUNDLE_HASH_MISMATCH")
@@ -217,6 +219,7 @@ def main() -> None:
     evidence = validation.load_json(evidence_path)
     if (
         evidence.get("status") != "VERIFIED"
+        or evidence.get("experimentId") != config.get("localModelExperimentId")
         or evidence.get("productIntegrationApproved") is not False
         or evidence.get("frozen", {}).get("status") != "FROZEN_GATE_PASS"
         or evidence.get("frozen", {}).get("rerunPermitted") is not False
@@ -229,6 +232,8 @@ def main() -> None:
     ):
         raise SystemExit("FROZEN_SUMMARY_HASH_MISMATCH")
     frozen_summary = validation.load_json(frozen_summary_path)
+    if frozen_summary.get("experimentId") != config.get("localModelExperimentId"):
+        raise SystemExit("FROZEN_LOCAL_MODEL_EXPERIMENT_MISMATCH")
 
     hosted_path = validation.resolve_under(root, config["hostedReference"]["path"])
     if validation.sha256_file(hosted_path) != config["hostedReference"]["sha256"]:
@@ -255,6 +260,8 @@ def main() -> None:
     training_summary = validation.load_json(training_summary_path)
     if (
         training_summary.get("status") != "TRAINED_NOT_QUALIFIED"
+        or training_summary.get("experimentId")
+        != config.get("localModelExperimentId")
         or validation.sha256_file(training_summary_path)
         != evidence["evidenceHashes"]["trainingSummary"]
         or training_summary.get("frozenRecordsRead") != 0

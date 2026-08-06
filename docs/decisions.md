@@ -1390,6 +1390,17 @@
 - 기각한 대안: v1 adapter에 소비된 실패 출력 추가 학습, 기존 frozen 재사용, 동일 12과업 반복 실행으로 최선 결과 선택, Hosted 출력 자동 증류, Local Gate 완화, STT를 동시에 구현해 강화 검증 범위를 확대하는 방식.
 - 영향 파일: v2 합성 데이터 생성기·seed spec·manifest, `config/a100-cascade-lora-v2.json`, `config/a100-cascade-lora-frozen-v2.json`, 관련 테스트·runbook·평가 문서, `docs/ax-cascade-product-review.md`
 
+### ADR-139 — v2 validation·terminal frozen PASS를 독립 검증하고 동일 제품 과업으로 이동한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 결과: `ax-cascade-lora-v2`는 train 1,800·validation 300으로 3 epoch 학습했고 train loss `0.02288693`, eval loss `0.00003303668`, peak VRAM `16,287.34MiB`, `frozenRecordsRead=0`으로 종료됐다. 독립 validation 300건과 terminal frozen 300건은 각각 300/300 VERIFIED, schema·숫자·인용·역할·비신뢰 지시 격리·exact 계약 100%, Fallback·unsafe 표시 0건을 기록했다. frozen은 시도 1회, `rerunPermitted=false`로 소비됐다.
+- 독립 검증: 회수한 training summary, 소비 표식, validation/frozen summary와 600개 결과행을 신규 v2 원본 split·manifest·고정 config에 다시 대조한다. verifier는 파일 hash, ID·parent·역할·시나리오·인젝션 표식, 허용된 결과 필드, 토큰·지연·실패 코드와 집계를 재계산하며 prompt·원문 출력이 저장되지 않았음을 확인한다.
+- 다음 Gate: v2는 v1 제품검토에 사용된 동일 잠금 12과업을 새 terminal 1회로 평가한다. 이 12과업과 v1 raw output은 v2 학습에 사용되지 않았고 v1 제품검토를 재실행하지 않는다. 동일 과업을 사용해 v1 Local 7/12, v2 Local, 기존 A.X-K1 Hosted 12/12를 공정하게 비교하며 모든 기준은 12/12와 무결성 100%, unsafe 0건으로 유지한다.
+- 제품 경계: v2 frozen PASS는 합성 계약 일반화 증거이며 제품 활성화 승인이나 실제 운영 효과가 아니다. 동일 제품 과업 결과와 사람 검토 전까지 `productIntegrationApproved=false`를 유지한다.
+- 기각한 대안: v2 frozen 재실행, v1과 다른 쉬운 제품 과업 선택, v1 실패 출력으로 사후 튜닝, Local Gate 완화, frozen PASS만으로 공개 runtime 활성화.
+- 영향 파일: `scripts/verify-ax-cascade-lora-evidence.mjs`, `artifacts/evals/local-model-runs/ax-cascade-lora-v2/`, `artifacts/evals/ax-cascade-lora-v2-evidence-latest.json`, `config/ax-cascade-product-review-v2.json`, 관련 테스트·runbook·평가 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
