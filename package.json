@@ -50,6 +50,7 @@
     "data:operations:document-template": "node scripts/build-operations-document-template.mjs",
     "eval:a100:operations:prepare": "node scripts/prepare-a100-operations-documents.mjs",
     "eval:a100:cascade:lora:check": "python scripts/train-ax-cascade-lora.py",
+    "eval:a100:cascade:lora:validation:self-test": "python scripts/evaluate-ax-cascade-lora.py --self-test",
     "eval:g5:comprehension": "node scripts/run-spatial-comprehension.mjs",
     "eval:rider-reference:stimulus": "node scripts/build-rider-reference-stimulus.mjs",
     "eval:rider-reference:comprehension": "node scripts/run-rider-reference-comprehension.mjs",

@@ -378,6 +378,20 @@ python scripts/train-ax-cascade-lora.py \
 
 validation Gate는 schema 98% 이상, 숫자·인용·비신뢰 지시 격리 100%, unsafe 표시 0건이다. 이를 충족하기 전에는 frozen-test·제품 통합·Live Cascade를 실행하지 않는다. 수치는 A100 실행 전 목표이며 현재 성과가 아니다.
 
+학습이 `TRAINED_NOT_QUALIFIED`로 끝나면 frozen-test를 열지 않고 validation 200건만 독립 생성 평가한다. 평가기는 프롬프트와 원문 출력을 저장하지 않고 레코드별 출력 hash·실패 코드·지연·토큰과 집계만 보존한다.
+
+```bash
+python scripts/evaluate-ax-cascade-lora.py --self-test
+
+python scripts/evaluate-ax-cascade-lora.py \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --adapter-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/adapter" \
+  --training-summary "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/training-summary.json" \
+  --output-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-validation-run1"
+```
+
+schema 비율은 전체 200건, 숫자·인용·역할 정책 비율은 schema-valid 출력, 비신뢰 지시 격리는 해당 validation 레코드를 분모로 계산한다. Gate 실패 시 frozen-test를 실행하지 않고 새 데이터·실험 버전으로 돌아간다. Gate 통과도 제품 활성화를 뜻하지 않으며 frozen 1회 평가만 허용한다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계
