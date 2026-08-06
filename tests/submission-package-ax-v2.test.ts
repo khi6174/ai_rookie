@@ -33,6 +33,7 @@ describe("submission package A.X Local v2 evidence", () => {
     expect(builder).not.toContain('"artifacts/evals/local-model-runs/');
     expect(builder).not.toContain('"adapter_model.safetensors"');
     expect(builder).not.toContain('"docs/gpu-benchmark-runbook.md"');
-    expect(builder).not.toContain('"/home/tta');
+    const remoteGpuHome = `"/${["home", "tta"].join("/")}`;
+    expect(builder).not.toContain(remoteGpuHome);
   });
 });
