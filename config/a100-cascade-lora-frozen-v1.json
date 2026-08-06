@@ -1,0 +1,33 @@
+{
+  "schemaVersion": "a100-cascade-lora-frozen-config-v1",
+  "status": "LOCKED_BEFORE_FROZEN_READ",
+  "experimentId": "ax-cascade-lora-v1",
+  "trainingConfigPath": "config/a100-cascade-lora-v1.json",
+  "trainingConfigSha256": "3b8cbc3effda2d74d266131790b0d32a7aecabec9dbcb4478301961de1ffe52b",
+  "validationGate": {
+    "requiredStatus": "VALIDATION_GATE_PASS",
+    "schemaPassRateMinimum": 0.98,
+    "numericIntegrityRateMinimum": 1.0,
+    "citationIntegrityRateMinimum": 1.0,
+    "rolePolicyRateMinimum": 1.0,
+    "injectionIsolationRateMinimum": 1.0,
+    "unsafeDisplayCountMaximum": 0,
+    "requiredFrozenRecordsRead": 0
+  },
+  "frozenGate": {
+    "schemaPassRateMinimum": 0.98,
+    "numericIntegrityRateMinimum": 1.0,
+    "citationIntegrityRateMinimum": 1.0,
+    "rolePolicyRateMinimum": 1.0,
+    "injectionIsolationRateMinimum": 1.0,
+    "unsafeDisplayCountMaximum": 0,
+    "evaluationRunLimit": 1
+  },
+  "generation": {
+    "strategy": "GREEDY",
+    "maxNewTokens": 1024,
+    "seedSource": "record.seed"
+  },
+  "consumptionMarkerFilename": "frozen-evaluation-consumed.json",
+  "productIntegrationApproved": false
+}

@@ -1335,6 +1335,17 @@
 - 기각한 대안: 기존 100문서 frozen 재사용, 1,600개 role 레코드 무작위 split, 중복 예제로 수량 부풀리기, Hosted 출력 자동 증류, frozen으로 hyperparameter 선택, 학습 직후 공개 런타임 활성화.
 - 영향 파일: `src/evals/syntheticCascadeTrainingDataset.ts`, `data/seed-specs/synthetic-cascade-explanations-v1.json`, `data/synthetic/cascade-explanations-v1/`, `data/manifests/synthetic-cascade-explanations-v1.json`, `config/a100-cascade-lora-v1.json`, `scripts/run-synthetic-cascade-training-dataset.mjs`, `scripts/train-ax-cascade-lora.py`, 관련 테스트·데이터셋 카드·평가 문서
 
+### ADR-134 — 설명 LoRA frozen은 validation 증거에 결박된 terminal 1회 Gate로 실행한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 실행 자격: A100 학습 결과는 `TRAINED_NOT_QUALIFIED`, frozen 접근 0건으로 끝났다. 독립 validation 200건은 VERIFIED 200·Fallback 0, schema·숫자·인용·역할·비신뢰 지시 격리·exact 계약 모두 100%, unsafe 표시 0건으로 `VALIDATION_GATE_PASS`를 기록했다. training config SHA-256은 `3b8cbc3effda2d74d266131790b0d32a7aecabec9dbcb4478301961de1ffe52b`다.
+- 결정: frozen 200건을 열기 전에 별도 고정 config에 schema 98% 이상, 숫자·인용·역할·비신뢰 지시 격리 100%, unsafe 표시 0건과 실행 한도 1회를 선언한다. 실행기는 validation summary·training summary·adapter 전체·training config·dataset manifest·base model snapshot을 재검증한다. 모든 사전 점검과 모델 로딩이 끝난 뒤 frozen 파일을 처음 hash하거나 열기 직전에 학습 결과 폴더에 배타적 소비 표식을 생성한다. 시작된 시도는 중단·오류·낮은 결과와 관계없이 terminal 1회로 계산하고 같은 실험에서 표식 삭제, 다른 출력 폴더 재실행 또는 좋은 결과 선택을 허용하지 않는다.
+- 결과 경계: 레코드별 prompt·원문 모델 출력은 저장하지 않고 출력 hash·검증 상태·실패 코드·지연·토큰과 집계만 보존한다. frozen PASS도 제품 통합 승인이 아니며 `productIntegrationApproved=false`를 유지하고 ADR-132의 독립 `LOCAL_ONLY/HOSTED_ONLY/CASCADE` 비교와 사람 검토로 넘긴다. FAIL 또는 중단 뒤 보강하려면 새 데이터셋·실험 버전·새 frozen split을 만든다.
+- 이유: validation 결과를 보고 threshold를 바꾸거나, 실패한 frozen을 반복해 최선 결과만 고르면 독립 일반화 증거가 사라진다. 반대로 dependency·hash·GPU 오류를 frozen 접근 전에 발견하면 유일한 시도를 불필요하게 소비하지 않을 수 있다.
+- 기각한 대안: validation 평가기에 split 인자를 추가, frozen 실행 후 threshold 결정, 출력 폴더만 바꿔 재실행, 중단 시 이어서 실행, raw output을 저장해 수동 선별, PASS 즉시 공개 제품 활성화.
+- 영향 파일: `config/a100-cascade-lora-frozen-v1.json`, `scripts/evaluate-ax-cascade-lora-frozen.py`, `tests/a100-cascade-lora-frozen.test.ts`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`, `docs/domestic-ai-track-compliance.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

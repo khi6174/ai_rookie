@@ -315,6 +315,10 @@ pnpm run eval:domestic-ai:cascade:mock
 
 ADR-133의 새 LoRA 후보 데이터는 `pnpm run data:synthetic:cascade`로 400 parent·1,600 역할별 레코드를 생성한다. train 1,200, validation 200, frozen-test 200을 parent 단위로 격리했고 schema·split 누출·개인정보·strict 출력 무결성·exact content duplicate 위반은 모두 0건, 비신뢰 지시 레코드는 150건이다. `pnpm run eval:a100:cascade:lora:check`는 manifest와 train·validation hash·수량을 검증하고 frozen 파일을 읽지 않은 채 `TRAINING_NOT_RUN`으로 종료한다. 이 결과는 데이터·실행 준비 증거이며 A100 학습 실행 또는 성능 개선 증거가 아니다.
 
+2026-08-06 A100 LoRA 학습은 train 1,200·3 epoch, train loss `0.05021748`, validation loss `0.0001268709`, peak VRAM `15,696.19MiB`로 끝났고 상태를 `TRAINED_NOT_QUALIFIED`로 유지했다. 이어 별도 validation 200건을 greedy 생성으로 평가해 `VALIDATION_GATE_PASS`를 얻었다. schema·숫자·인용·역할 정책·비신뢰 지시 격리·exact 계약이 모두 `1.0`, unsafe 표시와 Fallback은 0건, 평가시간은 `2,086.18초`, peak VRAM은 `14,194.11MiB`, `frozenRecordsRead`는 0이다. 이 결과는 제품 통합 승인이 아니라 terminal frozen 1회 실행 자격만 부여한다.
+
+최종 frozen Gate는 `config/a100-cascade-lora-frozen-v1.json`에 schema 98% 이상, 숫자·인용·역할 정책·비신뢰 지시 격리 100%, unsafe 표시 0건, 실행 한도 1회를 결과 확인 전에 고정한다. `scripts/evaluate-ax-cascade-lora-frozen.py`는 validation summary, 기존 training config hash `3b8cbc3e…`, training summary와 adapter 전체 hash가 일치하는지 확인한 뒤, frozen 파일을 hash하거나 열기 전에 학습 결과 폴더에 배타적 소비 표식을 생성한다. 시작 후 중단·실패도 1회를 소비하며 다른 출력 폴더로 재실행하지 않는다. prompt와 raw output은 저장하지 않고 레코드별 hash·검증 결과·실패 코드·지연·토큰과 집계만 남긴다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프

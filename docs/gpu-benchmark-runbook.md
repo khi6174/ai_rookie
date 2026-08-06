@@ -392,6 +392,31 @@ python scripts/evaluate-ax-cascade-lora.py \
 
 schema 비율은 전체 200건, 숫자·인용·역할 정책 비율은 schema-valid 출력, 비신뢰 지시 격리는 해당 validation 레코드를 분모로 계산한다. Gate 실패 시 frozen-test를 실행하지 않고 새 데이터·실험 버전으로 돌아간다. Gate 통과도 제품 활성화를 뜻하지 않으며 frozen 1회 평가만 허용한다.
 
+2026-08-06 독립 validation은 200/200 VERIFIED, schema·숫자·인용·역할·인젝션·exact `1.0`, unsafe 0건으로 `VALIDATION_GATE_PASS`를 기록했다. 평가시간은 `2,086.18초`, peak VRAM은 `14,194.11MiB`이고 frozen 접근은 0건이다. training config hash는 `3b8cbc3effda2d74d266131790b0d32a7aecabec9dbcb4478301961de1ffe52b`로 고정한다.
+
+terminal frozen 평가기는 실행 전에 자체 테스트만 수행한다. 자체 테스트는 frozen 파일을 열지 않는다.
+
+```bash
+python scripts/evaluate-ax-cascade-lora-frozen.py --self-test
+```
+
+`config/a100-cascade-lora-frozen-v1.json`은 결과 확인 전에 schema 98% 이상, 숫자·인용·역할·인젝션 100%, unsafe 0건과 실행 한도 1회를 고정한다. 아래 명령의 `--execute-terminal-attempt`는 **중단·오류도 포함해 유일한 1회를 소비**한다. 평가기는 모든 사전 hash와 A100·BF16·adapter 로딩 가능성을 먼저 검사하고, frozen 파일을 hash하거나 열기 직전에 학습 결과 폴더에 `frozen-evaluation-consumed.json`을 배타적으로 생성한다. 이 표식이 있으면 새 출력 폴더를 지정해도 재실행을 거부한다.
+
+```bash
+export HF_HUB_OFFLINE=1
+export TRANSFORMERS_OFFLINE=1
+
+python scripts/evaluate-ax-cascade-lora-frozen.py \
+  --execute-terminal-attempt \
+  --model-dir "$HOME/ai_rookie-gpu/models/A.X-4.0-Light-ba21c20e" \
+  --adapter-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/adapter" \
+  --training-summary "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-run1/training-summary.json" \
+  --validation-summary "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-validation-run1/validation-summary.json" \
+  --output-dir "$HOME/ai_rookie-gpu/results/ax-cascade-lora-v1-frozen-run1"
+```
+
+결과는 `frozen-results.jsonl`과 `frozen-summary.json`에 prompt·원문 출력 없이 저장한다. PASS여도 `productIntegrationApproved=false`이며 ADR-132의 독립 Cascade 비교와 사람 검토를 별도로 거쳐야 한다. FAIL 또는 실행 중단이면 같은 실험의 frozen을 다시 열지 않고 새 데이터셋·실험 버전·새 frozen split으로 돌아간다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계
