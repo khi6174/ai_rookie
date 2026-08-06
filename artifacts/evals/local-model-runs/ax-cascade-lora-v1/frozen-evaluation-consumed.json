@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "a100-cascade-lora-frozen-consumption-v1",
+  "experimentId": "ax-cascade-lora-v1",
+  "startedAt": "2026-08-06T05:00:59.035483+00:00",
+  "terminalAttempt": true,
+  "rerunPermitted": false,
+  "validationSummarySha256": "fc44705df0a17a1a8fe96b42f6c6b7bd2cb6aefc3b4b46758f0458c430c09cbd",
+  "frozenConfigSha256": "647e866d679e9b83ea758f90c7e8f49517c4a8f87102b7193bcfd3ffceffca0a",
+  "outputDirectory": "/home/tta/ai_rookie-gpu/results/ax-cascade-lora-v1-frozen-run1"
+}

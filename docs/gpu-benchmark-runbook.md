@@ -417,6 +417,16 @@ python scripts/evaluate-ax-cascade-lora-frozen.py \
 
 결과는 `frozen-results.jsonl`과 `frozen-summary.json`에 prompt·원문 출력 없이 저장한다. PASS여도 `productIntegrationApproved=false`이며 ADR-132의 독립 Cascade 비교와 사람 검토를 별도로 거쳐야 한다. FAIL 또는 실행 중단이면 같은 실험의 frozen을 다시 열지 않고 새 데이터셋·실험 버전·새 frozen split으로 돌아간다.
 
+2026-08-06 terminal 1회 결과는 200/200 VERIFIED, Fallback 0, 모든 무결성 비율 `1.0`, unsafe 0건으로 `FROZEN_GATE_PASS`였다. P50 `11,218.43ms`, P95 `13,161.94ms`, 평가시간 `2,064.76초`, peak VRAM `14,194.11MiB`다. frozen 200건을 읽었고 실행 횟수는 1, `rerunPermitted=false`로 종료됐다. 같은 실험의 frozen 명령은 다시 실행하지 않는다.
+
+회수한 결과는 다음 명령으로 원본 데이터 400행, manifest/config/summary hash, adapter manifest, terminal 소비 표식, 집계와 privacy 필드를 독립 재검증한다.
+
+```bash
+pnpm run eval:a100:cascade:lora:evidence:verify
+```
+
+검증 산출물은 `artifacts/evals/ax-cascade-lora-evidence-latest.json`이다. 다음 Gate는 frozen 재실행이 아니라 `LOCAL_ONLY/HOSTED_ONLY/CASCADE` 독립 비교와 제품 사람 검토다.
+
 ## 11. 합성 운영문서 100건 A100 추출 기준선
 
 ### 11.1 목적과 책임 경계

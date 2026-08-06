@@ -19,11 +19,11 @@ SafeRoute AI의 제품 실행, 생성형 AI 평가와 제출 성과로 인정하
 |---|---|---|---|---|
 | Upstage `solar-pro3` | 문서 왕복 기반과 검증된 JSON·인용 역할별 설명 | 설명 Live 12과업 중 11건 통과·1건 안전 Fallback, 합성 문서 Mock 계약 60/60 | 수치·추천·실행 가능성 변경 금지, Mock을 Parse·Extract Live로 주장 금지 | `artifacts/evals/upstage-document-roundtrip-mock-latest.json` |
 | SKT `A.X-K1` | K-EXAONE과 같은 12과업 API 계약 | 공식 exact 계약으로 Live 12/12·Fallback 0건·unsafe 표시 0건; 이전 401 run은 복구 전 실패 증거로 보존 | 설명 Gate 뒤에서만 사용, P0·Safety 판정 비의존 | `artifacts/evals/domestic-ai-api-runs/2026-07-23T11-08-49-486Z-live-ax/` |
-| SKT `skt/A.X-4.0-Light` | A100 고정 revision 기준선과 설명 LoRA 후보 | 기존 12/12·강건성 28/30에 더해 새 LoRA validation 200/200 통과, frozen 미실행 | 안전 수치·추천 정답 생성 금지, frozen 1회와 별도 제품 검토 전 비활성 | `artifacts/evals/local-model-runs/`, ADR-133·134 |
+| SKT `skt/A.X-4.0-Light` | A100 고정 revision 기준선과 설명 LoRA 후보 | 기존 12/12·강건성 28/30, 새 LoRA validation·terminal frozen 각각 200/200 독립 검증 | 안전 수치·추천 정답 생성 금지, 별도 Cascade 비교·제품 검토 전 비활성, frozen 재실행 금지 | `artifacts/evals/ax-cascade-lora-evidence-latest.json`, ADR-133~135 |
 | LG `LGAI-EXAONE/K-EXAONE-236B-A23B` | 공통 12과업과 반례 후보 평가 | Live 12/12 통과 | 같은 strict 스키마·숫자·인용 Gate | `artifacts/evals/domestic-ai-api-runs/2026-07-17T11-37-10-732Z-live-exaone/` |
 | NC VARCO | 후속 3D·이미지·음성·번역 에셋 후보 | P0 미연동 | 텍스트 LLM으로 추정하지 않음 | ADR-021과 `docs/synthetic-data-plan.md` |
 
-ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고, 객관적 계약 실패나 capability 부족일 때만 A.X-K1·K-EXAONE·Solar 중 허용 공급자로 승격하는 국내 AI Cascade다. 기존 A.X-4.0-Light 기준선은 학습되지 않은 `PARTIAL_RESEARCH_BASELINE`이며, 새 LoRA 후보도 validation만 통과해 아직 로컬 제품 계층으로 활성화하지 않는다. Hosted API 출력은 각 공급자의 학습·증류 조건을 확인하기 전에는 로컬 학습 라벨로 재사용하지 않는다.
+ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고, 객관적 계약 실패나 capability 부족일 때만 A.X-K1·K-EXAONE·Solar 중 허용 공급자로 승격하는 국내 AI Cascade다. 기존 A.X-4.0-Light 기준선은 학습되지 않은 `PARTIAL_RESEARCH_BASELINE`이다. 새 LoRA 후보는 validation과 terminal frozen을 통과했지만 독립 Cascade 비교와 사람 검토 전에는 로컬 제품 계층으로 활성화하지 않는다. Hosted API 출력은 각 공급자의 학습·증류 조건을 확인하기 전에는 로컬 학습 라벨로 재사용하지 않는다.
 
 기상청 API허브는 공개 날씨 입력이며 생성형 AI 공급자가 아니다. 불완전한 Live 필드는 Safety 계산에 섞지 않고 전체 Demo 타임라인으로 Fallback한다.
 

@@ -1346,6 +1346,16 @@
 - 기각한 대안: validation 평가기에 split 인자를 추가, frozen 실행 후 threshold 결정, 출력 폴더만 바꿔 재실행, 중단 시 이어서 실행, raw output을 저장해 수동 선별, PASS 즉시 공개 제품 활성화.
 - 영향 파일: `config/a100-cascade-lora-frozen-v1.json`, `scripts/evaluate-ax-cascade-lora-frozen.py`, `tests/a100-cascade-lora-frozen.test.ts`, `docs/gpu-benchmark-runbook.md`, `docs/evals.md`, `docs/domestic-ai-track-compliance.md`
 
+### ADR-135 — 설명 LoRA terminal frozen PASS를 고정하고 제품 활성화와 분리한다
+
+- 날짜: 2026-08-06
+- 상태: Approved
+- 결과: terminal frozen 1회는 200/200 VERIFIED·Fallback 0, schema·숫자·인용·역할·비신뢰 지시 격리·exact 계약 100%, unsafe 표시 0건으로 `FROZEN_GATE_PASS`를 기록했다. 생성 P50은 `11,218.43ms`, P95는 `13,161.94ms`, 전체 평가는 `2,064.76초`, peak VRAM은 `14,194.11MiB`다. frozen 200건을 읽었고 실행 횟수 1, `rerunPermitted=false`로 종료됐다.
+- 독립 검증: 회수한 training summary, terminal 소비 표식, validation/frozen summary와 400개 결과행을 저장소 원본 split·manifest·고정 config에 다시 대조한다. verifier는 ID·parent·역할·scenario·인젝션 표식, 허용 필드, 출력 hash 형식, 실패 코드, 토큰·지연·모든 집계를 재계산하며 prompt·원문 출력 필드가 없음을 확인한다. 원격 summary 자체만 신뢰하지 않고 파일별 SHA-256과 검증 결과를 별도 artifact로 보존한다.
+- 제품 경계: frozen PASS는 로컬 adapter의 합성 설명 계약 일반화 증거이지 Safety 엔진 정확도, 실제 운영 효과 또는 제품 통합 승인 아니다. `productIntegrationApproved=false`를 유지하고 ADR-132의 동일 계약 `LOCAL_ONLY/HOSTED_ONLY/CASCADE` 비교, 장애 Fallback과 사람 검토를 통과한 뒤 별도 활성화 결정을 기록한다. 이 실험의 frozen은 재실행하지 않는다.
+- 기각한 대안: summary만 복사해 독립 검증 생략, PASS를 곧바로 제품 자격으로 해석, 실패행 원문을 수동 선별, frozen 재실행, 기존 학습되지 않은 기준선 결과와 합쳐 성능 주장.
+- 영향 파일: `artifacts/evals/local-model-runs/ax-cascade-lora-v1/`, `artifacts/evals/ax-cascade-lora-evidence-latest.json`, `scripts/verify-ax-cascade-lora-evidence.mjs`, `tests/a100-cascade-lora-evidence.test.ts`, `docs/evals.md`, `docs/gpu-benchmark-runbook.md`, `docs/domestic-ai-track-compliance.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

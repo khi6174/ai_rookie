@@ -319,6 +319,8 @@ ADR-133의 새 LoRA 후보 데이터는 `pnpm run data:synthetic:cascade`로 400
 
 최종 frozen Gate는 `config/a100-cascade-lora-frozen-v1.json`에 schema 98% 이상, 숫자·인용·역할 정책·비신뢰 지시 격리 100%, unsafe 표시 0건, 실행 한도 1회를 결과 확인 전에 고정한다. `scripts/evaluate-ax-cascade-lora-frozen.py`는 validation summary, 기존 training config hash `3b8cbc3e…`, training summary와 adapter 전체 hash가 일치하는지 확인한 뒤, frozen 파일을 hash하거나 열기 전에 학습 결과 폴더에 배타적 소비 표식을 생성한다. 시작 후 중단·실패도 1회를 소비하며 다른 출력 폴더로 재실행하지 않는다. prompt와 raw output은 저장하지 않고 레코드별 hash·검증 결과·실패 코드·지연·토큰과 집계만 남긴다.
 
+terminal frozen 1회 실행은 2026-08-06 `FROZEN_GATE_PASS`로 종료됐다. 200/200 VERIFIED, Fallback 0, schema·숫자·인용·역할 정책·비신뢰 지시 격리·exact 계약 모두 `1.0`, unsafe 표시 0건이다. P50 생성은 `11,218.43ms`, P95는 `13,161.94ms`, 전체 평가시간은 `2,064.76초`, peak VRAM은 `14,194.11MiB`였다. 소비 표식은 `terminalAttempt=true`, `rerunPermitted=false`로 보존한다. 회수한 validation/frozen 400행은 `scripts/verify-ax-cascade-lora-evidence.mjs`가 원본 split·manifest·config·summary·adapter manifest와 독립 대조하고 모든 집계를 재계산해 `artifacts/evals/ax-cascade-lora-evidence-latest.json`에 `VERIFIED`로 기록했다. 이 결과도 제품 통합 승인이 아니며 다음 단계는 독립 Cascade 비교와 사람 검토다.
+
 ## 13. E2E·시각 검증
 
 ### 13.1 관리자·기사 폐루프
