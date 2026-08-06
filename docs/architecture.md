@@ -105,6 +105,8 @@ G3-B의 `public/sw.js`는 같은 origin의 정적 app shell만 버전된 Cache S
 
 ADR-131의 기사 응급 예시는 `src/application/demoRiderDangerSignal.ts`와 `server/rider-danger-signal-store.mjs`의 검증된 합성 운영 경계를 사용한다. 기사 화면은 현재 `courierId`의 고정 합성 신호 명령만 D1에 쓰고, 관제 화면은 `ETag` 조건부 조회를 1초마다 수행해 만료 전 15분 동안 새로고침 없이 반영한다. localStorage와 브라우저 이벤트는 공유 저장소 장애 때 현재 브라우저에서만 유지하는 비권위 Fallback이다. 실제 알림·위치·센서 API를 호출하지 않으며 Safety Budget·지원 추천·동의·승인 상태의 입력이 아니다.
 
+ADR-142의 공개 지원 검토 설명은 `src/ui/operationsExplanation.ts`에서 `/`와 `/operations`가 공유하는 최소 합성 설명 입력을 구성한다. 입력은 현재·조정 후 Safety 값, Time-to-Breach·예상 배송지, ETA 변화, 결정 상태·지원 유형·신뢰도만 허용하며 `src/application/explanations`의 strict 스키마·숫자·역할 검증과 `src/adapters/upstage`의 서버 프록시를 그대로 사용한다. 공개 모달은 요청 전에는 네트워크 호출을 하지 않고, Live 검증 실패 시 같은 입력의 결정론적 Template 결과만 표시한다. 이 프레젠테이션 경로는 Safety 계산, 후보 선택, Risk Transfer Guard, 동의와 승인 상태기계의 입력이 아니다.
+
 ### 4.2 권장 디렉터리
 
 ```text

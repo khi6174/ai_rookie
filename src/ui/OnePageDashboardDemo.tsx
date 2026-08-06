@@ -39,6 +39,7 @@ import type {
   InterventionCandidate,
   InterventionEvaluation,
 } from "../domain/contracts";
+import type { ExplanationResult } from "../domain/contracts";
 import type {
   DailyOperationsPackage,
   DailyOperationsSnapshot,
@@ -50,6 +51,7 @@ import {
   riderRoutePosition,
   type RiderRoutePoint,
 } from "../application/riderMapPresentation";
+import { generateOperationsAdminExplanation } from "./operationsExplanation";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
@@ -159,6 +161,40 @@ function interventionActionLabel(
 
 function interventionCandidateLabel(candidate: InterventionCandidate) {
   return candidate.actions.map(interventionActionLabel).join(" + ");
+}
+
+function interventionTypeLabel(
+  action: InterventionCandidate["actions"][number],
+) {
+  return {
+    REST: "휴식",
+    TRANSFER_STOPS: "배송 분담",
+    REORDER_STOPS: "순서 변경",
+    SAFER_ROUTE: "안전 경로",
+    SAFE_DELAY: "시간 재약정",
+  }[action.type];
+}
+
+function decisionStatusLabel(status: string) {
+  return {
+    RIDER_RESPONSE_PENDING: "기사 응답 대기",
+    RIDER_CONSENTED: "기사 동의 완료",
+    MODIFICATION_REQUESTED: "다른 방법 요청",
+    RIDER_DECLINED: "현재 제안 거절",
+    ADMIN_APPROVAL_REQUIRED: "관리자 승인 대기",
+    ADMIN_HELD: "관리자 보류",
+    REVALIDATION_REQUIRED: "최신 계획 재검증 필요",
+    APPLY_FAILED: "적용 실패 · 현재 계획 유지",
+    APPLIED: "계획 적용 완료",
+    NOTICE_RECORDED: "계획·안내 갱신 완료",
+    CLOSED: "검토 완료",
+  }[status] ?? status;
+}
+
+function explanationSourceLabel(result: ExplanationResult) {
+  if (result.status === "LIVE") return "Upstage · 검증 완료";
+  if (result.status === "MOCK") return "Upstage Mock · 검증 완료";
+  return "안전 템플릿 · 검증 완료";
 }
 
 function interventionEtaLabel(evaluation: InterventionEvaluation) {
@@ -572,7 +608,11 @@ function InterventionDialog({
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const explanationSummaryRef = useRef<HTMLElement>(null);
   const [showBlockedTransfer, setShowBlockedTransfer] = useState(false);
+  const [explanation, setExplanation] = useState<ExplanationResult>();
+  const [explanationLoading, setExplanationLoading] = useState(false);
+  const [explanationError, setExplanationError] = useState<string>();
   const artifacts = context.workspace.decisions.find(
     (item) => item.decision.decisionId === courier.decisionId,
   )!;
@@ -619,6 +659,56 @@ function InterventionDialog({
   const applied = ["APPLIED", "NOTICE_RECORDED", "CLOSED"].includes(
     decision.status,
   );
+
+  useEffect(() => {
+    setExplanation(undefined);
+    setExplanationError(undefined);
+  }, [decision.decisionId, selectedCandidate.candidateId]);
+
+  useEffect(() => {
+    if (explanation) explanationSummaryRef.current?.focus();
+  }, [explanation]);
+
+  const explainSelection = async () => {
+    const sourceImpact = selectedEvaluation.courierImpacts.find(
+      (impact) => impact.role === "SOURCE",
+    );
+    if (!sourceImpact) {
+      setExplanationError("검증된 기사 영향 근거를 찾지 못했습니다.");
+      return;
+    }
+    setExplanationLoading(true);
+    setExplanationError(undefined);
+    try {
+      const result = await generateOperationsAdminExplanation({
+        requestId: `operations-explanation-dashboard-${decision.decisionId}`,
+        currentBudget: courier.budget,
+        currentBudgetLabel: "현재 예상 최저 안전여유",
+        candidateMinimumBudget: sourceImpact.candidateMinimumBudget,
+        etaDeltaMinutes: selectedEvaluation.etaDeltaMinutes,
+        etaDisplayValue: interventionEtaLabel(selectedEvaluation),
+        decisionStatus: decisionStatusLabel(decision.status),
+        selectedIntervention: selectedCandidate.actions
+          .map(interventionTypeLabel)
+          .join(" + "),
+        confidence: courier.confidence,
+        confidenceLabel: "입력 신뢰도",
+        allowedActions: [
+          "기사 응답과 수신 기사 영향을 확인",
+          "관리자 승인 전 최신 계획 재검증",
+        ],
+        timeToBreachMinutes: courier.criticalMinute ?? undefined,
+        breachStopOrdinal: courier.criticalStopOrdinal ?? undefined,
+      });
+      setExplanation(result);
+    } catch {
+      setExplanationError(
+        "설명을 확인하지 못했습니다. 결정 수치와 현재 계획은 변경되지 않았습니다.",
+      );
+    } finally {
+      setExplanationLoading(false);
+    }
+  };
 
   useEffect(() => {
     const previousFocus =
@@ -748,6 +838,61 @@ function InterventionDialog({
                 <dd>영향 {selectedEvaluation.affectedCustomerCount}건 / 고객안내 준비</dd>
               </div>
             </dl>
+
+            <details
+              className={`onepage-explanation${explanation?.status === "FALLBACK" ? " is-fallback" : ""}`}
+            >
+              <summary ref={explanationSummaryRef}>
+                <span>AI 근거 설명</span>
+                <small>
+                  {explanation
+                    ? explanationSourceLabel(explanation)
+                    : "요청 시 생성"}
+                </small>
+              </summary>
+              <div className="onepage-explanation-body" aria-live="polite">
+                {!explanation && !explanationError && (
+                  <>
+                    <p>현재 화면의 검증된 수치와 상태만 역할에 맞게 설명합니다.</p>
+                    <button
+                      type="button"
+                      disabled={explanationLoading}
+                      onClick={() => void explainSelection()}
+                    >
+                      {explanationLoading ? "설명 확인 중…" : "근거 설명 생성"}
+                    </button>
+                  </>
+                )}
+                {explanationError && (
+                  <>
+                    <p role="alert">{explanationError}</p>
+                    <button
+                      type="button"
+                      disabled={explanationLoading}
+                      onClick={() => void explainSelection()}
+                    >
+                      다시 시도
+                    </button>
+                  </>
+                )}
+                {explanation && (
+                  <div
+                    className={`onepage-explanation-result is-${explanation.status.toLowerCase()}`}
+                    data-explanation-status={explanation.status}
+                  >
+                    <p>{explanation.data.summary}</p>
+                    <small>
+                      스키마·수치·역할 검증 완료 · AI는 지원안과 실행 여부를 변경하지 않습니다.
+                    </small>
+                    {explanation.status === "FALLBACK" && (
+                      <em>
+                        AI 연결 대신 동일한 결정 사실을 안전 템플릿으로 설명했습니다.
+                      </em>
+                    )}
+                  </div>
+                )}
+              </div>
+            </details>
 
             <div className="onepage-transfer-guard">
               <div><strong>배송 분담</strong><b>{maximumTransferCount > 0 ? "가능" : "불가"}</b></div>

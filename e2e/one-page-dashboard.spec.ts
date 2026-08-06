@@ -142,6 +142,73 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   await expect(page.locator(".rider-profile-options a")).toHaveCount(25);
 });
 
+test("지원 검토 안에서 검증된 AI 설명 출처와 안전 템플릿 전환을 확인한다", async ({
+  page,
+}) => {
+  await page.route("**/api/upstage-explanation", async (route) => {
+    const input = route.request().postDataJSON() as {
+      requestId: string;
+      role: string;
+    };
+    expect(input.requestId).toMatch(/^operations-explanation-dashboard-/);
+    await route.fulfill({
+      status: 200,
+      contentType: "application/json",
+      body: JSON.stringify({
+        status: "LIVE",
+        provider: "UPSTAGE",
+        output: {
+          requestId: input.requestId,
+          role: input.role,
+          summary: "검증된 결정 사실과 안전 제약만 설명합니다.",
+          citedFactIds: [],
+          citationIds: [],
+          dataModeLabel: "Demo fixture",
+        },
+      }),
+    });
+  });
+
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  await page
+    .locator('[data-courier-card][data-decision-id]:not([data-decision-id=""])')
+    .first()
+    .click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
+  let dialog = page.getByRole("dialog");
+  await dialog.getByText("AI 근거 설명", { exact: true }).click();
+  await dialog.getByRole("button", { name: "근거 설명 생성" }).click();
+  await expect(dialog.getByText("Upstage · 검증 완료", { exact: true })).toHaveCount(1);
+  await expect(dialog.locator('[data-explanation-status="LIVE"]')).toContainText(
+    "AI는 지원안과 실행 여부를 변경하지 않습니다.",
+  );
+
+  await dialog.getByRole("button", { name: "지원 검토 닫기" }).click();
+  await page.unroute("**/api/upstage-explanation");
+  await page.route("**/api/upstage-explanation", async (route) => {
+    await route.fulfill({
+      status: 429,
+      contentType: "application/json",
+      body: JSON.stringify({ code: "RATE_LIMITED" }),
+    });
+  });
+
+  await page.getByRole("button", { name: "지원 검토" }).click();
+  dialog = page.getByRole("dialog");
+  await dialog.getByText("AI 근거 설명", { exact: true }).click();
+  await dialog.getByRole("button", { name: "근거 설명 생성" }).click();
+  await expect(dialog.getByText("안전 템플릿 · 검증 완료", { exact: true })).toHaveCount(1);
+  await expect(dialog.locator('[data-explanation-status="FALLBACK"]')).toContainText(
+    "동일한 결정 사실을 안전 템플릿으로 설명했습니다.",
+  );
+  await expectNoPageOverflow(page);
+  await page.screenshot({
+    path: "test-results/dashboard-ai-explanation-1280x720.png",
+    fullPage: true,
+  });
+});
+
 test("허브와 겹친 남기석 기사 지도 마커도 직접 선택할 수 있다", async ({
   page,
 }) => {

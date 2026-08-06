@@ -1377,6 +1377,7 @@
   display: grid;
   align-content: start;
   gap: 13px;
+  overflow-y: auto;
   background: var(--bg);
 }
 
@@ -1422,6 +1423,80 @@
   font-weight: var(--weight-heavy);
   text-align: right;
 }
+
+.onepage-explanation {
+  overflow: hidden;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+}
+
+.onepage-explanation summary {
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 10px;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--type-11);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-explanation summary::-webkit-details-marker { display: none; }
+
+.onepage-explanation summary::after {
+  content: "+";
+  color: var(--blue-strong);
+  font-size: var(--type-14);
+}
+
+.onepage-explanation[open] summary::after { content: "−"; }
+
+.onepage-explanation summary span { flex: 1; }
+
+.onepage-explanation summary small {
+  color: var(--muted);
+  font-size: var(--type-10);
+  font-weight: var(--weight-bold);
+  text-align: right;
+}
+
+.onepage-explanation-body {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border-top: 1px solid var(--line);
+  background: var(--surface-subtle);
+}
+
+.onepage-explanation-body > p,
+.onepage-explanation-result p,
+.onepage-explanation-result small,
+.onepage-explanation-result em {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-10);
+  line-height: 1.5;
+}
+
+.onepage-explanation-body > button {
+  min-height: 44px;
+  border: 1px solid var(--blue);
+  border-radius: var(--r-md);
+  color: var(--blue-strong);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-explanation-body > button:disabled { cursor: wait; opacity: .7; }
+
+.onepage-explanation.is-fallback summary small { color: var(--amber-strong); }
+.onepage-explanation-result { display: grid; gap: 6px; }
+.onepage-explanation-result em { color: var(--amber-strong); font-style: normal; }
 
 .onepage-workflow-state {
   min-height: 96px;

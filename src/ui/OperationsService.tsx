@@ -2,10 +2,6 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import {
   bundledDailyOperationsPackage,
 } from "../adapters/fixtures/syntheticOperationsPackage";
-import { createUpstageProxyProvider } from "../adapters/upstage";
-import {
-  generateExplanation,
-} from "../application/explanations";
 import {
   approveAndApplyOperationsDecision,
   createAppliedPlanCsv,
@@ -28,11 +24,9 @@ import {
 } from "../application/operations";
 import type { DailyOperationsPackage, DailyOperationsSnapshot } from "../domain/operations";
 import { normalizeDailyOperationsInput } from "../domain/operations";
-import {
-  ExplanationInputSchema,
-  type ExplanationResult,
-} from "../domain/contracts";
+import type { ExplanationResult } from "../domain/contracts";
 import { OperationsMap } from "./OperationsMap";
+import { generateOperationsAdminExplanation } from "./operationsExplanation";
 
 type LoadState =
   | { status: "IDLE" }
@@ -568,68 +562,27 @@ export function OperationsService() {
     const currentBudget = selectedArtifacts.queueItem.currentBudget;
     const minimumAfter = sourceImpact?.candidateMinimumBudget;
     if (minimumAfter === undefined) return;
-    const input = ExplanationInputSchema.parse({
-      requestId: `operations-explanation-${selectedArtifacts.decision.decisionId}`,
-      role: "ADMIN",
-      language: "ko",
-      dataMode: "DEMO",
-      numericFacts: [
-        {
-          factId: "current-budget",
-          label: "현재 안전여유",
-          value: currentBudget,
-          unit: "budget_points",
-          displayValue: formatBudget(currentBudget),
-        },
-        {
-          factId: "candidate-minimum-budget",
-          label: "조정 후 최저 안전여유",
-          value: minimumAfter,
-          unit: "budget_points",
-          displayValue: formatBudget(minimumAfter),
-        },
-        {
-          factId: "eta-delta",
-          label: "ETA 변화",
-          value: selectedArtifacts.selectedEvaluation.etaDeltaMinutes,
-          unit: "minutes",
-          displayValue: `${selectedArtifacts.selectedEvaluation.etaDeltaMinutes}분`,
-        },
-      ],
-      stateFacts: [
-        {
-          factId: "decision-status",
-          label: "결정 상태",
-          value:
-            decisionStatusLabels[selectedArtifacts.decision.status] ??
-            selectedArtifacts.decision.status,
-        },
-        {
-          factId: "selected-intervention",
-          label: "선택 개입",
-          value: selectedArtifacts.selectedCandidate.actions
-            .map((action) => interventionLabel(action.type))
-            .join(" + "),
-        },
-        {
-          factId: "confidence",
-          label: "신뢰도",
-          value: selectedArtifacts.queueItem.confidence,
-        },
-      ],
-      allowedCitations: [],
-      allowedActions: [
-        "기사 동의 상태 확인",
-        "관리자 승인 전 최신 계획 재검증",
-      ],
-      prohibitedTopics: ["기사 평가", "징계", "순위", "사고확률"],
-    });
     setExplanationLoading(true);
     try {
-      const result = await generateExplanation({
-        input,
-        provider: createUpstageProxyProvider(),
-        receivedAt: new Date().toISOString(),
+      const result = await generateOperationsAdminExplanation({
+        requestId: `operations-explanation-${selectedArtifacts.decision.decisionId}`,
+        currentBudget,
+        currentBudgetLabel: "현재 안전여유",
+        candidateMinimumBudget: minimumAfter,
+        etaDeltaMinutes: selectedArtifacts.selectedEvaluation.etaDeltaMinutes,
+        etaDisplayValue: `${selectedArtifacts.selectedEvaluation.etaDeltaMinutes}분`,
+        decisionStatus:
+          decisionStatusLabels[selectedArtifacts.decision.status] ??
+          selectedArtifacts.decision.status,
+        selectedIntervention: selectedArtifacts.selectedCandidate.actions
+          .map((action) => interventionLabel(action.type))
+          .join(" + "),
+        confidence: selectedArtifacts.queueItem.confidence,
+        confidenceLabel: "신뢰도",
+        allowedActions: [
+          "기사 동의 상태 확인",
+          "관리자 승인 전 최신 계획 재검증",
+        ],
       });
       setExplanations((current) => ({
         ...current,
