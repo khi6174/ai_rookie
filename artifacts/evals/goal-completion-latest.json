@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v2",
-  "capturedAt": "2026-07-30T04:30:42.471Z",
+  "capturedAt": "2026-08-06T12:52:25.572Z",
   "status": "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
   "objective": "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
   "releasePolicy": {
@@ -83,7 +83,7 @@
           "id": "REPRODUCIBLE_TEST_COUNTS",
           "passed": true,
           "evidence": "artifacts/evals/final-readiness-latest.json",
-          "details": "unit=300, e2e=35, clean=3, publicBuild=true"
+          "details": "unit=383, e2e=46, clean=3, publicBuild=true"
         }
       ],
       "blockers": [],
@@ -190,33 +190,33 @@
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 8831,
-      "sha256": "2856813c8c2b54f8a2fdc0cc7280feeb985b2225c91b8b41fc1da70445945ebc"
+      "bytes": 8835,
+      "sha256": "c984aeec96eac25ca3401ceb5f81be695d5160498b4bc74bcd259984dd936ca1"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "8866eb664d391c11ec318ebd46ea4773ee6ef8482bc0f36939be4a80a58f683b"
+      "sha256": "c93346d0ceaf7ba1bd02caf326a1dc74b7dfe3f865be953de4d6f0685d8956e3"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "34ad21db14b7245862d8b889637d1d1b5390ed85407686b21e6615a0a8b1a578"
+      "sha256": "69782c3e53c0de6b11052cbe299fcff3889e8fdda4a68e06910ba5732682c57d"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "573265b467374a04b8cf25c3fb004f628e6de111de165561b1388347a00bde19"
+      "sha256": "6cf16ab777f5af16112c11f3a97ecb2f31594ca366102dac80d8bf4e40ad537f"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "997ca38aa3ff2a7da7203284258b88c552aa4afb00618bf7946b142557df3290"
+      "sha256": "d5ff7c3945c40938f341e1530cde0f487575b5f23dbb3b2c6159491a05c2f265"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
-      "bytes": 2319,
-      "sha256": "e0259402f60744327aa90475e15b9e5720bc7178eba3109ba322b91b0ac88dec"
+      "bytes": 2500,
+      "sha256": "4c702593a9444e2522dac6b2d42e5efb6f85151a0bcb5874da4654542dc3fefd"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -264,43 +264,43 @@
       "path": "docs/product-spec.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 40770,
-      "sha256": "3a295469ca9a0b27f6446995c01c891f5012e487e9e3ee898445632bc157ab2a"
+      "bytes": 42951,
+      "sha256": "8ad2ffc2b71b3f00d51ef8568a8897837b396b8f91013766276f9bb83ed610f9"
     },
     {
       "path": "docs/design-system.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 66710,
-      "sha256": "88fa007705073a4f951e699b096d5c5883a80402dbfd8e4e23493613b6fbca0a"
+      "bytes": 78634,
+      "sha256": "7bbfac500020ba97cf4fea8d631876b4402b510be6a95ed5addf5b21ade697a1"
     },
     {
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 137828,
-      "sha256": "7b5b7b2ae6232d24ca7716f2859f998b7a8a30fb50c11b3200e71f8b5655f838"
+      "bytes": 241591,
+      "sha256": "02f0913420db1b2323971deff82d7a0bcbac7d3eb656533930a2cda01f1d1456"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 38615,
-      "sha256": "55a05936f6c6139cbda72cd9bad51aa29057942adfc88bef3a9b4e6030b9eacf"
+      "bytes": 39762,
+      "sha256": "8f603adb790ebfc739effb1eeb6a8880f06929b026889295840b2ee1ccbceb7d"
     },
     {
       "path": "docs/evals.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 70505,
-      "sha256": "b5fc8657289d9ab14494bcdf9efb1c2be83bc00a1dab80cd021155cfd20945d1"
+      "bytes": 78241,
+      "sha256": "f7f144657076b0ab2a2d15c1681cf64a96c494541aad79f3a33edfbc0a88b20b"
     },
     {
       "path": "docs/domestic-ai-track-compliance.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 6750,
-      "sha256": "b92d6590aca56f741498b2ffec2de45618e172e30b99ccb5da03006a20146a39"
+      "bytes": 8571,
+      "sha256": "15366a68882e7a18de450ecb8f0c46ce2449539ee363224c53ced95a1789d131"
     }
   ],
   "evaluatorManifest": [

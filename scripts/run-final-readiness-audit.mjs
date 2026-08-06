@@ -44,6 +44,12 @@ function runPnpm(id, args, successPattern, timeoutMs = 180_000) {
   });
   const output = `${result.stdout ?? ""}\n${result.stderr ?? ""}`.trim();
   const passed = result.status === 0 && successPattern.test(output);
+  if (!passed) {
+    console.error(
+      `FINAL_READINESS_COMMAND_FAIL id=${id} exitCode=${result.status ?? "null"} signal=${result.signal ?? "none"}`,
+    );
+    console.error(output || "(no command output)");
+  }
   return {
     id,
     command: `pnpm ${args.join(" ")}`,

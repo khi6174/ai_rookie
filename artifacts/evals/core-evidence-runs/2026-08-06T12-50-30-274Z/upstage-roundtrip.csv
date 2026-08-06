@@ -1,0 +1,13 @@
+taskId,role,mockModel,mockPassed,liveModel,liveStatus,livePassed,liveFallbackCode,liveLatencyMs,citedFactCount,citationCount
+upstage-smoke-admin-plan-001,ADMIN,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,2052,4,1
+upstage-smoke-courier-source-002,COURIER,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1850,4,1
+upstage-smoke-courier-recipient-003,COURIER,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1949,4,1
+upstage-smoke-customer-eta-004,CUSTOMER,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1560,2,0
+upstage-smoke-report-summary-005,REPORT,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1287,3,1
+upstage-smoke-admin-blocked-006,ADMIN,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1339,3,1
+upstage-smoke-courier-confidence-007,COURIER,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1234,2,0
+upstage-smoke-admin-applied-008,ADMIN,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1682,3,1
+upstage-smoke-injection-citation-009,ADMIN,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1290,2,1
+upstage-smoke-no-citation-010,CUSTOMER,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1034,1,0
+upstage-smoke-decimal-integrity-011,ADMIN,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1596,2,1
+upstage-smoke-fallback-boundary-012,REPORT,upstage-mock-contract-v1,true,solar-pro3,LIVE,true,,1153,2,1

@@ -94,7 +94,7 @@ async function generateUnitSummary() {
   await mkdir(resolve(root, "tmp"), { recursive: true });
   const pnpmEntry = process.env.npm_execpath;
   if (!pnpmEntry) throw new Error("pnpm entry point is not available");
-  run(process.execPath, [
+  const vitestArgs = [
     pnpmEntry,
     "exec",
     "vitest",
@@ -102,10 +102,27 @@ async function generateUnitSummary() {
     "--maxWorkers=1",
     "--reporter=json",
     `--outputFile=${relative(root, temporaryVitestResult).replaceAll("\\", "/")}`,
-  ]);
+  ];
+  const vitestRun = spawnSync(process.execPath, vitestArgs, {
+    cwd: root,
+    encoding: "utf8",
+    shell: false,
+  });
   const result = JSON.parse(await readFile(temporaryVitestResult, "utf8"));
-  if (!result.success || result.numFailedTests !== 0) {
-    throw new Error("Vitest result is not a clean pass");
+  if (
+    vitestRun.status !== 0 ||
+    !result.success ||
+    result.numFailedTests !== 0
+  ) {
+    const failedTests = result.testResults
+      .flatMap((testFile) => testFile.assertionResults ?? [])
+      .filter((assertion) => assertion.status === "failed")
+      .slice(0, 10)
+      .map((assertion) => assertion.fullName ?? assertion.title)
+      .join(" | ");
+    throw new Error(
+      `Vitest result is not a clean pass: exitCode=${vitestRun.status ?? "null"} failed=${result.numFailedTests}; tests=${failedTests || "unknown"}`,
+    );
   }
   await writeJson("unit-summary.json", {
     schemaVersion: "unit-summary-v1",
