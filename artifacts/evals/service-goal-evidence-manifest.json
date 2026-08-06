@@ -1,6 +1,6 @@
 {
   "schemaVersion": "service-goal-evidence-manifest-v1",
-  "capturedAt": "2026-08-05T11:37:22.305Z",
+  "capturedAt": "2026-08-06T13:09:09.047Z",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
   "dataMode": "SYNTHETIC",
   "credentialsStored": false,
@@ -13,23 +13,23 @@
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 42067,
-      "sha256": "450dffaf37b4c9077fbd9a1d614c606549922d4c3242ffaedeecb93f64165b61"
+      "bytes": 42951,
+      "sha256": "8ad2ffc2b71b3f00d51ef8568a8897837b396b8f91013766276f9bb83ed610f9"
     },
     {
       "path": "docs/data-contracts.md",
-      "bytes": 73408,
-      "sha256": "abb3a597a105a156133a97f045f713d6bf00eb646a24ea0a795868a47d19be28"
+      "bytes": 74023,
+      "sha256": "fffa060e8977fbabb8c5ac7ba81237ca7ce84e7bf9017d45778ab63167909f3d"
     },
     {
       "path": "docs/architecture.md",
-      "bytes": 39358,
-      "sha256": "ae62744114b231ff8d947f509779c44b5093ef282134d88032f067390cdeacba"
+      "bytes": 40819,
+      "sha256": "d6ffa2f3556a00f164db149859f4009e5f7d0dbc171e7d2ecbf899bb9d846b35"
     },
     {
       "path": "docs/evals.md",
-      "bytes": 70742,
-      "sha256": "f65086dee66caf53e7013393c186ac7fda8670c74985fd2f6297ebbcd78800b5"
+      "bytes": 78241,
+      "sha256": "f7f144657076b0ab2a2d15c1681cf64a96c494541aad79f3a33edfbc0a88b20b"
     },
     {
       "path": "docs/operations-service-human-review.md",
@@ -38,18 +38,18 @@
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 214553,
-      "sha256": "de8e624b864a3d5737340084598f09849703a62cd3b53e84659e7e99f59d1c10"
+      "bytes": 241591,
+      "sha256": "02f0913420db1b2323971deff82d7a0bcbac7d3eb656533930a2cda01f1d1456"
     },
     {
       "path": "artifacts/evals/operations-service-evidence.json",
       "bytes": 1338,
-      "sha256": "feb70e0c2863014ba4abe8c37783ce9a954d97b1562e9cfd44432121fc311817"
+      "sha256": "0605bd5821e8d2c91968adec862dce96f45734ad2536b38f0346516872e669ea"
     },
     {
       "path": "artifacts/evals/operations-scale-summary.json",
-      "bytes": 1171,
-      "sha256": "4293048faf677c99b1e3347477e1cb6cf11d59f50c06c271063ae628652628fc"
+      "bytes": 1170,
+      "sha256": "9c2e15171d88051baea958b705f376a577311b467c562e4a2671ce8cbe91aa89"
     },
     {
       "path": "artifacts/evals/upstage-smoke-latest.json",
@@ -113,8 +113,8 @@
     },
     {
       "path": "artifacts/evals/screenshots/operations-rider-360x800.png",
-      "bytes": 63806,
-      "sha256": "2ba328a29fd6374acc354d2984873981d10f9fd1c035f1692b028079c04ecfae"
+      "bytes": 63820,
+      "sha256": "c8f7c2d91851ea9e8cafc92d3e947eb969f94d32f452a3ebd18175555f4dfac6"
     },
     {
       "path": "e2e/operations-service.spec.ts",
