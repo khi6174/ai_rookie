@@ -1,7 +1,7 @@
 {
   "schemaVersion": "service-goal-readiness-v1",
   "goal": "PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS",
-  "capturedAt": "2026-08-07T02:56:03.721Z",
+  "capturedAt": "2026-08-07T04:06:54.974Z",
   "status": "HUMAN_VALIDATION_REQUIRED",
   "dataMode": "SYNTHETIC",
   "commands": [
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 1371,
+      "durationMs": 1288,
       "summary": "$ tsc --noEmit --pretty false"
     },
     {
@@ -18,31 +18,31 @@
       "command": "pnpm run test",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 38520,
-      "summary": "      Tests  385 passed (385) |    Start at  11:51:22 |    Duration  37.38s (transform 2.70s, setup 0ms, import 13.57s, tests 42.53s, environment 6ms)"
+      "durationMs": 36526,
+      "summary": "      Tests  385 passed (385) |    Start at  13:02:07 |    Duration  35.43s (transform 2.53s, setup 0ms, import 12.94s, tests 40.68s, environment 6ms)"
     },
     {
       "id": "FULL_E2E",
       "command": "pnpm run test:e2e",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 204649,
-      "summary": "  ok 46 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (2.9s) |   ok 47 e2e\\synthetic-operations-db.spec.ts:3:1 › 검증된 합성 기사 25명을 DB API에서 운영 화면으로 전달한다 (1.9s) |   47 passed (3.4m)"
+      "durationMs": 213838,
+      "summary": "  ok 47 e2e\\submission-storyboard.spec.ts:30:1 › 3분 제출 영상의 일곱 핵심 장면을 같은 decision에서 캡처한다 (3.0s) |   ok 48 e2e\\synthetic-operations-db.spec.ts:3:1 › 검증된 합성 기사 25명을 DB API에서 운영 화면으로 전달한다 (2.0s) |   48 passed (3.5m)"
     },
     {
       "id": "OPERATIONS_SCALE",
       "command": "pnpm run eval:operations:scale",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 24521,
-      "summary": "Operations scale evaluation: PASSED 24=1261ms 96=4610ms 240=13212ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
+      "durationMs": 23788,
+      "summary": "Operations scale evaluation: PASSED 24=1307ms 96=4673ms 240=13031ms | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-scale-summary.json"
     },
     {
       "id": "OPERATIONS_EVIDENCE",
       "command": "pnpm run eval:operations:evidence",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 12288,
+      "durationMs": 11735,
       "summary": "Operations service evidence: PASSED couriers=25 decisions=17 conflicts=136 | JSON: C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\operations-service-evidence.json"
     },
     {
@@ -50,8 +50,8 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2405,
-      "summary": "dist/assets/index-DAlXX92V.js                   305.10 kB │ gzip: 93.52 kB | \u001b[32m✓ built in 375ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
+      "durationMs": 2275,
+      "summary": "dist/assets/index-DAlXX92V.js                   305.10 kB │ gzip: 93.52 kB | \u001b[32m✓ built in 329ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb"
     }
   ],
   "checks": {
