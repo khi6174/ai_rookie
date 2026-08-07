@@ -66,10 +66,3 @@ test("이름과 GPS가 포함된 입력을 차단하고 원문을 저장하지 �
   await expect(page.getByText("events.0.name", { exact: true })).toBeVisible();
   await expect(page.getByText("events.0.gps", { exact: true })).toBeVisible();
 });
-
-test("공개 관제에서 Shadow Live 준비 화면으로 이동할 수 있다", async ({ page }) => {
-  await page.setViewportSize({ width: 1280, height: 720 });
-  await page.goto("/");
-  await page.getByRole("link", { name: "Shadow Live 준비" }).click();
-  await expect(page).toHaveURL(/\/shadow-live-setup$/);
-});

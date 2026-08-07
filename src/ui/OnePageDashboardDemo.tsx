@@ -1725,9 +1725,6 @@ export function OnePageDashboardDemo() {
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>
-          <a className="onepage-shadow-live-link" href="/shadow-live-setup">
-            Shadow Live 준비
-          </a>
           <a className="onepage-rider-app-link" href={riderAppHref}>
             기사 앱
           </a>

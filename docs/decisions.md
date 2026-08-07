@@ -1502,12 +1502,12 @@
 - 상태: Approved
 - 사용자 결정: 합성 서비스 다음 단계로 실시간 서비스 전환을 진행하고, 가명 기사·읽기 전용 Shadow Live부터 시작하도록 승인했다.
 - 결정: 첫 단계는 `/shadow-live-setup`에서 `shadow-live-progress-batch-v1` JSON을 브라우저 메모리에서만 검증한다. 가명 기사·계획 ID, 단조 sequence, 발생시각, 배송 진행 수와 거친 권역만 허용한다. 실제 이름·연락처·주소·고객·차량번호·GPS·위경도·생체정보는 중첩 위치와 관계없이 전체 입력을 차단한다.
-- 권한 경계: 원문 서버 전송·D1 저장·브라우저 영구 저장·AI 입력·Safety 계산·지원 큐·추천·계획 적용은 모두 하지 않는다. 공개 대시보드에는 준비 화면 링크만 추가하고 기존 합성 운영일과 폐루프를 변경하지 않는다.
-- 성능 기준: lazy Shadow Live 화면·strict 계약·공개 관제 링크의 비공간 gzip JS 증가분은 직전 승인 build 대비 `3,631 bytes`다. 이를 G5 비교 baseline에 분리해 키 없는 기준을 `153,587 bytes`로 재고정한다. 2.5D 장면의 추가 허용량 `50KiB`와 프레임·전환 시간 기준은 변경하거나 완화하지 않는다.
+- 권한 경계: 원문 서버 전송·D1 저장·브라우저 영구 저장·AI 입력·Safety 계산·지원 큐·추천·계획 적용은 모두 하지 않는다. 준비 화면은 직접 경로로만 제공하고 인증되지 않은 기능을 기본 공개 대시보드에 노출하지 않으며, 기존 합성 운영일과 폐루프를 변경하지 않는다.
+- 성능 기준: lazy Shadow Live 화면과 strict 계약의 비공간 gzip JS 증가분은 직전 승인 build 대비 `3,600 bytes`다. 이를 G5 비교 baseline에 분리해 키 없는 기준을 `153,556 bytes`로 재고정한다. 2.5D 장면의 추가 허용량 `50KiB`와 프레임·전환 시간 기준은 변경하거나 완화하지 않는다.
 - 활성화 조건: 실제 서버 수신은 TMS/WMS 원천, 운영사 인증·테넌트 권한, 보존·삭제 SLA, 중복·순서·재전송 정책과 독립 사용자 검토가 승인된 뒤 별도 단계로 구현한다. 공개 무인증 쓰기 endpoint와 새 secret은 이 단계에 추가하지 않는다.
 - 이유: 실제 원천과 인증 방식이 정해지지 않은 상태에서 공개 endpoint나 데이터 저장부터 만들면 개인정보 유입과 무단 쓰기 위험이 생긴다. 공급자 독립 allowlist 계약과 금지 필드 차단을 먼저 고정하면 실제 연결 전에 운영사가 데이터 최소화 상태를 확인할 수 있다.
 - 기각한 대안: 합성 이동을 Live로 재표시, 공개 무인증 webhook, 실제 GPS부터 수집, 전체 TMS row 저장, 원문 D1 보관, Safety 엔진에 배송 진행 이벤트 즉시 혼합, 새 secret을 승인 없이 생성.
-- 영향 파일: `src/domain/operations/shadowLive.ts`, `src/ui/ShadowLiveSetup.tsx`, `src/ui/shadow-live-setup.css`, `src/main.tsx`, 공개 대시보드 링크, 단위·E2E 테스트, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/privacy-and-ai-policy.md`
+- 영향 파일: `src/domain/operations/shadowLive.ts`, `src/ui/ShadowLiveSetup.tsx`, `src/ui/shadow-live-setup.css`, `src/main.tsx`, 단위·E2E 테스트, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/privacy-and-ai-policy.md`
 
 ## 4. 심사기준 연결
 
