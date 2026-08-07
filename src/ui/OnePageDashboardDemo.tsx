@@ -1738,16 +1738,8 @@ export function OnePageDashboardDemo() {
         <div className="onepage-brief-overview">
           <span className="onepage-brief-kicker">향후 60분 안전지원 브리핑</span>
           <h2 id="priority-brief-title">
-            {urgentCouriers.length}명에게 지원 판단이 필요합니다.
+            {urgentCouriers.length}명의 판단이 필요합니다.
           </h2>
-          <p>
-            사고확률이나 기사 평가가 아닌, 합성 계획의 운영 위험지수입니다.
-          </p>
-          <div className="onepage-brief-boundaries" aria-label="데이터와 적용 경계">
-            <span>합성 운영자료</span>
-            <span>실제 GPS 아님</span>
-            <span>승인 전 계획 유지</span>
-          </div>
         </div>
 
         <article

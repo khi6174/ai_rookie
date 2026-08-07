@@ -43,11 +43,20 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: /명에게 지원 판단이 필요합니다/ }),
+    page.getByRole("heading", { name: "17명의 판단이 필요합니다." }),
   ).toBeVisible();
-  await expect(page.getByText("합성 운영자료", { exact: true })).toBeVisible();
-  await expect(page.getByText("실제 GPS 아님", { exact: true })).toBeVisible();
-  await expect(page.getByText("승인 전 계획 유지", { exact: true })).toBeVisible();
+  await expect(page.locator(".onepage-brief-overview")).not.toContainText(
+    "사고확률이나 기사 평가",
+  );
+  await expect(page.locator(".onepage-brief-overview")).not.toContainText(
+    "합성 운영자료",
+  );
+  await expect(page.locator(".onepage-brief-overview")).not.toContainText(
+    "실제 GPS 아님",
+  );
+  await expect(page.locator(".onepage-brief-overview")).not.toContainText(
+    "승인 전 계획 유지",
+  );
   await expect(
     page.getByText(`${body.storage} · 합성 기사 25명`, { exact: true }),
   ).toBeVisible();
