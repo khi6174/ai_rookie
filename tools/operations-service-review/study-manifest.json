@@ -7,12 +7,12 @@
   "stimuli": {
     "ADMIN": {
       "path": "/artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
-      "sha256": "6458343b11e81c2a8521855faae365e597ecddd5a134509612f4a0a2e49e01e6"
+      "sha256": "fdae145f4f504f374fab2b27f8d4bec827127b0cc2833346d318b1ebffda32b3"
     },
     "RIDER": {
       "path": "/artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
       "sha256": "b1816f6995cf429bbe5097e72c350e8f83e71aad6b4c4034055bfb50fcd522ff"
     }
   },
-  "manifestSha256": "0b3e5d48d1f8730b20ce69bfef95ef8435141f6a50eae40bf93d59623e4a9d9e"
+  "manifestSha256": "a0819968be21cd07de94958c2da489e7a9ff06174dfeac418249ce45c3e269ae"
 }

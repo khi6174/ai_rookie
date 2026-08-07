@@ -1,5 +1,10 @@
 import { expect, test } from "@playwright/test";
 
+const reviewStimulusDirectory =
+  process.env.SAFEROUTE_CAPTURE_REVIEW_STIMULI === "true"
+    ? "artifacts/evals/screenshots"
+    : "test-results";
+
 async function expectNoPageOverflow(page: import("@playwright/test").Page) {
   const overflow = await page.evaluate(() => ({
     horizontal:
@@ -401,8 +406,7 @@ test("독립 검토 v2 관리자 자극은 현재 공개 화면의 적용 전 �
     dialog.getByRole("button", { name: "기사 확인 요청" }),
   ).toBeVisible();
   await page.screenshot({
-    path:
-      "artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
+    path: `${reviewStimulusDirectory}/operations-review-admin-current-1440x900.png`,
     fullPage: false,
     animations: "disabled",
   });
@@ -557,8 +561,7 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
     fullPage: true,
   });
   await sourcePage.screenshot({
-    path:
-      "artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
+    path: `${reviewStimulusDirectory}/operations-review-rider-current-390x844.png`,
     fullPage: false,
     animations: "disabled",
   });
