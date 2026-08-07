@@ -79,14 +79,60 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
   expect(
     new Set(body.package.records.map((record) => record.hub.hubId)).size,
   ).toBe(3);
+  await expect(
+    page.locator('.onepage-courier-card [data-profile-photo="synthetic"]'),
+  ).toHaveCount(20);
+  await expect(
+    page.locator('.onepage-courier-card [data-profile-photo="fallback"]'),
+  ).toHaveCount(5);
   await expect(page.locator(".onepage-profile-photo").first()).toHaveCSS(
     "background-image",
-    /gradient/,
+    /synthetic-courier-profiles-v1\.jpg/,
   );
   expect(await page.locator("body").innerText()).toContain("강태현");
   expect(await page.locator("body").innerText()).not.toContain("합성 기사 001");
   expect(await page.locator("body").innerText()).not.toContain("강남 허브");
   await expectNoPageOverflow(page);
+});
+
+test("기사 추가는 합성 등록 요청만 만들고 활성 안전 계산 25명은 유지한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("[data-courier-card]")).toHaveCount(25);
+  await page.screenshot({
+    path: "test-results/dashboard-synthetic-profile-photos-1440x900.png",
+    fullPage: false,
+    animations: "disabled",
+  });
+
+  const addButton = page.getByRole("button", { name: /기사 추가/ });
+  await addButton.click();
+  const dialog = page.getByRole("dialog", { name: "기사 추가" });
+  await expect(dialog).toBeVisible();
+  await expect(dialog.getByText("실제 개인정보를 입력하지 않습니다.")).toBeVisible();
+  await expect(dialog.getByText(/안전 계산에서 제외됩니다/)).toBeVisible();
+  await page.screenshot({
+    path: "test-results/dashboard-add-courier-dialog-1440x900.png",
+    fullPage: false,
+    animations: "disabled",
+  });
+
+  const aliasInput = dialog.getByLabel("합성 별칭");
+  await expect(aliasInput).toBeFocused();
+  await aliasInput.fill("합성 기사 새봄");
+  await dialog.getByRole("button", { name: "등록 요청 저장" }).click();
+
+  await expect(dialog).toBeHidden();
+  await expect(page.getByRole("button", { name: /기사 추가.*대기 1/ })).toBeFocused();
+  await expect(page.locator("[data-courier-card]")).toHaveCount(25);
+  await expect(page.getByText(/합성 기사 25명/, { exact: false })).toBeVisible();
+
+  await page.getByRole("button", { name: /기사 추가.*대기 1/ }).click();
+  await page.keyboard.press("Escape");
+  await expect(page.getByRole("dialog", { name: "기사 추가" })).toBeHidden();
+  await expect(page.getByRole("button", { name: /기사 추가.*대기 1/ })).toBeFocused();
 });
 
 test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기사 앱으로 연다", async ({

@@ -1,4 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type CSSProperties,
+  type FormEvent,
+} from "react";
 import {
   DEMO_RIDER_DANGER_SIGNAL_EVENT,
   DEMO_RIDER_DANGER_SIGNAL_STORAGE_KEY,
@@ -53,6 +59,7 @@ import {
 } from "../application/riderMapPresentation";
 import { axModelQualification } from "./axModelQualification";
 import { generateOperationsAdminExplanation } from "./operationsExplanation";
+import syntheticCourierProfiles from "../assets/synthetic-courier-profiles-v1.jpg";
 import "./one-page-dashboard.css";
 
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
@@ -66,6 +73,12 @@ type RiderDangerSignal = {
   courierId: string;
   label: string;
   receivedAt: string;
+};
+
+type AddCourierDraft = {
+  alias: string;
+  hubId: string;
+  area: string;
 };
 
 const initialDangerSignals: Record<string, RiderDangerSignal> = {};
@@ -268,6 +281,42 @@ const roads = [
   { left: 5, top: 78, width: 76, rotate: -25, kind: "minor" },
 ];
 
+function syntheticProfileIndex(courierId: string) {
+  const match = courierId.match(/^demo-courier-(\d{3})$/);
+  if (!match) return undefined;
+  const index = Number.parseInt(match[1], 10) - 1;
+  return index >= 0 && index < 20 ? index : undefined;
+}
+
+function syntheticProfileStyle(courierId: string): CSSProperties | undefined {
+  const index = syntheticProfileIndex(courierId);
+  if (index === undefined) return undefined;
+  return {
+    backgroundImage: `url(${syntheticCourierProfiles})`,
+    backgroundPosition: `${(index % 5) * 25}% ${Math.floor(index / 5) * (100 / 3)}%`,
+  };
+}
+
+function SyntheticCourierPhoto({
+  courierId,
+  className,
+}: {
+  courierId: string;
+  className: string;
+}) {
+  const hasSyntheticPhoto = syntheticProfileIndex(courierId) !== undefined;
+  return (
+    <span
+      className={`${className} ${hasSyntheticPhoto ? "has-synthetic-photo" : "has-profile-fallback"}`}
+      data-profile-photo={hasSyntheticPhoto ? "synthetic" : "fallback"}
+      aria-hidden="true"
+      style={syntheticProfileStyle(courierId)}
+    >
+      {hasSyntheticPhoto ? null : courierId.slice(-3)}
+    </span>
+  );
+}
+
 function CourierCard({
   courier,
   selected,
@@ -303,9 +352,10 @@ function CourierCard({
     >
       <span className="onepage-card-identity">
         <span className="onepage-avatar" aria-hidden="true">
-          <span className="onepage-profile-photo">
-            {courier.id.slice(-3)}
-          </span>
+          <SyntheticCourierPhoto
+            courierId={courier.id}
+            className="onepage-profile-photo"
+          />
           <i className={`onepage-avatar-status state-${state.toLowerCase()}`} />
         </span>
         <span className="onepage-card-copy">
@@ -324,6 +374,138 @@ function CourierCard({
         </span>
       </span>
     </button>
+  );
+}
+
+function AddCourierDialog({
+  couriers,
+  hubs,
+  onClose,
+  onSave,
+}: {
+  couriers: Courier[];
+  hubs: DashboardHubProjection[];
+  onClose: () => void;
+  onSave: (draft: AddCourierDraft) => void;
+}) {
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const aliasRef = useRef<HTMLInputElement>(null);
+  const [alias, setAlias] = useState("");
+  const [hubId, setHubId] = useState(hubs[0]?.hubId ?? "");
+  const areas = [...new Set(couriers.map((courier) => courier.area))];
+  const [area, setArea] = useState(areas[0] ?? "");
+
+  useEffect(() => {
+    aliasRef.current?.focus();
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        onClose();
+        return;
+      }
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(
+        dialogRef.current?.querySelectorAll<HTMLElement>(
+          'button:not([disabled]), input, select, [tabindex]:not([tabindex="-1"])',
+        ) ?? [],
+      );
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
+
+  const submit = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    onSave({ alias: alias.trim(), hubId, area });
+  };
+
+  return (
+    <div
+      className="onepage-modal-backdrop"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose();
+      }}
+    >
+      <div
+        ref={dialogRef}
+        className="onepage-add-courier-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="add-courier-title"
+      >
+        <header className="onepage-add-courier-header">
+          <div>
+            <small>합성 Demo 등록</small>
+            <h2 id="add-courier-title">기사 추가</h2>
+          </div>
+          <button
+            type="button"
+            aria-label="기사 추가 닫기"
+            className="onepage-dialog-close"
+            onClick={onClose}
+          >
+            ×
+          </button>
+        </header>
+        <form className="onepage-add-courier-form" onSubmit={submit}>
+          <div className="onepage-add-courier-notice">
+            <strong>실제 개인정보를 입력하지 않습니다.</strong>
+            <span>승인된 합성 사진과 별칭만 사용하며, 운영계획 검증 전에는 안전 계산에서 제외됩니다.</span>
+          </div>
+          <label>
+            <span>합성 별칭</span>
+            <input
+              ref={aliasRef}
+              type="text"
+              value={alias}
+              minLength={2}
+              maxLength={20}
+              required
+              placeholder="예: 김안전"
+              autoComplete="off"
+              onChange={(event) => setAlias(event.target.value)}
+            />
+            <small>실제 기사 이름·연락처·차량번호는 입력하지 마세요.</small>
+          </label>
+          <div className="onepage-add-courier-fields">
+            <label>
+              <span>배정 허브</span>
+              <select value={hubId} required onChange={(event) => setHubId(event.target.value)}>
+                {hubs.map((hub) => (
+                  <option key={hub.hubId} value={hub.hubId}>{hub.label}</option>
+                ))}
+              </select>
+            </label>
+            <label>
+              <span>거친 운영 권역</span>
+              <select value={area} required onChange={(event) => setArea(event.target.value)}>
+                {areas.map((value) => (
+                  <option key={value} value={value}>{value}</option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <div className="onepage-add-courier-boundary">
+            <span aria-hidden="true">i</span>
+            <p>등록 요청은 이 브라우저의 Demo 상태에만 남습니다. 근무계획·차량·배송계획·Safety 초기값 검증 후에만 활성 기사로 전환할 수 있습니다.</p>
+          </div>
+          <footer className="onepage-add-courier-footer">
+            <button type="button" onClick={onClose}>취소</button>
+            <button type="submit" className="is-primary">등록 요청 저장</button>
+          </footer>
+        </form>
+      </div>
+    </div>
   );
 }
 
@@ -646,10 +828,6 @@ function InterventionDialog({
       return action?.type === "TRANSFER_STOPS" ? action.stopIds.length : 0;
     }),
   );
-  const courierIndex = Math.max(
-    0,
-    Number.parseInt(courier.id.slice(-3), 10) - 1,
-  );
   const decision = artifacts.decision;
   const sourceRequirement = decision.consentRequirements.find(
     (requirement) => requirement.courierId === courier.id,
@@ -763,12 +941,9 @@ function InterventionDialog({
       >
         <header className="onepage-dialog-header">
           <div className="onepage-dialog-person">
-            <span
+            <SyntheticCourierPhoto
+              courierId={courier.id}
               className="onepage-support-photo"
-              aria-hidden="true"
-              style={{
-                backgroundPosition: `${(courierIndex % 5) * 25}% ${Math.floor(courierIndex / 5) * (100 / 3)}%`,
-              }}
             />
             <div>
               <h2 id="intervention-dialog-title">{courier.name} 기사</h2>
@@ -1033,10 +1208,14 @@ export function OnePageDashboardDemo() {
   const [decisionContext, setDecisionContext] =
     useState<DashboardDecisionContext>();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [addCourierOpen, setAddCourierOpen] = useState(false);
+  const [pendingCourierRequest, setPendingCourierRequest] =
+    useState<AddCourierDraft>();
   const [dialogBusy, setDialogBusy] = useState(false);
   const [dialogMessage, setDialogMessage] = useState<string>();
   const cardRefs = useRef(new Map<string, HTMLButtonElement>());
   const cardRailRef = useRef<HTMLDivElement>(null);
+  const addCourierButtonRef = useRef<HTMLButtonElement>(null);
   const supportReviewButtonRef = useRef<HTMLButtonElement>(null);
 
   const couriers = projection?.couriers ?? [];
@@ -1461,6 +1640,16 @@ export function OnePageDashboardDemo() {
     window.requestAnimationFrame(() => supportReviewButtonRef.current?.focus());
   };
 
+  const closeAddCourier = () => {
+    setAddCourierOpen(false);
+    window.requestAnimationFrame(() => addCourierButtonRef.current?.focus());
+  };
+
+  const savePendingCourier = (draft: AddCourierDraft) => {
+    setPendingCourierRequest(draft);
+    closeAddCourier();
+  };
+
   if (!projection || !selectedCourier || !movingSelectedCourier) {
     return (
       <main className="onepage-demo">
@@ -1533,9 +1722,22 @@ export function OnePageDashboardDemo() {
               </button>
             ))}
           </div>
-          <div className="onepage-scroll-controls">
-            <button type="button" aria-label="이전 기사 카드" onClick={() => scrollCards(-1)}>‹</button>
-            <button type="button" aria-label="다음 기사 카드" onClick={() => scrollCards(1)}>›</button>
+          <div className="onepage-courier-actions">
+            <button
+              ref={addCourierButtonRef}
+              type="button"
+              className="onepage-add-courier-button"
+              aria-haspopup="dialog"
+              onClick={() => setAddCourierOpen(true)}
+            >
+              <span aria-hidden="true">＋</span>
+              기사 추가
+              {pendingCourierRequest && <b>대기 1</b>}
+            </button>
+            <div className="onepage-scroll-controls">
+              <button type="button" aria-label="이전 기사 카드" onClick={() => scrollCards(-1)}>‹</button>
+              <button type="button" aria-label="다음 기사 카드" onClick={() => scrollCards(1)}>›</button>
+            </div>
           </div>
         </div>
         <div className="onepage-card-rail" ref={cardRailRef}>
@@ -1713,12 +1915,10 @@ export function OnePageDashboardDemo() {
 
           <div className="onepage-support-focus" aria-live="polite">
             <div className="onepage-support-person">
-              <span
+              <SyntheticCourierPhoto
+                courierId={selectedCourier.id}
                 className="onepage-support-photo"
-                aria-hidden="true"
-              >
-                {selectedCourier.id.slice(-3)}
-              </span>
+              />
               <div>
                 <strong>{selectedCourier.name}</strong>
                 <span>{selectedCourier.area}</span>
@@ -1799,6 +1999,14 @@ export function OnePageDashboardDemo() {
           </div>
         </aside>
       </section>
+      {addCourierOpen && (
+        <AddCourierDialog
+          couriers={couriers}
+          hubs={hubs}
+          onClose={closeAddCourier}
+          onSave={savePendingCourier}
+        />
+      )}
       {dialogOpen && decisionContext && activeDialogArtifacts && (
         <InterventionDialog
           courier={selectedCourier}

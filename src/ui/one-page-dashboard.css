@@ -225,6 +225,41 @@
   gap: 5px;
 }
 
+.onepage-courier-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.onepage-add-courier-button {
+  min-height: 32px;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 10px;
+  border: 1px solid var(--blue-line);
+  border-radius: var(--r-md);
+  color: var(--blue-strong);
+  background: var(--blue-t);
+  cursor: pointer;
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+  white-space: nowrap;
+}
+
+.onepage-add-courier-button > span {
+  font-size: var(--type-14);
+  line-height: 1;
+}
+
+.onepage-add-courier-button > b {
+  padding: 3px 6px;
+  border-radius: var(--r-pill);
+  color: var(--amber-strong);
+  background: var(--amber-t);
+  font-size: 9px;
+}
+
 .onepage-scroll-controls button {
   width: 32px;
   height: 32px;
@@ -314,6 +349,14 @@
   background: linear-gradient(145deg, #eef4ff, #dbeafe);
   font-size: var(--type-16);
   font-weight: var(--weight-heavy);
+}
+
+.onepage-profile-photo.has-synthetic-photo,
+.onepage-support-photo.has-synthetic-photo {
+  color: transparent;
+  background-color: #dbe7ef;
+  background-repeat: no-repeat;
+  background-size: 500% 400%;
 }
 
 .onepage-avatar-status {
@@ -1186,6 +1229,153 @@
   color: var(--text);
   background: var(--surface);
   box-shadow: var(--sh-modal);
+}
+
+.onepage-add-courier-dialog {
+  width: min(560px, 100%);
+  max-height: calc(100vh - 40px);
+  overflow: hidden;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-card);
+  color: var(--text);
+  background: var(--surface);
+  box-shadow: var(--sh-modal);
+}
+
+.onepage-add-courier-header {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 18px;
+  border-bottom: 1px solid var(--line);
+}
+
+.onepage-add-courier-header > div {
+  display: grid;
+  gap: 2px;
+}
+
+.onepage-add-courier-header small {
+  color: var(--blue-strong);
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-add-courier-header h2 {
+  margin: 0;
+  font-size: var(--type-18);
+}
+
+.onepage-add-courier-form {
+  display: grid;
+  gap: 16px;
+  padding: 18px;
+}
+
+.onepage-add-courier-notice {
+  display: grid;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--blue-line);
+  border-radius: var(--r-lg);
+  background: var(--blue-t);
+}
+
+.onepage-add-courier-notice strong { font-size: var(--type-12); }
+.onepage-add-courier-notice span,
+.onepage-add-courier-form label small {
+  color: var(--muted);
+  font-size: var(--type-10);
+  line-height: 1.45;
+}
+
+.onepage-add-courier-form label {
+  display: grid;
+  gap: 6px;
+  color: var(--text);
+  font-size: var(--type-11);
+  font-weight: var(--weight-bold);
+}
+
+.onepage-add-courier-form input,
+.onepage-add-courier-form select {
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+  font-weight: var(--weight-medium);
+}
+
+.onepage-add-courier-form input:focus-visible,
+.onepage-add-courier-form select:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 2px;
+}
+
+.onepage-add-courier-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.onepage-add-courier-boundary {
+  display: grid;
+  grid-template-columns: 24px minmax(0, 1fr);
+  align-items: start;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--r-md);
+  background: var(--surface-subtle);
+}
+
+.onepage-add-courier-boundary > span {
+  width: 20px;
+  height: 20px;
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-pill);
+  color: var(--blue-strong);
+  background: var(--blue-t);
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-add-courier-boundary p {
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-10);
+  line-height: 1.5;
+}
+
+.onepage-add-courier-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  padding-top: 2px;
+}
+
+.onepage-add-courier-footer button {
+  min-height: 44px;
+  padding: 0 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  color: var(--text);
+  background: var(--surface);
+  cursor: pointer;
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-add-courier-footer button.is-primary {
+  border-color: var(--blue);
+  color: var(--surface);
+  background: var(--blue);
 }
 
 .onepage-dialog-header {

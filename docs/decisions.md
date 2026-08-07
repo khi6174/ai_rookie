@@ -1459,6 +1459,17 @@
 - 기각한 대안: 커밋 문자열만 맞춘 채 기존 `/operations` 전체 페이지 PNG 유지, 1440×1281 이미지를 1440×900으로 표시, 기술 검증 UI 결과를 공개 `/`에 일반화, 기존 v1 study ID로 자극만 조용히 교체.
 - 영향 파일: 공개 대시보드·기사 앱 자극 E2E, `tools/operations-service-review/`, 검토 manifest·집계기·배포 smoke·서비스 Goal 감사, `docs/operations-service-human-review.md`, `docs/product-spec.md`, `docs/design-system.md`, `docs/evals.md`, `docs/decisions.md`
 
+### ADR-145 — 기존 합성 프로필 사진을 복구하고 기사 추가는 검증 전 등록 요청으로 분리한다
+
+- 날짜: 2026-08-07
+- 상태: Approved
+- 사용자 결정: 기존에 만든 합성 기사 사진을 다시 사용하고 현재 공개 관제에 `기사 추가`란만 가산형으로 만들도록 요청했다.
+- 결정: 공개 기사 카드·선택 기사 패널·지원 검토 모달의 `demo-courier-001~020`은 승인된 `synthetic-courier-profiles-v1.jpg` 5×4 sprite의 서로 다른 합성 얼굴을 사용한다. 사진이 준비되지 않은 `021~025`는 사진을 반복하지 않고 기존 번호형 대체 표시를 유지한다. 상단 기사 현황 도구에 `기사 추가` 버튼과 키보드 접근 가능한 dialog를 추가한다.
+- 등록 경계: 추가란은 합성 별칭, 기존 합성 허브, 거친 운영 권역만 받으며 실제 이름·연락처·차량번호·사진 업로드를 받지 않는다. 저장 결과는 브라우저의 `등록 대기 1` Demo 표시만 만들고, 승인된 25명 운영 패키지·Safety 계산·지도·지원 큐·기사 앱·D1에 새 기사를 삽입하지 않는다. 실제 활성화는 근무계획·차량·배송계획·Safety 초기값과 새 계약이 검증된 뒤 별도 작업으로 수행한다.
+- 이유: 만들어 둔 합성 얼굴을 사용하면 번호 placeholder보다 기사 식별이 빠르지만, 사진 20장을 25명에게 중복 배정하거나 간단한 입력폼으로 안전 입력이 없는 26번째 기사를 활성화하면 화면과 결정론 엔진의 ID·계보가 다시 갈라진다.
+- 기각한 대안: 실제 사진 업로드, 20장 얼굴을 25명에게 반복 사용, 제출한 폼 값을 즉시 활성 기사와 Safety 점수로 생성, 연락처·차량번호 수집, 기존 공개 대시보드 구조 재설계.
+- 영향 파일: `src/assets/synthetic-courier-profiles-v1.jpg`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
