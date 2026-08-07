@@ -29,6 +29,11 @@ const OnePageDashboardDemo = lazy(() =>
     default: module.OnePageDashboardDemo,
   })),
 );
+const ShadowLiveSetup = lazy(() =>
+  import("./ui/ShadowLiveSetup").then((module) => ({
+    default: module.ShadowLiveSetup,
+  })),
+);
 
 const root = document.getElementById("root");
 const pathname = window.location.pathname;
@@ -58,6 +63,8 @@ createRoot(root).render(
         <OperationsRiderService />
       ) : pathname.startsWith("/operations") ? (
         <OperationsService />
+      ) : pathname.startsWith("/shadow-live-setup") ? (
+        <ShadowLiveSetup />
       ) : pathname.startsWith("/design-preview") ? (
         <RedesignPreview />
       ) : (

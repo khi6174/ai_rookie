@@ -1858,3 +1858,35 @@ type SyntheticOperationDayProjection = {
 - `BUNDLED_FALLBACK`도 동일 디렉터리와 같은 엔진을 사용하며 이름이나 점수를 별도 하드코딩하지 않는다.
 - 디렉터리 앵커는 정확히 일치하는 25개 `demo-courier-*`에만 적용한다. 디렉터리 밖의 검증된 합성 기사 ID는 운영 패키지 위험입력에서 계산한 기준 Budget을 사용해야 하며 이름 앵커 조회 실패로 스냅샷 생성을 중단하지 않는다.
 - 실제 이름·연락처·전체 주소·정밀 GPS·생체정보는 디렉터리에 추가할 수 없다.
+
+### 28.10 Shadow Live 읽기 전용 진행 이벤트
+
+```ts
+type ShadowLiveProgressBatch = {
+  schemaVersion: "shadow-live-progress-batch-v1";
+  dataMode: "LIVE_PILOT";
+  source: {
+    kind: "READ_ONLY_CONNECTOR";
+    connectionId: `shadow-${string}`;
+    generatedAt: IsoDateTime;
+  };
+  events: Array<{
+    eventId: string;
+    sequence: number;
+    occurredAt: IsoDateTime;
+    eventType: "SHIFT_STARTED" | "STOP_PROGRESS" | "PLAN_DELAYED" | "SHIFT_ENDED";
+    courierRef: `anon-${string}`;
+    planRef: `plan-${string}`;
+    completedStopCount: number;
+    totalStopCount: number;
+    coarseZone?: string;
+  }>;
+};
+```
+
+- batch와 모든 중첩 객체는 strict allowlist이며 알 수 없는 필드는 거부한다.
+- `sequence`는 batch 안에서 단조 증가하고 `eventId`는 중복되지 않아야 한다.
+- 완료 배송 수는 전체 배송 수를 넘을 수 없다.
+- 이름·표시명·연락처·이메일·주소·고객·차량번호·위도·경도·GPS·정밀 위치·심박·생체정보 필드가 발견되면 스키마 검사 전에 전체 batch를 차단한다.
+- v1은 브라우저 메모리에서 형식만 검사하며 원문 저장, 서버 전송, D1 쓰기, AI 입력과 Safety 계산 반영을 모두 `false`로 고정한다.
+- `LIVE_PILOT`은 합성 fixture와 다른 입력 계약 이름일 뿐, 인증·보존·외부 원천 연결 없이 제품 전체를 Live 운영으로 승격시키지 않는다.

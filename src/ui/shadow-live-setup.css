@@ -1,0 +1,188 @@
+.shadow-live-page {
+  min-height: 100dvh;
+  padding: 24px clamp(18px, 4vw, 64px) 48px;
+  color: var(--text);
+  background: #f4f7fb;
+  font-family: var(--font-ui);
+}
+
+.shadow-live-page *,
+.shadow-live-page *::before,
+.shadow-live-page *::after { box-sizing: border-box; }
+
+.shadow-live-header,
+.shadow-live-hero,
+.shadow-live-workspace,
+.shadow-live-next {
+  width: min(1180px, 100%);
+  margin-inline: auto;
+}
+
+.shadow-live-header {
+  min-height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.shadow-live-header > div {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.shadow-live-header a {
+  color: var(--blue);
+  font-weight: var(--weight-heavy);
+  text-decoration: none;
+}
+
+.shadow-live-header span { color: var(--muted); font-size: var(--type-11); }
+
+.shadow-live-status {
+  padding: 7px 11px;
+  border: 1px solid #ccd7e8;
+  border-radius: var(--r-pill);
+  color: var(--navy);
+  background: white;
+  font-size: var(--type-11);
+}
+
+.shadow-live-status.is-accepted { color: #075f46; border-color: #9bd9c5; background: #edf9f4; }
+.shadow-live-status.is-rejected { color: #9c2f22; border-color: #efb5ac; background: #fff3f1; }
+
+.shadow-live-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, .65fr);
+  gap: 32px;
+  margin-top: 28px;
+  padding: clamp(28px, 4vw, 52px);
+  border: 1px solid #d9e2ef;
+  border-radius: 24px;
+  background: white;
+}
+
+.shadow-live-kicker,
+.shadow-live-section-heading span,
+.shadow-live-result > span,
+.shadow-live-next > span {
+  color: var(--blue-strong);
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+  letter-spacing: .06em;
+}
+
+.shadow-live-hero h1 {
+  max-width: 720px;
+  margin: 10px 0 14px;
+  color: var(--navy);
+  font-size: clamp(30px, 4vw, 48px);
+  line-height: 1.08;
+  letter-spacing: -.04em;
+}
+
+.shadow-live-hero p {
+  max-width: 720px;
+  margin: 0;
+  color: var(--muted);
+  font-size: var(--type-14);
+  line-height: 1.65;
+}
+
+.shadow-live-boundaries { display: grid; gap: 10px; margin: 0; }
+.shadow-live-boundaries div { padding: 15px 16px; border-radius: 14px; background: #f5f8fd; }
+.shadow-live-boundaries dt { color: var(--muted); font-size: var(--type-10); }
+.shadow-live-boundaries dd { margin: 4px 0 0; color: var(--navy); font-size: var(--type-12); font-weight: var(--weight-heavy); }
+
+.shadow-live-workspace {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(340px, .8fr);
+  gap: 18px;
+  margin-top: 18px;
+}
+
+.shadow-live-editor,
+.shadow-live-result,
+.shadow-live-next {
+  border: 1px solid #d9e2ef;
+  border-radius: 20px;
+  background: white;
+}
+
+.shadow-live-editor,
+.shadow-live-result { min-width: 0; padding: 24px; }
+
+.shadow-live-section-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.shadow-live-section-heading h2,
+.shadow-live-result h2,
+.shadow-live-next h2 { margin: 5px 0 0; color: var(--navy); font-size: var(--type-20); }
+
+.shadow-live-section-heading button,
+.shadow-live-file-button,
+.shadow-live-validate {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 14px;
+  border: 1px solid var(--blue);
+  border-radius: 10px;
+  color: var(--blue);
+  background: white;
+  font: inherit;
+  font-size: var(--type-11);
+  font-weight: var(--weight-heavy);
+  cursor: pointer;
+}
+
+.shadow-live-editor > label { display: block; margin: 20px 0 7px; color: var(--navy); font-size: var(--type-11); font-weight: var(--weight-heavy); }
+.shadow-live-editor textarea { width: 100%; min-height: 310px; resize: vertical; padding: 14px; border: 1px solid #c9d4e4; border-radius: 12px; color: #19304c; background: #f8fafd; font: 12px/1.55 Consolas, monospace; }
+.shadow-live-editor textarea:focus { outline: 3px solid #bdd2ff; border-color: var(--blue); }
+.shadow-live-editor-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 12px; }
+.shadow-live-file-button { position: relative; overflow: hidden; }
+.shadow-live-file-button input { position: absolute; inline-size: 1px; block-size: 1px; opacity: 0; }
+.shadow-live-validate { color: white; background: var(--blue); }
+.shadow-live-validate:disabled { cursor: not-allowed; opacity: .45; }
+.shadow-live-editor > small { display: block; margin-top: 10px; color: var(--muted); }
+
+.shadow-live-result { background: #f8fafd; }
+.shadow-live-result.is-accepted { border-color: #77c9ad; background: #effaf6; }
+.shadow-live-result.is-rejected { border-color: #eea69a; background: #fff5f3; }
+.shadow-live-result > p { color: var(--muted); line-height: 1.55; }
+.shadow-live-result dl { display: grid; gap: 8px; margin: 20px 0 0; }
+.shadow-live-result dl div { display: flex; justify-content: space-between; gap: 14px; padding: 12px 0; border-bottom: 1px solid #d7e1ed; }
+.shadow-live-result dt { color: var(--muted); }
+.shadow-live-result dd { margin: 0; color: var(--navy); font-weight: var(--weight-heavy); text-align: right; overflow-wrap: anywhere; }
+.shadow-live-result ul { display: grid; gap: 8px; padding: 0; list-style: none; }
+.shadow-live-result li { display: grid; gap: 3px; padding: 10px 12px; border-radius: 10px; background: white; }
+.shadow-live-result li strong { color: #9c2f22; overflow-wrap: anywhere; }
+.shadow-live-result li span { color: var(--muted); font-size: var(--type-10); }
+
+.shadow-live-next { margin-top: 18px; padding: 26px; }
+.shadow-live-next ol { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; padding: 0; list-style: none; }
+.shadow-live-next li { display: grid; gap: 6px; padding: 15px; border-radius: 12px; background: #f5f8fd; }
+.shadow-live-next li strong { color: var(--blue-strong); }
+.shadow-live-next li span { color: var(--muted); font-size: var(--type-11); line-height: 1.45; }
+
+@media (max-width: 860px) {
+  .shadow-live-page { padding-inline: 16px; }
+  .shadow-live-header > div { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .shadow-live-hero,
+  .shadow-live-workspace { grid-template-columns: 1fr; }
+  .shadow-live-next ol { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 540px) {
+  .shadow-live-header { align-items: flex-start; }
+  .shadow-live-hero { padding: 24px; }
+  .shadow-live-section-heading { align-items: stretch; flex-direction: column; }
+  .shadow-live-editor-actions { flex-direction: column; }
+  .shadow-live-next ol { grid-template-columns: 1fr; }
+}

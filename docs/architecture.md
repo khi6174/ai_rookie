@@ -428,3 +428,9 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 - Upstage 반복 부하에서의 retry·회로차단 운영 수치
 - Near-miss GeoHash 정밀도와 검증 워크플로
 - 외부 TMS 연결 시 원자적 적용·보상 트랜잭션
+
+## 17. Shadow Live v1 경계
+
+`/shadow-live-setup`은 lazy-loaded 프레젠테이션 경계와 `src/domain/operations/shadowLive.ts`의 순수 검증기로 구성한다. 파일과 붙여넣기 입력은 브라우저 메모리에서만 파싱하며 API, D1, localStorage, Cache Storage, service worker, AI 어댑터와 Safety 엔진을 호출하지 않는다.
+
+이 단계는 공급자 독립 입력 계약을 먼저 고정하는 연결 준비 단계다. 실제 서버 수신은 원천 시스템, 인증·테넌트, 재전송·중복·순서, 파생 상태 TTL·삭제 SLA가 승인된 뒤 별도 어댑터로 추가한다. 공개 인증이 없는 현재 Worker에 쓰기 endpoint를 만들거나 TMS 비밀키를 브라우저에 배포하지 않는다.
