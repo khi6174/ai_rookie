@@ -6,6 +6,7 @@
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-07-27
 - 목표 상태: `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS`
+- 현재 판정: `HUMAN_VALIDATION_REQUIRED` — 관리자 0/3·기사 0/5 독립 검토를 일정상 미실시
 - 기준 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/evals.md`, `docs/decisions.md`
 
 ## 1. 결정사항
@@ -127,3 +128,9 @@
 - 합성 운영 서비스의 입력·계산·결정·적용 상태가 단일 fixture 상수에 의존하지 않는다.
 - 실제로 실행하지 않은 외부 연동과 현장효과를 완료로 표시하지 않는다.
 - 기존 `READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP`은 과거 제출 상태로 보존하며 새 최종 Goal의 완료로 계산하지 않는다.
+
+## 10. 일정상 미실시 Gate 처리
+
+2026-08-07 사용자 결정에 따라 관리자 3명·기사 5명의 운영 서비스 독립 검토는 이번 일정에서 수행하지 않는다. 따라서 이 문서의 목표 상태는 달성됐다고 판정하지 않으며, 공개·발표 문구는 `합성 운영 데모 준비 완료 · 독립 사람 검토 미실시`로 제한한다.
+
+자동 테스트, 구현자 판단, 다른 study의 과거 사람 결과를 이번 Gate의 대체 증거로 사용하지 않는다. 기술·안전·개인정보 Gate와 공개 검토 도구·고정 자극은 유지하며 독립 검토는 후속 검증으로 남긴다.

@@ -1485,6 +1485,17 @@
 - 기각한 대안: 큰 지도를 계속 첫 화면 중심으로 유지한 채 배지 추가, 기사 카드 rail을 계속 최상단에 유지, 지도만 축소하고 결론 문구를 모달에 숨김, Safety 수치나 추천을 UI에서 재계산, 사람 검토 없이 이해도 개선 성공 주장.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `e2e/one-page-dashboard.spec.ts`, `docs/design-system.md`, 독립 검토 자극·manifest·배포 증거
 
+### ADR-147 — 운영 서비스 독립 검토를 일정상 미실시로 공개하고 데모 준비를 계속한다
+
+- 날짜: 2026-08-07
+- 상태: Approved
+- 사용자 결정: 남은 기간을 고려해 `operations-service-human-review-v2`의 관리자 3명·기사 5명 독립 검토를 이번 일정에서 건너뛰고 다음 단계로 진행하도록 요청했다.
+- 결정: 독립 검토 응답을 생성하거나 자동 테스트·팀 내부 판단으로 대체하지 않는다. 사람 결과는 관리자 `0/3`, 기사 `0/5`, 상태 `HUMAN_VALIDATION_REQUIRED`로 보존한다. 공개 서비스와 고정 자극·manifest·검토 도구는 후속 검증을 위해 유지하되, 이번 일정의 발표·데모 준비는 기술 Gate와 합성 운영 증거를 기반으로 계속한다.
+- 주장 경계: `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS`, 관리자·기사 이해도 통과, 현장 사용성 검증, 실제 운영 효과 또는 사고감소 완료를 주장하지 않는다. 외부 표기는 `합성 운영 데모 준비 완료 · 독립 사람 검토 미실시`로 통일한다. 기존 기술·안전·개인정보·동의·거절·Risk Transfer Guard Gate는 완화하지 않는다.
+- 이유: 남은 기간 안에 서로 다른 독립 검토자 8명을 비코칭으로 모집·진행·취합하기 어렵다. 미실시를 PASS로 바꾸는 것보다 검증 공백을 명시하고 재현 가능한 기술 증거와 발표 완성도에 시간을 집중하는 편이 정직하고 안전하다.
+- 기각한 대안: 자동 생성 응답으로 8명 채우기, 구현자나 동일인을 독립 검토자로 계산, 기존 다른 study 결과 재사용, 검토 Gate 삭제, `PASSED` 수동 편집, 실패·미실시 사실 은폐.
+- 영향 파일: `docs/operations-service-human-review.md`, `docs/service-goal-2026-08-14.md`, `docs/demo-script.md`, `docs/evals.md`, `artifacts/evals/operations-human-review-summary.json`, `artifacts/evals/service-goal-readiness-latest.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

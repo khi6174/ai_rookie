@@ -748,3 +748,5 @@ artifacts/evals/
 - 내려받은 사람 결과는 `artifacts/human-review/operations-service/`에 모아 `pnpm run eval:operations:human`으로 집계한다. 집계기는 배포 커밋·검토 manifest·역할별 화면 SHA-256 불일치, 중복 코드, 정답·합계 변조를 거부한다.
 - 비코칭 진행, 역할 간 중복 금지, 실패 결과 비선별, 재검토 규칙은 `docs/operations-service-human-review.md`를 따른다.
 - 사람 검증이 없으면 자동 테스트가 모두 통과해도 최종 Goal은 완료가 아니다.
+
+2026-08-07 사용자 일정 결정으로 이번 제출 주기에는 운영 서비스 독립 검토를 수행하지 않는다. 관리자 `0/3`, 기사 `0/5`, `HUMAN_VALIDATION_REQUIRED`를 그대로 보존하고 `합성 운영 데모 준비 완료 · 독립 사람 검토 미실시`로만 보고한다. 공개 검토 도구와 고정 자극은 후속 검증을 위해 유지한다.
