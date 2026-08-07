@@ -1,7 +1,7 @@
 {
   "schemaVersion": "operations-scale-evaluation-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-08-07T04:06:40.570Z",
+  "capturedAt": "2026-08-07T05:19:57.505Z",
   "profiles": [
     {
       "courierCount": 24,
@@ -10,9 +10,9 @@
       "supportDecisionCount": 14,
       "sampledDecisionCount": 3,
       "unsafeRecommendedCount": 0,
-      "snapshotReadyMs": 76,
-      "fleetReadyMs": 151,
-      "totalReadyMs": 1307,
+      "snapshotReadyMs": 73,
+      "fleetReadyMs": 148,
+      "totalReadyMs": 1385,
       "maximumMs": 5000,
       "passed": true
     },
@@ -23,9 +23,9 @@
       "supportDecisionCount": 56,
       "sampledDecisionCount": 3,
       "unsafeRecommendedCount": 0,
-      "snapshotReadyMs": 145,
-      "fleetReadyMs": 381,
-      "totalReadyMs": 4673,
+      "snapshotReadyMs": 230,
+      "fleetReadyMs": 526,
+      "totalReadyMs": 5099,
       "maximumMs": 15000,
       "passed": true
     },
@@ -36,9 +36,9 @@
       "supportDecisionCount": 143,
       "sampledDecisionCount": 3,
       "unsafeRecommendedCount": 0,
-      "snapshotReadyMs": 421,
-      "fleetReadyMs": 1009,
-      "totalReadyMs": 13031,
+      "snapshotReadyMs": 448,
+      "fleetReadyMs": 1057,
+      "totalReadyMs": 14033,
       "maximumMs": 40000,
       "passed": true
     }

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "spatial-scene-evidence-v1",
-  "capturedAt": "2026-08-07T04:06:06.860Z",
+  "capturedAt": "2026-08-07T05:19:22.692Z",
   "status": "PASSED",
   "dataMode": "DEMO",
   "renderer": "PROVIDER_INDEPENDENT_SVG_2_5D",
@@ -23,15 +23,15 @@
     "maximumAdditionalGzipJsKiB": 50
   },
   "metrics": {
-    "firstDisplayMs": 60,
-    "returnTo2dMs": 25,
+    "firstDisplayMs": 65,
+    "returnTo2dMs": 29,
     "p95FrameGapMs": 16.7,
-    "maxFrameGapMs": 16.7,
+    "maxFrameGapMs": 16.8,
     "identifierMismatchCount": 0,
     "numericMismatchCount": 0,
     "additionalRuntimeDependencyCount": 0,
-    "previousG4BGzipJsBytes": 150910,
-    "currentGzipJsBytes": 202094,
+    "previousG4BGzipJsBytes": 151960,
+    "currentGzipJsBytes": 203143,
     "additionalGzipJsKiB": 49.98
   },
   "limitations": [
