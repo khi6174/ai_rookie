@@ -1448,6 +1448,17 @@
 - 기각한 대안: 헤더에 대형 A.X 배지 추가, Local이 현재 설명을 생성하는 것처럼 표시, 원시 결과행·prompt·adapter 다운로드 제공, 제출 본편에 전체 benchmark 수치 나열, 지연 차이와 미배포 운영 Gate 은폐.
 - 영향 파일: `src/ui/axModelQualification.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, A.X 표시 계약 단위 테스트·공개 대시보드 E2E, `docs/product-spec.md`, `docs/architecture.md`, `docs/demo-script.md`, `docs/evals.md`
 
+### ADR-144 — 운영 서비스 독립 검토 v2는 현재 공개 화면과 동일한 경로·viewport만 사용한다
+
+- 날짜: 2026-08-07
+- 상태: Approved
+- 사용자 결정: 독립 검토 화면과 현재 공개 서비스 화면이 다름을 확인하고 버전·자극을 다시 맞춰 진행하도록 승인했다.
+- 결정: `operations-service-human-review-v2`의 관리자 자극은 공개 `/`의 현재 `Safety Control Tower`에서 `지원 검토`를 연 1440×900 viewport, 기사 자극은 같은 공개 decision에 연결된 현재 `/rider-demo` `안전지원` 탭의 390×844 viewport로 고정한다. 검토 질문은 해당 자극에서 직접 확인 가능한 제품 목적, 합성 데이터, Safety Budget의 운영 지표 경계, 승인 전 계획 유지, 합성 지도, 기사 동의·수정·거절·비징벌성·관리자 승인 경계를 평가한다.
+- 무결성: build는 두 PNG의 실제 IHDR 크기를 파일명 계약과 대조하고, 배포 커밋·역할별 SHA-256·manifest SHA-256에 결과를 결속한다. v1 결과는 v2에 재사용하지 않으며 현재 v1 응답은 0건이므로 폐기할 사람 결과가 없다.
+- 이유: 같은 커밋에 여러 UI 경로가 있어도 기술 검증용 `/operations` 화면은 공개 기본 제품과 시각·상호작용 구조가 다르다. 실제 평가 대상과 다른 자극은 사람 이해도 결과를 공개 제품 근거로 사용할 수 없다.
+- 기각한 대안: 커밋 문자열만 맞춘 채 기존 `/operations` 전체 페이지 PNG 유지, 1440×1281 이미지를 1440×900으로 표시, 기술 검증 UI 결과를 공개 `/`에 일반화, 기존 v1 study ID로 자극만 조용히 교체.
+- 영향 파일: 공개 대시보드·기사 앱 자극 E2E, `tools/operations-service-review/`, 검토 manifest·집계기·배포 smoke·서비스 Goal 감사, `docs/operations-service-human-review.md`, `docs/product-spec.md`, `docs/design-system.md`, `docs/evals.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -5,9 +5,9 @@ const correctLabels = {
   ADMIN: [
     /향후 지원이 필요한 기사와 실행 가능한 조치/,
     /결정론적 합성 데이터/,
-    /계산된 결정 사실을 역할별 문장으로 설명/,
-    /별도 기사 화면에서 기록/,
-    /파일 해시·참조·추출 스키마를 검증해 정규화한 뒤/,
+    /남은 계획의 안전여유를 나타내는 운영 지표/,
+    /기사 확인과 관리자 승인 전에는 현재 계획을 유지/,
+    /결정론적 합성 위치를 보여주는 운영 시각화/,
   ],
   RIDER: [
     /동의, 수정 요청, 거절이 모두 제공/,
@@ -39,7 +39,7 @@ async function completeReview(
 
   expect(result).toMatchObject({
     schemaVersion: "operations-service-human-review-result-v1",
-    studyId: "operations-service-human-review-v1",
+    studyId: "operations-service-human-review-v2",
     dataMode: "SYNTHETIC",
     role,
     reviewerCode,
@@ -69,8 +69,29 @@ test("합성 운영 서비스 검토 도구는 관리자·기사 결과를 서�
   await expect(
     page.getByRole("heading", { name: "합성 운영 서비스 독립 이해도 검토" }),
   ).toBeVisible();
+  await expect(page.getByRole("img")).toHaveAttribute(
+    "src",
+    /operations-review-admin-current-1440x900\.png$/,
+  );
+  expect(
+    await page.getByRole("img").evaluate((image: HTMLImageElement) => ({
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+    })),
+  ).toEqual({ width: 1440, height: 900 });
 
   await completeReview(page, "ADMIN", "admin-test");
+  await page.getByRole("button", { name: "기사 검토" }).click();
+  await expect(page.getByRole("img")).toHaveAttribute(
+    "src",
+    /operations-review-rider-current-390x844\.png$/,
+  );
+  expect(
+    await page.getByRole("img").evaluate((image: HTMLImageElement) => ({
+      width: image.naturalWidth,
+      height: image.naturalHeight,
+    })),
+  ).toEqual({ width: 390, height: 844 });
   await completeReview(page, "RIDER", "rider-test");
 
   await expect(page.getByRole("status")).toHaveText(

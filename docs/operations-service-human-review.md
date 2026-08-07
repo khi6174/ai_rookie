@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-07-27
+- 최종 갱신: 2026-08-07
 - 적용 범위: `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS`의 관리자·기사 이해도 Gate
 
 ## 1. 목적
@@ -17,11 +17,14 @@
 
 - 서비스: `https://saferoute-ai-demo.khiyw.chatgpt.site`
 - 검토 도구: `https://saferoute-ai-demo.khiyw.chatgpt.site/tools/operations-service-review/`
+- 검토 study ID: `operations-service-human-review-v2`
+- 관리자 자극은 공개 루트 `/`의 현재 `Safety Control Tower`에서 `지원 검토`를 연 실제 1440×900 viewport 화면이어야 한다.
+- 기사 자극은 같은 공개 폐루프가 연결한 `/rider-demo`의 현재 `안전지원` 탭 실제 390×844 viewport 화면이어야 한다.
 - 도구가 표시하는 배포 커밋과 역할별 화면 SHA-256이 검토 결과 JSON에 포함되어야 한다.
 - 배포 시점의 역할별 화면은 `artifacts/evals/human-review-stimuli/<SHA-256>.png`에 고정하며, 이후 일반 빌드나 스크린샷 갱신으로 덮어쓰지 않는다.
 - 개발용 manifest 또는 다른 배포·화면에 결속된 결과는 사용할 수 없다.
 
-제품 화면이 바뀌면 기존 결과를 재사용하지 않는다. 새 배포와 새 화면 해시에 대해 처음부터 다시 검토한다.
+제품 화면이 바뀌면 기존 결과를 재사용하지 않는다. 새 배포와 새 화면 해시에 대해 처음부터 다시 검토한다. `/operations`와 `/operations/rider` 기술 검증 화면, 전체 페이지 캡처, 파일명과 실제 픽셀 크기가 다른 이미지는 공개 서비스 사람 검토 자극으로 사용할 수 없다.
 
 ## 3. 검토자 구성
 

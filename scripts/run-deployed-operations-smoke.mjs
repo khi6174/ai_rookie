@@ -188,7 +188,7 @@ try {
     reviewManifestContentType.includes("application/json") &&
     reviewManifestBody.schemaVersion ===
       "operations-service-human-review-study-manifest-v1" &&
-    reviewManifestBody.studyId === "operations-service-human-review-v1" &&
+    reviewManifestBody.studyId === "operations-service-human-review-v2" &&
     reviewManifestBody.dataMode === "SYNTHETIC" &&
     reviewManifestBody.development === false &&
     /^[0-9a-f]{40}$/.test(reviewManifestBody.releaseCommit ?? "") &&

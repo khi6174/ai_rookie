@@ -44,7 +44,7 @@ const computedManifestSha256 = createHash("sha256")
 if (
   manifest.schemaVersion !==
     "operations-service-human-review-study-manifest-v1" ||
-  manifest.studyId !== "operations-service-human-review-v1" ||
+  manifest.studyId !== "operations-service-human-review-v2" ||
   manifest.dataMode !== "SYNTHETIC" ||
   manifest.development !== false ||
   !/^[a-f0-9]{40}$/.test(manifest.releaseCommit ?? "") ||
@@ -75,9 +75,9 @@ const expectedAnswers = {
   ADMIN: {
     "admin-purpose": "SUPPORT",
     "admin-data-mode": "SYNTHETIC",
-    "admin-ai": "EXPLAIN",
-    "admin-consent": "RIDER",
-    "admin-documents": "VALIDATED",
+    "admin-metric": "OPERATIONAL",
+    "admin-action": "REVIEW_FIRST",
+    "admin-map": "SYNTHETIC_MAP",
   },
   RIDER: {
     "rider-choice": "THREE",
@@ -93,7 +93,7 @@ for (const file of files) {
   if (
     result.schemaVersion !==
       "operations-service-human-review-result-v1" ||
-    result.studyId !== "operations-service-human-review-v1" ||
+    result.studyId !== "operations-service-human-review-v2" ||
     result.dataMode !== "SYNTHETIC" ||
     !["ADMIN", "RIDER"].includes(result.role) ||
     !/^[A-Za-z0-9_-]{3,24}$/.test(result.reviewerCode ?? "") ||
@@ -170,7 +170,7 @@ const ready =
   fullyCorrectReviewerCount === results.length;
 const summary = {
   schemaVersion: "operations-service-human-review-summary-v1",
-  studyId: "operations-service-human-review-v1",
+  studyId: "operations-service-human-review-v2",
   dataMode: "SYNTHETIC",
   capturedAt: new Date().toISOString(),
   releaseCommit: manifest.releaseCommit,

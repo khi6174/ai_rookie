@@ -220,6 +220,8 @@ for (const screenshot of [
   "operations-service-1280x720.png",
   "operations-rider-390x844.png",
   "operations-rider-360x800.png",
+  "operations-review-admin-current-1440x900.png",
+  "operations-review-rider-current-390x844.png",
 ]) {
   await copyFile(
     resolve(root, "artifacts/evals/screenshots", screenshot),
@@ -256,40 +258,45 @@ const releaseCommit = execFileSync(
 if (!/^[a-f0-9]{40}$/.test(releaseCommit)) {
   throw new Error("Operations review release commit is invalid");
 }
+const operationsReviewScreens = {
+  ADMIN: {
+    screenshotName: "operations-review-admin-current-1440x900.png",
+    path: "/artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
+    width: 1440,
+    height: 900,
+  },
+  RIDER: {
+    screenshotName: "operations-review-rider-current-390x844.png",
+    path: "/artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
+    width: 390,
+    height: 844,
+  },
+};
+const operationsReviewStimuli = {};
+for (const [role, screen] of Object.entries(operationsReviewScreens)) {
+  const bytes = await readFile(
+    resolve(root, "artifacts/evals/screenshots", screen.screenshotName),
+  );
+  const isPng = bytes.subarray(1, 4).toString("ascii") === "PNG";
+  const width = isPng && bytes.length >= 24 ? bytes.readUInt32BE(16) : 0;
+  const height = isPng && bytes.length >= 24 ? bytes.readUInt32BE(20) : 0;
+  if (width !== screen.width || height !== screen.height) {
+    throw new Error(
+      `Operations review ${role} stimulus must be ${screen.width}x${screen.height}; received ${width}x${height}`,
+    );
+  }
+  operationsReviewStimuli[role] = {
+    path: screen.path,
+    sha256: createHash("sha256").update(bytes).digest("hex"),
+  };
+}
 const operationsReviewManifestCore = {
   schemaVersion: "operations-service-human-review-study-manifest-v1",
-  studyId: "operations-service-human-review-v1",
+  studyId: "operations-service-human-review-v2",
   dataMode: "SYNTHETIC",
   development: false,
   releaseCommit,
-  stimuli: {
-    ADMIN: {
-      path: "/artifacts/evals/screenshots/operations-service-1440x900.png",
-      sha256: createHash("sha256")
-        .update(
-          await readFile(
-            resolve(
-              root,
-              "artifacts/evals/screenshots/operations-service-1440x900.png",
-            ),
-          ),
-        )
-        .digest("hex"),
-    },
-    RIDER: {
-      path: "/artifacts/evals/screenshots/operations-rider-390x844.png",
-      sha256: createHash("sha256")
-        .update(
-          await readFile(
-            resolve(
-              root,
-              "artifacts/evals/screenshots/operations-rider-390x844.png",
-            ),
-          ),
-        )
-        .digest("hex"),
-    },
-  },
+  stimuli: operationsReviewStimuli,
 };
 const operationsReviewManifest = {
   ...operationsReviewManifestCore,
@@ -316,12 +323,9 @@ if (process.env.SAFEROUTE_PERSIST_REVIEW_MANIFEST === "true") {
     operationsReviewManifestText,
     "utf8",
   );
-  for (const [role, screenshotName] of [
-    ["ADMIN", "operations-service-1440x900.png"],
-    ["RIDER", "operations-rider-390x844.png"],
-  ]) {
+  for (const [role, screen] of Object.entries(operationsReviewScreens)) {
     await copyFile(
-      resolve(root, "artifacts/evals/screenshots", screenshotName),
+      resolve(root, "artifacts/evals/screenshots", screen.screenshotName),
       resolve(
         operationsReviewStimulusEvidenceDirectory,
         `${operationsReviewManifest.stimuli[role].sha256}.png`,

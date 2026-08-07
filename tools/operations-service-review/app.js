@@ -1,8 +1,9 @@
 const studies = {
   ADMIN: {
-    title: "관리자 운영 화면",
-    image: "../../artifacts/evals/screenshots/operations-service-1440x900.png",
-    alt: "SafeRoute 합성 운영 관리자 화면 전체",
+    title: "현재 공개 관리자 지원 검토 화면",
+    image:
+      "../../artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
+    alt: "SafeRoute 현재 공개 Safety Control Tower 지원 검토 화면",
     questions: [
       {
         id: "admin-purpose",
@@ -27,44 +28,45 @@ const studies = {
         critical: true,
       },
       {
-        id: "admin-ai",
-        prompt: "Upstage 설명이 할 수 있는 일은 무엇입니까?",
+        id: "admin-metric",
+        prompt: "화면의 Safety Budget은 무엇을 의미합니까?",
         options: [
-          ["EXPLAIN", "계산된 결정 사실을 역할별 문장으로 설명한다."],
-          ["DECIDE", "추천과 실행 가능 여부를 새로 결정한다."],
-          ["OVERRIDE", "관리자 승인 없이 계획을 적용한다."],
+          ["OPERATIONAL", "남은 계획의 안전여유를 나타내는 운영 지표다."],
+          ["ACCIDENT", "기사 개인의 사고확률이다."],
+          ["PERFORMANCE", "기사 성과평가 점수다."],
         ],
-        expected: "EXPLAIN",
+        expected: "OPERATIONAL",
         critical: true,
       },
       {
-        id: "admin-consent",
-        prompt: "기사 동의는 어디에서 기록해야 합니까?",
+        id: "admin-action",
+        prompt: "‘지원 검토’는 무엇을 뜻합니까?",
         options: [
-          ["RIDER", "같은 decision ID를 여는 별도 기사 화면에서 기록한다."],
-          ["ADMIN", "관리자가 기사 대신 동의 버튼을 누른다."],
-          ["NONE", "관리자 승인만 있으면 동의가 필요 없다."],
+          ["REVIEW_FIRST", "기사 확인과 관리자 승인 전에는 현재 계획을 유지한다."],
+          ["AUTO_APPLY", "추천안을 즉시 자동 적용한다."],
+          ["PENALTY", "지원 대상을 성과평가에 반영한다."],
         ],
-        expected: "RIDER",
+        expected: "REVIEW_FIRST",
         critical: true,
       },
       {
-        id: "admin-documents",
-        prompt: "합성 운영 문서는 언제 Safety 계산에 사용할 수 있습니까?",
+        id: "admin-map",
+        prompt: "지도에 표시된 기사 위치는 무엇입니까?",
         options: [
-          ["VALIDATED", "파일 해시·참조·추출 스키마를 검증해 정규화한 뒤에만 사용한다."],
-          ["DIRECT", "업로드한 원문을 곧바로 Safety 계산에 넣는다."],
-          ["AI_DECIDES", "Upstage가 안전하다고 판단하면 검증 없이 사용한다."],
+          ["SYNTHETIC_MAP", "결정론적 합성 위치를 보여주는 운영 시각화다."],
+          ["LIVE_GPS", "실제 기사의 실시간 GPS다."],
+          ["TMS", "택배사 TMS의 정밀 운행궤적이다."],
         ],
-        expected: "VALIDATED",
+        expected: "SYNTHETIC_MAP",
         critical: true,
       },
     ],
   },
   RIDER: {
-    title: "기사 안전지원 화면",
-    image: "../../artifacts/evals/screenshots/operations-rider-390x844.png",
-    alt: "SafeRoute 합성 기사 안전지원 화면 전체",
+    title: "현재 공개 기사 안전지원 화면",
+    image:
+      "../../artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
+    alt: "SafeRoute 현재 공개 기사 앱 안전지원 화면",
     questions: [
       {
         id: "rider-choice",
@@ -176,7 +178,7 @@ document.querySelector("#review-form").addEventListener("submit", (event) => {
   });
   const result = {
     schemaVersion: "operations-service-human-review-result-v1",
-    studyId: "operations-service-human-review-v1",
+    studyId: "operations-service-human-review-v2",
     dataMode: "SYNTHETIC",
     role,
     reviewerCode: document.querySelector("#reviewer-code").value,
@@ -213,7 +215,7 @@ fetch("./study-manifest.json", { cache: "no-store" })
     if (
       manifest.schemaVersion !==
         "operations-service-human-review-study-manifest-v1" ||
-      manifest.studyId !== "operations-service-human-review-v1" ||
+      manifest.studyId !== "operations-service-human-review-v2" ||
       manifest.dataMode !== "SYNTHETIC" ||
       typeof manifest.manifestSha256 !== "string" ||
       typeof manifest.releaseCommit !== "string" ||

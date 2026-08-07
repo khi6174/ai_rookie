@@ -23,9 +23,9 @@ const expectedAnswers = {
   ADMIN: {
     "admin-purpose": "SUPPORT",
     "admin-data-mode": "SYNTHETIC",
-    "admin-ai": "EXPLAIN",
-    "admin-consent": "RIDER",
-    "admin-documents": "VALIDATED",
+    "admin-metric": "OPERATIONAL",
+    "admin-action": "REVIEW_FIRST",
+    "admin-map": "SYNTHETIC_MAP",
   },
   RIDER: {
     "rider-choice": "THREE",
@@ -42,26 +42,28 @@ async function sha256(path: string) {
 async function prepareManifest() {
   const core = {
     schemaVersion: "operations-service-human-review-study-manifest-v1",
-    studyId: "operations-service-human-review-v1",
+    studyId: "operations-service-human-review-v2",
     dataMode: "SYNTHETIC",
     development: false,
     releaseCommit: "a".repeat(40),
     stimuli: {
       ADMIN: {
-        path: "/artifacts/evals/screenshots/operations-service-1440x900.png",
+        path:
+          "/artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
         sha256: await sha256(
           resolve(
             root,
-            "artifacts/evals/screenshots/operations-service-1440x900.png",
+            "artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
           ),
         ),
       },
       RIDER: {
-        path: "/artifacts/evals/screenshots/operations-rider-390x844.png",
+        path:
+          "/artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
         sha256: await sha256(
           resolve(
             root,
-            "artifacts/evals/screenshots/operations-rider-390x844.png",
+            "artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
           ),
         ),
       },
@@ -76,8 +78,8 @@ async function prepareManifest() {
   await mkdir(stimulusDirectory, { recursive: true });
   await Promise.all(
     [
-      ["ADMIN", "operations-service-1440x900.png"],
-      ["RIDER", "operations-rider-390x844.png"],
+      ["ADMIN", "operations-review-admin-current-1440x900.png"],
+      ["RIDER", "operations-review-rider-current-390x844.png"],
     ].map(async ([role, screenshotName]) =>
       writeFile(
         resolve(stimulusDirectory, `${manifest.stimuli[role].sha256}.png`),
@@ -111,7 +113,7 @@ function resultFor(
   );
   return {
     schemaVersion: "operations-service-human-review-result-v1",
-    studyId: "operations-service-human-review-v1",
+    studyId: "operations-service-human-review-v2",
     dataMode: "SYNTHETIC",
     role,
     reviewerCode,

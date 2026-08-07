@@ -109,6 +109,8 @@ ADR-142의 공개 지원 검토 설명은 `src/ui/operationsExplanation.ts`에�
 
 ADR-143의 `src/ui/axModelQualification.ts`는 A.X v2 evidence 두 개에서 승인된 aggregate만 브라우저에 투영하는 프레젠테이션 계약이다. 런타임 JSON 전체, 개별 결과행, prompt, 원문 출력과 adapter를 가져오지 않으며 별도 단위 테스트가 validation·frozen·동일 과업·Fallback·unsafe·P95 표시를 저장된 evidence와 직접 대조한다. 이 모듈은 생성 공급자 adapter가 아니고 Cascade routing·Safety·추천·승인 상태에 연결되지 않는다.
 
+ADR-144의 운영 서비스 사람 검토 v2는 `e2e/one-page-dashboard.spec.ts`가 공개 `/` 관리자 지원 검토 1440×900과 같은 decision의 `/rider-demo` 안전지원 390×844를 생성한다. `scripts/build-sites-worker.mjs`는 PNG IHDR 크기와 SHA-256을 검증해 배포 manifest와 내용 주소화 자극에 결속한다. `/operations`·`/operations/rider`는 기술 회귀를 계속 소유하지만 공개 제품 사람 검토 자극을 소유하지 않는다.
+
 ### 4.2 권장 디렉터리
 
 ```text

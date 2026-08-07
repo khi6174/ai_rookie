@@ -277,10 +277,8 @@ const manifestPaths = [
   ...Object.values(evidence.human.stimulusSha256 ?? {}).map(
     (hash) => `artifacts/evals/human-review-stimuli/${hash}.png`,
   ),
-  "artifacts/evals/screenshots/operations-service-1440x900.png",
-  "artifacts/evals/screenshots/operations-service-1280x720.png",
-  "artifacts/evals/screenshots/operations-rider-390x844.png",
-  "artifacts/evals/screenshots/operations-rider-360x800.png",
+  "artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
+  "artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
   "e2e/operations-service.spec.ts",
   "e2e/operations-accessibility.spec.ts",
   "e2e/operations-rider.spec.ts",

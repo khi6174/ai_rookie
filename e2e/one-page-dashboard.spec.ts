@@ -379,6 +379,35 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
   }).toBe(true);
 });
 
+test("독립 검토 v2 관리자 자극은 현재 공개 화면의 적용 전 상태다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  await expect(page.locator("[data-courier-card]")).toHaveCount(25);
+
+  const supportCard = page
+    .locator('[data-courier-card][data-decision-id]:not([data-decision-id=""])')
+    .first();
+  await supportCard.click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
+
+  const dialog = page.getByRole("dialog");
+  await expect(dialog).toBeVisible();
+  await expect(
+    dialog.getByText("기사 확인 전 / 현재 계획 유지", { exact: true }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "기사 확인 요청" }),
+  ).toBeVisible();
+  await page.screenshot({
+    path:
+      "artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
+    fullPage: false,
+    animations: "disabled",
+  });
+});
+
 test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 폐루프를 완료한다", async ({
   page,
   context,
@@ -527,6 +556,12 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
     path: "test-results/rider-shared-source-390x844.png",
     fullPage: true,
   });
+  await sourcePage.screenshot({
+    path:
+      "artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
+    fullPage: false,
+    animations: "disabled",
+  });
   await sourcePage.getByRole("button", { name: "이 조정에 동의" }).click();
   await expect(sourcePage.getByText("내 동의 기록됨", { exact: true })).toBeVisible();
 
@@ -610,7 +645,7 @@ test("1440×900에서도 25명 카드·지도·지원 패널이 한 화면에 �
   page,
 }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
-  await page.goto("/dashboard-demo");
+  await page.goto("/");
   await expect(
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
@@ -635,5 +670,6 @@ test("1440×900에서도 25명 카드·지도·지원 패널이 한 화면에 �
   await page.screenshot({
     path: "test-results/dashboard-demo-1440x900.png",
     fullPage: false,
+    animations: "disabled",
   });
 });
