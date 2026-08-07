@@ -2,12 +2,12 @@
   "schemaVersion": "operations-service-human-review-summary-v1",
   "studyId": "operations-service-human-review-v1",
   "dataMode": "SYNTHETIC",
-  "capturedAt": "2026-08-03T14:24:55.725Z",
-  "releaseCommit": "502af45bf468c969b2724a34dcabd38240f2ea89",
-  "studyManifestSha256": "7f7f29b181bf223e908c75c31642b55197703a4c77a4ab408fbe1fd05ef2fbab",
+  "capturedAt": "2026-08-07T02:51:14.418Z",
+  "releaseCommit": "bacb78fed55908d110be0415a0616c18b97343a3",
+  "studyManifestSha256": "099c5906e32ba8e6af5bdfaf8413131e35acb8c37bb176b7343aa73d57bf9194",
   "stimulusSha256": {
     "ADMIN": "1e562287cba7dc8842319b5aeba2343b30f2d5abb04c8ad5f930e046ef4bf7f3",
-    "RIDER": "2b7ab75e6ee1145cd5cb2e3f0912e2af66f030312b3ae8935ec724bb13052863"
+    "RIDER": "03ff7a4c8b4db355b0ca3ef9f0af10d82c29f10532f9d15719e39c24c7fdd14d"
   },
   "status": "NOT_RUN",
   "reviewerCount": 0,
