@@ -43,6 +43,12 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("heading", { name: /명에게 지원 판단이 필요합니다/ }),
+  ).toBeVisible();
+  await expect(page.getByText("합성 운영자료", { exact: true })).toBeVisible();
+  await expect(page.getByText("실제 GPS 아님", { exact: true })).toBeVisible();
+  await expect(page.getByText("승인 전 계획 유지", { exact: true })).toBeVisible();
+  await expect(
     page.getByText(`${body.storage} · 합성 기사 25명`, { exact: true }),
   ).toBeVisible();
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
@@ -93,6 +99,11 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
   expect(await page.locator("body").innerText()).not.toContain("합성 기사 001");
   expect(await page.locator("body").innerText()).not.toContain("강남 허브");
   await expectNoPageOverflow(page);
+  await page.screenshot({
+    path: "test-results/dashboard-briefing-1280x720.png",
+    fullPage: false,
+    animations: "disabled",
+  });
 });
 
 test("기사 추가는 합성 등록 요청만 만들고 활성 안전 계산 25명은 유지한다", async ({
@@ -486,7 +497,8 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   let dialog = page.getByRole("dialog");
   await expect(dialog).toBeVisible();
   await expect(dialog.getByRole("heading", { name: /기사$/ })).toBeVisible();
-  await expect(dialog.getByText("지원 선택", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("안전한 지원안 비교", { exact: true })).toBeVisible();
+  await expect(dialog.getByText("먼저 확인할 결론", { exact: true })).toBeVisible();
   await expect(dialog.getByText("선택 사항", { exact: true })).toBeVisible();
   await expect(
     dialog.getByRole("button", { name: "지원 검토 닫기" }),
@@ -654,7 +666,7 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   expect(browserErrors).toEqual([]);
 });
 
-test("1920 데스크톱은 62px 헤더·384px 패널·16px 간격을 유지한다", async ({
+test("1920 데스크톱은 판단 브리핑·지원 우선순위·지도를 한 화면에 유지한다", async ({
   page,
 }) => {
   await page.setViewportSize({ width: 1920, height: 1080 });
@@ -674,12 +686,12 @@ test("1920 데스크톱은 62px 헤더·384px 패널·16px 간격을 유지한�
       headerHeight: header.height,
       mapWidth: map.width,
       panelWidth: panel.width,
-      gap: panel.left - map.right,
+      gap: map.left - panel.right,
       workspaceBottom: workspace.bottom,
     };
   });
   expect(layout.headerHeight).toBe(62);
-  expect(layout.panelWidth).toBe(384);
+  expect(layout.panelWidth).toBe(368);
   expect(layout.gap).toBe(16);
   expect(layout.mapWidth).toBeGreaterThan(1200);
   expect(layout.workspaceBottom).toBeLessThanOrEqual(1080);

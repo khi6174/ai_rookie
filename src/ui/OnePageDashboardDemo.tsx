@@ -271,6 +271,15 @@ function supportPanelStateLabel(courier: Courier) {
   return "정상";
 }
 
+function compareCourierPriority(left: Courier, right: Courier) {
+  return (
+    (left.criticalMinute ?? Number.POSITIVE_INFINITY)
+      - (right.criticalMinute ?? Number.POSITIVE_INFINITY)
+    || left.budget - right.budget
+    || left.id.localeCompare(right.id)
+  );
+}
+
 const roads = [
   { left: -6, top: 26, width: 116, rotate: 5, kind: "major" },
   { left: -2, top: 60, width: 108, rotate: -7, kind: "major" },
@@ -963,8 +972,24 @@ function InterventionDialog({
 
         <div className="onepage-dialog-body">
           <section className="onepage-intervention-candidates" aria-labelledby="candidate-title">
+            <div className="onepage-dialog-brief">
+              <span>먼저 확인할 결론</span>
+              <strong>
+                {courier.criticalMinute === 0
+                  ? "지금 지원이 필요합니다."
+                  : courier.criticalMinute !== null
+                    ? `${courier.criticalMinute}분 후 · ${courier.criticalStopOrdinal ?? "예상"}번째 배송지 전에 지원합니다.`
+                    : "향후 60분은 현재 계획을 유지합니다."}
+              </strong>
+              <small>
+                합성 운영자료의 운영 위험지수 · 기사 확인과 관리자 승인 전에는 계획을 바꾸지 않습니다.
+              </small>
+            </div>
             <div className="onepage-dialog-section-title">
-              <div><h3 id="candidate-title">지원 선택</h3></div>
+              <div>
+                <h3 id="candidate-title">안전한 지원안 비교</h3>
+                <small>안전 기준을 통과한 후보 안에서만 선택합니다.</small>
+              </div>
               <span>{candidatePairs.length}개</span>
             </div>
             <div className="onepage-candidate-list">
@@ -1006,7 +1031,7 @@ function InterventionDialog({
             <dl className="onepage-decision-facts">
               <div><dt>배송 시간</dt><dd>{interventionEtaLabel(selectedEvaluation)}</dd></div>
               <div>
-                <dt>{selectedTransfer ? "수신 기사 기준" : "안전 기준"}</dt>
+                <dt>{selectedTransfer ? "배송을 나눠 맡는 기사 기준" : "안전 기준"}</dt>
                 <dd>{candidateGuardLabel(selectedCandidate, selectedEvaluation)}</dd>
               </div>
               <div>
@@ -1124,8 +1149,8 @@ function InterventionDialog({
             </details>
 
             <div className="onepage-transfer-guard">
-              <div><strong>배송 분담</strong><b>{maximumTransferCount > 0 ? "가능" : "불가"}</b></div>
-              <span>가능 기사 {recipientCount}명 / 최대 {maximumTransferCount}건</span>
+              <div><strong>위험전가 검사 · 배송 분담</strong><b>{maximumTransferCount > 0 ? "가능" : "불가"}</b></div>
+              <span>배송을 나눠 맡을 수 있는 기사 {recipientCount}명 / 최대 {maximumTransferCount}건</span>
               <em>
                 {selectedTransfer?.type === "TRANSFER_STOPS"
                   ? `현재 선택 ${selectedTransfer.stopIds.length}건 / ${selectedEvaluation.feasibility.status === "FEASIBLE" ? "가능" : "불가"}`
@@ -1139,7 +1164,7 @@ function InterventionDialog({
                 분담 불가 상황 보기
               </button>
               {showBlockedTransfer && (
-                <p>수신 기사 기준 45 미달, 용량 초과 또는 시간창 위반 후보는 선택할 수 없습니다.</p>
+                <p>배송을 나눠 맡는 기사의 기준 45 미달, 용량 초과 또는 시간창 위반 후보는 선택할 수 없습니다.</p>
               )}
             </div>
 
@@ -1225,7 +1250,12 @@ export function OnePageDashboardDemo() {
     clusters.flatMap((cluster) => cluster.memberIds),
   );
   const selectedCourier = couriers.find((courier) => courier.id === selectedId) ?? couriers[0];
-  const urgentCouriers = couriers.filter((courier) => courier.budget < 45);
+  const urgentCouriers = couriers
+    .filter((courier) => courier.budget < 45)
+    .sort(compareCourierPriority);
+  const nextPredictedCourier = [...urgentCouriers]
+    .filter((courier) => courier.criticalMinute !== null && courier.criticalMinute > 0)
+    .sort((left, right) => left.criticalMinute! - right.criticalMinute!)[0];
   const supportCounts = couriers.reduce<Record<SupportState, number>>((counts, courier) => {
     counts[supportState(courier.budget)] += 1;
     return counts;
@@ -1295,7 +1325,12 @@ export function OnePageDashboardDemo() {
         setSelectedId((current) =>
           result.couriers.some((courier) => courier.id === current)
             ? current
-            : result.couriers[0].id,
+            : (
+                result.couriers
+                  .filter((courier) => courier.budget < 45)
+                  .sort(compareCourierPriority)[0]
+                ?? result.couriers[0]
+              ).id,
         );
         try {
           const storedSignal = loadDemoRiderDangerSignal(window.localStorage);
@@ -1696,6 +1731,91 @@ export function OnePageDashboardDemo() {
         </div>
       </header>
 
+      <section
+        className="onepage-priority-brief"
+        aria-labelledby="priority-brief-title"
+      >
+        <div className="onepage-brief-overview">
+          <span className="onepage-brief-kicker">향후 60분 안전지원 브리핑</span>
+          <h2 id="priority-brief-title">
+            {urgentCouriers.length}명에게 지원 판단이 필요합니다.
+          </h2>
+          <p>
+            사고확률이나 기사 평가가 아닌, 합성 계획의 운영 위험지수입니다.
+          </p>
+          <div className="onepage-brief-boundaries" aria-label="데이터와 적용 경계">
+            <span>합성 운영자료</span>
+            <span>실제 GPS 아님</span>
+            <span>승인 전 계획 유지</span>
+          </div>
+        </div>
+
+        <article
+          id="priority-decision"
+          className={`onepage-priority-decision state-${supportState(selectedCourier.budget).toLowerCase()}`}
+          aria-live="polite"
+        >
+          <div className="onepage-priority-heading">
+            <span className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+              {supportPanelStateLabel(selectedCourier)}
+            </span>
+            <small>지원받는 기사 · {selectedCourier.name}</small>
+          </div>
+          <h2>
+            {selectedCourier.criticalMinute === 0
+              ? "지금 지원안을 확인해야 합니다."
+              : selectedCourier.criticalMinute !== null
+                ? `${selectedCourier.criticalMinute}분 후 · ${selectedCourier.criticalStopOrdinal ?? "예상"}번째 배송지 전에 확인합니다.`
+                : "향후 60분은 현재 계획을 유지합니다."}
+          </h2>
+          <dl className="onepage-priority-facts">
+            <div>
+              <dt>현재 → 예상 최저</dt>
+              <dd>{selectedCourier.currentScore.toFixed(1)} → {selectedCourier.budget.toFixed(1)}</dd>
+            </div>
+            <div>
+              <dt>먼저 비교할 지원</dt>
+              <dd>휴식 · 배송 분담 최대 {selectedCourier.maxTransferStopCount}건</dd>
+            </div>
+            <div>
+              <dt>위험전가 확인</dt>
+              <dd>나눠 맡을 기사 {selectedCourier.transferRecipientCount}명 검증</dd>
+            </div>
+          </dl>
+        </article>
+
+        <div className="onepage-brief-action">
+          <div className="onepage-next-support">
+            <span>다음 예측</span>
+            <strong>
+              {nextPredictedCourier
+                ? `${nextPredictedCourier.criticalMinute}분 후 · ${nextPredictedCourier.criticalStopOrdinal ?? "예상"}번째 배송지`
+                : "향후 60분 추가 초과 없음"}
+            </strong>
+            <small>
+              {nextPredictedCourier
+                ? `${nextPredictedCourier.name} · 지도와 지원 목록에서 확인`
+                : "동일 평가시각 기준"}
+            </small>
+          </div>
+          <ol className="onepage-approval-path" aria-label="지원안 적용 순서">
+            <li>안전한 후보만 비교</li>
+            <li>영향 기사 확인</li>
+            <li>관리자 승인 후 적용</li>
+          </ol>
+          <button
+            ref={supportReviewButtonRef}
+            type="button"
+            className="onepage-open-intervention onepage-brief-review"
+            disabled={!selectedCourier.decisionId || dialogBusy}
+            onClick={() => void openSupportReview()}
+          >
+            지원 검토
+          </button>
+          {dialogMessage && !dialogOpen && <small role="status">{dialogMessage}</small>}
+        </div>
+      </section>
+
       <section className="onepage-courier-section" aria-labelledby="courier-section-title">
         <div className="onepage-section-rail">
           <div className="onepage-section-title">
@@ -1758,7 +1878,7 @@ export function OnePageDashboardDemo() {
         </div>
       </section>
 
-      <section className="onepage-workspace" aria-label="지도와 지원 필요 목록">
+      <section className="onepage-workspace" aria-label="지원 필요 목록과 운영 지도">
         <div className="onepage-map-section" aria-label="기사 위치 지도">
           <div className="onepage-map-toolbar">
             <div>
@@ -1897,7 +2017,7 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
-              <b>현재 Budget {selectedCourier.currentScore.toFixed(1)} / 예상 최저 {selectedCourier.budget.toFixed(1)}</b>
+              <b>운영 위험지수 · 현재 Budget {selectedCourier.currentScore.toFixed(1)} / 예상 최저 {selectedCourier.budget.toFixed(1)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
@@ -1907,8 +2027,8 @@ export function OnePageDashboardDemo() {
         <aside className="onepage-support-panel" aria-labelledby="support-panel-title">
           <header>
             <div>
-              <small>선택 기사</small>
-              <h2 id="support-panel-title">안전 지원</h2>
+              <small>향후 60분</small>
+              <h2 id="support-panel-title">지원 우선순위</h2>
             </div>
             <span>{urgentCouriers.length}/{couriers.length}</span>
           </header>
@@ -1957,21 +2077,15 @@ export function OnePageDashboardDemo() {
               </span>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
-            <button
-              ref={supportReviewButtonRef}
-              type="button"
-              className="onepage-open-intervention"
-              disabled={!selectedCourier.decisionId || dialogBusy}
-              onClick={() => void openSupportReview()}
-            >
-              지원 검토
-            </button>
-            {dialogMessage && !dialogOpen && <small role="status">{dialogMessage}</small>}
+            <a className="onepage-focus-jump" href="#priority-decision">
+              위 브리핑에서 지원 판단 보기
+            </a>
           </div>
 
           <div className="onepage-support-queue">
             <div className="onepage-support-queue-title">
-              <strong>예상 최저 Safety Budget</strong>
+              <strong>지원받을 기사</strong>
+              <small>빠른 지원 시점순</small>
             </div>
             <div className="onepage-support-list">
               {urgentCouriers.map((courier) => (
