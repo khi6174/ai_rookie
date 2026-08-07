@@ -3,16 +3,16 @@
   "studyId": "operations-service-human-review-v2",
   "dataMode": "SYNTHETIC",
   "development": false,
-  "releaseCommit": "44ed90e4fdcab33be0808a73c6ca4b028954e1a7",
+  "releaseCommit": "9e9afdf227f5e1f3ae691479fdce4b95566e9cf3",
   "stimuli": {
     "ADMIN": {
       "path": "/artifacts/evals/screenshots/operations-review-admin-current-1440x900.png",
-      "sha256": "d8bf838e95cadf8f961b50edc56f7143689e99cde3015eadb1109193d2290191"
+      "sha256": "8539c186efbc5f7ea16d66832eddb0ba4210902e4485b36e37a6ed426a0bfdc7"
     },
     "RIDER": {
       "path": "/artifacts/evals/screenshots/operations-review-rider-current-390x844.png",
       "sha256": "b1816f6995cf429bbe5097e72c350e8f83e71aad6b4c4034055bfb50fcd522ff"
     }
   },
-  "manifestSha256": "8a3f39d42aaff17897db5fff904bd5717bd693ae2a9e497585f61b0a6dec624e"
+  "manifestSha256": "65eecfd08718dba267942b996b92edd595c2828d0ae93c40621c6171dc9b847e"
 }
