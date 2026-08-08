@@ -19,11 +19,19 @@ import {
   type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
 import {
-  loadDashboardOperationsProjection,
+  createDashboardOperationsProjection,
   type DashboardCourierProjection,
   type DashboardHubProjection,
   type DashboardOperationsProjection,
 } from "../application/dashboardOperationsProjection";
+import {
+  createSyntheticLiveOperationsFrame,
+  SYNTHETIC_LIVE_INTERVAL_MS,
+  SYNTHETIC_LIVE_MAX_TICK,
+  SYNTHETIC_LIVE_MINUTES_PER_TICK,
+  SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS,
+  type SyntheticLiveCourierState,
+} from "../application/syntheticLiveOperations";
 import { bundledDailyOperationsPackage } from "../adapters/fixtures/syntheticOperationsPackage";
 import {
   approveAndApplyOperationsDecision,
@@ -54,7 +62,9 @@ import {
   riderAreaKey,
   riderMapMarkerScale,
   riderMapMarkerSizePx,
+  riderRoutePolyline,
   riderRoutePosition,
+  riderRoutePositionAtProgress,
   type RiderRoutePoint,
 } from "../application/riderMapPresentation";
 import { axModelQualification } from "./axModelQualification";
@@ -65,7 +75,9 @@ import "./one-page-dashboard.css";
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "READY" | "FALLBACK";
-type Courier = DashboardCourierProjection;
+type Courier = DashboardCourierProjection & {
+  live?: SyntheticLiveCourierState;
+};
 
 type PositionedCourier = Courier & RiderRoutePoint;
 
@@ -118,12 +130,15 @@ function simulatedCourierPosition(
   courier: Courier,
   movementSecond: number,
 ): PositionedCourier {
-  const point = riderRoutePosition({
+  const profile = {
     courierId: courier.id,
     areaCode: courier.area,
     mapX: courier.mapX,
     mapY: courier.mapY,
-  }, movementSecond);
+  };
+  const point = courier.live
+    ? riderRoutePositionAtProgress(profile, courier.live.routeProgress)
+    : riderRoutePosition(profile, movementSecond);
   return {
     ...courier,
     ...point,
@@ -353,6 +368,8 @@ function CourierCard({
       data-completed-count={courier.completed}
       data-total-count={courier.total}
       data-decision-id={courier.decisionId ?? ""}
+      data-live-activity={courier.live?.activity ?? "SNAPSHOT"}
+      data-safety-updated-at={courier.live?.simulatedAt ?? ""}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
       aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 현재 Safety Budget ${courier.currentScore.toFixed(1)}, 예상 최저 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
@@ -370,6 +387,11 @@ function CourierCard({
         <span className="onepage-card-copy">
           <span className="onepage-card-name">{courier.name}</span>
           <strong className="onepage-card-area">{courier.area}</strong>
+          {courier.live ? (
+            <span className={`onepage-card-activity is-${courier.live.activity.toLowerCase()}`}>
+              {courier.live.activityLabel}
+            </span>
+          ) : null}
           <span className={`onepage-state-pill state-${state.toLowerCase()}`}>
             {stateLabel[state]}
           </span>
@@ -535,8 +557,9 @@ function MapMarker({
       data-road-corridor={courierAreaKey(courier)}
       data-latitude={courier.latitude.toFixed(6)}
       data-longitude={courier.longitude.toFixed(6)}
+      data-live-activity={courier.live?.activity ?? "SNAPSHOT"}
       style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
-      aria-label={`${courier.name} 기사 갱신 위치, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
+      aria-label={`${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
       onClick={onSelect}
       type="button"
@@ -614,6 +637,12 @@ function DashboardKakaoMap({
   const requested =
     Boolean(javaScriptKey) &&
     import.meta.env.VITE_KAKAO_MAP_ENABLED !== "false";
+  const courierIdentityKey = couriers
+    .map((courier) => `${courier.id}:${courier.area}:${courier.mapX}:${courier.mapY}`)
+    .join("|");
+  const hubIdentityKey = hubs
+    .map((hub) => `${hub.hubId}:${hub.mapX}:${hub.mapY}`)
+    .join("|");
 
   selectRef.current = onSelect;
 
@@ -643,6 +672,33 @@ function DashboardKakaoMap({
         );
         map = new maps.Map(container, { center, level: 6 });
         const bounds = new maps.LatLngBounds();
+
+        const renderedRoutes = new Set<string>();
+        couriers.forEach((courier) => {
+          if (!map) return;
+          const routeKey = courierAreaKey(courier);
+          if (renderedRoutes.has(routeKey)) return;
+          renderedRoutes.add(routeKey);
+          const path = riderRoutePolyline({
+            courierId: courier.id,
+            areaCode: courier.area,
+            mapX: courier.mapX,
+            mapY: courier.mapY,
+          }).map((point) => {
+            const position = new maps.LatLng(point.latitude, point.longitude);
+            bounds.extend(position);
+            return position;
+          });
+          overlays.push(new maps.Polyline({
+            map,
+            path,
+            strokeWeight: 5,
+            strokeColor: "#167c7a",
+            strokeOpacity: 0.34,
+            strokeStyle: "solid",
+            zIndex: 2,
+          }));
+        });
 
         couriers.forEach((courier) => {
           if (!map) return;
@@ -745,7 +801,7 @@ function DashboardKakaoMap({
       container.replaceChildren();
       map = undefined;
     };
-  }, [couriers, hubs, javaScriptKey, onStatus, requested]);
+  }, [courierIdentityKey, hubIdentityKey, javaScriptKey, onStatus, requested]);
 
   useEffect(() => {
     markerButtonsRef.current.forEach((button, id) => {
@@ -761,14 +817,21 @@ function DashboardKakaoMap({
       const movingCourier = simulatedCourierPosition(courier, movementSecond);
       const button = markerButtonsRef.current.get(courier.id);
       if (button) {
+        const state = supportState(courier.budget);
         button.dataset.latitude = movingCourier.latitude.toFixed(6);
         button.dataset.longitude = movingCourier.longitude.toFixed(6);
+        button.dataset.liveActivity = courier.live?.activity ?? "SNAPSHOT";
+        button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}${courier.id === selectedId ? " is-selected" : ""}`;
+        button.setAttribute(
+          "aria-label",
+          `${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`,
+        );
       }
       markerOverlaysRef.current
         .get(courier.id)
         ?.setPosition(new maps.LatLng(movingCourier.latitude, movingCourier.longitude));
     });
-  }, [couriers, movementSecond]);
+  }, [couriers, movementSecond, selectedId]);
 
   return (
     <div
@@ -806,7 +869,7 @@ function InterventionDialog({
   const [explanationLoading, setExplanationLoading] = useState(false);
   const [explanationError, setExplanationError] = useState<string>();
   const artifacts = context.workspace.decisions.find(
-    (item) => item.decision.decisionId === courier.decisionId,
+    (item) => item.queueItem.courierId === courier.id,
   )!;
   const selectedCandidate = artifacts.selectedCandidate;
   const selectedEvaluation = artifacts.selectedEvaluation;
@@ -1220,8 +1283,15 @@ function InterventionDialog({
 
 export function OnePageDashboardDemo() {
   const [now, setNow] = useState(() => new Date());
+  const [baseOperationsPackage, setBaseOperationsPackage] =
+    useState<DailyOperationsPackage>();
   const [projection, setProjection] =
     useState<DashboardOperationsProjection>();
+  const [liveCourierStates, setLiveCourierStates] = useState<
+    SyntheticLiveCourierState[]
+  >([]);
+  const [simulationTick, setSimulationTick] = useState(0);
+  const [simulationRunning, setSimulationRunning] = useState(true);
   const [selectedId, setSelectedId] = useState("");
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
@@ -1242,8 +1312,28 @@ export function OnePageDashboardDemo() {
   const cardRailRef = useRef<HTMLDivElement>(null);
   const addCourierButtonRef = useRef<HTMLButtonElement>(null);
   const supportReviewButtonRef = useRef<HTMLButtonElement>(null);
+  const activeOperationsPackageRef = useRef<DailyOperationsPackage | undefined>(undefined);
+  const projectionRequestRef = useRef(0);
+  const projectionSourceRef = useRef<{
+    storage: DashboardOperationsProjection["storage"];
+    sourceBundleId: string;
+  }>({
+    storage: "BUNDLED_FALLBACK",
+    sourceBundleId: "daily-operations-documents-2026-07-25-bundled-v1",
+  });
 
-  const couriers = projection?.couriers ?? [];
+  const liveStateByCourier = new Map(
+    liveCourierStates.map((state) => [state.courierId, state]),
+  );
+  const couriers: Courier[] = (projection?.couriers ?? []).map((courier) => ({
+    ...courier,
+    live: liveStateByCourier.get(courier.id),
+    completed:
+      liveStateByCourier.get(courier.id)?.completedStopCount ?? courier.completed,
+    remaining:
+      (liveStateByCourier.get(courier.id)?.totalStopCount ?? courier.total) -
+      (liveStateByCourier.get(courier.id)?.completedStopCount ?? courier.completed),
+  }));
   const hubs = projection?.hubs ?? [];
   const clusters = hubClusters(couriers);
   const clusteredIds = new Set(
@@ -1278,6 +1368,22 @@ export function OnePageDashboardDemo() {
     const timer = window.setInterval(() => setNow(new Date()), 1_000);
     return () => window.clearInterval(timer);
   }, []);
+
+  useEffect(() => {
+    if (
+      !baseOperationsPackage ||
+      !simulationRunning ||
+      dialogOpen ||
+      simulationTick >= SYNTHETIC_LIVE_MAX_TICK
+    ) {
+      return;
+    }
+    const timer = window.setInterval(
+      () => setSimulationTick((current) => Math.min(SYNTHETIC_LIVE_MAX_TICK, current + 1)),
+      SYNTHETIC_LIVE_INTERVAL_MS,
+    );
+    return () => window.clearInterval(timer);
+  }, [baseOperationsPackage, dialogOpen, simulationRunning, simulationTick]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1319,8 +1425,54 @@ export function OnePageDashboardDemo() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void loadDashboardOperationsProjection(controller.signal)
+    void loadCurrentDailyOperationsPackage(controller.signal)
+      .then((loaded) => {
+        const operationsPackage =
+          loaded.status === "LOADED"
+            ? loaded.operationsPackage
+            : bundledDailyOperationsPackage;
+        projectionSourceRef.current = loaded.status === "LOADED"
+          ? {
+              storage: loaded.storage,
+              sourceBundleId: loaded.sourceBundleId,
+            }
+          : {
+              storage: "BUNDLED_FALLBACK",
+              sourceBundleId: "daily-operations-documents-2026-07-25-bundled-v1",
+            };
+        setBaseOperationsPackage(operationsPackage);
+      })
+      .catch(() => setBaseOperationsPackage(bundledDailyOperationsPackage));
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    if (!baseOperationsPackage) return;
+    const frame = createSyntheticLiveOperationsFrame(
+      baseOperationsPackage,
+      simulationTick,
+    );
+    setLiveCourierStates(frame.courierStates);
+  }, [baseOperationsPackage, simulationTick]);
+
+  const safetySimulationTick =
+    Math.floor(simulationTick / SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS) *
+    SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS;
+
+  useEffect(() => {
+    if (!baseOperationsPackage) return;
+    const requestId = ++projectionRequestRef.current;
+    const frame = createSyntheticLiveOperationsFrame(
+      baseOperationsPackage,
+      safetySimulationTick,
+    );
+    activeOperationsPackageRef.current = frame.operationsPackage;
+    void createDashboardOperationsProjection(
+      frame.operationsPackage,
+      projectionSourceRef.current,
+    )
       .then((result) => {
+        if (requestId !== projectionRequestRef.current) return;
         setProjection(result);
         setSelectedId((current) =>
           result.couriers.some((courier) => courier.id === current)
@@ -1347,8 +1499,7 @@ export function OnePageDashboardDemo() {
         }
       })
       .catch(() => undefined);
-    return () => controller.abort();
-  }, []);
+  }, [baseOperationsPackage, safetySimulationTick]);
 
   useEffect(() => {
     const handleRiderDangerSignal = (event: Event) => {
@@ -1498,7 +1649,7 @@ export function OnePageDashboardDemo() {
     if (!selectedCourier?.decisionId) return;
     if (
       decisionContext?.workspace.decisions.some(
-        (item) => item.decision.decisionId === selectedCourier.decisionId,
+        (item) => item.queueItem.courierId === selectedCourier.id,
       )
     ) {
       setDialogMessage(undefined);
@@ -1512,8 +1663,7 @@ export function OnePageDashboardDemo() {
         selectedCourier.id,
       );
       if (
-        latest.status === "LOADED" &&
-        latest.decisionId === selectedCourier.decisionId
+        latest.status === "LOADED"
       ) {
         const restored = await restoreOperationsPersistedSession(
           latest.session,
@@ -1530,11 +1680,8 @@ export function OnePageDashboardDemo() {
         setDialogOpen(true);
         return;
       }
-      const loaded = await loadCurrentDailyOperationsPackage();
       const operationsPackage =
-        loaded.status === "LOADED"
-          ? loaded.operationsPackage
-          : bundledDailyOperationsPackage;
+        activeOperationsPackageRef.current ?? bundledDailyOperationsPackage;
       const snapshot = await createDailyOperationsSnapshot(
         operationsPackage,
         { createdAt: operationsPackage.evaluatedAt },
@@ -1570,13 +1717,17 @@ export function OnePageDashboardDemo() {
   };
 
   const selectDialogCandidate = (candidateId: string) => {
-    if (!decisionContext || !selectedCourier?.decisionId) return;
+    if (!decisionContext || !selectedCourier) return;
+    const decisionId = decisionContext.workspace.decisions.find(
+      (item) => item.queueItem.courierId === selectedCourier.id,
+    )?.decision.decisionId;
+    if (!decisionId) return;
     try {
       setDecisionContext({
         ...decisionContext,
         workspace: selectOperationsDecisionCandidate(
           decisionContext.workspace,
-          { decisionId: selectedCourier.decisionId, candidateId },
+          { decisionId, candidateId },
         ),
       });
       setDialogMessage(undefined);
@@ -1623,13 +1774,17 @@ export function OnePageDashboardDemo() {
   };
 
   const approveDialogDecision = async () => {
-    if (!decisionContext || !selectedCourier?.decisionId) return;
+    if (!decisionContext || !selectedCourier) return;
+    const decisionId = decisionContext.workspace.decisions.find(
+      (item) => item.queueItem.courierId === selectedCourier.id,
+    )?.decision.decisionId;
+    if (!decisionId) return;
     setDialogBusy(true);
     setDialogMessage(undefined);
     try {
       const result = approveAndApplyOperationsDecision(
         decisionContext.workspace,
-        selectedCourier.decisionId,
+        decisionId,
       );
       const session = createOperationsPersistedSession({
         workspaceId: decisionContext.workspaceId,
@@ -1697,12 +1852,20 @@ export function OnePageDashboardDemo() {
 
   const selectedIsClustered = clusteredIds.has(selectedId);
   const selectedHub = hubs.find((hub) => hub.hubId === selectedCourier.hubId)!;
+  const selectedRoutePoints = riderRoutePolyline({
+    courierId: selectedCourier.id,
+    areaCode: selectedCourier.area,
+    mapX: selectedCourier.mapX,
+    mapY: selectedCourier.mapY,
+  })
+    .map((point) => `${point.mapX},${point.mapY}`)
+    .join(" ");
   const activeDialogArtifacts = decisionContext?.workspace.decisions.find(
     (item) => item.queueItem.courierId === selectedCourier.id,
   );
   const riderAppHref = activeDialogArtifacts && decisionContext?.sent
-    ? `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&workspace=${encodeURIComponent(decisionContext.workspaceId)}&decision=${encodeURIComponent(activeDialogArtifacts.decision.decisionId)}`
-    : `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}`;
+    ? `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&workspace=${encodeURIComponent(decisionContext.workspaceId)}&decision=${encodeURIComponent(activeDialogArtifacts.decision.decisionId)}&simTick=${simulationTick}`
+    : `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&simTick=${simulationTick}`;
 
   return (
     <main className="onepage-demo">
@@ -1722,9 +1885,9 @@ export function OnePageDashboardDemo() {
           <h1>Safety Control Tower</h1>
         </div>
         <div className="onepage-header-status">
-          <a className="onepage-synthetic-stream-link" href="/shadow-live-setup">
-            합성 실시간 재생
-          </a>
+          <span className="onepage-synthetic-stream-link" role="status">
+            합성 운행 중 · 실제 TMS 아님
+          </span>
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>
@@ -1880,11 +2043,40 @@ export function OnePageDashboardDemo() {
               <strong>합성 운영권역 · {hubs.length}개 허브</strong>
               <span>
                 {mapStatus === "READY"
-                  ? `위치 갱신 · ${currentTimeLabel}`
+                  ? `도로 운행 1초·Safety 5초 갱신 · +${simulationTick * SYNTHETIC_LIVE_MINUTES_PER_TICK}분`
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : `위치 갱신 · ${currentTimeLabel} · 지도 대체 화면`}
+                    : `도로 운행 1초·Safety 5초 갱신 · +${simulationTick * SYNTHETIC_LIVE_MINUTES_PER_TICK}분 · 지도 대체 화면`}
               </span>
+            </div>
+            <div className="onepage-live-controls" aria-label="합성 운행 재생 제어">
+              <span aria-live="polite">
+                {dialogOpen
+                  ? "지원 검토 중 일시정지"
+                  : simulationTick >= SYNTHETIC_LIVE_MAX_TICK
+                    ? "운행 주기 완료"
+                    : simulationRunning
+                      ? "운행·배송·안전여유 반영 중"
+                      : "일시정지"}
+              </span>
+              <button
+                type="button"
+                aria-pressed={!simulationRunning}
+                onClick={() => setSimulationRunning((current) => !current)}
+                disabled={dialogOpen || simulationTick >= SYNTHETIC_LIVE_MAX_TICK}
+              >
+                {simulationRunning ? "일시정지" : "계속"}
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSimulationTick(0);
+                  setSimulationRunning(true);
+                }}
+                disabled={dialogOpen}
+              >
+                처음부터
+              </button>
             </div>
             <div className="onepage-region-capacity" aria-label="허브별 합성 운영 현황">
               {hubs.map((hub) => (
@@ -1899,6 +2091,7 @@ export function OnePageDashboardDemo() {
           <div
             className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""}`}
             data-movement-second={movementSecond}
+            data-simulation-tick={simulationTick}
             onPointerEnter={() => {
               pausedMovementSecondRef.current ??= liveMovementSecond;
             }}
@@ -1928,6 +2121,14 @@ export function OnePageDashboardDemo() {
             {mapStatus !== "READY" ? (
               <>
                 <div className="onepage-river" aria-hidden="true" />
+                <svg
+                  className="onepage-selected-road-route"
+                  viewBox="0 0 100 100"
+                  preserveAspectRatio="none"
+                  aria-hidden="true"
+                >
+                  <polyline points={selectedRoutePoints} />
+                </svg>
                 {roads.map((road, index) => (
                   <span
                     key={index}
@@ -2012,6 +2213,11 @@ export function OnePageDashboardDemo() {
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedCourier.area}</span>
+              {selectedCourier.live ? (
+                <em className={`onepage-live-activity is-${selectedCourier.live.activity.toLowerCase()}`}>
+                  {selectedCourier.live.activityLabel}
+                </em>
+              ) : null}
               <b>운영 위험지수 · 현재 Budget {selectedCourier.currentScore.toFixed(1)} / 예상 최저 {selectedCourier.budget.toFixed(1)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>

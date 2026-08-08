@@ -43,8 +43,11 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(
+    page.getByText("합성 운행 중 · 실제 TMS 아님", { exact: true }),
+  ).toBeVisible();
+  await expect(
     page.getByRole("link", { name: "합성 실시간 재생" }),
-  ).toHaveAttribute("href", "/shadow-live-setup");
+  ).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: "17명의 판단이 필요합니다." }),
   ).toBeVisible();
@@ -77,14 +80,15 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     const card = page.locator(
       `[data-courier-card="${record.courier.courierId}"]`,
     );
-    await expect(card).toHaveAttribute(
-      "data-area-code",
-      record.plan.stops[0].coarseZone,
+    const areaCode = await card.getAttribute("data-area-code");
+    expect(record.plan.stops.map((stop) => stop.coarseZone)).toContain(areaCode);
+    const completedCount = Number(
+      await card.getAttribute("data-completed-count"),
     );
-    await expect(card).toHaveAttribute(
-      "data-completed-count",
-      String(record.plan.completedStopCount),
+    expect(completedCount).toBeGreaterThanOrEqual(
+      record.plan.completedStopCount,
     );
+    expect(completedCount).toBeLessThan(record.plan.totalStopCount);
     await expect(card).toHaveAttribute(
       "data-total-count",
       String(record.plan.totalStopCount),
@@ -158,6 +162,40 @@ test("기사 추가는 합성 등록 요청만 만들고 활성 안전 계산 25
   await expect(page.getByRole("button", { name: /기사 추가.*대기 1/ })).toBeFocused();
 });
 
+test("합성 운행은 도로 진행·배송 행동·Safety 재평가를 같은 대시보드에서 갱신한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const card = page.locator('[data-courier-card="demo-courier-002"]');
+  await card.click();
+  const initialScore = await card.getAttribute("data-current-score");
+  const initialCompleted = await card.getAttribute("data-completed-count");
+
+  await expect(card).not.toHaveAttribute("data-live-activity", "SNAPSHOT");
+  await expect(page.locator(".onepage-selected-road-route")).toBeAttached();
+  await expect
+    .poll(
+      async () => ({
+        score: await card.getAttribute("data-current-score"),
+        completed: await card.getAttribute("data-completed-count"),
+      }),
+      { timeout: 12_000 },
+    )
+    .not.toEqual({ score: initialScore, completed: initialCompleted });
+
+  const map = page.locator(".onepage-map-canvas");
+  const pause = page.getByRole("button", { name: "일시정지" });
+  await pause.click();
+  const pausedTick = await map.getAttribute("data-simulation-tick");
+  await page.waitForTimeout(1_200);
+  await expect(map).toHaveAttribute("data-simulation-tick", pausedTick!);
+  await page.getByRole("button", { name: "계속" }).click();
+  await expect
+    .poll(() => map.getAttribute("data-simulation-tick"))
+    .not.toBe(pausedTick);
+});
+
 test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기사 앱으로 연다", async ({
   page,
   request,
@@ -188,13 +226,13 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   const riderLink = page.getByRole("link", { name: "기사 앱" });
   await expect(riderLink).toHaveAttribute(
     "href",
-    `/rider-demo?courier=${target.courier.courierId}`,
+    new RegExp(`/rider-demo\\?courier=${target.courier.courierId}&simTick=\\d+`),
   );
   await riderLink.click();
   await page.setViewportSize({ width: 390, height: 844 });
 
   await expect(page).toHaveURL(
-    new RegExp(`/rider-demo\\?courier=${target.courier.courierId}$`),
+    new RegExp(`/rider-demo\\?courier=${target.courier.courierId}&simTick=\\d+$`),
   );
   await expect(page.locator(".rider-role-menu summary")).toContainText(
     target.courier.displayLabel,
@@ -404,11 +442,11 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
     })
     .not.toBe(`${firstDashboardPoint.latitude},${firstDashboardPoint.longitude}`);
 
+  const riderHref = await page.getByRole("link", { name: "기사 앱" }).getAttribute("href");
+  expect(riderHref).toBeTruthy();
   const riderPage = await context.newPage();
   await riderPage.setViewportSize({ width: 390, height: 844 });
-  await riderPage.goto(
-    `/rider-demo?courier=${encodeURIComponent(courierId!)}`,
-  );
+  await riderPage.goto(riderHref!);
   const riderMap = riderPage.locator(".rider-live-map-fallback");
   await expect(riderMap).toHaveAttribute("data-courier-id", courierId!);
   await expect(riderMap).toHaveAttribute("data-location-source", "ROUTE");
@@ -427,11 +465,11 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
     .not.toBe(`${firstRiderPoint.latitude},${firstRiderPoint.longitude}`);
 
   await expect.poll(async () => {
-    const dashboardSecond = await dashboardMap.getAttribute(
-      "data-movement-second",
+    const dashboardTick = await dashboardMap.getAttribute(
+      "data-simulation-tick",
     );
-    const riderSecond = await riderMap.getAttribute("data-movement-second");
-    if (!dashboardSecond || !riderSecond) return false;
+    const riderTick = await riderMap.getAttribute("data-simulation-tick");
+    if (!dashboardTick || !riderTick) return false;
     const [dashboardLatitude, dashboardLongitude, riderLatitude, riderLongitude] =
       await Promise.all([
         dashboardMarker.getAttribute("data-latitude"),
@@ -446,7 +484,7 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
       !riderLongitude
     ) return false;
     return (
-      Math.abs(Number(dashboardSecond) - Number(riderSecond)) <= 1 &&
+      Math.abs(Number(dashboardTick) - Number(riderTick)) <= 1 &&
       Math.abs(Number(dashboardLatitude) - Number(riderLatitude)) <= 0.0015 &&
       Math.abs(Number(dashboardLongitude) - Number(riderLongitude)) <= 0.0015
     );

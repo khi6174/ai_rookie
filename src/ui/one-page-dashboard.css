@@ -303,19 +303,14 @@
   display: inline-flex;
   align-items: center;
   padding: 0 11px;
-  border: 1px solid #9fc2e8;
+  border: 1px solid #9ecfca;
   border-radius: var(--r-pill);
-  color: #164f82;
-  background: #edf6ff;
+  color: var(--green-strong);
+  background: var(--green-t);
   font-size: var(--type-10);
   font-weight: var(--weight-heavy);
   text-decoration: none;
   white-space: nowrap;
-}
-
-.onepage-synthetic-stream-link:focus-visible {
-  outline: 3px solid var(--blue);
-  outline-offset: 3px;
 }
 
 .onepage-header time {
@@ -610,6 +605,20 @@
   white-space: nowrap;
 }
 
+.onepage-card-activity {
+  max-width: 100%;
+  overflow: hidden;
+  color: var(--blue-strong);
+  font-size: 9px;
+  font-weight: var(--weight-heavy);
+  line-height: 1.1;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.onepage-card-activity.is-resting { color: var(--green-strong); }
+.onepage-card-activity.is-delayed { color: var(--amber-strong); }
+
 .onepage-state-pill {
   min-height: 22px;
   display: inline-flex;
@@ -699,7 +708,10 @@
 
 .onepage-map-toolbar {
   min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(190px, auto) auto minmax(300px, 1fr);
   justify-content: space-between;
+  gap: 12px;
   padding: 0 16px;
   border-bottom: 1px solid var(--line);
 }
@@ -716,6 +728,36 @@
 .onepage-map-toolbar span {
   color: var(--muted);
   font-size: var(--type-11);
+}
+
+.onepage-live-controls {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 5px !important;
+  white-space: nowrap;
+}
+
+.onepage-live-controls > span {
+  color: var(--green-strong);
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-live-controls button {
+  min-height: 32px;
+  padding: 0 9px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  color: var(--text);
+  background: var(--surface);
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+  cursor: pointer;
+}
+
+.onepage-live-controls button:disabled {
+  color: var(--disabled);
+  cursor: not-allowed;
 }
 
 .onepage-region-capacity {
@@ -864,6 +906,26 @@
 
 .onepage-road.is-major { height: 12px; }
 .onepage-road.is-minor { height: 7px; opacity: .9; }
+
+.onepage-selected-road-route {
+  position: absolute;
+  z-index: 1;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.onepage-selected-road-route polyline {
+  fill: none;
+  stroke: var(--green);
+  stroke-width: 1.15;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2.2 1.4;
+  vector-effect: non-scaling-stroke;
+}
 
 .onepage-district {
   position: absolute;
@@ -1043,6 +1105,16 @@
 .onepage-selected-strip strong { font-size: var(--type-14); }
 .onepage-selected-strip > span:not(.onepage-state-pill) { color: var(--muted); font-size: var(--type-11); }
 .onepage-selected-strip b { color: var(--text); font-size: var(--type-12); }
+
+.onepage-live-activity {
+  color: var(--blue-strong);
+  font-size: var(--type-10);
+  font-style: normal;
+  font-weight: var(--weight-heavy);
+}
+
+.onepage-live-activity.is-resting { color: var(--green-strong); }
+.onepage-live-activity.is-delayed { color: var(--amber-strong); }
 
 .onepage-support-panel {
   order: -1;
@@ -2071,6 +2143,8 @@
   .onepage-priority-brief { grid-template-columns: minmax(230px, .68fr) minmax(480px, 1.5fr) minmax(250px, .76fr); }
   .onepage-support-panel { flex-basis: 340px; }
   .onepage-card-rail { grid-auto-columns: 210px; }
+  .onepage-map-toolbar { grid-template-columns: minmax(180px, auto) auto minmax(240px, 1fr); gap: 8px; }
+  .onepage-live-controls > span { display: none; }
 }
 
 @media (max-width: 1279px) {
@@ -2081,6 +2155,7 @@
   .onepage-support-panel { flex-basis: 320px; }
   .onepage-card-rail { grid-auto-columns: 204px; }
   .onepage-region-capacity > span small { display: none; }
+  .onepage-synthetic-stream-link { display: none; }
 }
 
 @media (max-height: 760px) {
@@ -2102,6 +2177,7 @@
   .onepage-card-identity { grid-template-columns: 38px minmax(0, 1fr); }
   .onepage-card-copy { gap: 2px; }
   .onepage-card-area { display: none; }
+  .onepage-card-activity { display: none; }
   .onepage-state-pill { min-height: 18px; padding-inline: 6px; }
   .onepage-workspace { margin-block: 10px 8px; }
   .onepage-map-section { grid-template-rows: 44px minmax(0, 1fr); }

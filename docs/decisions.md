@@ -1550,6 +1550,19 @@
 - 기각한 대안: 합성 출처를 마지막 화면에서만 공개, 실제 `Live` 배지 사용, 공개 무인증 D1 쓰기, 랜덤 이벤트로 매 실행 결과 변경, 합성 진행을 현재 Safety 계산과 운영 decision에 즉시 병합.
 - 영향 파일: `src/domain/operations/syntheticShadowStream.ts`, `src/domain/operations/shadowLive.ts`, `src/ui/ShadowLiveSetup.tsx`, `src/ui/shadow-live-setup.css`, 공개 관리자 헤더, 단위·E2E 테스트와 관련 승인 문서
 
+### ADR-152 — 합성 운행은 주 대시보드에서 도로·배송·Safety를 함께 갱신한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 사용자 결정: 별도 합성 재생 화면의 필요성이 불분명하며, 합성 기사들을 실제로 운행·배송 중인 기사로 가정한 서비스 시연을 원했다. 기사 마커는 임의 좌표 사이가 아니라 지도의 도로를 따라 이동하고, 배송·정차·휴식·지연 행동이 안전여유와 관제 상태에 함께 반영되어야 한다고 명시했다.
+- 결정: 공개 관리자 헤더의 `/shadow-live-setup` 진입 링크를 제거하고, 검증된 25명 합성 운영 패키지를 주 대시보드에서 자동 재생한다. 1초는 합성 2분이며 최대 45 tick으로 고정한다. 매 tick은 유효한 `DailyOperationsPackage`와 위치·행동 상태를 만들고, 기존 Snapshot·Safety·Fleet·Dashboard projection은 5 tick마다 실행한다. 중간에는 마지막 검증 Safety 값을 유지하고 임의 보간하지 않는다.
+- 도로·행동: 합성 북부·남부·서부권역에 버전된 다중 지점 도로 polyline을 두고 Kakao·Fallback·기사 경로가 같은 polyline을 읽는다. 합성 행동은 `DRIVING`, `DELIVERING`, `RESTING`, `DELAYED`로 제한하며 배송 완료 수, 연속근무와 휴식 입력을 결정론적으로 갱신한다.
+- 안전 경계: Safety 임계치·가중치·Risk Transfer Guard를 바꾸지 않는다. 좌표와 행동 라벨이 점수를 직접 만들지 않으며 strict 패키지에서 기존 엔진이 재계산한 결과만 현재·예상 최저 Budget, Time-to-Breach와 지원 큐에 표시한다. 지원 검토 중에는 현재 frame을 고정한다.
+- 성능 기준: 도로 polyline·합성 운행 frame·주 대시보드 통합 뒤 비공간 gzip JS 기준선은 `155,422 → 158,289 bytes`로 `2,867 bytes` 증가했다. G5 2.5D 추가량은 `51,179 bytes / 49.98KiB`로 기존 `50KiB` 한도를 통과하며 한도를 완화하지 않는다. 위치·행동은 1초, Safety 전체 재평가는 5초 간격으로 분리해 25명 화면 상호작용을 유지한다.
+- 출처·개인정보: 헤더의 `합성 운행 중 · 실제 TMS 아님` 한 곳을 유지한다. 위치·tick·행동·frame은 브라우저 메모리에만 있고 실제 GPS·TMS·ITS·고객주소·개인정보를 생성·저장·전송하지 않는다. 실제 운행 효과나 Live 운영 완료를 주장하지 않는다.
+- 기각한 대안: 별도 재생 화면을 최종 서비스로 사용, 마커만 움직이고 Safety는 고정, 좌표에서 임의 점수 감산, 실제 도로 API·새 secret 추가, 합성 출처 숨김, 지원 검토 중 입력이 계속 바뀌도록 허용.
+- 영향 파일: `src/application/syntheticLiveOperations.ts`, `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/one-page-dashboard.css`, 단위·E2E 테스트와 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

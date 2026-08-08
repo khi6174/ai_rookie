@@ -450,3 +450,11 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 `ShadowLiveSetup`은 사용자가 시작한 동안에만 2초 간격으로 다음 tick을 만들고 현재 가명 기사 진행 projection과 제한된 최근 이벤트를 React 메모리에 표시한다. 일시정지·한 단계·초기화는 같은 순수 generator를 사용한다. API, D1, localStorage, Cache Storage, service worker, AI와 Safety 엔진을 호출하지 않는다.
 
 공개 관리자 화면은 이 기능을 `합성 실시간 재생` 링크로만 연결한다. 재생 데이터를 현재 운영 큐·지도·decision에 병합하지 않으며 실제 TMS 연결 상태나 `Live` 배지로 승격하지 않는다.
+
+## 20. 합성 운행과 Safety 재평가의 주 대시보드 통합
+
+`src/application/syntheticLiveOperations.ts`는 승인된 `DailyOperationsPackage`와 tick을 받아 배송 완료·연속근무·휴식·지연 상태를 포함한 새 유효 패키지와 기사별 표현 상태를 만든다. 이 계층은 Safety 수치를 계산하지 않는다. 새 패키지는 기존 `createDailyOperationsSnapshot → evaluateOperationsFleet → createDashboardOperationsProjection` 경로를 그대로 통과하며 지도, 카드, 지원 큐와 Time-to-Breach가 같은 package hash에서 갱신된다.
+
+`riderMapPresentation`은 합성 북부·남부·서부권역별 다중 지점 도로 polyline과 진행률 보간을 소유한다. Kakao 지도는 같은 polyline을 선으로 그리고 마커를 그 위에서 이동시키며, Fallback 지도도 선택 기사의 같은 polyline을 표시한다. 브라우저 기기 위치를 요청한 기사 화면은 계속 기기 위치가 우선하고, 관리자에게 역전송하지 않는다.
+
+자동 재생은 1초마다 합성 2분을 진행하는 가속 시연이며 최대 45 tick에서 멈춘다. 위치·행동은 매 tick 갱신하고 비용이 큰 strict package hash·Safety·Fleet projection은 5 tick마다 실행한다. 두 Safety frame 사이는 마지막 검증값을 유지하고 점수를 보간하지 않는다. 지원 검토가 열리면 현재 frame을 고정해 decision과 입력의 불일치를 막는다. frame·좌표·행동은 React 메모리에만 있고 API·D1·localStorage·AI로 보내지 않는다. `/shadow-live-setup`과 인증 비활성 서버 수신 경계는 실제 연결 계약을 확인하는 보조 도구로 남고 공개 관리자 헤더에서 제거한다.

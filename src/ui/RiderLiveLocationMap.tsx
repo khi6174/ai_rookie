@@ -9,7 +9,14 @@ import {
   riderMapMarkerScale,
   riderMapMarkerSizePx,
   riderRoutePosition,
+  riderRoutePositionAtProgress,
 } from "../application/riderMapPresentation";
+import {
+  syntheticLiveActivityLabel,
+  syntheticLiveCourierActivity,
+  syntheticLiveCourierRouteProgress,
+  SYNTHETIC_LIVE_MAX_TICK,
+} from "../application/syntheticLiveOperations";
 import type { RiderProfile } from "../application/riderProfileRepository";
 import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapsNamespace } from "../adapters/maps/kakao";
 
@@ -62,7 +69,25 @@ function updateTruckMarkerSize(marker: HTMLDivElement, map: KakaoMapInstance, co
 export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfile; online: boolean }) {
   const { state, request } = useRiderDeviceLocation(profile.courierId);
   const [movementSecond, setMovementSecond] = useState(() => Math.floor(Date.now() / 1_000));
-  const routePoint = riderRoutePosition(profile, movementSecond);
+  const [simulationTick, setSimulationTick] = useState<number | undefined>(() => {
+    const value = new URLSearchParams(window.location.search).get("simTick");
+    if (value === null) return undefined;
+    const parsed = Number.parseInt(value, 10);
+    return Number.isFinite(parsed)
+      ? Math.max(0, Math.min(SYNTHETIC_LIVE_MAX_TICK, parsed))
+      : undefined;
+  });
+  const routePoint = simulationTick === undefined
+    ? riderRoutePosition(profile, movementSecond)
+    : riderRoutePositionAtProgress(
+        profile,
+        syntheticLiveCourierRouteProgress(profile.courierId, simulationTick),
+      );
+  const syntheticActivity = simulationTick === undefined
+    ? undefined
+    : syntheticLiveActivityLabel(
+        syntheticLiveCourierActivity(profile.courierId, simulationTick),
+      );
   const fallbackPoint: RiderLocationPoint = {
     latitude: routePoint.latitude,
     longitude: routePoint.longitude,
@@ -86,7 +111,14 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   pointSourceRef.current = hasDevicePoint ? "DEVICE" : "ROUTE";
 
   useEffect(() => {
-    const timer = window.setInterval(() => setMovementSecond(Math.floor(Date.now() / 1_000)), 1_000);
+    const timer = window.setInterval(() => {
+      setMovementSecond(Math.floor(Date.now() / 1_000));
+      setSimulationTick((current) =>
+        current === undefined
+          ? undefined
+          : Math.min(SYNTHETIC_LIVE_MAX_TICK, current + 1),
+      );
+    }, 1_000);
     return () => window.clearInterval(timer);
   }, [profile.courierId]);
 
@@ -242,6 +274,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
             data-courier-id={profile.courierId}
             data-location-source={hasDevicePoint ? "DEVICE" : "ROUTE"}
             data-movement-second={movementSecond}
+            data-simulation-tick={simulationTick ?? ""}
             data-latitude={displayPoint.latitude.toFixed(6)}
             data-longitude={displayPoint.longitude.toFixed(6)}
           >
@@ -257,7 +290,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
       </div>
       <div className="rider-live-location-footer">
         <div>
-          <strong>{hasDevicePoint ? `${updateTime} 갱신` : "배송 구역 기준 위치"}</strong>
+          <strong>{hasDevicePoint ? `${updateTime} 갱신` : syntheticActivity ?? "배송 구역 기준 위치"}</strong>
           <span>{hasDevicePoint ? `정확도 약 ${Math.round(state.accuracyMeters)}m` : "기기 위치는 이 화면에서만 사용"}</span>
         </div>
         <button type="button" onClick={request} disabled={state.status === "REQUESTING"}>

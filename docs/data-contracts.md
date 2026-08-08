@@ -1951,3 +1951,32 @@ type SyntheticShadowStreamBatch = {
 - UI는 현재 진행 projection과 최근 이벤트만 메모리에 두며 원문·재생 상태를 영구 저장하지 않는다.
 - 서버 수신 endpoint는 `SYNTHETIC_STREAM`을 실제 원천 이벤트로 받지 않는다.
 - 합성 재생 결과는 `serverTransmitted=false`, `rawStored=false`, `safetyEngineUsed=false`다.
+
+### 28.13 주 대시보드 합성 운행 frame
+
+```ts
+type SyntheticLiveOperationsFrame = {
+  schemaVersion: "synthetic-live-operations-frame-v1";
+  tick: number;
+  simulatedMinutes: number;
+  finished: boolean;
+  operationsPackage: DailyOperationsPackage;
+  courierStates: Array<{
+    courierId: string;
+    activity: "DRIVING" | "DELIVERING" | "RESTING" | "DELAYED";
+    activityLabel: string;
+    routeProgress: number; // 0..1
+    completedStopCount: number;
+    totalStopCount: number;
+    currentStopOrdinal: number;
+    simulatedAt: IsoDateTime;
+    safetyInputUpdated: true;
+  }>;
+};
+```
+
+- generator 입력은 승인된 합성 패키지와 정수 tick뿐이다. 같은 입력은 같은 frame을 만든다.
+- `operationsPackage`는 기존 strict 계약을 매 tick 통과해야 하며 평가시각·남은 ETA·배송 수·남은 배송지·남은 중량·연속근무·휴식 입력을 함께 갱신한다.
+- Safety 결과는 frame에 직접 생성하지 않는다. Application 계층이 `createDailyOperationsSnapshot`과 `evaluateOperationsFleet`를 다시 실행한 결과만 관리자 수치와 지원 큐로 사용한다.
+- `courierStates.routeProgress`는 버전된 도로 polyline의 표시 진행률이다. 좌표·tick·행동·frame은 API, D1, localStorage와 Cache Storage에 저장하지 않는다.
+- 별도 `SyntheticShadowStreamBatch`는 연결 계약 시연용이며 이 frame과 병합하거나 실제 원천으로 승격하지 않는다.
