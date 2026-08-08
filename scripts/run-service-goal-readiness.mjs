@@ -3,6 +3,7 @@ import { spawn } from "node:child_process";
 import { mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import process from "node:process";
+import { evaluateDeployedServiceEvidence } from "./service-goal-readiness-checks.mjs";
 
 const root = resolve(".");
 const pnpm = "pnpm";
@@ -152,19 +153,7 @@ const checks = {
         "utf8",
       )
     ).includes("SESSION_CONFLICT"),
-  deployedService:
-    evidence.deployed.status === "LIVE_PASS" &&
-    evidence.deployed.networkRequestPerformed === true &&
-    evidence.deployed.storage === "D1" &&
-    evidence.deployed.restored === true &&
-    evidence.deployed.conflictProtected === true &&
-    evidence.deployed.upstageExplanationLive === true &&
-    evidence.deployed.publicReviewManifestVerified === true &&
-    evidence.deployed.deployedReleaseCommit ===
-      evidence.humanStudy.releaseCommit &&
-    evidence.deployed.reviewManifestSha256 ===
-      evidence.humanStudy.manifestSha256 &&
-    evidence.deployed.actualPersonalDataCount === 0,
+  deployedService: evaluateDeployedServiceEvidence(evidence.deployed),
   roleSeparation:
     (
       await readFile(
