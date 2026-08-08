@@ -1,6 +1,6 @@
 {
   "schemaVersion": "final-readiness-audit-v1",
-  "capturedAt": "2026-08-06T12:45:54.396Z",
+  "capturedAt": "2026-08-08T05:46:38.696Z",
   "status": "PASSED",
   "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
   "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
@@ -11,9 +11,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 3054,
-      "outputSha256": "79d7b091cc59df2384d2908890fea13637a21f67e65c681a8047835d1f05716b",
-      "evidenceLine": "\u001b[32m✓ built in 481ms\u001b[39m"
+      "elapsedMs": 2426,
+      "outputSha256": "efdea75cc357d505eb51b4667e43b397294a58d85865d6710e64533713e80c3c",
+      "evidenceLine": "\u001b[32m✓ built in 310ms\u001b[39m"
     },
     {
       "id": "PLAYWRIGHT_E2E",
@@ -21,9 +21,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 235631,
-      "outputSha256": "5c584e1d778ca1cb085f1b6efc68c94ea4bbdddb46289ce84b779ceacbfa4ce2",
-      "evidenceLine": "46 passed (3.9m)"
+      "elapsedMs": 219125,
+      "outputSha256": "66c2af714adadc63d17bf928433c890c12f3adb475a5462e61f80043fe3949a4",
+      "evidenceLine": "51 passed (3.6m)"
     },
     {
       "id": "CLEAN_START_3X",
@@ -31,9 +31,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 35434,
-      "outputSha256": "a067ec881a70067fab9b71dcd6906241567d3cb312e3878e4e9951888cd30938",
-      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=34.43"
+      "elapsedMs": 22381,
+      "outputSha256": "c84540c221c68a5ac870432149363f45da2ab31b4966bd04d239db119777c231",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=21.57"
     },
     {
       "id": "DOMESTIC_TRACK_AUDIT",
@@ -41,9 +41,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 907,
-      "outputSha256": "ccfeb9d5fef7ac1f9dd6426b3f1377a399ec93c19de7ba3ada4e27e6f9d3b205",
-      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=bb9434bf71ba165f39ce80c8fac3d0f378cd553f3c08b4ce69e0f8a63dc93142"
+      "elapsedMs": 709,
+      "outputSha256": "5bf572363b87df6d1842880cf494a0dae703a8b5e887d4da644c2ebd273e45db",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=b36729a847173cf0eff5bc903bc3e867ec7a1360b4a5217b6d34b211cab8b92d"
     },
     {
       "id": "CORE_EVIDENCE",
@@ -51,9 +51,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 99106,
-      "outputSha256": "b5522e3d52c86c3ffa05f54fcfca37fd1f8a48284154b2ba9832b7664f3687aa",
-      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=383 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
+      "elapsedMs": 68725,
+      "outputSha256": "9e22812520f58455352b72d6c7ebd3aac16e2b7d865b448ec060be8418927865",
+      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=406 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
     }
   ],
   "documentStatuses": [
@@ -162,7 +162,7 @@
     {
       "id": "UNIT_TESTS",
       "passed": true,
-      "details": "383/383 passed"
+      "details": "406/406 passed"
     },
     {
       "id": "ACCESSIBILITY_VIEWPORTS",
@@ -231,8 +231,8 @@
     }
   ],
   "summary": {
-    "unitTests": 383,
-    "e2eTests": 46,
+    "unitTests": 406,
+    "e2eTests": 51,
     "cleanStartRuns": 3,
     "requiredViewports": 4,
     "screenshotAndAccessibilityChecks": 6,

@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-08-06T12:50:30.274Z",
+  "capturedAt": "2026-08-08T05:50:44.025Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 64,
-  "testCount": 383,
-  "passed": 383,
+  "testFileCount": 68,
+  "testCount": 406,
+  "passed": 406,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -79,6 +79,11 @@
       "file": "ax-cascade-product-review-v2-local.test.ts",
       "status": "passed",
       "assertionCount": 3
+    },
+    {
+      "file": "ax-model-qualification-presentation.test.ts",
+      "status": "passed",
+      "assertionCount": 2
     },
     {
       "file": "contracts.test.ts",
@@ -249,6 +254,21 @@
       "file": "safety-engine.test.ts",
       "status": "passed",
       "assertionCount": 19
+    },
+    {
+      "file": "service-goal-readiness-checks.test.ts",
+      "status": "passed",
+      "assertionCount": 5
+    },
+    {
+      "file": "shadow-live-contract.test.ts",
+      "status": "passed",
+      "assertionCount": 9
+    },
+    {
+      "file": "shadow-live-store.test.ts",
+      "status": "passed",
+      "assertionCount": 7
     },
     {
       "file": "spatial-comprehension.test.ts",
