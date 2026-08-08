@@ -67,7 +67,7 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByText(`${body.storage} · 합성 기사 25명`, { exact: true }),
   ).toBeVisible();
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
-  await expect(page.locator(".onepage-courier-card.state-breach")).not.toHaveCount(0);
+  await expect(page.locator(".onepage-courier-card.state-forecast")).not.toHaveCount(0);
   await expect(page.locator(".onepage-courier-card.state-support")).not.toHaveCount(0);
   await expect(page.locator(".onepage-courier-card.state-caution")).not.toHaveCount(0);
   await expect(page.locator(".onepage-courier-card.state-stable")).not.toHaveCount(0);
@@ -75,6 +75,30 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
   await expect(
     page.getByText("합성 운영권역 · 3개 허브", { exact: true }),
   ).toBeVisible();
+
+  const stateSemantics = await page
+    .locator(".onepage-courier-card")
+    .evaluateAll((cards) =>
+      cards.map((card) => ({
+        classes: card.className,
+        current: Number((card as HTMLElement).dataset.currentScore),
+        projected: Number((card as HTMLElement).dataset.projectedScore),
+        label: card.getAttribute("aria-label") ?? "",
+      })),
+    );
+  expect(stateSemantics.some((card) => card.classes.includes("state-forecast"))).toBe(true);
+  for (const card of stateSemantics) {
+    if (card.classes.includes("state-breach")) {
+      expect(card.current).toBeLessThan(30);
+      expect(card.label).toContain("현재 한계 초과");
+    }
+    if (card.classes.includes("state-forecast")) {
+      expect(card.current).toBeGreaterThanOrEqual(30);
+      expect(card.projected).toBeLessThan(30);
+      expect(card.label).toContain("초과 예상");
+      expect(card.label).not.toContain("현재 한계 초과");
+    }
+  }
 
   for (const record of body.package.records) {
     const card = page.locator(
@@ -581,6 +605,26 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   await expect(dialog.getByText("안전한 지원안 비교", { exact: true })).toBeVisible();
   await expect(dialog.getByText("먼저 확인할 결론", { exact: true })).toBeVisible();
   await expect(dialog.getByText("선택 사항", { exact: true })).toBeVisible();
+  const baselineTimeToBreach = await dialog.getAttribute(
+    "data-baseline-time-to-breach",
+  );
+  const baselineStopOrdinal = await dialog.getAttribute(
+    "data-baseline-breach-stop-ordinal",
+  );
+  expect(baselineTimeToBreach).not.toBeNull();
+  expect(baselineStopOrdinal).not.toBeNull();
+  if (baselineTimeToBreach === "none") {
+    await expect(
+      dialog.getByText("향후 60분은 현재 계획을 유지합니다.", { exact: true }),
+    ).toBeVisible();
+  } else {
+    await expect(
+      dialog.getByText(
+        `${baselineTimeToBreach}분 후 · ${baselineStopOrdinal}번째 배송지 전에 지원합니다.`,
+        { exact: true },
+      ),
+    ).toBeVisible();
+  }
   await expect(
     dialog.getByRole("button", { name: "지원 검토 닫기" }),
   ).toBeFocused();
@@ -726,6 +770,20 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
     recipientPage.getByText("내 동의 기록됨", { exact: true }),
   ).toBeVisible();
 
+  await expect(dialog.getByText("관리자 승인 대기", { exact: true })).toBeVisible();
+  await dialog.getByRole("button", { name: "보류" }).click();
+  await expect(dialog.getByText("관리자 보류", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText("검토를 다시 열기 전에는 승인·적용하지 않습니다.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "관리자 승인 및 적용" }),
+  ).toHaveCount(0);
+  await dialog
+    .getByRole("button", { name: "관리자 검토 다시 열기" })
+    .click();
   await expect(dialog.getByText("관리자 승인 대기", { exact: true })).toBeVisible();
   await dialog
     .getByRole("button", { name: "관리자 승인 및 적용" })

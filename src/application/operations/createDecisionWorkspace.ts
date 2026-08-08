@@ -19,6 +19,7 @@ import {
   recordGeneratedCandidates,
   requestCourierReview,
   requestAdminApproval,
+  resumeAdminReview,
   startCourierResponses,
 } from "../../domain/decisions";
 import {
@@ -591,6 +592,19 @@ export function holdOperationsDecision(
       action: "HOLD",
       at: nextDecisionAt(artifacts.decision),
     }),
+  }));
+}
+
+export function resumeHeldOperationsDecision(
+  workspace: OperationsDecisionWorkspace,
+  decisionId: string,
+) {
+  return updateDecisionArtifacts(workspace, decisionId, (artifacts) => ({
+    ...artifacts,
+    decision: resumeAdminReview(
+      artifacts.decision,
+      nextDecisionAt(artifacts.decision),
+    ),
   }));
 }
 

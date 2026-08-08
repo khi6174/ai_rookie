@@ -20,7 +20,9 @@ import {
   createScenarioFixtureFromOperationsPackage,
   detectDecisionWorkspaceConflicts,
   approveAndApplyOperationsDecision,
+  holdOperationsDecision,
   initializeOperationsDecision,
+  resumeHeldOperationsDecision,
   respondToOperationsDecision,
   selectOperationsDecisionCandidate,
   evaluateOperationsFleet,
@@ -459,6 +461,18 @@ describe("multi-decision operations workspace", () => {
         response: "CONSENTED",
       });
     }
+    expect(workspace.decisions[0].decision.status).toBe(
+      "ADMIN_APPROVAL_REQUIRED",
+    );
+
+    workspace = holdOperationsDecision(workspace, decisionId);
+    expect(workspace.decisions[0].decision.status).toBe("ADMIN_HELD");
+    expect(
+      workspace.store.activePlan.workloads.find(
+        (workload) => workload.planId === initial.decision.baselinePlanId,
+      )?.planVersion,
+    ).toBe(baselineVersion);
+    workspace = resumeHeldOperationsDecision(workspace, decisionId);
     expect(workspace.decisions[0].decision.status).toBe(
       "ADMIN_APPROVAL_REQUIRED",
     );

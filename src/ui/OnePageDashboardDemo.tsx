@@ -38,11 +38,13 @@ import {
   createOperationsDecisionWorkspace,
   createOperationsPersistedSession,
   evaluateOperationsFleet,
+  holdOperationsDecision,
   initializeOperationsDecision,
   loadCurrentDailyOperationsPackage,
   loadLatestOperationsSessionForCourier,
   loadOperationsPersistedSession,
   restoreOperationsPersistedSession,
+  resumeHeldOperationsDecision,
   saveOperationsPersistedSession,
   selectOperationsDecisionCandidate,
   type FleetEvaluation,
@@ -74,7 +76,12 @@ import { generateOperationsAdminExplanation } from "./operationsExplanation";
 import syntheticCourierProfiles from "../assets/synthetic-courier-profiles-v1.jpg";
 import "./one-page-dashboard.css";
 
-type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
+type SupportState =
+  | "BREACH"
+  | "FORECAST"
+  | "SUPPORT"
+  | "CAUTION"
+  | "STABLE";
 type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "READY" | "FALLBACK";
 type DashboardMapFocusMode = "FLEET" | "COURIER";
@@ -148,11 +155,20 @@ function simulatedCourierPosition(
   };
 }
 
-function supportState(budget: number): SupportState {
-  if (budget < 30) return "BREACH";
+function supportState(
+  budget: number,
+  currentBudget = Number.POSITIVE_INFINITY,
+): SupportState {
+  if (currentBudget < 30) return "BREACH";
+  if (budget < 30) return "FORECAST";
   if (budget < 45) return "SUPPORT";
   if (budget < 60) return "CAUTION";
   return "STABLE";
+}
+
+function budgetDisplay(value: number) {
+  const rounded = value.toFixed(1);
+  return value < 30 && Number(rounded) >= 30 ? "<30.0" : rounded;
 }
 
 function matchesCourierFilter(
@@ -160,15 +176,18 @@ function matchesCourierFilter(
   filter: CourierFilter,
   dangerSignals: Record<string, RiderDangerSignal>,
 ) {
-  const state = supportState(courier.budget);
+  const state = supportState(courier.budget, courier.currentScore);
   if (filter === "ALL") return true;
   if (filter === "SIGNAL") return Boolean(dangerSignals[courier.id]);
-  if (filter === "SUPPORT") return state === "BREACH" || state === "SUPPORT";
+  if (filter === "SUPPORT") {
+    return ["BREACH", "FORECAST", "SUPPORT"].includes(state);
+  }
   return state === filter;
 }
 
 const stateLabel: Record<SupportState, string> = {
-  BREACH: "한계 초과",
+  BREACH: "현재 한계 초과",
+  FORECAST: "초과 예상",
   SUPPORT: "지원 필요",
   CAUTION: "주의",
   STABLE: "정상",
@@ -283,8 +302,10 @@ function supportTimingShort(courier: Courier) {
 }
 
 function supportPanelStateLabel(courier: Courier) {
-  const state = supportState(courier.budget);
-  if (state === "BREACH" || state === "SUPPORT") return "위험";
+  const state = supportState(courier.budget, courier.currentScore);
+  if (state === "BREACH") return "현재 한계 초과";
+  if (state === "FORECAST") return "초과 예상";
+  if (state === "SUPPORT") return "지원 필요";
   if (state === "CAUTION") return "주의";
   return "정상";
 }
@@ -359,7 +380,7 @@ function CourierCard({
   onSelect: () => void;
   cardRef: (node: HTMLButtonElement | null) => void;
 }) {
-  const state = supportState(courier.budget);
+  const state = supportState(courier.budget, courier.currentScore);
   const routeProfile = {
     courierId: courier.id,
     areaCode: courier.area,
@@ -372,8 +393,8 @@ function CourierCard({
       ref={cardRef}
       className={`onepage-courier-card state-${state.toLowerCase()} ${selected ? "is-selected" : ""} ${dimmed ? "is-dimmed" : ""} ${dangerSignal ? "has-danger-signal" : ""}`}
       data-courier-card={courier.id}
-      data-current-score={courier.currentScore.toFixed(1)}
-      data-projected-score={courier.budget.toFixed(1)}
+      data-current-score={courier.currentScore}
+      data-projected-score={courier.budget}
       data-area-code={courier.area}
       data-completed-count={courier.completed}
       data-total-count={courier.total}
@@ -384,7 +405,7 @@ function CourierCard({
       data-safety-updated-at={courier.live?.simulatedAt ?? ""}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 담당 배송구역 ${assignedZone}, 현재 Safety Budget ${courier.currentScore.toFixed(1)}, 예상 최저 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 담당 배송구역 ${assignedZone}, 현재 Safety Budget ${budgetDisplay(courier.currentScore)}, 예상 최저 ${budgetDisplay(courier.budget)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -412,7 +433,7 @@ function CourierCard({
       <span className={`onepage-card-safety state-${state.toLowerCase()}`}>
         <small>{dangerSignal ? "위험 신호 / 예상 최저" : "예상 최저 Budget"}</small>
         <span className="onepage-card-safety-value">
-          <b>{courier.budget.toFixed(1)}</b>
+          <b>{budgetDisplay(courier.budget)}</b>
           <em>{supportTimingShort(courier)}</em>
         </span>
       </span>
@@ -561,7 +582,7 @@ function MapMarker({
   selected: boolean;
   onSelect: () => void;
 }) {
-  const state = supportState(courier.budget);
+  const state = supportState(courier.budget, courier.currentScore);
   return (
     <button
       className={`onepage-map-marker state-${state.toLowerCase()} ${selected ? "is-selected" : ""}`}
@@ -604,7 +625,7 @@ function updateDashboardMarkerScale(
 function SafetyMarginTrack({ value }: { value: number }) {
   const markerPosition = Math.max(0, Math.min(100, value));
   return (
-    <div className="onepage-safety-track" aria-label={`안전여유 ${value.toFixed(1)}, 30 한계, 45 기준`}>
+    <div className="onepage-safety-track" aria-label={`안전여유 ${budgetDisplay(value)}, 30 한계, 45 기준`}>
       <div className="onepage-safety-track-title">
         <strong>Safety Margin</strong>
         <span>0–100</span>
@@ -724,7 +745,7 @@ function DashboardKakaoMap({
           if (!map) return;
           const point = simulatedCourierPosition(courier, movementSecond);
           const position = new maps.LatLng(point.latitude, point.longitude);
-          const state = supportState(courier.budget);
+          const state = supportState(courier.budget, courier.currentScore);
           const button = document.createElement("button");
           const truckImage = document.createElement("img");
           const markerDot = document.createElement("span");
@@ -741,7 +762,7 @@ function DashboardKakaoMap({
           });
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
-          button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
+          button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${budgetDisplay(courier.budget)}, ${stateLabel[state]}`);
           truckImage.src = "/assets/rider-truck-top-2d.png";
           truckImage.alt = "";
           markerDot.setAttribute("aria-hidden", "true");
@@ -916,14 +937,14 @@ function DashboardKakaoMap({
       const movingCourier = simulatedCourierPosition(courier, movementSecond);
       const button = markerButtonsRef.current.get(courier.id);
       if (button) {
-        const state = supportState(courier.budget);
+        const state = supportState(courier.budget, courier.currentScore);
         button.dataset.latitude = movingCourier.latitude.toFixed(6);
         button.dataset.longitude = movingCourier.longitude.toFixed(6);
         button.dataset.liveActivity = courier.live?.activity ?? "SNAPSHOT";
         button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}${courier.id === selectedId ? " is-selected" : ""}`;
         button.setAttribute(
           "aria-label",
-          `${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`,
+          `${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, 안전 지원 점수 ${budgetDisplay(courier.budget)}, ${stateLabel[state]}`,
         );
       }
       markerOverlaysRef.current
@@ -950,6 +971,8 @@ function InterventionDialog({
   onSelectCandidate,
   onRequestReview,
   onApprove,
+  onHold,
+  onResume,
 }: {
   courier: Courier;
   context: DashboardDecisionContext;
@@ -959,6 +982,8 @@ function InterventionDialog({
   onSelectCandidate: (candidateId: string) => void;
   onRequestReview: () => void;
   onApprove: () => void;
+  onHold: () => void;
+  onResume: () => void;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -970,6 +995,34 @@ function InterventionDialog({
   const artifacts = context.workspace.decisions.find(
     (item) => item.queueItem.courierId === courier.id,
   )!;
+  const baselineEvaluation = context.fleet.evaluations.find(
+    (evaluation) => evaluation.courierId === courier.id,
+  )!;
+  const baselineRecord = context.operationsPackage.records.find(
+    (record) => record.courier.courierId === courier.id,
+  )!;
+  const baselineMinimumBudget =
+    baselineEvaluation.safety.minimumForecastBudget ??
+    baselineEvaluation.safety.currentBudget;
+  const baselineBreach = baselineEvaluation.safety.breach;
+  const baselineState = supportState(
+    baselineMinimumBudget,
+    baselineEvaluation.safety.currentBudget,
+  );
+  const baselineCriticalMinute =
+    baselineBreach.status === "ALREADY_BREACHED"
+      ? 0
+      : baselineBreach.status === "PREDICTED"
+        ? Math.round(baselineBreach.timeToBreachMinutes)
+        : null;
+  const baselineBreachStopId =
+    baselineBreach.status === "PREDICTED" ? baselineBreach.stopId : undefined;
+  const baselineCriticalStopOrdinal =
+    baselineBreachStopId
+      ? baselineRecord.plan.stops.find(
+          (stop) => stop.stopId === baselineBreachStopId,
+        )?.sequence ?? null
+      : null;
   const selectedCandidate = artifacts.selectedCandidate;
   const selectedEvaluation = artifacts.selectedEvaluation;
   const selectedTransfer = transferAction(selectedCandidate);
@@ -1032,7 +1085,7 @@ function InterventionDialog({
     try {
       const result = await generateOperationsAdminExplanation({
         requestId: `operations-explanation-dashboard-${decision.decisionId}`,
-        currentBudget: courier.budget,
+        currentBudget: baselineMinimumBudget,
         currentBudgetLabel: "현재 예상 최저 안전여유",
         candidateMinimumBudget: sourceImpact.candidateMinimumBudget,
         etaDeltaMinutes: selectedEvaluation.etaDeltaMinutes,
@@ -1041,14 +1094,14 @@ function InterventionDialog({
         selectedIntervention: selectedCandidate.actions
           .map(interventionTypeLabel)
           .join(" + "),
-        confidence: courier.confidence,
+        confidence: baselineEvaluation.safety.confidence,
         confidenceLabel: "입력 신뢰도",
         allowedActions: [
           "기사 응답과 수신 기사 영향을 확인",
           "관리자 승인 전 최신 계획 재검증",
         ],
-        timeToBreachMinutes: courier.criticalMinute ?? undefined,
-        breachStopOrdinal: courier.criticalStopOrdinal ?? undefined,
+        timeToBreachMinutes: baselineCriticalMinute ?? undefined,
+        breachStopOrdinal: baselineCriticalStopOrdinal ?? undefined,
       });
       setExplanation(result);
     } catch {
@@ -1106,6 +1159,11 @@ function InterventionDialog({
       <div
         ref={dialogRef}
         className="onepage-intervention-dialog"
+        data-decision-id={artifacts.decision.decisionId}
+        data-baseline-current-budget={baselineEvaluation.safety.currentBudget}
+        data-baseline-minimum-budget={baselineMinimumBudget}
+        data-baseline-time-to-breach={baselineCriticalMinute ?? "none"}
+        data-baseline-breach-stop-ordinal={baselineCriticalStopOrdinal ?? "none"}
         role="dialog"
         aria-modal="true"
         aria-labelledby="intervention-dialog-title"
@@ -1118,7 +1176,10 @@ function InterventionDialog({
             />
             <div>
               <h2 id="intervention-dialog-title">{courier.name} 기사</h2>
-              <span>{courier.area} | 배송 {courier.completed}/{courier.total}</span>
+              <span>
+                {courier.area} | 배송 {baselineRecord.plan.completedStopCount}/
+                {baselineRecord.plan.totalStopCount}
+              </span>
             </div>
           </div>
           <button
@@ -1137,10 +1198,10 @@ function InterventionDialog({
             <div className="onepage-dialog-brief">
               <span>먼저 확인할 결론</span>
               <strong>
-                {courier.criticalMinute === 0
+                {baselineCriticalMinute === 0
                   ? "지금 지원이 필요합니다."
-                  : courier.criticalMinute !== null
-                    ? `${courier.criticalMinute}분 후 · ${courier.criticalStopOrdinal ?? "예상"}번째 배송지 전에 지원합니다.`
+                  : baselineCriticalMinute !== null
+                    ? `${baselineCriticalMinute}분 후 · ${baselineCriticalStopOrdinal ?? "예상"}번째 배송지 전에 지원합니다.`
                     : "향후 60분은 현재 계획을 유지합니다."}
               </strong>
               <small>
@@ -1186,7 +1247,7 @@ function InterventionDialog({
               <div><h3>선택 사항</h3></div>
             </div>
             <div className="onepage-before-after" aria-label="현재 → 조정 후">
-              <div><small>현재</small><b>{stateLabel[supportState(courier.budget)]}</b></div>
+              <div><small>현재 계획</small><b>{stateLabel[baselineState]}</b></div>
               <span aria-hidden="true">→</span>
               <div><small>조정 후</small><b>{interventionResultLabel(selectedEvaluation)}</b></div>
             </div>
@@ -1341,6 +1402,9 @@ function InterventionDialog({
               {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
                 <><small>관리자 승인 대기</small><strong>필수 기사 확인 완료</strong><span>승인 직전에 최신 계획을 다시 검증합니다.</span></>
               )}
+              {decision.status === "ADMIN_HELD" && (
+                <><small>관리자 보류</small><strong>현재 계획을 유지합니다</strong><span>검토를 다시 열기 전에는 승인·적용하지 않습니다.</span></>
+              )}
               {decision.status === "MODIFICATION_REQUESTED" && (
                 <><small>다른 방법 요청</small><strong>현재 계획을 유지합니다</strong><span>새 후보가 확정되기 전에는 다시 요청하지 않습니다.</span></>
               )}
@@ -1366,8 +1430,18 @@ function InterventionDialog({
               <button type="button" disabled>기사 응답 기다리는 중</button>
             )}
             {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
-              <button type="button" className="is-primary" disabled={busy} onClick={onApprove}>
-                관리자 승인 및 적용
+              <>
+                <button type="button" disabled={busy} onClick={onHold}>
+                  보류
+                </button>
+                <button type="button" className="is-primary" disabled={busy} onClick={onApprove}>
+                  관리자 승인 및 적용
+                </button>
+              </>
+            )}
+            {decision.status === "ADMIN_HELD" && (
+              <button type="button" className="is-primary" disabled={busy} onClick={onResume}>
+                관리자 검토 다시 열기
               </button>
             )}
             {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED") && (
@@ -1448,9 +1522,15 @@ export function OnePageDashboardDemo() {
     .filter((courier) => courier.criticalMinute !== null && courier.criticalMinute > 0)
     .sort((left, right) => left.criticalMinute! - right.criticalMinute!)[0];
   const supportCounts = couriers.reduce<Record<SupportState, number>>((counts, courier) => {
-    counts[supportState(courier.budget)] += 1;
+    counts[supportState(courier.budget, courier.currentScore)] += 1;
     return counts;
-  }, { BREACH: 0, SUPPORT: 0, CAUTION: 0, STABLE: 0 });
+  }, {
+    BREACH: 0,
+    FORECAST: 0,
+    SUPPORT: 0,
+    CAUTION: 0,
+    STABLE: 0,
+  });
   const dangerSignalCount = Object.keys(dangerSignals).length;
   const selectedDangerSignal = selectedCourier
     ? dangerSignals[selectedCourier.id]
@@ -1928,6 +2008,60 @@ export function OnePageDashboardDemo() {
     }
   };
 
+  const changeAdminHoldState = async (action: "HOLD" | "RESUME") => {
+    if (!decisionContext || !selectedCourier) return;
+    const decisionId = decisionContext.workspace.decisions.find(
+      (item) => item.queueItem.courierId === selectedCourier.id,
+    )?.decision.decisionId;
+    if (!decisionId) return;
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const workspace =
+        action === "HOLD"
+          ? holdOperationsDecision(decisionContext.workspace, decisionId)
+          : resumeHeldOperationsDecision(decisionContext.workspace, decisionId);
+      const session = createOperationsPersistedSession({
+        workspaceId: decisionContext.workspaceId,
+        operationsPackage: decisionContext.operationsPackage,
+        snapshot: decisionContext.snapshot,
+        fleet: decisionContext.fleet,
+        workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(session, {
+        baseSavedAt: decisionContext.baseSavedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setDialogMessage(
+          "message" in saved
+            ? saved.message
+            : "관리자 검토 상태를 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setDecisionContext({
+        ...decisionContext,
+        workspace,
+        baseSavedAt: saved.updatedAt,
+        sent: true,
+      });
+      setDialogMessage(
+        action === "HOLD"
+          ? "관리자가 검토를 보류했습니다. 현재 계획은 유지됩니다."
+          : "관리자 검토를 다시 열었습니다. 승인 전 최신 계획을 재검증합니다.",
+      );
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error
+          ? error.message
+          : "관리자 검토 상태를 변경하지 못했습니다.",
+      );
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
   const closeSupportReview = () => {
     setDialogOpen(false);
     window.requestAnimationFrame(() => supportReviewButtonRef.current?.focus());
@@ -2029,11 +2163,11 @@ export function OnePageDashboardDemo() {
 
         <article
           id="priority-decision"
-          className={`onepage-priority-decision state-${supportState(selectedCourier.budget).toLowerCase()}`}
+          className={`onepage-priority-decision state-${supportState(selectedCourier.budget, selectedCourier.currentScore).toLowerCase()}`}
           aria-live="polite"
         >
           <div className="onepage-priority-heading">
-            <span className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+            <span className={`onepage-state-pill state-${supportState(selectedCourier.budget, selectedCourier.currentScore).toLowerCase()}`}>
               {supportPanelStateLabel(selectedCourier)}
             </span>
             <small>지원받는 기사 · {selectedCourier.name}</small>
@@ -2048,7 +2182,7 @@ export function OnePageDashboardDemo() {
           <dl className="onepage-priority-facts">
             <div>
               <dt>현재 → 예상 최저</dt>
-              <dd>{selectedCourier.currentScore.toFixed(1)} → {selectedCourier.budget.toFixed(1)}</dd>
+              <dd>{budgetDisplay(selectedCourier.currentScore)} → {budgetDisplay(selectedCourier.budget)}</dd>
             </div>
             <div>
               <dt>먼저 비교할 지원</dt>
@@ -2104,7 +2238,13 @@ export function OnePageDashboardDemo() {
             {([
               ["ALL", "전체", couriers.length],
               ["SIGNAL", "위험신호", dangerSignalCount],
-              ["SUPPORT", "지원", supportCounts.BREACH + supportCounts.SUPPORT],
+              [
+                "SUPPORT",
+                "지원",
+                supportCounts.BREACH +
+                  supportCounts.FORECAST +
+                  supportCounts.SUPPORT,
+              ],
               ["CAUTION", "주의", supportCounts.CAUTION],
               ["STABLE", "안정", supportCounts.STABLE],
             ] as const).map(([value, label, count]) => (
@@ -2300,7 +2440,7 @@ export function OnePageDashboardDemo() {
                       type="button"
                     >
                       <strong>{members.length}</strong>
-                      <small>{stateLabel[supportState(priority.budget)]}</small>
+                      <small>{stateLabel[supportState(priority.budget, priority.currentScore)]}</small>
                     </button>
                   );
                 })}
@@ -2317,7 +2457,10 @@ export function OnePageDashboardDemo() {
 
             <div className="onepage-map-overlay-tools">
               <div className="onepage-map-legend" aria-label="지도 상태 범례">
-                <span className="state-breach"><i /> 한계 초과 {supportCounts.BREACH}</span>
+                {supportCounts.BREACH > 0 ? (
+                  <span className="state-breach"><i /> 현재 한계 초과 {supportCounts.BREACH}</span>
+                ) : null}
+                <span className="state-forecast"><i /> 초과 예상 {supportCounts.FORECAST}</span>
                 <span className="state-support"><i /> 지원 필요 {supportCounts.SUPPORT}</span>
                 <span className="state-caution"><i /> 주의 {supportCounts.CAUTION}</span>
                 <span className="state-stable"><i /> 정상 {supportCounts.STABLE}</span>
@@ -2325,8 +2468,8 @@ export function OnePageDashboardDemo() {
             </div>
 
             <div className="onepage-selected-strip" aria-live="polite">
-              <span className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
-                {stateLabel[supportState(selectedCourier.budget)]}
+              <span className={`onepage-state-pill state-${supportState(selectedCourier.budget, selectedCourier.currentScore).toLowerCase()}`}>
+                {stateLabel[supportState(selectedCourier.budget, selectedCourier.currentScore)]}
               </span>
               <strong>{selectedCourier.name}</strong>
               <span>{selectedAssignedZone}</span>
@@ -2335,7 +2478,7 @@ export function OnePageDashboardDemo() {
                   {selectedCourier.live.activityLabel}
                 </em>
               ) : null}
-              <b>운영 위험지수 · 현재 Budget {selectedCourier.currentScore.toFixed(1)} / 예상 최저 {selectedCourier.budget.toFixed(1)}</b>
+              <b>운영 위험지수 · 현재 Budget {budgetDisplay(selectedCourier.currentScore)} / 예상 최저 {budgetDisplay(selectedCourier.budget)}</b>
               <b>{supportTimingLabel(selectedCourier)}</b>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total}</span>
             </div>
@@ -2361,7 +2504,7 @@ export function OnePageDashboardDemo() {
                 <strong>{selectedCourier.name}</strong>
                 <span>{selectedCourier.area}</span>
               </div>
-              <em className={`onepage-state-pill state-${supportState(selectedCourier.budget).toLowerCase()}`}>
+              <em className={`onepage-state-pill state-${supportState(selectedCourier.budget, selectedCourier.currentScore).toLowerCase()}`}>
                 {supportPanelStateLabel(selectedCourier)}
               </em>
             </div>
@@ -2418,8 +2561,8 @@ export function OnePageDashboardDemo() {
                     <small>{courier.area}</small>
                   </span>
                   <span>
-                    <b className={`state-${supportState(courier.budget).toLowerCase()}`}>
-                      {courier.budget.toFixed(1)}
+                    <b className={`state-${supportState(courier.budget, courier.currentScore).toLowerCase()}`}>
+                      {budgetDisplay(courier.budget)}
                     </b>
                     <small className="onepage-eta-pill">
                       {supportTimingShort(courier)}
@@ -2449,6 +2592,8 @@ export function OnePageDashboardDemo() {
           onSelectCandidate={selectDialogCandidate}
           onRequestReview={() => void requestCourierReviewFromDialog()}
           onApprove={() => void approveDialogDecision()}
+          onHold={() => void changeAdminHoldState("HOLD")}
+          onResume={() => void changeAdminHoldState("RESUME")}
         />
       )}
     </main>

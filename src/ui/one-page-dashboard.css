@@ -99,6 +99,7 @@
 }
 
 .onepage-priority-decision.state-breach { --priority-color: var(--red); }
+.onepage-priority-decision.state-forecast,
 .onepage-priority-decision.state-support,
 .onepage-priority-decision.state-caution { --priority-color: var(--amber); }
 .onepage-priority-decision.state-stable { --priority-color: var(--green); }
@@ -511,6 +512,10 @@
 }
 
 .onepage-courier-card.state-breach { --state-color: var(--red); background: var(--red-t); }
+.onepage-courier-card.state-forecast {
+  --state-color: var(--amber);
+  background: color-mix(in srgb, var(--amber) 5%, var(--surface));
+}
 .onepage-courier-card.state-support { --state-color: var(--amber); }
 .onepage-courier-card.state-caution { --state-color: var(--amber); }
 .onepage-courier-card.state-stable { --state-color: var(--green); }
@@ -572,6 +577,7 @@
 }
 
 .onepage-avatar-status.state-breach { background: var(--red); }
+.onepage-avatar-status.state-forecast,
 .onepage-avatar-status.state-support,
 .onepage-avatar-status.state-caution { background: var(--amber); }
 .onepage-avatar-status.state-stable { background: var(--green); }
@@ -635,6 +641,7 @@
 }
 
 .onepage-state-pill.state-breach { color: var(--red) !important; background: var(--red-t); }
+.onepage-state-pill.state-forecast,
 .onepage-state-pill.state-support,
 .onepage-state-pill.state-caution { color: var(--amber-strong) !important; background: var(--amber-t); }
 .onepage-state-pill.state-stable { color: var(--green-strong) !important; background: var(--green-t); }
@@ -1044,6 +1051,7 @@
 }
 
 .onepage-map-marker.state-breach { --marker: var(--red); }
+.onepage-map-marker.state-forecast,
 .onepage-map-marker.state-support,
 .onepage-map-marker.state-caution { --marker: var(--amber); }
 .onepage-map-marker.state-stable { --marker: var(--green); }
@@ -1108,6 +1116,7 @@
 }
 
 .onepage-map-legend span.state-breach { color: var(--red); background: var(--red-t); }
+.onepage-map-legend span.state-forecast,
 .onepage-map-legend span.state-support,
 .onepage-map-legend span.state-caution { color: var(--amber-strong); background: var(--amber-t); }
 .onepage-map-legend span.state-stable { color: var(--green-strong); background: var(--green-t); }
@@ -1516,6 +1525,7 @@
 }
 
 .onepage-support-list b.state-breach { color: var(--red); }
+.onepage-support-list b.state-forecast,
 .onepage-support-list b.state-support,
 .onepage-support-list b.state-caution { color: var(--amber-strong); }
 .onepage-support-list b.state-stable { color: var(--green-strong); }
