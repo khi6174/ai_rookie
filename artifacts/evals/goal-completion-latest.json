@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v2",
-  "capturedAt": "2026-08-06T12:52:25.572Z",
+  "capturedAt": "2026-08-08T05:52:44.081Z",
   "status": "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
   "objective": "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
   "releasePolicy": {
@@ -83,7 +83,7 @@
           "id": "REPRODUCIBLE_TEST_COUNTS",
           "passed": true,
           "evidence": "artifacts/evals/final-readiness-latest.json",
-          "details": "unit=383, e2e=46, clean=3, publicBuild=true"
+          "details": "unit=406, e2e=51, clean=3, publicBuild=true"
         }
       ],
       "blockers": [],
@@ -191,32 +191,32 @@
     {
       "path": "artifacts/evals/final-readiness-latest.json",
       "bytes": 8835,
-      "sha256": "c984aeec96eac25ca3401ceb5f81be695d5160498b4bc74bcd259984dd936ca1"
+      "sha256": "b31c72da96d34d22b6eb3d6c7d06283e7c45f920b186aeda270159741ebb6cf6"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "c93346d0ceaf7ba1bd02caf326a1dc74b7dfe3f865be953de4d6f0685d8956e3"
+      "sha256": "d82fbb951dee7e80d7d6fbae038ca75fd77240454ab22d186b04387b728d0a6a"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "69782c3e53c0de6b11052cbe299fcff3889e8fdda4a68e06910ba5732682c57d"
+      "sha256": "c955a7f5ff07b6f93de5c74ac0d44b84e395c483076a46db1c4aad62f6c05a67"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "6cf16ab777f5af16112c11f3a97ecb2f31594ca366102dac80d8bf4e40ad537f"
+      "sha256": "9a65e73680934ccca36b5813c015ba90eb862330bd8b5ba11631c6526d2c19be"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "d5ff7c3945c40938f341e1530cde0f487575b5f23dbb3b2c6159491a05c2f265"
+      "sha256": "dc679e6d3569e4e2269e1569e7ceb14f3ae95dcb6f584fd3e269869bce5bfdeb"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
-      "bytes": 2500,
-      "sha256": "4c702593a9444e2522dac6b2d42e5efb6f85151a0bcb5874da4654542dc3fefd"
+      "bytes": 2499,
+      "sha256": "b05d4b6490acb8ca6697f83397d93985c80f5029e54c90be7b4fee996ac0bdea"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -264,36 +264,36 @@
       "path": "docs/product-spec.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 42951,
-      "sha256": "8ad2ffc2b71b3f00d51ef8568a8897837b396b8f91013766276f9bb83ed610f9"
+      "bytes": 45836,
+      "sha256": "2379277b86bfb4338e68ee1811e4f43b0fde3952d0c59ef766334a96fac5834d"
     },
     {
       "path": "docs/design-system.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 78634,
-      "sha256": "7bbfac500020ba97cf4fea8d631876b4402b510be6a95ed5addf5b21ade697a1"
+      "bytes": 84749,
+      "sha256": "447ecf8a0c7cf4c840f3b89702cc2762b0a55ed9fb60b335a6f88178387f3ed9"
     },
     {
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 241591,
-      "sha256": "02f0913420db1b2323971deff82d7a0bcbac7d3eb656533930a2cda01f1d1456"
+      "bytes": 266069,
+      "sha256": "00c9c5d598a4a8322b58523fbdfad9a02a3442432b11da395ff871b691b5ad15"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 39762,
-      "sha256": "8f603adb790ebfc739effb1eeb6a8880f06929b026889295840b2ee1ccbceb7d"
+      "bytes": 41745,
+      "sha256": "8bcc2c3fb9fe0e0dfbb288f7d9dfe1cbfc915d132691a88ef30139e70c4081c0"
     },
     {
       "path": "docs/evals.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 78241,
-      "sha256": "f7f144657076b0ab2a2d15c1681cf64a96c494541aad79f3a33edfbc0a88b20b"
+      "bytes": 78979,
+      "sha256": "3789ca3ad942399f22ef10d4a18975778726cfdfe33530528fa11f68a44cf564"
     },
     {
       "path": "docs/domestic-ai-track-compliance.md",
