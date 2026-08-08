@@ -1980,3 +1980,26 @@ type SyntheticLiveOperationsFrame = {
 - Safety 결과는 frame에 직접 생성하지 않는다. Application 계층이 `createDailyOperationsSnapshot`과 `evaluateOperationsFleet`를 다시 실행한 결과만 관리자 수치와 지원 큐로 사용한다.
 - `courierStates.routeProgress`는 버전된 도로 polyline의 표시 진행률이다. 좌표·tick·행동·frame은 API, D1, localStorage와 Cache Storage에 저장하지 않는다.
 - 별도 `SyntheticShadowStreamBatch`는 연결 계약 시연용이며 이 frame과 병합하거나 실제 원천으로 승격하지 않는다.
+
+### 28.14 기사별 합성 배송 도로 경로
+
+```ts
+type RiderDeliveryRoute = {
+  routeId: `synthetic-road-route-${string}`;
+  courierId: string;
+  assignedZoneLabel: string;
+  points: Array<{ latitude: number; longitude: number; mapX: number; mapY: number }>;
+  visibleStops: Array<{
+    stopOrdinal: number;
+    label: string;
+    progress: number; // 0..1
+    latitude: number;
+    longitude: number;
+  }>;
+};
+```
+
+- `routeId`는 기사 ID와 일대일이며 동일 권역 안에서도 polyline point sequence가 중복되지 않아야 한다.
+- 북부·남부·서부 각 권역의 좌표 grid와 9개 도로 조합 template은 버전된 코드 설정이다. 난수·브라우저 위치·실제 주소·Directions 응답을 사용하지 않는다.
+- `visibleStops`는 현재 완료 수 다음부터 최대 4개만 표시하며 원본 합성 계획의 전체·완료 수를 넘지 않는다.
+- Kakao와 Fallback 지도, 관리자와 기사 화면은 같은 경로 함수를 사용한다. 확대 상태는 UI 로컬 상태이며 저장·Safety 입력·decision ID에 포함하지 않는다.

@@ -196,6 +196,38 @@ test("합성 운행은 도로 진행·배송 행동·Safety 재평가를 같은 
     .not.toBe(pausedTick);
 });
 
+test("25명 기사는 고유 배송 도로와 다음 배송지를 배정받고 선택 구역을 확대한다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const cards = page.locator("[data-courier-card]");
+  await expect(cards).toHaveCount(25);
+  const routeIds = await cards.evaluateAll((items) =>
+    items.map((item) => item.getAttribute("data-delivery-route-id")),
+  );
+  expect(new Set(routeIds).size).toBe(25);
+
+  const first = cards.nth(0);
+  const second = cards.nth(1);
+  await first.click();
+  const routeLine = page.locator(".onepage-selected-road-route polyline");
+  const firstPoints = await routeLine.getAttribute("points");
+  await expect(page.locator("[data-delivery-stop]")).not.toHaveCount(0);
+  await second.click();
+  await expect.poll(() => routeLine.getAttribute("points")).not.toBe(firstPoints);
+
+  const map = page.locator(".onepage-map-canvas");
+  await page.getByRole("button", { name: "배송구역 확대" }).click();
+  await expect(map).toHaveAttribute("data-map-focus-mode", "COURIER");
+  await expect(page.getByRole("button", { name: "전체 보기" })).toHaveAttribute(
+    "aria-pressed",
+    "true",
+  );
+  await page.getByRole("button", { name: "전체 보기" }).click();
+  await expect(map).toHaveAttribute("data-map-focus-mode", "FLEET");
+});
+
 test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기사 앱으로 연다", async ({
   page,
   request,

@@ -9,6 +9,12 @@ export type RiderRoutePoint = {
 
 export type RiderMapMarkerScale = "STREET" | "DISTRICT" | "OVERVIEW";
 
+export type RiderDeliveryRouteStop = RiderRoutePoint & {
+  stopOrdinal: number;
+  label: string;
+  progress: number;
+};
+
 type RiderRouteProfile = Pick<
   RiderProfile,
   "courierId" | "areaCode" | "mapX" | "mapY"
@@ -24,24 +30,6 @@ function geographicPoint(latitude: number, longitude: number): RiderRoutePoint {
 }
 
 const roadCorridors: Record<string, readonly RiderRoutePoint[]> = {
-  "합성 서부권역": [
-    geographicPoint(37.5007, 127.0252),
-    geographicPoint(37.5011, 127.0308),
-    geographicPoint(37.502, 127.0367),
-    geographicPoint(37.5032, 127.042),
-  ],
-  "합성 북부권역": [
-    geographicPoint(37.5197, 127.0408),
-    geographicPoint(37.5191, 127.0472),
-    geographicPoint(37.5172, 127.0534),
-    geographicPoint(37.5143, 127.0588),
-  ],
-  "합성 남부권역": [
-    geographicPoint(37.4885, 127.0385),
-    geographicPoint(37.4891, 127.0449),
-    geographicPoint(37.4902, 127.0515),
-    geographicPoint(37.492, 127.0578),
-  ],
   역삼: [
     { mapX: 31, mapY: 45, latitude: 37.4981, longitude: 127.0305 },
     { mapX: 35, mapY: 46, latitude: 37.4996, longitude: 127.0342 },
@@ -92,6 +80,51 @@ const roadCorridors: Record<string, readonly RiderRoutePoint[]> = {
   ],
 };
 
+const syntheticRoadGrids = {
+  "합성 서부권역": {
+    latitudes: [37.4968, 37.5007, 37.5043],
+    longitudes: [127.0225, 127.0275, 127.033, 127.0395],
+  },
+  "합성 북부권역": {
+    latitudes: [37.5122, 37.516, 37.5196],
+    longitudes: [127.0405, 127.047, 127.0535, 127.059],
+  },
+  "합성 남부권역": {
+    latitudes: [37.4845, 37.4887, 37.492],
+    longitudes: [127.0385, 127.045, 127.052, 127.0585],
+  },
+} as const;
+
+const courierRoadTemplates = [
+  [[0, 0], [0, 3], [1, 3], [1, 1]],
+  [[0, 3], [0, 1], [2, 1], [2, 3]],
+  [[0, 0], [0, 2], [2, 2], [2, 0]],
+  [[1, 0], [1, 2], [0, 2], [0, 3]],
+  [[1, 3], [1, 1], [2, 1], [2, 0]],
+  [[1, 0], [1, 3], [2, 3], [2, 1]],
+  [[2, 0], [2, 2], [1, 2], [1, 0]],
+  [[2, 3], [2, 1], [0, 1], [0, 0]],
+  [[2, 0], [2, 3], [0, 3], [0, 2]],
+] as const;
+
+function courierNumber(courierId: string) {
+  return Number.parseInt(courierId.replace(/\D/g, ""), 10) || 1;
+}
+
+function syntheticCourseIndex(profile: RiderRouteProfile) {
+  return Math.floor((courierNumber(profile.courierId) - 1) / 3) % 9;
+}
+
+function syntheticCourierRoadRoute(profile: RiderRouteProfile) {
+  const areaKey = riderAreaKey(profile);
+  const grid = syntheticRoadGrids[areaKey as keyof typeof syntheticRoadGrids];
+  if (!grid) return undefined;
+  const template = courierRoadTemplates[syntheticCourseIndex(profile)];
+  return template.map(([row, column]) =>
+    geographicPoint(grid.latitudes[row], grid.longitudes[column]),
+  );
+}
+
 export function riderAreaKey(profile: Pick<RiderProfile, "areaCode">) {
   if (profile.areaCode.includes("북부권역")) return "합성 북부권역";
   if (profile.areaCode.includes("남부권역")) return "합성 남부권역";
@@ -100,6 +133,8 @@ export function riderAreaKey(profile: Pick<RiderProfile, "areaCode">) {
 }
 
 export function riderRoutePolyline(profile: RiderRouteProfile) {
+  const syntheticRoute = syntheticCourierRoadRoute(profile);
+  if (syntheticRoute) return syntheticRoute;
   const knownRoute = roadCorridors[riderAreaKey(profile)];
   if (knownRoute) return [...knownRoute];
   const courierPhase = Number.parseInt(profile.courierId.replace(/\D/g, ""), 10) || 0;
@@ -122,6 +157,36 @@ export function riderRoutePolyline(profile: RiderRouteProfile) {
       Math.max(24, Math.min(85, profile.mapY + 1.5 * verticalDirection)),
     ),
   ];
+}
+
+export function riderDeliveryRouteId(profile: RiderRouteProfile) {
+  return `synthetic-road-route-${profile.courierId}`;
+}
+
+export function riderAssignedDeliveryZone(profile: RiderRouteProfile) {
+  const areaKey = riderAreaKey(profile).replace("합성 ", "");
+  const courseNumber = syntheticCourseIndex(profile) + 1;
+  return `${areaKey} · ${courseNumber}코스`;
+}
+
+export function riderRouteDeliveryStops(
+  profile: RiderRouteProfile,
+  completedStopCount: number,
+  totalStopCount: number,
+  maximumVisibleStops = 4,
+): RiderDeliveryRouteStop[] {
+  const remainingStopCount = Math.max(0, totalStopCount - completedStopCount);
+  const count = Math.min(maximumVisibleStops, remainingStopCount);
+  const baseProgress = [0.2, 0.43, 0.68, 0.9];
+  return Array.from({ length: count }, (_, index) => {
+    const progress = baseProgress[index] ?? (index + 1) / (count + 1);
+    return {
+      ...riderRoutePositionAtProgress(profile, progress),
+      stopOrdinal: completedStopCount + index + 1,
+      label: `배송 ${completedStopCount + index + 1}`,
+      progress,
+    };
+  });
 }
 
 export function riderRoutePositionAtProgress(

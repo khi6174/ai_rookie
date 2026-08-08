@@ -927,6 +927,38 @@
   vector-effect: non-scaling-stroke;
 }
 
+.onepage-map-canvas.is-courier-focus .onepage-selected-road-route polyline {
+  stroke-width: 1.8;
+  stroke-dasharray: none;
+}
+
+.onepage-fallback-delivery-stop,
+.onepage-kakao-delivery-stop {
+  width: 24px;
+  height: 24px;
+  display: grid;
+  place-items: center;
+  border: 2px solid var(--surface);
+  border-radius: var(--r-pill);
+  color: var(--surface);
+  background: var(--blue-strong);
+  box-shadow: var(--sh-flat);
+  font-size: 9px;
+  font-weight: var(--weight-heavy);
+  line-height: 1;
+}
+
+.onepage-fallback-delivery-stop {
+  position: absolute;
+  z-index: 4;
+  translate: -50% -50%;
+  pointer-events: none;
+}
+
+.onepage-kakao-delivery-stop {
+  position: relative;
+}
+
 .onepage-district {
   position: absolute;
   color: var(--disabled);

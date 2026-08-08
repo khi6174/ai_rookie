@@ -458,3 +458,9 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 `riderMapPresentation`은 합성 북부·남부·서부권역별 다중 지점 도로 polyline과 진행률 보간을 소유한다. Kakao 지도는 같은 polyline을 선으로 그리고 마커를 그 위에서 이동시키며, Fallback 지도도 선택 기사의 같은 polyline을 표시한다. 브라우저 기기 위치를 요청한 기사 화면은 계속 기기 위치가 우선하고, 관리자에게 역전송하지 않는다.
 
 자동 재생은 1초마다 합성 2분을 진행하는 가속 시연이며 최대 45 tick에서 멈춘다. 위치·행동은 매 tick 갱신하고 비용이 큰 strict package hash·Safety·Fleet projection은 5 tick마다 실행한다. 두 Safety frame 사이는 마지막 검증값을 유지하고 점수를 보간하지 않는다. 지원 검토가 열리면 현재 frame을 고정해 decision과 입력의 불일치를 막는다. frame·좌표·행동은 React 메모리에만 있고 API·D1·localStorage·AI로 보내지 않는다. `/shadow-live-setup`과 인증 비활성 서버 수신 경계는 실제 연결 계약을 확인하는 보조 도구로 남고 공개 관리자 헤더에서 제거한다.
+
+## 21. 기사별 합성 배송구역 도로 배정
+
+`riderMapPresentation`은 권역 하나당 공통 polyline을 반환하지 않는다. 합성 북부·남부·서부권역의 3×4 도로 교차점 grid와 9개 도로 조합 template을 두고, 권역 내 기사 순번을 template에 결속해 25개 고유 `synthetic-road-route-{courierId}`를 만든다. 같은 함수가 진행률 위치, 담당 코스 라벨과 다음 최대 4개 배송지 표식을 계산한다.
+
+Kakao 계층은 fleet overview에서 모든 기사 경로를 낮은 대비로 그리고 선택 경로를 별도 polyline과 번호 overlay로 강조한다. `COURIER` focus는 선택 경로 bounds, `FLEET` focus는 전체 bounds를 사용한다. Fallback은 같은 route point를 SVG polyline과 절대 위치 번호 표식으로 렌더링한다. 확대·선택·표식은 프레젠테이션 상태이며 운영 패키지, Safety, decision과 D1을 변경하지 않는다.

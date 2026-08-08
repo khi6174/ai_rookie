@@ -15,6 +15,7 @@ import {
 import {
   loadKakaoMapsSdk,
   type KakaoMapInstance,
+  type KakaoLatLngBounds,
   type KakaoMapOverlay,
   type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
@@ -60,9 +61,12 @@ import type {
 } from "../domain/operations";
 import {
   riderAreaKey,
+  riderAssignedDeliveryZone,
+  riderDeliveryRouteId,
   riderMapMarkerScale,
   riderMapMarkerSizePx,
   riderRoutePolyline,
+  riderRouteDeliveryStops,
   riderRoutePosition,
   riderRoutePositionAtProgress,
   type RiderRoutePoint,
@@ -75,6 +79,7 @@ import "./one-page-dashboard.css";
 type SupportState = "BREACH" | "SUPPORT" | "CAUTION" | "STABLE";
 type CourierFilter = "ALL" | "SIGNAL" | "SUPPORT" | "CAUTION" | "STABLE";
 type DashboardMapStatus = "LOADING" | "READY" | "FALLBACK";
+type DashboardMapFocusMode = "FLEET" | "COURIER";
 type Courier = DashboardCourierProjection & {
   live?: SyntheticLiveCourierState;
 };
@@ -357,6 +362,13 @@ function CourierCard({
   cardRef: (node: HTMLButtonElement | null) => void;
 }) {
   const state = supportState(courier.budget);
+  const routeProfile = {
+    courierId: courier.id,
+    areaCode: courier.area,
+    mapX: courier.mapX,
+    mapY: courier.mapY,
+  };
+  const assignedZone = riderAssignedDeliveryZone(routeProfile);
   return (
     <button
       ref={cardRef}
@@ -368,11 +380,13 @@ function CourierCard({
       data-completed-count={courier.completed}
       data-total-count={courier.total}
       data-decision-id={courier.decisionId ?? ""}
+      data-delivery-route-id={riderDeliveryRouteId(routeProfile)}
+      data-assigned-delivery-zone={assignedZone}
       data-live-activity={courier.live?.activity ?? "SNAPSHOT"}
       data-safety-updated-at={courier.live?.simulatedAt ?? ""}
       data-rider-danger-signal={dangerSignal ? "active" : "inactive"}
       aria-pressed={selected}
-      aria-label={`${courier.name} 기사, 지정구역 ${courier.area}, 현재 Safety Budget ${courier.currentScore.toFixed(1)}, 예상 최저 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
+      aria-label={`${courier.name} 기사, 담당 배송구역 ${assignedZone}, 현재 Safety Budget ${courier.currentScore.toFixed(1)}, 예상 최저 ${courier.budget.toFixed(1)}, ${stateLabel[state]}, ${supportTimingLabel(courier)}${dangerSignal ? ", 기사앱 위험 신호" : ""}`}
       onClick={onSelect}
       type="button"
     >
@@ -386,7 +400,7 @@ function CourierCard({
         </span>
         <span className="onepage-card-copy">
           <span className="onepage-card-name">{courier.name}</span>
-          <strong className="onepage-card-area">{courier.area}</strong>
+          <strong className="onepage-card-area">{assignedZone}</strong>
           {courier.live ? (
             <span className={`onepage-card-activity is-${courier.live.activity.toLowerCase()}`}>
               {courier.live.activityLabel}
@@ -558,6 +572,12 @@ function MapMarker({
       data-latitude={courier.latitude.toFixed(6)}
       data-longitude={courier.longitude.toFixed(6)}
       data-live-activity={courier.live?.activity ?? "SNAPSHOT"}
+      data-delivery-route-id={riderDeliveryRouteId({
+        courierId: courier.id,
+        areaCode: courier.area,
+        mapX: courier.mapX,
+        mapY: courier.mapY,
+      })}
       style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
       aria-label={`${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
@@ -614,6 +634,7 @@ function DashboardKakaoMap({
   hubs,
   selectedId,
   movementSecond,
+  focusMode,
   onSelect,
   onStatus,
 }: {
@@ -621,6 +642,7 @@ function DashboardKakaoMap({
   hubs: DashboardHubProjection[];
   selectedId: string;
   movementSecond: number;
+  focusMode: DashboardMapFocusMode;
   onSelect: (id: string) => void;
   onStatus: (status: DashboardMapStatus) => void;
 }) {
@@ -631,6 +653,9 @@ function DashboardKakaoMap({
   const markerButtonsRef = useRef(new Map<string, HTMLButtonElement>());
   const markerOverlaysRef = useRef(new Map<string, MovableKakaoOverlay>());
   const mapsNamespaceRef = useRef<KakaoMapsNamespace | undefined>(undefined);
+  const mapRef = useRef<KakaoMapInstance | undefined>(undefined);
+  const fleetBoundsRef = useRef<KakaoLatLngBounds | undefined>(undefined);
+  const [mapReadyVersion, setMapReadyVersion] = useState(0);
   const selectRef = useRef(onSelect);
   const javaScriptKey =
     import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
@@ -671,14 +696,11 @@ function DashboardKakaoMap({
           126.99 + firstHub.mapX * 0.00142,
         );
         map = new maps.Map(container, { center, level: 6 });
+        mapRef.current = map;
         const bounds = new maps.LatLngBounds();
 
-        const renderedRoutes = new Set<string>();
         couriers.forEach((courier) => {
           if (!map) return;
-          const routeKey = courierAreaKey(courier);
-          if (renderedRoutes.has(routeKey)) return;
-          renderedRoutes.add(routeKey);
           const path = riderRoutePolyline({
             courierId: courier.id,
             areaCode: courier.area,
@@ -692,9 +714,9 @@ function DashboardKakaoMap({
           overlays.push(new maps.Polyline({
             map,
             path,
-            strokeWeight: 5,
+            strokeWeight: 2,
             strokeColor: "#167c7a",
-            strokeOpacity: 0.34,
+            strokeOpacity: 0.11,
             strokeStyle: "solid",
             zIndex: 2,
           }));
@@ -713,6 +735,12 @@ function DashboardKakaoMap({
           button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}`;
           button.dataset.mapMarker = courier.id;
           button.dataset.roadCorridor = courierAreaKey(courier);
+          button.dataset.deliveryRouteId = riderDeliveryRouteId({
+            courierId: courier.id,
+            areaCode: courier.area,
+            mapX: courier.mapX,
+            mapY: courier.mapY,
+          });
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
           button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${courier.budget.toFixed(1)}, ${stateLabel[state]}`);
@@ -769,6 +797,7 @@ function DashboardKakaoMap({
           }));
           bounds.extend(hubPosition);
         });
+        fleetBoundsRef.current = bounds;
         map.setBounds(bounds, 56, 56, 56, 56);
         updateMarkerScales = () => {
           if (!map) return;
@@ -784,6 +813,7 @@ function DashboardKakaoMap({
           button.setAttribute("aria-pressed", String(id === selectedId));
         });
         onStatus("READY");
+        setMapReadyVersion((current) => current + 1);
       })
       .catch(() => {
         if (!disposed) onStatus("FALLBACK");
@@ -798,10 +828,81 @@ function DashboardKakaoMap({
       buttons.clear();
       markerOverlays.clear();
       mapsNamespaceRef.current = undefined;
+      mapRef.current = undefined;
+      fleetBoundsRef.current = undefined;
       container.replaceChildren();
       map = undefined;
     };
   }, [courierIdentityKey, hubIdentityKey, javaScriptKey, onStatus, requested]);
+
+  const selectedCourier = couriers.find((courier) => courier.id === selectedId);
+  const selectedCompleted = selectedCourier?.completed ?? 0;
+  const selectedTotal = selectedCourier?.total ?? 0;
+
+  useEffect(() => {
+    const maps = mapsNamespaceRef.current;
+    const map = mapRef.current;
+    if (!maps || !map || !selectedCourier || mapReadyVersion === 0) return;
+    const profile = {
+      courierId: selectedCourier.id,
+      areaCode: selectedCourier.area,
+      mapX: selectedCourier.mapX,
+      mapY: selectedCourier.mapY,
+    };
+    const routePoints = riderRoutePolyline(profile);
+    const path = routePoints.map(
+      (point) => new maps.LatLng(point.latitude, point.longitude),
+    );
+    const detailOverlays: KakaoMapOverlay[] = [];
+    detailOverlays.push(new maps.Polyline({
+      map,
+      path,
+      strokeWeight: 6,
+      strokeColor: "#0f766e",
+      strokeOpacity: 0.88,
+      strokeStyle: "solid",
+      zIndex: 5,
+    }));
+    const routeBounds = new maps.LatLngBounds();
+    path.forEach((position) => routeBounds.extend(position));
+    riderRouteDeliveryStops(
+      profile,
+      selectedCompleted,
+      selectedTotal,
+    ).forEach((stop) => {
+      const position = new maps.LatLng(stop.latitude, stop.longitude);
+      const content = document.createElement("span");
+      content.className = "onepage-kakao-delivery-stop";
+      content.textContent = String(stop.stopOrdinal);
+      content.setAttribute("aria-label", `${stop.label} 합성 배송지`);
+      detailOverlays.push(new maps.CustomOverlay({
+        map,
+        position,
+        content,
+        xAnchor: 0.5,
+        yAnchor: 0.5,
+        zIndex: 7,
+      }));
+      routeBounds.extend(position);
+    });
+    map.setBounds(
+      focusMode === "COURIER" ? routeBounds : fleetBoundsRef.current ?? routeBounds,
+      focusMode === "COURIER" ? 86 : 56,
+      focusMode === "COURIER" ? 86 : 56,
+      focusMode === "COURIER" ? 86 : 56,
+      focusMode === "COURIER" ? 86 : 56,
+    );
+    return () => detailOverlays.forEach((overlay) => overlay.setMap(null));
+  }, [
+    focusMode,
+    mapReadyVersion,
+    selectedCompleted,
+    selectedCourier?.area,
+    selectedCourier?.mapX,
+    selectedCourier?.mapY,
+    selectedId,
+    selectedTotal,
+  ]);
 
   useEffect(() => {
     markerButtonsRef.current.forEach((button, id) => {
@@ -1295,6 +1396,8 @@ export function OnePageDashboardDemo() {
   const [selectedId, setSelectedId] = useState("");
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
+  const [mapFocusMode, setMapFocusMode] =
+    useState<DashboardMapFocusMode>("FLEET");
   const pausedMovementSecondRef = useRef<number | undefined>(undefined);
   const [dangerSignals, setDangerSignals] = useState<
     Record<string, RiderDangerSignal>
@@ -1860,6 +1963,22 @@ export function OnePageDashboardDemo() {
   })
     .map((point) => `${point.mapX},${point.mapY}`)
     .join(" ");
+  const selectedAssignedZone = riderAssignedDeliveryZone({
+    courierId: selectedCourier.id,
+    areaCode: selectedCourier.area,
+    mapX: selectedCourier.mapX,
+    mapY: selectedCourier.mapY,
+  });
+  const selectedRouteStops = riderRouteDeliveryStops(
+    {
+      courierId: selectedCourier.id,
+      areaCode: selectedCourier.area,
+      mapX: selectedCourier.mapX,
+      mapY: selectedCourier.mapY,
+    },
+    selectedCourier.completed,
+    selectedCourier.total,
+  );
   const activeDialogArtifacts = decisionContext?.workspace.decisions.find(
     (item) => item.queueItem.courierId === selectedCourier.id,
   );
@@ -2077,6 +2196,17 @@ export function OnePageDashboardDemo() {
               >
                 처음부터
               </button>
+              <button
+                type="button"
+                aria-pressed={mapFocusMode === "COURIER"}
+                onClick={() =>
+                  setMapFocusMode((current) =>
+                    current === "FLEET" ? "COURIER" : "FLEET",
+                  )
+                }
+              >
+                {mapFocusMode === "COURIER" ? "전체 보기" : "배송구역 확대"}
+              </button>
             </div>
             <div className="onepage-region-capacity" aria-label="허브별 합성 운영 현황">
               {hubs.map((hub) => (
@@ -2089,9 +2219,10 @@ export function OnePageDashboardDemo() {
             </div>
           </div>
           <div
-            className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""}`}
+            className={`onepage-map-canvas ${mapStatus === "READY" ? "has-kakao-map" : ""} ${mapFocusMode === "COURIER" ? "is-courier-focus" : ""}`}
             data-movement-second={movementSecond}
             data-simulation-tick={simulationTick}
+            data-map-focus-mode={mapFocusMode}
             onPointerEnter={() => {
               pausedMovementSecondRef.current ??= liveMovementSecond;
             }}
@@ -2115,6 +2246,7 @@ export function OnePageDashboardDemo() {
               hubs={hubs}
               selectedId={selectedId}
               movementSecond={movementSecond}
+              focusMode={mapFocusMode}
               onSelect={(id) => selectCourier(id, true)}
               onStatus={setMapStatus}
             />
@@ -2129,6 +2261,17 @@ export function OnePageDashboardDemo() {
                 >
                   <polyline points={selectedRoutePoints} />
                 </svg>
+                {selectedRouteStops.map((stop) => (
+                  <span
+                    key={stop.stopOrdinal}
+                    className="onepage-fallback-delivery-stop"
+                    data-delivery-stop={stop.stopOrdinal}
+                    aria-label={`${stop.label} 합성 배송지`}
+                    style={{ left: `${stop.mapX}%`, top: `${stop.mapY}%` }}
+                  >
+                    {stop.stopOrdinal}
+                  </span>
+                ))}
                 {roads.map((road, index) => (
                   <span
                     key={index}
@@ -2212,7 +2355,7 @@ export function OnePageDashboardDemo() {
                 {stateLabel[supportState(selectedCourier.budget)]}
               </span>
               <strong>{selectedCourier.name}</strong>
-              <span>{selectedCourier.area}</span>
+              <span>{selectedAssignedZone}</span>
               {selectedCourier.live ? (
                 <em className={`onepage-live-activity is-${selectedCourier.live.activity.toLowerCase()}`}>
                   {selectedCourier.live.activityLabel}

@@ -1563,6 +1563,18 @@
 - 기각한 대안: 별도 재생 화면을 최종 서비스로 사용, 마커만 움직이고 Safety는 고정, 좌표에서 임의 점수 감산, 실제 도로 API·새 secret 추가, 합성 출처 숨김, 지원 검토 중 입력이 계속 바뀌도록 허용.
 - 영향 파일: `src/application/syntheticLiveOperations.ts`, `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/RiderLiveLocationMap.tsx`, `src/ui/one-page-dashboard.css`, 단위·E2E 테스트와 관련 승인 문서
 
+### ADR-153 — 25명 기사에게 담당 권역 안의 고유 도로 배송코스를 배정한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 사용자 결정: 같은 권역 기사들이 동일 경로를 따라가는 표현을 거절하고, 지도를 확대했을 때 표시된 도로를 사용해 각자 맡은 배송구역을 배송하도록 배치해 달라고 요청했다.
+- 결정: 북부·남부·서부 권역별 합성 도로 grid와 권역 내 9개 고유 도로 조합을 버전 설정으로 둔다. 25명 기사 ID는 고유 `routeId`, `권역 · n코스`, polyline과 다음 최대 4개 배송지 번호에 일대일 결속한다. 전체 지도는 모든 경로를 낮은 대비로, 선택 경로는 강조해 표시한다.
+- 확대 흐름: 지도 툴바의 `배송구역 확대`는 선택 기사 경로 bounds로 확대하고 같은 자리의 `전체 보기`로 fleet bounds에 복귀한다. 선택 기사 변경 시 강조 경로·배송지·bounds를 같은 ID로 갱신한다. Kakao 실패 때도 동일 Fallback 경로와 배송지 번호를 유지한다.
+- 안전·데이터 경계: 새 경로는 합성 표시용 좌표이며 실제 주소·GPS·Directions API 응답이 아니다. 외부 API·secret·D1 schema를 추가하지 않고 Safety·지원 큐·추천·Risk Transfer Guard·동의·승인 입력을 바꾸지 않는다.
+- 성능 기준: 고유 도로코스·배송지·지도 bounds 제어 뒤 비공간 gzip JS 기준선은 `158,289 → 160,758 bytes`로 `2,469 bytes` 증가했다. G5 2.5D 추가량은 `51,183 bytes / 49.98KiB`로 기존 `50KiB` 한도를 유지한다. 이는 공간 장면 예산을 완화한 것이 아니라 ADR-153의 비공간 공개 대시보드 기능을 기준선에 명시적으로 편입한 것이다.
+- 기각한 대안: 권역당 공통 3개 경로 유지, 기사별 임의 좌표 흔들기, 화면 진입 시 25개 Directions API 호출, 실제 고객주소 생성, 선택 경로만 그리고 다른 기사 경로를 숨김.
+- 영향 파일: `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, 단위·E2E 테스트와 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

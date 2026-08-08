@@ -1,8 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { riderProfiles } from "../src/application/riderProfileRepository";
+import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheticOperationsPackage";
 import {
+  riderAssignedDeliveryZone,
+  riderDeliveryRouteId,
   riderMapMarkerScale,
   riderRoutePolyline,
+  riderRouteDeliveryStops,
   riderRoutePosition,
   riderRoutePositionAtProgress,
 } from "../src/application/riderMapPresentation";
@@ -66,5 +70,43 @@ describe("shared rider map presentation", () => {
     expect(route).toEqual(riderRoutePolyline(profile));
     expect(quarter.latitude).toBeGreaterThanOrEqual(37.46);
     expect(quarter.longitude).toBeLessThanOrEqual(127.108);
+  });
+
+  it("assigns every courier a unique route inside its synthetic delivery region", () => {
+    const routes = bundledDailyOperationsPackage.records.map((record) => {
+      const profile = {
+        courierId: record.courier.courierId,
+        areaCode: record.plan.stops[0].coarseZone,
+        mapX: 50,
+        mapY: 50,
+      };
+      return {
+        courierId: profile.courierId,
+        region: profile.areaCode.split(" A구역")[0],
+        routeId: riderDeliveryRouteId(profile),
+        zone: riderAssignedDeliveryZone(profile),
+        points: riderRoutePolyline(profile),
+        stops: riderRouteDeliveryStops(
+          profile,
+          record.plan.completedStopCount,
+          record.plan.totalStopCount,
+        ),
+      };
+    });
+
+    expect(new Set(routes.map((route) => route.routeId)).size).toBe(25);
+    expect(new Set(routes.map((route) => route.zone)).size).toBe(25);
+    for (const region of ["합성 북부권역", "합성 남부권역", "합성 서부권역"]) {
+      const regionRoutes = routes.filter((route) => route.region === region);
+      const routeShapes = regionRoutes.map((route) =>
+        route.points.map((point) => `${point.latitude},${point.longitude}`).join("|"),
+      );
+      expect(new Set(routeShapes).size).toBe(regionRoutes.length);
+    }
+    expect(
+      routes.every(
+        (route) => route.points.length >= 4 && route.stops.length > 0,
+      ),
+    ).toBe(true);
   });
 });
