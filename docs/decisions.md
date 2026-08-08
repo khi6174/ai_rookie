@@ -1575,6 +1575,18 @@
 - 기각한 대안: 권역당 공통 3개 경로 유지, 기사별 임의 좌표 흔들기, 화면 진입 시 25개 Directions API 호출, 실제 고객주소 생성, 선택 경로만 그리고 다른 기사 경로를 숨김.
 - 영향 파일: `src/application/riderMapPresentation.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, 단위·E2E 테스트와 관련 승인 문서
 
+### ADR-154 — 공개 관제 합성 운행은 수동 제어 없이 계속 갱신한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 사용자 결정: 공개 대시보드의 `일시정지`와 `처음부터`가 왜 필요한지 문제를 제기하고, SafeRoute 관제는 계속 움직이는 실시간 시스템이어야 한다고 명시했다.
+- 결정: 공개 관리자 대시보드에서 `일시정지`, `계속`, `처음부터`를 제거한다. 페이지가 열린 동안 합성 운행 tick, 기사 위치·행동과 5초 Safety 재평가를 계속 진행하며 지원 검토를 열어도 배경 운행을 멈추지 않는다. 검토·동의·승인은 열린 시점에 캡처한 동일 decision 스냅샷을 유지한다.
+- 연속성: 기존 45 tick 완료 상태를 제거하고 단조 증가하는 공개 tick과 119 tick 결정론적 합성 shift cycle을 사용한다. 119 tick은 현재 합성 패키지의 가장 짧은 남은 근무시간 240분보다 작은 238분을 표현한다. cycle은 strict 근무 입력을 유효 범위에 유지하기 위한 내부 합성 규칙이며 완료·일시정지 UI를 만들지 않는다. 연결 계약 재현용 수동 제어는 별도 `/shadow-live-setup`에만 남긴다.
+- 성능 기준: 수동 제어 제거·연속 tick·shift cycle·관리자와 기사 공통 epoch 뒤 비공간 gzip JS 기준선은 `160,758 → 161,672 bytes`로 `914 bytes` 증가했다. 현재 G5 2.5D 추가량은 `51,170 bytes / 49.97KiB`로 기존 `50KiB` 한도를 유지하며 공간 장면 예산을 완화하지 않는다.
+- 안전·데이터 경계: Safety 임계치·가중치·Risk Transfer Guard·동의·승인 권한을 바꾸지 않는다. 계속 움직이는 상태는 여전히 `합성 운행 중 · 실제 TMS 아님`이며 실제 GPS·TMS 연결을 주장하지 않는다.
+- 기각한 대안: 공개 화면에 데모 제어 유지, 지원 검토 중 fleet 전체 정지, 45초 뒤 운행 완료 표시, 버튼만 숨기고 내부 tick은 멈추도록 유지.
+- 영향 파일: `src/application/syntheticLiveOperations.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/RiderLiveLocationMap.tsx`, 단위·E2E 테스트와 관련 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

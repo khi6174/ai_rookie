@@ -1959,7 +1959,7 @@ type SyntheticLiveOperationsFrame = {
   schemaVersion: "synthetic-live-operations-frame-v1";
   tick: number;
   simulatedMinutes: number;
-  finished: boolean;
+  finished: false;
   operationsPackage: DailyOperationsPackage;
   courierStates: Array<{
     courierId: string;
@@ -1976,6 +1976,8 @@ type SyntheticLiveOperationsFrame = {
 ```
 
 - generator 입력은 승인된 합성 패키지와 정수 tick뿐이다. 같은 입력은 같은 frame을 만든다.
+- 공개 관제 tick은 페이지 수명 동안 단조 증가하며 수동 정지·초기화하지 않는다. 유효한 근무 입력을 유지하기 위한 결정론적 합성 shift cycle은 내부 표현 규칙이며 `finished`를 `true`로 만들거나 공개 운행을 멈추지 않는다.
+- 관리자에서 기사 앱으로 이동할 때는 브라우저 시작 epoch `simStartedAt`과 현재 `simTick`만 URL에 전달한다. 두 화면은 같은 epoch에서 tick을 다시 계산하며 이 값은 서버·D1·위치 관측·Safety 입력으로 저장하지 않는다.
 - `operationsPackage`는 기존 strict 계약을 매 tick 통과해야 하며 평가시각·남은 ETA·배송 수·남은 배송지·남은 중량·연속근무·휴식 입력을 함께 갱신한다.
 - Safety 결과는 frame에 직접 생성하지 않는다. Application 계층이 `createDailyOperationsSnapshot`과 `evaluateOperationsFleet`를 다시 실행한 결과만 관리자 수치와 지원 큐로 사용한다.
 - `courierStates.routeProgress`는 버전된 도로 polyline의 표시 진행률이다. 좌표·tick·행동·frame은 API, D1, localStorage와 Cache Storage에 저장하지 않는다.

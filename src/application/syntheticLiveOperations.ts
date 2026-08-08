@@ -2,7 +2,7 @@ import type { DailyOperationsPackage } from "../domain/operations";
 
 export const SYNTHETIC_LIVE_INTERVAL_MS = 1_000;
 export const SYNTHETIC_LIVE_MINUTES_PER_TICK = 2;
-export const SYNTHETIC_LIVE_MAX_TICK = 45;
+export const SYNTHETIC_LIVE_SHIFT_TICKS = 119;
 export const SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS = 5;
 
 export type SyntheticLiveActivity =
@@ -27,16 +27,17 @@ export type SyntheticLiveOperationsFrame = {
   schemaVersion: "synthetic-live-operations-frame-v1";
   tick: number;
   simulatedMinutes: number;
-  finished: boolean;
+  finished: false;
   operationsPackage: DailyOperationsPackage;
   courierStates: SyntheticLiveCourierState[];
 };
 
-function clampTick(tick: number) {
-  return Math.min(
-    SYNTHETIC_LIVE_MAX_TICK,
-    Math.max(0, Math.trunc(Number.isFinite(tick) ? tick : 0)),
-  );
+function normalizeTick(tick: number) {
+  return Math.max(0, Math.trunc(Number.isFinite(tick) ? tick : 0));
+}
+
+function shiftTick(tick: number) {
+  return normalizeTick(tick) % (SYNTHETIC_LIVE_SHIFT_TICKS + 1);
 }
 
 function atOffset(value: string, minutes: number) {
@@ -90,7 +91,7 @@ export function syntheticLiveCourierActivity(
   courierId: string,
   requestedTick: number,
 ) {
-  return activityAt(courierIndex(courierId), clampTick(requestedTick));
+  return activityAt(courierIndex(courierId), shiftTick(requestedTick));
 }
 
 export function syntheticLiveActivityLabel(activity: SyntheticLiveActivity) {
@@ -120,7 +121,7 @@ export function syntheticLiveCourierRouteProgress(
   courierId: string,
   requestedTick: number,
 ) {
-  return routeProgress(courierIndex(courierId), clampTick(requestedTick));
+  return routeProgress(courierIndex(courierId), shiftTick(requestedTick));
 }
 
 function continuousWorkMinutes(input: {
@@ -143,8 +144,10 @@ export function createSyntheticLiveOperationsFrame(
   basePackage: DailyOperationsPackage,
   requestedTick: number,
 ): SyntheticLiveOperationsFrame {
-  const tick = clampTick(requestedTick);
-  const simulatedMinutes = tick * SYNTHETIC_LIVE_MINUTES_PER_TICK;
+  const tick = normalizeTick(requestedTick);
+  const currentShiftTick = shiftTick(tick);
+  const simulatedMinutes =
+    currentShiftTick * SYNTHETIC_LIVE_MINUTES_PER_TICK;
   const evaluatedAt = atOffset(basePackage.evaluatedAt, simulatedMinutes);
   const courierStates: SyntheticLiveCourierState[] = [];
   const operationsPackage = structuredClone(basePackage);
@@ -154,7 +157,7 @@ export function createSyntheticLiveOperationsFrame(
     const completedDelta = deliveryDelta(
       baseRecord.plan.remainingStopCount,
       index,
-      tick,
+      currentShiftTick,
     );
     const remainingStops = baseRecord.plan.stops
       .slice(completedDelta)
@@ -163,7 +166,7 @@ export function createSyntheticLiveOperationsFrame(
         sequence: stopIndex + 1,
         eta: atOffset(stop.eta, simulatedMinutes),
       }));
-    const activity = activityAt(index, tick);
+    const activity = activityAt(index, currentShiftTick);
     const restStart = 28 + (index % 3) * 4;
     const elapsedRestMinutes =
       index % 6 === 0 && simulatedMinutes >= restStart
@@ -176,7 +179,7 @@ export function createSyntheticLiveOperationsFrame(
       courierId: record.courier.courierId,
       activity,
       activityLabel: syntheticLiveActivityLabel(activity),
-      routeProgress: routeProgress(index, tick),
+      routeProgress: routeProgress(index, currentShiftTick),
       completedStopCount,
       totalStopCount: baseRecord.plan.totalStopCount,
       currentStopOrdinal: Math.min(
@@ -219,7 +222,7 @@ export function createSyntheticLiveOperationsFrame(
     schemaVersion: "synthetic-live-operations-frame-v1",
     tick,
     simulatedMinutes,
-    finished: tick === SYNTHETIC_LIVE_MAX_TICK,
+    finished: false,
     operationsPackage,
     courierStates,
   };

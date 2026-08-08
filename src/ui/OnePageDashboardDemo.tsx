@@ -28,8 +28,6 @@ import {
 import {
   createSyntheticLiveOperationsFrame,
   SYNTHETIC_LIVE_INTERVAL_MS,
-  SYNTHETIC_LIVE_MAX_TICK,
-  SYNTHETIC_LIVE_MINUTES_PER_TICK,
   SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS,
   type SyntheticLiveCourierState,
 } from "../application/syntheticLiveOperations";
@@ -1391,8 +1389,8 @@ export function OnePageDashboardDemo() {
   const [liveCourierStates, setLiveCourierStates] = useState<
     SyntheticLiveCourierState[]
   >([]);
+  const simulationStartedAtRef = useRef(Date.now());
   const [simulationTick, setSimulationTick] = useState(0);
-  const [simulationRunning, setSimulationRunning] = useState(true);
   const [selectedId, setSelectedId] = useState("");
   const [filter, setFilter] = useState<CourierFilter>("ALL");
   const [mapStatus, setMapStatus] = useState<DashboardMapStatus>("LOADING");
@@ -1473,20 +1471,22 @@ export function OnePageDashboardDemo() {
   }, []);
 
   useEffect(() => {
-    if (
-      !baseOperationsPackage ||
-      !simulationRunning ||
-      dialogOpen ||
-      simulationTick >= SYNTHETIC_LIVE_MAX_TICK
-    ) {
-      return;
-    }
+    if (!baseOperationsPackage) return;
     const timer = window.setInterval(
-      () => setSimulationTick((current) => Math.min(SYNTHETIC_LIVE_MAX_TICK, current + 1)),
+      () =>
+        setSimulationTick(
+          Math.max(
+            0,
+            Math.floor(
+              (Date.now() - simulationStartedAtRef.current) /
+                SYNTHETIC_LIVE_INTERVAL_MS,
+            ),
+          ),
+        ),
       SYNTHETIC_LIVE_INTERVAL_MS,
     );
     return () => window.clearInterval(timer);
-  }, [baseOperationsPackage, dialogOpen, simulationRunning, simulationTick]);
+  }, [baseOperationsPackage]);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -1983,8 +1983,8 @@ export function OnePageDashboardDemo() {
     (item) => item.queueItem.courierId === selectedCourier.id,
   );
   const riderAppHref = activeDialogArtifacts && decisionContext?.sent
-    ? `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&workspace=${encodeURIComponent(decisionContext.workspaceId)}&decision=${encodeURIComponent(activeDialogArtifacts.decision.decisionId)}&simTick=${simulationTick}`
-    : `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&simTick=${simulationTick}`;
+    ? `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&workspace=${encodeURIComponent(decisionContext.workspaceId)}&decision=${encodeURIComponent(activeDialogArtifacts.decision.decisionId)}&simTick=${simulationTick}&simStartedAt=${simulationStartedAtRef.current}`
+    : `/rider-demo?courier=${encodeURIComponent(selectedCourier.id)}&simTick=${simulationTick}&simStartedAt=${simulationStartedAtRef.current}`;
 
   return (
     <main className="onepage-demo">
@@ -2162,40 +2162,14 @@ export function OnePageDashboardDemo() {
               <strong>합성 운영권역 · {hubs.length}개 허브</strong>
               <span>
                 {mapStatus === "READY"
-                  ? `도로 운행 1초·Safety 5초 갱신 · +${simulationTick * SYNTHETIC_LIVE_MINUTES_PER_TICK}분`
+                  ? "도로 운행 1초·Safety 5초 연속 갱신"
                   : mapStatus === "LOADING"
                     ? "지도 불러오는 중"
-                    : `도로 운행 1초·Safety 5초 갱신 · +${simulationTick * SYNTHETIC_LIVE_MINUTES_PER_TICK}분 · 지도 대체 화면`}
+                    : "도로 운행 1초·Safety 5초 연속 갱신 · 지도 대체 화면"}
               </span>
             </div>
-            <div className="onepage-live-controls" aria-label="합성 운행 재생 제어">
-              <span aria-live="polite">
-                {dialogOpen
-                  ? "지원 검토 중 일시정지"
-                  : simulationTick >= SYNTHETIC_LIVE_MAX_TICK
-                    ? "운행 주기 완료"
-                    : simulationRunning
-                      ? "운행·배송·안전여유 반영 중"
-                      : "일시정지"}
-              </span>
-              <button
-                type="button"
-                aria-pressed={!simulationRunning}
-                onClick={() => setSimulationRunning((current) => !current)}
-                disabled={dialogOpen || simulationTick >= SYNTHETIC_LIVE_MAX_TICK}
-              >
-                {simulationRunning ? "일시정지" : "계속"}
-              </button>
-              <button
-                type="button"
-                onClick={() => {
-                  setSimulationTick(0);
-                  setSimulationRunning(true);
-                }}
-                disabled={dialogOpen}
-              >
-                처음부터
-              </button>
+            <div className="onepage-live-controls" aria-label="합성 운행 상태와 지도 보기">
+              <span aria-live="polite">운행·배송·안전여유 연속 반영 중</span>
               <button
                 type="button"
                 aria-pressed={mapFocusMode === "COURIER"}

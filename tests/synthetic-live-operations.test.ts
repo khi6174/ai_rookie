@@ -3,26 +3,27 @@ import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheti
 import { createDashboardOperationsProjection } from "../src/application/dashboardOperationsProjection";
 import {
   createSyntheticLiveOperationsFrame,
-  SYNTHETIC_LIVE_MAX_TICK,
+  SYNTHETIC_LIVE_SHIFT_TICKS,
 } from "../src/application/syntheticLiveOperations";
 import { validateDailyOperationsPackage } from "../src/domain/operations";
 
 describe("dashboard synthetic live operations", () => {
   it("keeps every accelerated frame inside the approved operations contract", () => {
-    for (const tick of [0, 1, 6, 14, 22, SYNTHETIC_LIVE_MAX_TICK]) {
+    for (const tick of [0, 1, 6, 14, 22, SYNTHETIC_LIVE_SHIFT_TICKS, SYNTHETIC_LIVE_SHIFT_TICKS + 1]) {
       const frame = createSyntheticLiveOperationsFrame(
         bundledDailyOperationsPackage,
         tick,
       );
-      expect(validateDailyOperationsPackage(frame.operationsPackage).status).toBe(
-        "VALID",
-      );
+      const validation = validateDailyOperationsPackage(frame.operationsPackage);
+      expect(validation.status, JSON.stringify({ tick, validation })).toBe("VALID");
       expect(frame.courierStates).toHaveLength(25);
       expect(
         frame.courierStates.every(
           (state) => state.completedStopCount <= state.totalStopCount,
         ),
       ).toBe(true);
+      expect(frame.finished).toBe(false);
+      expect(frame.tick).toBe(tick);
     }
   });
 

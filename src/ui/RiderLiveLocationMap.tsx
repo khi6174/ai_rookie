@@ -15,7 +15,7 @@ import {
   syntheticLiveActivityLabel,
   syntheticLiveCourierActivity,
   syntheticLiveCourierRouteProgress,
-  SYNTHETIC_LIVE_MAX_TICK,
+  SYNTHETIC_LIVE_INTERVAL_MS,
 } from "../application/syntheticLiveOperations";
 import type { RiderProfile } from "../application/riderProfileRepository";
 import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapsNamespace } from "../adapters/maps/kakao";
@@ -69,14 +69,35 @@ function updateTruckMarkerSize(marker: HTMLDivElement, map: KakaoMapInstance, co
 export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfile; online: boolean }) {
   const { state, request } = useRiderDeviceLocation(profile.courierId);
   const [movementSecond, setMovementSecond] = useState(() => Math.floor(Date.now() / 1_000));
-  const [simulationTick, setSimulationTick] = useState<number | undefined>(() => {
-    const value = new URLSearchParams(window.location.search).get("simTick");
-    if (value === null) return undefined;
-    const parsed = Number.parseInt(value, 10);
-    return Number.isFinite(parsed)
-      ? Math.max(0, Math.min(SYNTHETIC_LIVE_MAX_TICK, parsed))
-      : undefined;
+  const [simulationClock] = useState(() => {
+    const parameters = new URLSearchParams(window.location.search);
+    const tickValue = parameters.get("simTick");
+    const startedAtValue = parameters.get("simStartedAt");
+    const parsedTick = tickValue === null ? undefined : Number.parseInt(tickValue, 10);
+    const parsedStartedAt =
+      startedAtValue === null ? undefined : Number.parseInt(startedAtValue, 10);
+    const fallbackTick = Number.isFinite(parsedTick) ? Math.max(0, parsedTick!) : undefined;
+    const startedAt = Number.isFinite(parsedStartedAt)
+      ? parsedStartedAt!
+      : fallbackTick === undefined
+        ? undefined
+        : Date.now() - fallbackTick * SYNTHETIC_LIVE_INTERVAL_MS;
+    return {
+      startedAt,
+      initialTick:
+        startedAt === undefined
+          ? undefined
+          : Math.max(
+              0,
+              Math.floor(
+                (Date.now() - startedAt) / SYNTHETIC_LIVE_INTERVAL_MS,
+              ),
+            ),
+    };
   });
+  const [simulationTick, setSimulationTick] = useState<number | undefined>(
+    simulationClock.initialTick,
+  );
   const routePoint = simulationTick === undefined
     ? riderRoutePosition(profile, movementSecond)
     : riderRoutePositionAtProgress(
@@ -113,14 +134,20 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   useEffect(() => {
     const timer = window.setInterval(() => {
       setMovementSecond(Math.floor(Date.now() / 1_000));
-      setSimulationTick((current) =>
-        current === undefined
-          ? undefined
-          : Math.min(SYNTHETIC_LIVE_MAX_TICK, current + 1),
-      );
+      if (simulationClock.startedAt !== undefined) {
+        setSimulationTick(
+          Math.max(
+            0,
+            Math.floor(
+              (Date.now() - simulationClock.startedAt) /
+                SYNTHETIC_LIVE_INTERVAL_MS,
+            ),
+          ),
+        );
+      }
     }, 1_000);
     return () => window.clearInterval(timer);
-  }, [profile.courierId]);
+  }, [profile.courierId, simulationClock.startedAt]);
 
   useEffect(() => {
     if (!kakaoRequested || !containerRef.current) {

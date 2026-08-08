@@ -185,15 +185,12 @@ test("합성 운행은 도로 진행·배송 행동·Safety 재평가를 같은 
     .not.toEqual({ score: initialScore, completed: initialCompleted });
 
   const map = page.locator(".onepage-map-canvas");
-  const pause = page.getByRole("button", { name: "일시정지" });
-  await pause.click();
-  const pausedTick = await map.getAttribute("data-simulation-tick");
-  await page.waitForTimeout(1_200);
-  await expect(map).toHaveAttribute("data-simulation-tick", pausedTick!);
-  await page.getByRole("button", { name: "계속" }).click();
+  await expect(page.getByRole("button", { name: "일시정지" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "처음부터" })).toHaveCount(0);
+  const liveTick = await map.getAttribute("data-simulation-tick");
   await expect
     .poll(() => map.getAttribute("data-simulation-tick"))
-    .not.toBe(pausedTick);
+    .not.toBe(liveTick);
 });
 
 test("25명 기사는 고유 배송 도로와 다음 배송지를 배정받고 선택 구역을 확대한다", async ({
@@ -264,7 +261,9 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   await page.setViewportSize({ width: 390, height: 844 });
 
   await expect(page).toHaveURL(
-    new RegExp(`/rider-demo\\?courier=${target.courier.courierId}&simTick=\\d+$`),
+    new RegExp(
+      `/rider-demo\\?courier=${target.courier.courierId}&simTick=\\d+&simStartedAt=\\d+$`,
+    ),
   );
   await expect(page.locator(".rider-role-menu summary")).toContainText(
     target.courier.displayLabel,

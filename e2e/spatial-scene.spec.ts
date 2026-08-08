@@ -174,8 +174,8 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   // Q&A, ADR-145's courier intake UI, ADR-146's decision-first dashboard
   // hierarchy, ADR-148's lazy Shadow Live contract checker and ADR-149's
   // disabled server-Gate disclosure, ADR-151's synthetic delivery stream
-  // controls and ADR-153's unique courier road courses are part of the
-  // non-spatial baseline.
+  // controls, ADR-153's unique courier road courses and ADR-154's continuous
+  // operations stream are part of the non-spatial baseline.
   // A local/CI Kakao JavaScript key enables the already-approved live-map
   // branches in otherwise non-spatial chunks. Keep that measured 2,867-byte
   // baseline separate so the 2.5D scene retains the original 50 KiB cap.
@@ -184,7 +184,7 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
     process.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim()
       || /^VITE_KAKAO_MAP_JAVASCRIPT_KEY\s*=\s*\S+/m.test(localEnv),
   );
-  const previousG4BGzipJsBytes = 155_422 + (hasKakaoJavascriptBuild ? 5_336 : 0);
+  const previousG4BGzipJsBytes = 155_422 + (hasKakaoJavascriptBuild ? 6_250 : 0);
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
   );

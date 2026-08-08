@@ -457,7 +457,7 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 
 `riderMapPresentation`은 합성 북부·남부·서부권역별 다중 지점 도로 polyline과 진행률 보간을 소유한다. Kakao 지도는 같은 polyline을 선으로 그리고 마커를 그 위에서 이동시키며, Fallback 지도도 선택 기사의 같은 polyline을 표시한다. 브라우저 기기 위치를 요청한 기사 화면은 계속 기기 위치가 우선하고, 관리자에게 역전송하지 않는다.
 
-자동 재생은 1초마다 합성 2분을 진행하는 가속 시연이며 최대 45 tick에서 멈춘다. 위치·행동은 매 tick 갱신하고 비용이 큰 strict package hash·Safety·Fleet projection은 5 tick마다 실행한다. 두 Safety frame 사이는 마지막 검증값을 유지하고 점수를 보간하지 않는다. 지원 검토가 열리면 현재 frame을 고정해 decision과 입력의 불일치를 막는다. frame·좌표·행동은 React 메모리에만 있고 API·D1·localStorage·AI로 보내지 않는다. `/shadow-live-setup`과 인증 비활성 서버 수신 경계는 실제 연결 계약을 확인하는 보조 도구로 남고 공개 관리자 헤더에서 제거한다.
+자동 재생은 1초마다 합성 2분을 진행하며 공개 관제 페이지가 열린 동안 시작 epoch 기준의 단조 tick을 계속 증가시킨다. 기사 앱 링크는 같은 `simStartedAt`을 전달해 창을 연 시점과 무관하게 관리자·기사 위치가 같은 tick을 계산한다. 기존 합성 운영일의 가장 짧은 남은 근무시간 240분을 넘지 않도록 generator 내부에서 119 tick 합성 shift cycle을 결정론적으로 순환하지만 공개 운행은 완료·정지 상태로 전환하지 않는다. 위치·행동은 매 tick 갱신하고 비용이 큰 strict package hash·Safety·Fleet projection은 5 tick마다 실행한다. 두 Safety frame 사이는 마지막 검증값을 유지하고 점수를 보간하지 않는다. 지원 검토는 열린 시점의 `DashboardDecisionContext`를 보존하고 배경 운행·지도 갱신은 계속한다. frame·좌표·행동은 React 메모리에만 있고 API·D1·localStorage·AI로 보내지 않는다. 수동 재현 제어는 `/shadow-live-setup`에만 남기고 공개 관리자 화면에는 노출하지 않는다.
 
 ## 21. 기사별 합성 배송구역 도로 배정
 
