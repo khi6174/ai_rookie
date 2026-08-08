@@ -19,6 +19,12 @@ test("Shadow Live 준비 화면은 가명 이벤트를 브라우저에서만 검
   await expect(
     page.getByRole("heading", { name: "연결 전", exact: true }),
   ).toBeVisible();
+  await expect(
+    page.getByRole("heading", {
+      name: "공개 수신은 비활성 상태이며 승인된 설정이 모두 있어야 열립니다.",
+    }),
+  ).toBeVisible();
+  await expect(page.getByText(/입력을 읽기 전에 503으로/)).toBeVisible();
 
   await page.getByRole("button", { name: "합성 예시 불러오기" }).click();
   await page.getByRole("button", { name: "로컬에서 검증" }).click();

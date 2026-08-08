@@ -172,13 +172,18 @@ export function ShadowLiveSetup() {
       </section>
 
       <section className="shadow-live-next" aria-labelledby="shadow-next-title">
-        <span>STEP 3 · 실제 연결 전 필수</span>
-        <h2 id="shadow-next-title">원천 시스템과 인증이 정해지면 서버 연결을 활성화합니다.</h2>
+        <span>STEP 3 · 서버 수신 Gate 준비 완료</span>
+        <h2 id="shadow-next-title">공개 수신은 비활성 상태이며 승인된 설정이 모두 있어야 열립니다.</h2>
+        <p>
+          공급자 독립 webhook과 D1 파생 상태 구조는 준비했습니다. 현재 endpoint는 연결 ID,
+          32자 이상 서버 토큰, 1~24시간 보존값 중 하나라도 없으면 입력을 읽기 전에 503으로
+          차단합니다.
+        </p>
         <ol>
-          <li><strong>원천</strong><span>TMS/WMS webhook 또는 읽기 전용 API 선택</span></li>
-          <li><strong>접근</strong><span>운영사 인증·역할·테넌트 분리 승인</span></li>
-          <li><strong>보존</strong><span>원문 미저장·파생 진행상태 TTL·삭제 SLA 확정</span></li>
-          <li><strong>검증</strong><span>독립 관리자·기사 검토 후 Shadow Pilot 시작</span></li>
+          <li><strong>원천</strong><span>TMS/WMS 읽기 전용 이벤트 명세 확정 필요</span></li>
+          <li><strong>접근</strong><span>연결별 서버 토큰·운영사 권한 승인 필요</span></li>
+          <li><strong>보존</strong><span>원문 미저장·파생 상태 TTL·삭제 SLA 승인 필요</span></li>
+          <li><strong>수신</strong><span>중복은 멱등 처리, 충돌·역순 이벤트는 409 차단</span></li>
         </ol>
       </section>
     </main>

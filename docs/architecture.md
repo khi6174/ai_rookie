@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-06
+- 최종 갱신: 2026-08-08
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -434,3 +434,11 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 `/shadow-live-setup`은 lazy-loaded 프레젠테이션 경계와 `src/domain/operations/shadowLive.ts`의 순수 검증기로 구성한다. 파일과 붙여넣기 입력은 브라우저 메모리에서만 파싱하며 API, D1, localStorage, Cache Storage, service worker, AI 어댑터와 Safety 엔진을 호출하지 않는다.
 
 이 단계는 공급자 독립 입력 계약을 먼저 고정하는 연결 준비 단계다. 실제 서버 수신은 원천 시스템, 인증·테넌트, 재전송·중복·순서, 파생 상태 TTL·삭제 SLA가 승인된 뒤 별도 어댑터로 추가한다. 공개 인증이 없는 현재 Worker에 쓰기 endpoint를 만들거나 TMS 비밀키를 브라우저에 배포하지 않는다.
+
+## 18. Shadow Live 서버 수신 기반
+
+`server/shadow-live-store.mjs`는 공급자 독립 `POST /api/operations/shadow-live/events`와 인증된 `GET /api/operations/shadow-live/status` 경계를 제공한다. Worker와 Vite 개발 서버는 같은 핸들러를 사용한다. 공개 Worker는 `SHADOW_LIVE_INGEST_ENABLED`, `SHADOW_LIVE_CONNECTION_ID`, `SHADOW_LIVE_INGEST_TOKEN`, `SHADOW_LIVE_RETENTION_HOURS`가 모두 유효하지 않으면 첫 분기에서 503을 반환하며, 현재 배포는 이 비활성 경계를 유지한다.
+
+활성화된 요청은 연결별 Bearer token을 상수시간 비교한 뒤 256KiB 크기 제한, 금지 필드 재귀 검사, strict allowlist, 연결 ID 일치, batch 단조 순서를 검증한다. 저장 계층은 원문 대신 가명 진행 파생 필드와 SHA-256 fingerprint만 D1 `shadow_live_progress_events`에 쓴다. `event_id`와 `(connection_id, sequence)` 유일 제약, fingerprint 비교와 최근 sequence 검사가 동일 재전송을 멱등 처리하고 충돌·역순 이벤트를 차단한다. 만료 index와 인증된 수신·조회 시 삭제가 설정된 1~24시간 TTL을 집행한다.
+
+이 계층은 TMS/WMS에 쓰지 않는 inbound read-only projection이다. Safety 엔진, 지원 큐, AI, 관리자·기사 결정 스냅샷과 계획 적용 경로에는 의존성을 추가하지 않는다. 실제 원천 adapter, token 발급, 테넌트 권한, 확정 보존·삭제 SLA는 별도 승인과 독립 검토 뒤 환경설정으로 활성화한다.

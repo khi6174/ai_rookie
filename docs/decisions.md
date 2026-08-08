@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-06
+- 최종 갱신: 2026-08-08
 - 적용 범위: 제품, 데이터, 모델, 개입, AI, UX, 평가 및 데모의 지속 결정
 
 ## 1. 목적
@@ -1509,6 +1509,21 @@
 - 이유: 실제 원천과 인증 방식이 정해지지 않은 상태에서 공개 endpoint나 데이터 저장부터 만들면 개인정보 유입과 무단 쓰기 위험이 생긴다. 공급자 독립 allowlist 계약과 금지 필드 차단을 먼저 고정하면 실제 연결 전에 운영사가 데이터 최소화 상태를 확인할 수 있다.
 - 기각한 대안: 합성 이동을 Live로 재표시, 공개 무인증 webhook, 실제 GPS부터 수집, 전체 TMS row 저장, 원문 D1 보관, Safety 엔진에 배송 진행 이벤트 즉시 혼합, 새 secret을 승인 없이 생성.
 - 영향 파일: `src/domain/operations/shadowLive.ts`, `src/ui/ShadowLiveSetup.tsx`, `src/ui/shadow-live-setup.css`, `src/main.tsx`, 단위·E2E 테스트, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/architecture.md`, `docs/privacy-and-ai-policy.md`
+
+### ADR-149 — Shadow Live 서버 수신 기반은 완전 설정 전 닫힌다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 사용자 결정: Shadow Live 연결 준비 다음 단계 진행을 승인했다. 실제 TMS 명세와 운영 credential이 없는 현재에는 공급자 독립 서버 기반을 만들고 공개 수신은 비활성으로 유지한다.
+- 결정: `POST /api/operations/shadow-live/events`와 인증된 상태 조회를 같은 Worker 경계에 추가한다. 명시적 enable, 승인된 `shadow-*` 연결 ID, 32자 이상 연결별 Bearer token, 1~24시간 보존값이 모두 유효한 경우에만 요청을 읽는다. 현재 공개 환경에는 활성화 값과 token을 설정하지 않는다.
+- 데이터 경계: 서버는 v1 strict 계약과 금지 필드를 독립 재검증한다. D1에는 검증된 가명 진행 필드, SHA-256 이벤트 fingerprint, 수신·만료시각만 저장하고 batch 원문·source 객체·실명·연락처·주소·GPS·차량번호·고객·생체정보를 저장하지 않는다.
+- 재전송 정책: 같은 event ID·같은 fingerprint는 멱등 성공, 같은 ID·다른 내용과 저장된 sequence 이하의 새 이벤트는 409다. `event_id`와 `(connection_id, sequence)` 유일 제약을 D1에도 둔다.
+- 보존·권한 경계: 보존값은 활성화 필수 설정이며 최대 24시간으로 제한하고 인증된 수신·조회 시 만료 행을 삭제한다. 실제 값, token 발급·교체, TMS/WMS 원천과 테넌트 권한은 별도 운영 승인 전 구성하지 않는다. 상태 조회도 같은 token 없이는 열리지 않는다.
+- 제품 경계: 수신 파생 상태는 Safety, 지원 큐, AI, 기사 평가, 동의·승인, 계획 적용과 고객 안내에 연결하지 않는다. 합성 대시보드와 기존 폐루프는 변경하지 않으며 서버 기반만으로 전체 서비스를 Live로 표시하지 않는다.
+- 성능 경계: 서버 모듈과 D1 migration은 브라우저 번들에 포함하지 않는다. 준비 화면의 비활성 Gate 설명으로 lazy Shadow Live JS gzip이 직전 승인 소스 대비 정확히 `136 bytes` 증가해 비공간 기준선을 `153,692 bytes`로 분리 갱신한다. 2.5D 장면의 추가 허용량 `50KiB`와 프레임·전환 시간 기준은 유지한다.
+- 이유: 실제 source 없이 연결 코드를 미리 특정 공급자에 묶지 않으면서도, credential이 없는 공개 endpoint가 데이터를 받는 실패를 구조적으로 차단하고 실제 pilot 전 중복·순서·원문 미보존 동작을 결정론적으로 검증할 수 있다.
+- 기각한 대안: 공개 무인증 webhook, 임시 짧은 token, 원문 JSON 보관, 브라우저 검증 신뢰, 무기한 파생 상태 보존, 전체 연결 공용 token, 운영 승인 전 실제 secret 생성, 진행 이벤트를 Safety에 즉시 투입.
+- 영향 파일: `server/shadow-live-store.mjs`, Worker·Vite 연결, `.openai/drizzle/0005_shadow_live_progress.sql`, `db/schema.ts`, `.env.example`, Shadow Live UI·테스트와 관련 승인 문서
 
 ## 4. 심사기준 연결
 

@@ -28,6 +28,7 @@ const riderDangerSignalStoreSource = resolve(
   root,
   "server/rider-danger-signal-store.mjs",
 );
+const shadowLiveStoreSource = resolve(root, "server/shadow-live-store.mjs");
 const riderProfilesSource = resolve(root, "server/rider-profiles.mjs");
 const upstageExplanationProxySource = resolve(
   root,
@@ -66,6 +67,7 @@ const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-dire
 import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
 import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
 import { handleRiderDangerSignalRequest } from "./rider-danger-signal-store.mjs";
+import { handleShadowLiveRequest } from "./shadow-live-store.mjs";
 import { handleSyntheticOperationsRequest } from "./synthetic-operations-store.mjs";
 import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
 
@@ -110,6 +112,16 @@ function secure(response) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const shadowLiveResponse = await handleShadowLiveRequest(request, {
+      database: env.DB,
+      enabled: env.SHADOW_LIVE_INGEST_ENABLED === "true",
+      ingestToken: env.SHADOW_LIVE_INGEST_TOKEN,
+      connectionId: env.SHADOW_LIVE_CONNECTION_ID,
+      retentionHours: env.SHADOW_LIVE_RETENTION_HOURS,
+    });
+    if (shadowLiveResponse) {
+      return secure(shadowLiveResponse);
+    }
     const riderProfileResponse = await handleRiderProfileRequest(request, {
       database: env.DB,
     });
@@ -369,6 +381,10 @@ await copyFile(
 await copyFile(
   riderDangerSignalStoreSource,
   resolve(workerDirectory, "rider-danger-signal-store.mjs"),
+);
+await copyFile(
+  shadowLiveStoreSource,
+  resolve(workerDirectory, "shadow-live-store.mjs"),
 );
 await copyFile(
   riderProfilesSource,

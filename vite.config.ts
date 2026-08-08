@@ -13,6 +13,10 @@ import {
   createMemoryRiderDangerSignalStore,
   handleRiderDangerSignalRequest,
 } from "./server/rider-danger-signal-store.mjs";
+import {
+  createMemoryShadowLiveStore,
+  handleShadowLiveRequest,
+} from "./server/shadow-live-store.mjs";
 import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
 import {
   createMemorySyntheticOperationsStore,
@@ -47,6 +51,7 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
   const operationsSessionStore = createMemoryOperationsSessionStore();
   const riderProfileStore = createMemoryRiderProfileStore();
   const riderDangerSignalStore = createMemoryRiderDangerSignalStore();
+  const shadowLiveStore = createMemoryShadowLiveStore();
   const syntheticOperationsStore = createMemorySyntheticOperationsStore(
     bundledSyntheticOperationsDocument,
   );
@@ -70,6 +75,35 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
                 request as unknown as AsyncIterable<Uint8Array | string>,
               )
             : undefined;
+        const shadowLiveResponse = await handleShadowLiveRequest(
+          new Request(requestUrl, {
+            method,
+            headers: {
+              "content-type": String(
+                incoming.headers["content-type"] ?? "application/json",
+              ),
+              ...(incoming.headers.authorization
+                ? { authorization: String(incoming.headers.authorization) }
+                : {}),
+            },
+            body,
+          }),
+          {
+            memoryStore: shadowLiveStore,
+            enabled: environment.SHADOW_LIVE_INGEST_ENABLED === "true",
+            ingestToken: environment.SHADOW_LIVE_INGEST_TOKEN,
+            connectionId: environment.SHADOW_LIVE_CONNECTION_ID,
+            retentionHours: environment.SHADOW_LIVE_RETENTION_HOURS,
+          },
+        );
+        if (shadowLiveResponse) {
+          response.statusCode = shadowLiveResponse.status;
+          shadowLiveResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await shadowLiveResponse.text());
+          return;
+        }
         const riderProfileResponse = await handleRiderProfileRequest(
           new Request(requestUrl, { method }),
           { memoryStore: riderProfileStore },

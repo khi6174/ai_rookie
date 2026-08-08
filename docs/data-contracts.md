@@ -4,8 +4,8 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-01
-- 계약 버전: `contracts-v1.5.0`
+- 최종 갱신: 2026-08-08
+- 계약 버전: `contracts-v1.6.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
 ## 1. 목적
@@ -1888,5 +1888,42 @@ type ShadowLiveProgressBatch = {
 - `sequence`는 batch 안에서 단조 증가하고 `eventId`는 중복되지 않아야 한다.
 - 완료 배송 수는 전체 배송 수를 넘을 수 없다.
 - 이름·표시명·연락처·이메일·주소·고객·차량번호·위도·경도·GPS·정밀 위치·심박·생체정보 필드가 발견되면 스키마 검사 전에 전체 batch를 차단한다.
-- v1은 브라우저 메모리에서 형식만 검사하며 원문 저장, 서버 전송, D1 쓰기, AI 입력과 Safety 계산 반영을 모두 `false`로 고정한다.
+- `/shadow-live-setup`의 v1 검사는 브라우저 메모리에서 형식만 검사하며 원문 저장, 서버 전송, D1 쓰기, AI 입력과 Safety 계산 반영을 모두 `false`로 고정한다.
 - `LIVE_PILOT`은 합성 fixture와 다른 입력 계약 이름일 뿐, 인증·보존·외부 원천 연결 없이 제품 전체를 Live 운영으로 승격시키지 않는다.
+
+### 28.11 Shadow Live 서버 수신 기반
+
+```ts
+type ShadowLiveIngestResult = {
+  schemaVersion: "shadow-live-ingest-result-v1";
+  connectionId: `shadow-${string}`;
+  acceptedCount: number;
+  duplicateCount: number;
+  latestSequence: number;
+  storage: "D1_DERIVED_ONLY" | "MEMORY_DEV_DERIVED_ONLY";
+  retentionHours: number;
+  rawStored: false;
+  readOnly: true;
+  safetyEngineUsed: false;
+};
+
+type ShadowLiveStatus = {
+  schemaVersion: "shadow-live-status-v1";
+  connectionId: `shadow-${string}`;
+  eventCount: number;
+  courierCount: number;
+  latestSequence: number | null;
+  latestOccurredAt: IsoDateTime | null;
+  latestReceivedAt: IsoDateTime | null;
+  storage: "D1_DERIVED_ONLY" | "MEMORY_DEV_DERIVED_ONLY";
+  retentionHours: number;
+  rawStored: false;
+  readOnly: true;
+  safetyEngineUsed: false;
+};
+```
+
+- 수신과 상태 조회는 같은 연결별 Bearer token을 요구한다. token·연결 ID·1~24시간 보존값·명시적 enable 중 하나라도 없으면 endpoint 전체가 body 파싱 전에 `503`이다.
+- D1에는 `event_id`, `connection_id`, `sequence`, 발생시각·종류, 가명 기사·계획 참조, 배송 진행 수, 선택적 거친 권역, SHA-256 파생 fingerprint, 수신·만료시각만 저장한다. batch 원문·source 객체·금지 필드는 저장하지 않는다.
+- `(connection_id, sequence)`와 `event_id`는 유일하다. 동일 event 재전송은 fingerprint가 같을 때만 멱등 성공이며, 다른 내용 또는 역순 새 이벤트는 `409`다.
+- 만료된 파생 이벤트는 인증된 수신·조회 시 삭제한다. 실제 보존시간과 token 발급은 운영사 SLA 승인 전 설정하지 않는다.
