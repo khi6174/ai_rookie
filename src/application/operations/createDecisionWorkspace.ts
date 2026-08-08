@@ -595,6 +595,20 @@ export function holdOperationsDecision(
   }));
 }
 
+export function cancelOperationsDecision(
+  workspace: OperationsDecisionWorkspace,
+  decisionId: string,
+) {
+  return updateDecisionArtifacts(workspace, decisionId, (artifacts) => ({
+    ...artifacts,
+    decision: recordAdminDecision(artifacts.decision, {
+      adminId: "admin-synthetic-operations",
+      action: "CANCEL",
+      at: nextDecisionAt(artifacts.decision),
+    }),
+  }));
+}
+
 export function resumeHeldOperationsDecision(
   workspace: OperationsDecisionWorkspace,
   decisionId: string,

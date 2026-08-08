@@ -18,6 +18,7 @@ import {
   createOperationsRouteComparison,
   createOperationsRiderMapModel,
   createScenarioFixtureFromOperationsPackage,
+  cancelOperationsDecision,
   detectDecisionWorkspaceConflicts,
   approveAndApplyOperationsDecision,
   holdOperationsDecision,
@@ -648,6 +649,40 @@ describe("multi-decision operations workspace", () => {
     expect(regenerated.workspace.store.activePlan).toEqual(
       workspace.store.activePlan,
     );
+  });
+
+  it("cancels an admin-ready decision without changing the active plan", async () => {
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      { createdAt: "2026-07-27T00:00:00.000Z" },
+    );
+    const fleet = evaluateOperationsFleet(snapshot);
+    const decisionId = fleet.supportQueue[0].decisionId;
+    let workspace = initializeOperationsDecision(
+      createOperationsDecisionWorkspace(snapshot, fleet),
+      snapshot,
+      fleet,
+      decisionId,
+    );
+    for (const requirement of workspace.decisions[0].decision.consentRequirements.filter(
+      (item) => item.required,
+    )) {
+      workspace = respondToOperationsDecision(workspace, {
+        decisionId,
+        courierId: requirement.courierId,
+        response: "CONSENTED",
+      });
+    }
+    const activePlanBeforeCancel = structuredClone(workspace.store.activePlan);
+
+    const cancelled = cancelOperationsDecision(workspace, decisionId);
+
+    expect(cancelled.decisions[0].decision.status).toBe("CANCELLED");
+    expect(cancelled.decisions[0].decision.events.at(-1)).toMatchObject({
+      actor: "ADMIN",
+      reasonCode: "ADMIN_CANCEL",
+    });
+    expect(cancelled.store.activePlan).toEqual(activePlanBeforeCancel);
   });
 
   it("keeps the active plan and explicit modification state when no safe alternative remains", async () => {

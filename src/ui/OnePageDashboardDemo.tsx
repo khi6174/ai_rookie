@@ -34,6 +34,7 @@ import {
 import { bundledDailyOperationsPackage } from "../adapters/fixtures/syntheticOperationsPackage";
 import {
   approveAndApplyOperationsDecision,
+  cancelOperationsDecision,
   createDailyOperationsSnapshot,
   createOperationsDecisionWorkspace,
   createOperationsPersistedSession,
@@ -235,6 +236,7 @@ function decisionStatusLabel(status: string) {
     RIDER_DECLINED: "현재 제안 거절",
     ADMIN_APPROVAL_REQUIRED: "관리자 승인 대기",
     ADMIN_HELD: "관리자 보류",
+    CANCELLED: "관리자 취소 · 현재 계획 유지",
     REVALIDATION_REQUIRED: "최신 계획 재검증 필요",
     APPLY_FAILED: "적용 실패 · 현재 계획 유지",
     APPLIED: "계획 적용 완료",
@@ -973,6 +975,7 @@ function InterventionDialog({
   onRequestReview,
   onApprove,
   onHold,
+  onCancel,
   onResume,
   onRequestAlternative,
 }: {
@@ -985,6 +988,7 @@ function InterventionDialog({
   onRequestReview: () => void;
   onApprove: () => void;
   onHold: () => void;
+  onCancel: () => void;
   onResume: () => void;
   onRequestAlternative: () => void;
 }) {
@@ -1409,6 +1413,9 @@ function InterventionDialog({
               {decision.status === "ADMIN_HELD" && (
                 <><small>관리자 보류</small><strong>현재 계획을 유지합니다</strong><span>검토를 다시 열기 전에는 승인·적용하지 않습니다.</span></>
               )}
+              {decision.status === "CANCELLED" && (
+                <><small>관리자 취소</small><strong>결정 세션을 종료했습니다</strong><span>승인·적용 없이 현재 계획을 유지합니다.</span></>
+              )}
               {decision.status === "ADMIN_MODIFICATION_REQUESTED" && (
                 <><small>다른 지원안 요청</small><strong>현재 계획을 유지합니다</strong><span>안전한 대안을 만들 수 없어 자동 적용하지 않습니다.</span></>
               )}
@@ -1444,6 +1451,9 @@ function InterventionDialog({
                 <button type="button" disabled={busy} onClick={onHold}>
                   보류
                 </button>
+                <button type="button" disabled={busy} onClick={onCancel}>
+                  결정 취소
+                </button>
                 <button type="button" className="is-primary" disabled={busy} onClick={onApprove}>
                   관리자 승인 및 적용
                 </button>
@@ -1454,7 +1464,7 @@ function InterventionDialog({
                 관리자 검토 다시 열기
               </button>
             )}
-            {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED" || decision.status === "ADMIN_MODIFICATION_REQUESTED") && (
+            {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED" || decision.status === "ADMIN_MODIFICATION_REQUESTED" || decision.status === "CANCELLED") && (
               <button type="button" className="is-primary" onClick={onClose}>완료</button>
             )}
           </div>
@@ -2072,6 +2082,58 @@ export function OnePageDashboardDemo() {
     }
   };
 
+  const cancelDialogDecision = async () => {
+    if (!decisionContext || !selectedCourier) return;
+    const decisionId = decisionContext.workspace.decisions.find(
+      (item) => item.queueItem.courierId === selectedCourier.id,
+    )?.decision.decisionId;
+    if (!decisionId) return;
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const workspace = cancelOperationsDecision(
+        decisionContext.workspace,
+        decisionId,
+      );
+      const session = createOperationsPersistedSession({
+        workspaceId: decisionContext.workspaceId,
+        operationsPackage: decisionContext.operationsPackage,
+        snapshot: decisionContext.snapshot,
+        fleet: decisionContext.fleet,
+        workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(session, {
+        baseSavedAt: decisionContext.baseSavedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setDialogMessage(
+          "message" in saved
+            ? saved.message
+            : "관리자 취소 상태를 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setDecisionContext({
+        ...decisionContext,
+        workspace,
+        baseSavedAt: saved.updatedAt,
+        sent: true,
+      });
+      setDialogMessage(
+        "관리자가 결정을 취소했습니다. 승인·적용 없이 현재 계획을 유지합니다.",
+      );
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error
+          ? error.message
+          : "관리자 결정을 취소하지 못했습니다.",
+      );
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
   const requestAlternativeFromDialog = async () => {
     if (!decisionContext || !selectedCourier) return;
     const decisionId = decisionContext.workspace.decisions.find(
@@ -2658,6 +2720,7 @@ export function OnePageDashboardDemo() {
           onRequestReview={() => void requestCourierReviewFromDialog()}
           onApprove={() => void approveDialogDecision()}
           onHold={() => void changeAdminHoldState("HOLD")}
+          onCancel={() => void cancelDialogDecision()}
           onResume={() => void changeAdminHoldState("RESUME")}
           onRequestAlternative={() => void requestAlternativeFromDialog()}
         />

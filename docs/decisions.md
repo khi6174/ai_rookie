@@ -1620,6 +1620,17 @@
 - 기각한 대안: 수정·거절 뒤 무조건 종료, 동일 후보 즉시 재표시, 기존 동의 재사용, 기사 응답을 관리자 대리 입력으로 변경, 임의 후보 생성, 안전 대안이 없는데 정상 상태 표시.
 - 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/App.tsx`, `src/ui/OperationsRiderService.tsx`, `tests/operations-service.test.ts`, `e2e/operations-rider.spec.ts`, `docs/decisions.md`
 
+### ADR-158 — 관리자 취소는 적용 없이 결정 세션을 종료하고 현재 계획을 유지한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 근거: 승인된 개입 정책 11.3과 decision 상태기계에는 관리자 `취소`와 `CANCELLED`가 정의되어 있지만 공개 관제에는 해당 행동과 결과 상태가 없었다.
+- 결정: 모든 필수 기사 동의가 끝난 `ADMIN_APPROVAL_REQUIRED` 상태에서 관리자는 `결정 취소`를 선택할 수 있다. Application 계층은 기존 `recordAdminDecision(..., "CANCEL")` 전이를 사용해 같은 decision ID에 관리자 감사 이벤트를 기록한다. 공개 관제와 운영 검토 화면은 취소 완료, 승인·적용 없음, 현재 계획 유지를 텍스트로 함께 표시하고 종료된 세션에서 승인·보류·수정 행동을 다시 제공하지 않는다.
+- 안전·권리 경계: 취소는 Safety 제약을 해제하거나 후보를 적용하는 기능이 아니며 기사 응답을 삭제하지 않는다. 취소 전까지 활성 계획은 바뀌지 않고, 취소 뒤에도 경로·순서·ETA·고객안내를 갱신하지 않는다. 공개 세션 저장이 실패하면 `CANCELLED` 성공 상태를 표시하지 않는다.
+- 이유: 관리자가 조정안을 집행하지 않기로 결정할 수 있어야 하지만 그 결과를 보류나 적용 실패와 혼동해서는 안 된다. 명시적 종료 상태와 감사 이벤트가 계획 불변을 함께 증명한다.
+- 기각한 대안: 모달 닫기를 취소로 간주, 보류와 취소를 같은 상태로 처리, 취소 후 승인 버튼 유지, 기사 응답·감사 이벤트 삭제, 적용 후 취소 허용, 취소 시 기준 계획을 안전하다고 표시.
+- 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/OperationsService.tsx`, `tests/operations-service.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -879,6 +879,114 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   expect(browserErrors).toEqual([]);
 });
 
+test("관리자 취소는 적용 없이 결정 세션과 감사 상태만 종료한다", async ({
+  page,
+  context,
+  request,
+}) => {
+  test.setTimeout(45_000);
+  await page.setViewportSize({ width: 1280, height: 720 });
+  await page.goto("/");
+  const supportCard = page
+    .locator('[data-courier-card][data-decision-id]:not([data-decision-id=""])')
+    .first();
+  const courierId = await supportCard.getAttribute("data-courier-card");
+  expect(courierId).toBeTruthy();
+  await supportCard.click();
+  await page.getByRole("button", { name: "지원 검토" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "기사 확인 요청" }).click();
+
+  const riderHref = await page
+    .getByRole("link", { name: "기사 앱" })
+    .getAttribute("href");
+  expect(riderHref).toBeTruthy();
+  const riderUrl = new URL(riderHref!, page.url());
+  const workspaceId = riderUrl.searchParams.get("workspace");
+  const decisionId = riderUrl.searchParams.get("decision");
+  expect(workspaceId).toBeTruthy();
+  expect(decisionId).toBeTruthy();
+
+  const pendingResponse = await request.get(
+    `/api/operations/sessions/${workspaceId}`,
+  );
+  expect(pendingResponse.ok()).toBe(true);
+  const pendingSession = (await pendingResponse.json()) as {
+    session: {
+      workspace: {
+        decisions: Array<{
+          decision: {
+            decisionId: string;
+            consentRequirements: Array<{
+              courierId: string;
+              required: boolean;
+            }>;
+          };
+        }>;
+      };
+    };
+  };
+  const requiredCourierIds = pendingSession.session.workspace.decisions
+    .find((item) => item.decision.decisionId === decisionId)!
+    .decision.consentRequirements.filter((item) => item.required)
+    .map((item) => item.courierId);
+
+  for (const requiredCourierId of requiredCourierIds) {
+    const riderPage = await context.newPage();
+    await riderPage.setViewportSize({ width: 390, height: 844 });
+    await riderPage.goto(
+      `/rider-demo?courier=${encodeURIComponent(requiredCourierId)}`,
+    );
+    await riderPage.getByRole("tab", { name: "안전지원" }).click();
+    await riderPage.getByRole("button", { name: "이 조정에 동의" }).click();
+    await expect(
+      riderPage.getByText("내 동의 기록됨", { exact: true }),
+    ).toBeVisible();
+    await riderPage.close();
+  }
+
+  await expect(
+    dialog.getByText("관리자 승인 대기", { exact: true }),
+  ).toBeVisible();
+  await dialog.getByRole("button", { name: "결정 취소" }).click();
+  await expect(dialog.getByText("관리자 취소", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText("승인·적용 없이 현재 계획을 유지합니다.", {
+      exact: true,
+    }),
+  ).toBeVisible();
+  await expect(
+    dialog.getByRole("button", { name: "관리자 승인 및 적용" }),
+  ).toHaveCount(0);
+
+  const cancelledResponse = await request.get(
+    `/api/operations/sessions/${workspaceId}`,
+  );
+  expect(cancelledResponse.ok()).toBe(true);
+  const cancelledSession = (await cancelledResponse.json()) as {
+    session: {
+      workspace: {
+        decisions: Array<{
+          decision: {
+            decisionId: string;
+            status: string;
+            appliedPlanVersion?: string;
+            customerNoticeIds: string[];
+            events: Array<{ reasonCode: string }>;
+          };
+        }>;
+      };
+    };
+  };
+  const cancelledDecision = cancelledSession.session.workspace.decisions.find(
+    (item) => item.decision.decisionId === decisionId,
+  )!.decision;
+  expect(cancelledDecision.status).toBe("CANCELLED");
+  expect(cancelledDecision.appliedPlanVersion).toBeUndefined();
+  expect(cancelledDecision.customerNoticeIds).toHaveLength(0);
+  expect(cancelledDecision.events.at(-1)?.reasonCode).toBe("ADMIN_CANCEL");
+});
+
 test("1920 데스크톱은 판단 브리핑·지원 우선순위·지도를 한 화면에 유지한다", async ({
   page,
 }) => {

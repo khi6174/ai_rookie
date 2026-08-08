@@ -4,6 +4,7 @@ import {
 } from "../adapters/fixtures/syntheticOperationsPackage";
 import {
   approveAndApplyOperationsDecision,
+  cancelOperationsDecision,
   createAppliedPlanCsv,
   createAuditCsv,
   createCustomerNoticeCsv,
@@ -145,6 +146,7 @@ const decisionStatusLabels: Record<string, string> = {
   RIDER_DECLINED: "기사 거절 · 다른 대안 필요",
   ADMIN_APPROVAL_REQUIRED: "관리자 승인 대기",
   ADMIN_HELD: "관리자 보류",
+  CANCELLED: "관리자 취소 · 현재 계획 유지",
   REVALIDATION_REQUIRED: "최신 계획 재검증 필요",
   APPLY_FAILED: "적용 실패 · 기존 계획 유지",
   NOTICE_RECORDED: "계획·안내 갱신 완료",
@@ -515,6 +517,18 @@ export function OperationsService() {
       setActionMessage("관리자가 결정을 보류했습니다. 현재 계획은 유지됩니다.");
     } catch {
       setActionMessage("현재 상태에서는 결정을 보류할 수 없습니다.");
+    }
+  };
+
+  const cancelDecision = () => {
+    if (!workspace || !selectedDecisionId) return;
+    try {
+      setWorkspace(cancelOperationsDecision(workspace, selectedDecisionId));
+      setActionMessage(
+        "관리자가 결정을 취소했습니다. 승인·적용 없이 현재 계획을 유지합니다.",
+      );
+    } catch {
+      setActionMessage("현재 상태에서는 결정을 취소할 수 없습니다.");
     }
   };
 
@@ -1369,6 +1383,13 @@ export function OperationsService() {
                             >
                               보류
                             </button>
+                            <button
+                              type="button"
+                              className="button button-neutral"
+                              onClick={cancelDecision}
+                            >
+                              결정 취소
+                            </button>
                           </div>
                         </>
                       )}
@@ -1408,6 +1429,7 @@ export function OperationsService() {
                         "MODIFICATION_REQUESTED",
                         "RIDER_DECLINED",
                         "ADMIN_HELD",
+                        "CANCELLED",
                         "REVALIDATION_REQUIRED",
                         "APPLY_FAILED",
                       ].includes(selectedArtifacts.decision.status) && (
