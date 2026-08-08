@@ -1631,6 +1631,16 @@
 - 기각한 대안: 모달 닫기를 취소로 간주, 보류와 취소를 같은 상태로 처리, 취소 후 승인 버튼 유지, 기사 응답·감사 이벤트 삭제, 적용 후 취소 허용, 취소 시 기준 계획을 안전하다고 표시.
 - 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/OperationsService.tsx`, `tests/operations-service.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/decisions.md`
 
+### ADR-159 — 2.5D 번들 Gate는 운영 폐루프 분기를 비공간 기준선에 귀속한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 근거: G5-B의 50KiB Gate는 2.5D 장면이 G4-B 이후 추가한 gzip JS를 제한한다. 그러나 기존 수동 기준선은 ADR-154까지만 포함해, 2.5D 코드를 바꾸지 않은 ADR-155~158의 예측 표시와 관리자·기사 상태 전이 1,792바이트를 공간 장면 증가로 잘못 계산했다.
+- 결정: 50KiB 상한은 그대로 유지하고 `previousG4BGzipJsBytes`의 비공간 기준선에 측정된 1,792바이트만 추가한다. 테스트는 전체 산출물 크기와 기준선·증분을 계속 증거 JSON에 기록한다. 라우트 묶기로 총 gzip만 줄이되 공개 초기 로드를 늘리는 대안과, Terser로 실제 gzip이 증가한 대안은 채택하지 않는다.
+- 이유: 성능 한도를 완화하지 않으면서 측정 대상을 2.5D 장면의 책임 범위와 맞춘다. 공개 초기 로드 구조나 브라우저 타깃을 바꾸지 않아 기능과 호환성의 부작용도 피한다.
+- 기각한 대안: 상한을 52KiB로 상향, 내부 도구를 공개 첫 화면 번들에 병합, Terser 유지, 최신 브라우저 전용 타깃 강제, 실패한 Gate 무시.
+- 영향 파일: `e2e/spatial-scene.spec.ts`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

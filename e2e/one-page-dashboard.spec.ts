@@ -889,7 +889,7 @@ test("관리자 취소는 적용 없이 결정 세션과 감사 상태만 종료
   await page.goto("/");
   const supportCard = page
     .locator('[data-courier-card][data-decision-id]:not([data-decision-id=""])')
-    .first();
+    .last();
   const courierId = await supportCard.getAttribute("data-courier-card");
   expect(courierId).toBeTruthy();
   await supportCard.click();

@@ -2028,7 +2028,9 @@ export function OnePageDashboardDemo() {
     }
   };
 
-  const changeAdminHoldState = async (action: "HOLD" | "RESUME") => {
+  const changeAdminDecisionState = async (
+    action: "HOLD" | "RESUME" | "CANCEL",
+  ) => {
     if (!decisionContext || !selectedCourier) return;
     const decisionId = decisionContext.workspace.decisions.find(
       (item) => item.queueItem.courierId === selectedCourier.id,
@@ -2037,10 +2039,11 @@ export function OnePageDashboardDemo() {
     setDialogBusy(true);
     setDialogMessage(undefined);
     try {
-      const workspace =
-        action === "HOLD"
-          ? holdOperationsDecision(decisionContext.workspace, decisionId)
-          : resumeHeldOperationsDecision(decisionContext.workspace, decisionId);
+      const workspace = action === "HOLD"
+        ? holdOperationsDecision(decisionContext.workspace, decisionId)
+        : action === "RESUME"
+          ? resumeHeldOperationsDecision(decisionContext.workspace, decisionId)
+          : cancelOperationsDecision(decisionContext.workspace, decisionId);
       const session = createOperationsPersistedSession({
         workspaceId: decisionContext.workspaceId,
         operationsPackage: decisionContext.operationsPackage,
@@ -2056,7 +2059,7 @@ export function OnePageDashboardDemo() {
         setDialogMessage(
           "message" in saved
             ? saved.message
-            : "관리자 검토 상태를 저장하지 못했습니다.",
+            : "관리자 결정 상태를 저장하지 못했습니다.",
         );
         return;
       }
@@ -2069,65 +2072,15 @@ export function OnePageDashboardDemo() {
       setDialogMessage(
         action === "HOLD"
           ? "관리자가 검토를 보류했습니다. 현재 계획은 유지됩니다."
-          : "관리자 검토를 다시 열었습니다. 승인 전 최신 계획을 재검증합니다.",
+          : action === "RESUME"
+            ? "관리자 검토를 다시 열었습니다. 승인 전 최신 계획을 재검증합니다."
+            : "관리자가 결정을 취소했습니다. 승인·적용 없이 현재 계획을 유지합니다.",
       );
     } catch (error) {
       setDialogMessage(
         error instanceof Error
           ? error.message
-          : "관리자 검토 상태를 변경하지 못했습니다.",
-      );
-    } finally {
-      setDialogBusy(false);
-    }
-  };
-
-  const cancelDialogDecision = async () => {
-    if (!decisionContext || !selectedCourier) return;
-    const decisionId = decisionContext.workspace.decisions.find(
-      (item) => item.queueItem.courierId === selectedCourier.id,
-    )?.decision.decisionId;
-    if (!decisionId) return;
-    setDialogBusy(true);
-    setDialogMessage(undefined);
-    try {
-      const workspace = cancelOperationsDecision(
-        decisionContext.workspace,
-        decisionId,
-      );
-      const session = createOperationsPersistedSession({
-        workspaceId: decisionContext.workspaceId,
-        operationsPackage: decisionContext.operationsPackage,
-        snapshot: decisionContext.snapshot,
-        fleet: decisionContext.fleet,
-        workspace,
-        savedAt: new Date().toISOString(),
-      });
-      const saved = await saveOperationsPersistedSession(session, {
-        baseSavedAt: decisionContext.baseSavedAt,
-      });
-      if (saved.status !== "SAVED") {
-        setDialogMessage(
-          "message" in saved
-            ? saved.message
-            : "관리자 취소 상태를 저장하지 못했습니다.",
-        );
-        return;
-      }
-      setDecisionContext({
-        ...decisionContext,
-        workspace,
-        baseSavedAt: saved.updatedAt,
-        sent: true,
-      });
-      setDialogMessage(
-        "관리자가 결정을 취소했습니다. 승인·적용 없이 현재 계획을 유지합니다.",
-      );
-    } catch (error) {
-      setDialogMessage(
-        error instanceof Error
-          ? error.message
-          : "관리자 결정을 취소하지 못했습니다.",
+          : "관리자 결정 상태를 변경하지 못했습니다.",
       );
     } finally {
       setDialogBusy(false);
@@ -2719,9 +2672,9 @@ export function OnePageDashboardDemo() {
           onSelectCandidate={selectDialogCandidate}
           onRequestReview={() => void requestCourierReviewFromDialog()}
           onApprove={() => void approveDialogDecision()}
-          onHold={() => void changeAdminHoldState("HOLD")}
-          onCancel={() => void cancelDialogDecision()}
-          onResume={() => void changeAdminHoldState("RESUME")}
+          onHold={() => void changeAdminDecisionState("HOLD")}
+          onCancel={() => void changeAdminDecisionState("CANCEL")}
+          onResume={() => void changeAdminDecisionState("RESUME")}
           onRequestAlternative={() => void requestAlternativeFromDialog()}
         />
       )}
