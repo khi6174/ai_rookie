@@ -1420,24 +1420,6 @@
   background: var(--blue-strong);
 }
 
-.onepage-focus-jump {
-  min-height: 36px;
-  display: grid;
-  place-items: center;
-  border: 1px solid var(--blue-line);
-  border-radius: var(--r-md);
-  color: var(--blue-strong);
-  background: var(--blue-t);
-  font-size: var(--type-10);
-  font-weight: var(--weight-heavy);
-  text-decoration: none;
-}
-
-.onepage-focus-jump:focus-visible {
-  outline: 3px solid var(--blue);
-  outline-offset: 3px;
-}
-
 .onepage-support-queue {
   min-height: 0;
   display: grid;

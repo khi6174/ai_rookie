@@ -2618,9 +2618,6 @@ export function OnePageDashboardDemo() {
               </span>
               <span>배송 {selectedCourier.completed}/{selectedCourier.total} 완료</span>
             </p>
-            <a className="onepage-focus-jump" href="#priority-decision">
-              위 브리핑에서 지원 판단 보기
-            </a>
           </div>
 
           <div className="onepage-support-queue">
