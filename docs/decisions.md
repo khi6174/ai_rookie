@@ -1525,6 +1525,18 @@
 - 기각한 대안: 공개 무인증 webhook, 임시 짧은 token, 원문 JSON 보관, 브라우저 검증 신뢰, 무기한 파생 상태 보존, 전체 연결 공용 token, 운영 승인 전 실제 secret 생성, 진행 이벤트를 Safety에 즉시 투입.
 - 영향 파일: `server/shadow-live-store.mjs`, Worker·Vite 연결, `.openai/drizzle/0005_shadow_live_progress.sql`, `db/schema.ts`, `.env.example`, Shadow Live UI·테스트와 관련 승인 문서
 
+### ADR-150 — ITS 교통소통 API는 이번 제출·공개 서비스 범위에서 제외한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 사용자 결정: 국가교통정보센터 ITS 오픈데이터 인증키 발급과 연동 과정의 일정 불확실성을 고려해, 이번 주기에는 해당 API 키와 Live 교통정보를 제외하고 진행하도록 요청했다.
+- 결정: ITS 인증키 신청·secret 구성·Live 호출·과거 데이터 수집·도로 링크 매핑을 이번 제출과 공개 서비스 완료 Gate에서 제외한다. 현재 경로 혼잡·통행시간·ETA 맥락은 기존 결정론적 합성 운영자료를 사용하고 `MOCK` 또는 `Demo fixture`로 표시한다. ITS 키 부재는 빌드·테스트·배포·시연 차단 사유가 아니다.
+- 안전·출처 경계: 합성 교통값을 ITS 실제 응답이나 `PUBLIC_DATA_DERIVED`로 표시하지 않는다. 향후 ITS를 재검토하더라도 인증·호출정책, HTTPS endpoint, 이용조건, 링크 커버리지, 시간 최신성, 결측과 합성 경로 매핑을 별도 승인하기 전에는 Safety Budget·Time-to-Breach·추천·Risk Transfer Guard 입력으로 전달하지 않는다.
+- 범위 영향: 기존 기상청·TAAS·Kakao·Upstage의 승인된 계약과 증거는 변경하지 않는다. Shadow Live의 가명 진행 이벤트 기반도 ITS 없이 독립적으로 유지하며 전체 서비스를 Live로 승격하지 않는다.
+- 이유: 기능 동결 직전 새 인증·링크 매핑·네트워크 의존성을 추가하면 재현성과 발표 복구 경로가 약해진다. 현재 핵심 가치는 실제 교통 피드가 아니라 미래 임계치 예측부터 위험전가 차단, 양측 기사 확인, 관리자 승인과 계획 적용까지 이어지는 결정론적 폐루프다.
+- 기각한 대안: 승인 전 임시 키 사용, 브라우저에서 ITS 직접 호출, 불확실한 endpoint를 공개 서비스에 선반영, ITS 응답 없이 Live 교통으로 표시, 키 발급을 기다리며 기능 동결 연기.
+- 영향 파일: `docs/data-sources.md`, `docs/demo-script.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
