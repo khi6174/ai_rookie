@@ -298,6 +298,26 @@
   font-variant-numeric: tabular-nums;
 }
 
+.onepage-synthetic-stream-link {
+  min-height: 34px;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 11px;
+  border: 1px solid #9fc2e8;
+  border-radius: var(--r-pill);
+  color: #164f82;
+  background: #edf6ff;
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.onepage-synthetic-stream-link:focus-visible {
+  outline: 3px solid var(--blue);
+  outline-offset: 3px;
+}
+
 .onepage-header time {
   min-width: 78px;
   color: var(--text);

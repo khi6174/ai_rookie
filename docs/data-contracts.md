@@ -1927,3 +1927,27 @@ type ShadowLiveStatus = {
 - D1에는 `event_id`, `connection_id`, `sequence`, 발생시각·종류, 가명 기사·계획 참조, 배송 진행 수, 선택적 거친 권역, SHA-256 파생 fingerprint, 수신·만료시각만 저장한다. batch 원문·source 객체·금지 필드는 저장하지 않는다.
 - `(connection_id, sequence)`와 `event_id`는 유일하다. 동일 event 재전송은 fingerprint가 같을 때만 멱등 성공이며, 다른 내용 또는 역순 새 이벤트는 `409`다.
 - 만료된 파생 이벤트는 인증된 수신·조회 시 삭제한다. 실제 보존시간과 token 발급은 운영사 SLA 승인 전 설정하지 않는다.
+
+### 28.12 합성 실시간 배송 진행 재생
+
+```ts
+type SyntheticShadowStreamBatch = {
+  schemaVersion: "shadow-live-progress-batch-v1";
+  dataMode: "SYNTHETIC_STREAM";
+  source: {
+    kind: "DETERMINISTIC_DEMO_GENERATOR";
+    connectionId: `shadow-demo-${string}`;
+    generatedAt: IsoDateTime;
+    scenarioId: string;
+    seed: number;
+  };
+  events: ShadowLiveProgressBatch["events"];
+};
+```
+
+- 합성 재생 계약은 실제 원천용 `LIVE_PILOT + READ_ONLY_CONNECTOR`와 구분한다.
+- generator는 명시적 seed, 시작시각과 tick으로만 이벤트를 만들고 임의 난수·개인정보·좌표를 사용하지 않는다.
+- tick마다 sequence는 전체 재생에서 단조 증가하고 완료 배송 수는 전체 배송 수를 넘지 않는다.
+- UI는 현재 진행 projection과 최근 이벤트만 메모리에 두며 원문·재생 상태를 영구 저장하지 않는다.
+- 서버 수신 endpoint는 `SYNTHETIC_STREAM`을 실제 원천 이벤트로 받지 않는다.
+- 합성 재생 결과는 `serverTransmitted=false`, `rawStored=false`, `safetyEngineUsed=false`다.

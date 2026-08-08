@@ -442,3 +442,11 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 활성화된 요청은 연결별 Bearer token을 상수시간 비교한 뒤 256KiB 크기 제한, 금지 필드 재귀 검사, strict allowlist, 연결 ID 일치, batch 단조 순서를 검증한다. 저장 계층은 원문 대신 가명 진행 파생 필드와 SHA-256 fingerprint만 D1 `shadow_live_progress_events`에 쓴다. `event_id`와 `(connection_id, sequence)` 유일 제약, fingerprint 비교와 최근 sequence 검사가 동일 재전송을 멱등 처리하고 충돌·역순 이벤트를 차단한다. 만료 index와 인증된 수신·조회 시 삭제가 설정된 1~24시간 TTL을 집행한다.
 
 이 계층은 TMS/WMS에 쓰지 않는 inbound read-only projection이다. Safety 엔진, 지원 큐, AI, 관리자·기사 결정 스냅샷과 계획 적용 경로에는 의존성을 추가하지 않는다. 실제 원천 adapter, token 발급, 테넌트 권한, 확정 보존·삭제 SLA는 별도 승인과 독립 검토 뒤 환경설정으로 활성화한다.
+
+## 19. 합성 실시간 배송 진행 재생
+
+`src/domain/operations/syntheticShadowStream.ts`는 seed·시작시각·tick만 받는 순수 generator다. 생성 결과는 `SYNTHETIC_STREAM + DETERMINISTIC_DEMO_GENERATOR` provenance를 가지며 기존 Shadow Live 금지 필드와 단조 sequence 계약을 통과한다.
+
+`ShadowLiveSetup`은 사용자가 시작한 동안에만 2초 간격으로 다음 tick을 만들고 현재 가명 기사 진행 projection과 제한된 최근 이벤트를 React 메모리에 표시한다. 일시정지·한 단계·초기화는 같은 순수 generator를 사용한다. API, D1, localStorage, Cache Storage, service worker, AI와 Safety 엔진을 호출하지 않는다.
+
+공개 관리자 화면은 이 기능을 `합성 실시간 재생` 링크로만 연결한다. 재생 데이터를 현재 운영 큐·지도·decision에 병합하지 않으며 실제 TMS 연결 상태나 `Live` 배지로 승격하지 않는다.

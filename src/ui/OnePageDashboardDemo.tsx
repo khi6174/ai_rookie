@@ -1722,6 +1722,9 @@ export function OnePageDashboardDemo() {
           <h1>Safety Control Tower</h1>
         </div>
         <div className="onepage-header-status">
+          <a className="onepage-synthetic-stream-link" href="/shadow-live-setup">
+            합성 실시간 재생
+          </a>
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
           </time>

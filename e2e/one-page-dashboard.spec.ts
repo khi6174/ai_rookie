@@ -43,6 +43,9 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(
+    page.getByRole("link", { name: "합성 실시간 재생" }),
+  ).toHaveAttribute("href", "/shadow-live-setup");
+  await expect(
     page.getByRole("heading", { name: "17명의 판단이 필요합니다." }),
   ).toBeVisible();
   await expect(page.locator(".onepage-brief-overview")).not.toContainText(

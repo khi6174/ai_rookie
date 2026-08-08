@@ -6,7 +6,7 @@ const pseudonymousId = z
   .max(64)
   .regex(/^[a-z0-9][a-z0-9_-]+$/);
 
-const ShadowLiveProgressEventSchema = z
+export const ShadowLiveProgressEventSchema = z
   .object({
     eventId: pseudonymousId,
     sequence: z.number().int().nonnegative(),
@@ -34,7 +34,7 @@ const ShadowLiveProgressEventSchema = z
     }
   });
 
-export const ShadowLiveBatchSchema = z
+const LiveShadowBatchSchema = z
   .object({
     schemaVersion: z.literal("shadow-live-progress-batch-v1"),
     dataMode: z.literal("LIVE_PILOT"),
@@ -49,7 +49,34 @@ export const ShadowLiveBatchSchema = z
       .strict(),
     events: z.array(ShadowLiveProgressEventSchema).min(1).max(500),
   })
-  .strict()
+  .strict();
+
+const SyntheticShadowBatchSchema = z
+  .object({
+    schemaVersion: z.literal("shadow-live-progress-batch-v1"),
+    dataMode: z.literal("SYNTHETIC_STREAM"),
+    source: z
+      .object({
+        kind: z.literal("DETERMINISTIC_DEMO_GENERATOR"),
+        connectionId: z
+          .string()
+          .regex(/^shadow-demo-[a-z0-9][a-z0-9_-]{1,31}$/),
+        generatedAt: z.string().datetime({ offset: true }),
+        scenarioId: z
+          .string()
+          .regex(/^synthetic-[a-z0-9][a-z0-9_-]{3,47}$/),
+        seed: z.number().int().nonnegative(),
+      })
+      .strict(),
+    events: z.array(ShadowLiveProgressEventSchema).min(1).max(500),
+  })
+  .strict();
+
+export const ShadowLiveBatchSchema = z
+  .discriminatedUnion("dataMode", [
+    LiveShadowBatchSchema,
+    SyntheticShadowBatchSchema,
+  ])
   .superRefine((batch, context) => {
     const eventIds = new Set<string>();
     let previousSequence = -1;
@@ -74,6 +101,9 @@ export const ShadowLiveBatchSchema = z
   });
 
 export type ShadowLiveBatch = z.infer<typeof ShadowLiveBatchSchema>;
+export type ShadowLiveProgressEvent = z.infer<
+  typeof ShadowLiveProgressEventSchema
+>;
 
 const forbiddenFieldNames = new Set([
   "address",
@@ -119,6 +149,7 @@ export type ShadowLiveValidationResult =
       status: "ACCEPTED";
       batch: ShadowLiveBatch;
       summary: {
+        dataMode: ShadowLiveBatch["dataMode"];
         eventCount: number;
         courierCount: number;
         latestOccurredAt: string;
@@ -164,6 +195,7 @@ export function validateShadowLiveBatch(
     status: "ACCEPTED",
     batch: parsed.data,
     summary: {
+      dataMode: parsed.data.dataMode,
       eventCount: parsed.data.events.length,
       courierCount: new Set(
         parsed.data.events.map((event) => event.courierRef),

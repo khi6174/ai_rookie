@@ -12,6 +12,7 @@
 
 .shadow-live-header,
 .shadow-live-hero,
+.shadow-live-simulator,
 .shadow-live-workspace,
 .shadow-live-next {
   width: min(1180px, 100%);
@@ -39,6 +40,27 @@
 }
 
 .shadow-live-header span { color: var(--muted); font-size: var(--type-11); }
+
+.shadow-live-header-statuses {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.shadow-live-mode-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 6px 10px;
+  border: 1px solid #9fc2e8;
+  border-radius: var(--r-pill);
+  color: #164f82;
+  background: #edf6ff;
+  font-size: var(--type-10);
+  font-weight: var(--weight-heavy);
+  white-space: nowrap;
+}
 
 .shadow-live-status {
   padding: 7px 11px;
@@ -101,6 +123,87 @@
   gap: 18px;
   margin-top: 18px;
 }
+
+.shadow-live-simulator {
+  margin-top: 18px;
+  padding: 24px;
+  border: 1px solid #b8d2ef;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #f7fbff 0%, #ffffff 60%);
+}
+
+.shadow-live-simulator-heading,
+.shadow-live-simulator-controls,
+.shadow-live-courier-progress article,
+.shadow-live-recent-events li {
+  display: flex;
+  align-items: center;
+}
+
+.shadow-live-simulator-heading { justify-content: space-between; gap: 18px; }
+.shadow-live-simulator-heading h2 { margin: 10px 0 4px; color: var(--navy); font-size: var(--type-20); }
+.shadow-live-simulator-heading p { margin: 0; color: var(--muted); }
+
+.shadow-live-simulator-state {
+  flex: 0 0 auto;
+  padding: 8px 12px;
+  border: 1px solid #c8d5e5;
+  border-radius: var(--r-pill);
+  color: var(--navy);
+  background: white;
+  font-size: var(--type-11);
+}
+
+.shadow-live-simulator-state.is-running,
+.shadow-live-simulator-state.is-complete { color: #075f46; border-color: #8fd2bb; background: #eaf8f3; }
+.shadow-live-simulator-state.is-paused { color: #7f5700; border-color: #e4c475; background: #fff9e8; }
+
+.shadow-live-simulator-controls { flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+.shadow-live-simulator-controls button {
+  min-height: 44px;
+  padding: 0 15px;
+  border: 1px solid #9db3cc;
+  border-radius: 10px;
+  color: var(--navy);
+  background: white;
+  font: inherit;
+  font-size: var(--type-11);
+  font-weight: var(--weight-heavy);
+  cursor: pointer;
+}
+.shadow-live-simulator-controls button.is-primary { color: white; border-color: var(--blue); background: var(--blue); }
+.shadow-live-simulator-controls button:disabled { cursor: not-allowed; opacity: .45; }
+.shadow-live-simulator-controls > span { margin-left: auto; color: var(--muted); font-size: var(--type-11); font-weight: var(--weight-bold); }
+
+.shadow-live-simulator-summary {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 8px;
+  margin: 18px 0 0;
+}
+.shadow-live-simulator-summary div { min-width: 0; padding: 12px; border: 1px solid #dce6f2; border-radius: 12px; background: white; }
+.shadow-live-simulator-summary dt { color: var(--muted); font-size: var(--type-10); }
+.shadow-live-simulator-summary dd { margin: 4px 0 0; color: var(--navy); font-weight: var(--weight-heavy); overflow-wrap: anywhere; }
+
+.shadow-live-simulator-grid { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr); gap: 16px; margin-top: 16px; }
+.shadow-live-courier-progress,
+.shadow-live-recent-events { min-width: 0; border: 1px solid #dce6f2; border-radius: 14px; background: white; }
+.shadow-live-courier-progress { display: grid; padding: 8px 14px; }
+.shadow-live-courier-progress article { gap: 12px; min-height: 56px; border-bottom: 1px solid #e5ebf3; }
+.shadow-live-courier-progress article:last-child { border-bottom: 0; }
+.shadow-live-courier-progress article > div { display: grid; gap: 2px; min-width: 145px; }
+.shadow-live-courier-progress strong { color: var(--navy); font-size: var(--type-11); }
+.shadow-live-courier-progress span { color: var(--muted); font-size: var(--type-10); }
+.shadow-live-courier-progress progress { width: 100%; height: 9px; accent-color: var(--blue); }
+.shadow-live-courier-progress b { min-width: 45px; color: var(--navy); font-size: var(--type-10); text-align: right; }
+.shadow-live-recent-events { padding: 16px; }
+.shadow-live-recent-events h3 { margin: 0; color: var(--navy); font-size: var(--type-12); }
+.shadow-live-recent-events > p { color: var(--muted); font-size: var(--type-11); line-height: 1.5; }
+.shadow-live-recent-events ol { display: grid; gap: 6px; margin: 12px 0 0; padding: 0; list-style: none; }
+.shadow-live-recent-events li { gap: 8px; min-height: 32px; padding: 6px 8px; border-radius: 8px; background: #f5f8fd; font-size: var(--type-10); }
+.shadow-live-recent-events li span { min-width: 54px; color: var(--blue-strong); font-weight: var(--weight-bold); }
+.shadow-live-recent-events li strong { color: var(--navy); }
+.shadow-live-recent-events li b { margin-left: auto; color: var(--muted); }
 
 .shadow-live-editor,
 .shadow-live-result,
@@ -176,12 +279,21 @@
   .shadow-live-header > div { align-items: flex-start; flex-direction: column; gap: 3px; }
   .shadow-live-hero,
   .shadow-live-workspace { grid-template-columns: 1fr; }
+  .shadow-live-simulator-summary { grid-template-columns: repeat(3, 1fr); }
+  .shadow-live-simulator-grid { grid-template-columns: 1fr; }
   .shadow-live-next ol { grid-template-columns: 1fr 1fr; }
 }
 
 @media (max-width: 540px) {
   .shadow-live-header { align-items: flex-start; }
+  .shadow-live-header-statuses { align-items: flex-end; flex-direction: column; }
   .shadow-live-hero { padding: 24px; }
+  .shadow-live-simulator { padding: 18px; }
+  .shadow-live-simulator-heading { align-items: flex-start; flex-direction: column; }
+  .shadow-live-simulator-controls > span { width: 100%; margin-left: 0; }
+  .shadow-live-simulator-summary { grid-template-columns: 1fr 1fr; }
+  .shadow-live-courier-progress article { align-items: flex-start; flex-wrap: wrap; padding: 10px 0; }
+  .shadow-live-courier-progress article > div { width: 100%; }
   .shadow-live-section-heading { align-items: stretch; flex-direction: column; }
   .shadow-live-editor-actions { flex-direction: column; }
   .shadow-live-next ol { grid-template-columns: 1fr; }

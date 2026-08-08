@@ -53,6 +53,29 @@ describe("Shadow Live 읽기 전용 입력 계약", () => {
     });
   });
 
+  it("합성 스트림은 실제 연결과 다른 provenance로만 허용한다", () => {
+    const live = validBatch();
+    const result = validateShadowLiveBatch({
+      ...live,
+      dataMode: "SYNTHETIC_STREAM",
+      source: {
+        kind: "DETERMINISTIC_DEMO_GENERATOR",
+        connectionId: "shadow-demo-01",
+        generatedAt: "2026-08-08T12:00:00+09:00",
+        scenarioId: "synthetic-delivery-progress-v1",
+        seed: 617,
+      },
+    });
+    expect(result.status).toBe("ACCEPTED");
+    if (result.status !== "ACCEPTED") return;
+    expect(result.summary).toMatchObject({
+      dataMode: "SYNTHETIC_STREAM",
+      serverTransmitted: false,
+      rawStored: false,
+      safetyEngineUsed: false,
+    });
+  });
+
   it.each([
     ["name", "홍길동"],
     ["phone", "010-1234-5678"],
