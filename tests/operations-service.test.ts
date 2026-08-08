@@ -23,6 +23,7 @@ import {
   holdOperationsDecision,
   initializeOperationsDecision,
   requestAlternativeOperationsDecision,
+  respondAndRegenerateOperationsDecision,
   resumeHeldOperationsDecision,
   respondToOperationsDecision,
   selectOperationsDecisionCandidate,
@@ -648,4 +649,101 @@ describe("multi-decision operations workspace", () => {
       workspace.store.activePlan,
     );
   });
+
+  it("keeps the active plan and explicit modification state when no safe alternative remains", async () => {
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      { createdAt: "2026-07-27T00:00:00.000Z" },
+    );
+    const fleet = evaluateOperationsFleet(snapshot);
+    const decisionId = fleet.supportQueue[0].decisionId;
+    let initialized = initializeOperationsDecision(
+      createOperationsDecisionWorkspace(snapshot, fleet),
+      snapshot,
+      fleet,
+      decisionId,
+    );
+    for (const requirement of initialized.decisions[0].decision.consentRequirements.filter(
+      (item) => item.required,
+    )) {
+      initialized = respondToOperationsDecision(initialized, {
+        decisionId,
+        courierId: requirement.courierId,
+        response: "CONSENTED",
+      });
+    }
+    const onlySelectedCandidate = structuredClone(initialized);
+    const artifacts = onlySelectedCandidate.decisions[0];
+    artifacts.candidates = [artifacts.selectedCandidate];
+    artifacts.evaluations = [artifacts.selectedEvaluation];
+
+    const result = requestAlternativeOperationsDecision(
+      onlySelectedCandidate,
+      snapshot,
+      decisionId,
+    );
+
+    expect(result.status).toBe("NO_SAFE_ALTERNATIVE");
+    expect(result.workspace.decisions[0].decision.status).toBe(
+      "ADMIN_MODIFICATION_REQUESTED",
+    );
+    expect(result.workspace.decisions[0].selectedCandidate.candidateId).toBe(
+      artifacts.selectedCandidate.candidateId,
+    );
+    expect(result.workspace.store.activePlan).toEqual(
+      initialized.store.activePlan,
+    );
+  });
+
+  it.each(["MODIFICATION_REQUESTED", "DECLINED"] as const)(
+    "recalculates a different candidate after a rider chooses %s",
+    async (response) => {
+      const snapshot = await createDailyOperationsSnapshot(
+        bundledDailyOperationsPackage,
+        { createdAt: "2026-07-27T00:00:00.000Z" },
+      );
+      const fleet = evaluateOperationsFleet(snapshot);
+      const decisionId = fleet.supportQueue[0].decisionId;
+      const workspace = initializeOperationsDecision(
+        createOperationsDecisionWorkspace(snapshot, fleet),
+        snapshot,
+        fleet,
+        decisionId,
+      );
+      const original = workspace.decisions[0];
+      const courierId = original.decision.consentRequirements.find(
+        (requirement) => requirement.required,
+      )!.courierId;
+      const result = respondAndRegenerateOperationsDecision(
+        workspace,
+        snapshot,
+        { decisionId, courierId, response },
+      );
+      expect(result.status).toBe("REGENERATED");
+      if (result.status !== "REGENERATED") {
+        throw new Error("Expected a safe rider alternative");
+      }
+      const revised = result.workspace.decisions[0];
+      expect(revised.decision.decisionId).toBe(decisionId);
+      expect(revised.selectedCandidate.candidateId).not.toBe(
+        original.selectedCandidate.candidateId,
+      );
+      expect(revised.decision.status).toBe("RIDER_RESPONSE_PENDING");
+      expect(
+        revised.decision.consentRequirements
+          .filter((requirement) => requirement.required)
+          .every((requirement) => requirement.status === "PENDING"),
+      ).toBe(true);
+      expect(revised.decision.events.map((event) => event.reasonCode)).toEqual(
+        expect.arrayContaining([
+          `COURIER_${response}`,
+          "CANDIDATES_REGENERATED",
+          "CONSENT_REQUESTED",
+        ]),
+      );
+      expect(result.workspace.store.activePlan).toEqual(
+        workspace.store.activePlan,
+      );
+    },
+  );
 });

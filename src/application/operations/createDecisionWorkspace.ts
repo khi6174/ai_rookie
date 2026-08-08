@@ -621,7 +621,7 @@ export type OperationsAlternativeRequestResult =
       previousCandidateId: string;
     };
 
-export function requestAlternativeOperationsDecision(
+function regenerateAlternativeOperationsDecision(
   workspace: OperationsDecisionWorkspace,
   snapshot: DailyOperationsSnapshot,
   decisionId: string,
@@ -639,11 +639,7 @@ export function requestAlternativeOperationsDecision(
     | undefined;
   const updated = updateDecisionArtifacts(workspace, decisionId, (artifacts) => {
     const previousCandidateId = artifacts.selectedCandidate.candidateId;
-    let decision = recordAdminDecision(artifacts.decision, {
-      adminId: "admin-synthetic-operations",
-      action: "MODIFICATION_REQUESTED",
-      at: nextDecisionAt(artifacts.decision),
-    });
+    let decision = artifacts.decision;
     const candidates = artifacts.candidates.filter(
       (candidate) => candidate.candidateId !== previousCandidateId,
     );
@@ -708,6 +704,57 @@ export function requestAlternativeOperationsDecision(
     throw new Error(`Decision ${decisionId} alternative request did not finish`);
   }
   return { ...result, workspace: updated } as OperationsAlternativeRequestResult;
+}
+
+export function requestAlternativeOperationsDecision(
+  workspace: OperationsDecisionWorkspace,
+  snapshot: DailyOperationsSnapshot,
+  decisionId: string,
+): OperationsAlternativeRequestResult {
+  const modificationRequested = updateDecisionArtifacts(
+    workspace,
+    decisionId,
+    (artifacts) => ({
+      ...artifacts,
+      decision: recordAdminDecision(artifacts.decision, {
+        adminId: "admin-synthetic-operations",
+        action: "MODIFICATION_REQUESTED",
+        at: nextDecisionAt(artifacts.decision),
+      }),
+    }),
+  );
+  return regenerateAlternativeOperationsDecision(
+    modificationRequested,
+    snapshot,
+    decisionId,
+  );
+}
+
+export type OperationsRiderResponseResult =
+  | {
+      status: "RECORDED";
+      workspace: OperationsDecisionWorkspace;
+    }
+  | OperationsAlternativeRequestResult;
+
+export function respondAndRegenerateOperationsDecision(
+  workspace: OperationsDecisionWorkspace,
+  snapshot: DailyOperationsSnapshot,
+  input: {
+    decisionId: string;
+    courierId: string;
+    response: "CONSENTED" | "MODIFICATION_REQUESTED" | "DECLINED";
+  },
+): OperationsRiderResponseResult {
+  const responded = respondToOperationsDecision(workspace, input);
+  if (input.response === "CONSENTED") {
+    return { status: "RECORDED", workspace: responded };
+  }
+  return regenerateAlternativeOperationsDecision(
+    responded,
+    snapshot,
+    input.decisionId,
+  );
 }
 
 export type OperationsApplyResult = {

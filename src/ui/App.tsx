@@ -81,7 +81,7 @@ import {
   createOperationsPersistedSession,
   loadLatestOperationsSessionForCourier,
   loadOperationsPersistedSession,
-  respondToOperationsDecision,
+  respondAndRegenerateOperationsDecision,
   restoreOperationsPersistedSession,
   saveOperationsPersistedSession,
   type FleetEvaluation,
@@ -2658,11 +2658,16 @@ export function App({
       }
       const restored = await restoreOperationsPersistedSession(loaded.session);
       const courierId = riderProfileResult.profile.courierId;
-      const workspace = respondToOperationsDecision(restored.workspace, {
-        decisionId: sharedDecisionRequest.decisionId,
-        courierId,
-        response,
-      });
+      const result = respondAndRegenerateOperationsDecision(
+        restored.workspace,
+        restored.snapshot,
+        {
+          decisionId: sharedDecisionRequest.decisionId,
+          courierId,
+          response,
+        },
+      );
+      const workspace = result.workspace;
       const persisted = createOperationsPersistedSession({
         workspaceId: sharedDecisionRequest.workspaceId,
         operationsPackage: restored.operationsPackage,
@@ -2694,9 +2699,11 @@ export function App({
       setSharedMessage(
         response === "CONSENTED"
           ? "내 응답을 기록했습니다. 필요한 확인이 끝날 때까지 현재 계획을 유지합니다."
-          : response === "MODIFICATION_REQUESTED"
-            ? "다른 방법 요청을 기록했습니다. 현재 계획을 유지합니다."
-            : "지금은 거절로 기록했습니다. 현재 계획을 유지합니다.",
+          : result.status === "REGENERATED"
+            ? "요청을 반영해 다른 안전한 지원안을 계산했습니다. 새 지원안을 다시 확인해 주세요."
+            : response === "MODIFICATION_REQUESTED"
+              ? "다른 방법 요청을 기록했지만 안전한 대안이 없습니다. 현재 계획을 유지합니다."
+              : "지금은 거절로 기록했으며 안전한 대안이 없습니다. 현재 계획을 유지합니다.",
       );
     } catch (error) {
       setSharedMessage(

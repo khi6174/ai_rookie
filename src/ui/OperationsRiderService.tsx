@@ -3,7 +3,7 @@ import {
   createOperationsPersistedSession,
   getOrCreateOperationsWorkspaceId,
   loadOperationsPersistedSession,
-  respondToOperationsDecision,
+  respondAndRegenerateOperationsDecision,
   restoreOperationsPersistedSession,
   saveOperationsPersistedSession,
   type FleetEvaluation,
@@ -177,11 +177,12 @@ export function OperationsRiderService() {
     setSaving(true);
     setMessage(undefined);
     try {
-      const nextWorkspace = respondToOperationsDecision(workspace, {
-        decisionId,
-        courierId,
-        response,
-      });
+      const result = respondAndRegenerateOperationsDecision(
+        workspace,
+        snapshot,
+        { decisionId, courierId, response },
+      );
+      const nextWorkspace = result.workspace;
       const session = createOperationsPersistedSession({
         workspaceId: requestedWorkspaceId,
         operationsPackage,
@@ -205,9 +206,11 @@ export function OperationsRiderService() {
       setMessage(
         response === "CONSENTED"
           ? "동의가 안전하게 기록되었습니다. 관리자 승인 전에는 계획이 변경되지 않습니다."
-          : response === "MODIFICATION_REQUESTED"
-            ? "수정 요청이 기록되었습니다. 현재 계획을 유지합니다."
-            : "거절이 기록되었습니다. 불이익 없이 현재 계획을 유지합니다.",
+          : result.status === "REGENERATED"
+            ? "요청을 반영해 다른 안전한 지원안을 계산했습니다. 새 지원안을 다시 확인해 주세요."
+            : response === "MODIFICATION_REQUESTED"
+              ? "수정 요청을 기록했지만 다른 안전한 지원안이 없습니다. 현재 계획을 유지합니다."
+              : "거절을 기록했으며 다른 안전한 지원안이 없습니다. 불이익 없이 현재 계획을 유지합니다.",
       );
     } finally {
       setSaving(false);
@@ -351,6 +354,7 @@ export function OperationsRiderService() {
           <div
             id="operations-rider-panel-support"
             className="operations-rider-tab-panel"
+            data-candidate-id={artifacts.selectedCandidate.candidateId}
             role="tabpanel"
             aria-labelledby="operations-rider-tab-support"
             tabIndex={-1}

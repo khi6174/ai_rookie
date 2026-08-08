@@ -110,18 +110,25 @@ for (const viewport of [
     });
 
     if (viewport.width === 390) {
+      const supportPanel = page.locator("#operations-rider-panel-support");
+      const previousCandidateId = await supportPanel.getAttribute(
+        "data-candidate-id",
+      );
+      expect(previousCandidateId).toBeTruthy();
       await page.getByRole("button", { name: "수정 요청" }).click();
       await expect(
         page.getByText(
-          "수정 요청이 기록되었습니다. 현재 계획을 유지합니다.",
+          "요청을 반영해 다른 안전한 지원안을 계산했습니다. 새 지원안을 다시 확인해 주세요.",
           { exact: true },
         ),
       ).toBeVisible();
+      await expect(supportPanel).not.toHaveAttribute(
+        "data-candidate-id",
+        previousCandidateId!,
+      );
       await expect(
-        page.getByRole("link", {
-          name: "응답 완료 · 관리자 운영 화면으로 돌아가기",
-        }),
-      ).toBeVisible();
+        page.getByRole("button", { name: "이 조정안에 동의" }),
+      ).toBeEnabled();
     }
   });
 }

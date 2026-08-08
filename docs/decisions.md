@@ -1609,6 +1609,17 @@
 - 기각한 대안: 상태 라벨만 `수정 요청`으로 변경, 기존 후보 재요청, 기존 기사 동의 재사용, UI에서 후보 효과 재계산, 관리자 직접 수치 편집, 다른 안전 후보가 없을 때 기존 계획을 안전하다고 표시, 새 decision ID로 과거 감사 이벤트 단절.
 - 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/OnePageDashboardDemo.tsx`, `tests/operations-service.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/decisions.md`
 
+### ADR-157 — 기사 수정 요청과 거절도 다른 안전 후보를 재계산하고 재동의한다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 근거: 기사 화면은 수정 요청·거절을 기록했지만 decision을 해당 상태에 멈춘 채 `현재 계획 유지`만 표시했다. 승인 정책은 요청 조건을 반영한 다른 후보를 계산하고 기존 동의를 재사용하지 않도록 요구한다.
+- 결정: 기사 본인이 `수정 요청` 또는 `거절`을 저장하면 같은 decision ID에서 응답 감사 이벤트를 먼저 기록한다. 이후 직전 선택 candidate ID를 제외하고 같은 기준 스냅샷의 남은 후보를 결정론적으로 다시 평가·순위화한다. 실행 가능한 대안이 있으면 새 선택과 영향 기사 동의를 `PENDING`으로 만들고 `RIDER_RESPONSE_PENDING`으로 돌아간다. 기사 화면은 새 candidate ID와 수치·영향을 표시하고 별도 동의·수정·거절을 다시 요구한다.
+- 권리·실패 경계: 거절한 동일 후보를 자동 재요청하지 않고 거절 횟수·사유를 점수나 불이익에 사용하지 않는다. 다른 안전 후보가 없으면 원래 활성 계획과 `MODIFICATION_REQUESTED` 또는 `RIDER_DECLINED`를 유지하며 `NO_SAFE_ALTERNATIVE`를 명시한다. 저장 충돌이나 오류에서는 새 후보를 표시하지 않는다.
+- 이유: 수정·거절권은 단순 종료 버튼이 아니라 다른 안전 선택지를 요구하는 사람 통제 장치다. 응답 이벤트와 새 candidate·재동의를 같은 감사 체인에 남기면 비징벌성과 결정 일관성을 함께 검증할 수 있다.
+- 기각한 대안: 수정·거절 뒤 무조건 종료, 동일 후보 즉시 재표시, 기존 동의 재사용, 기사 응답을 관리자 대리 입력으로 변경, 임의 후보 생성, 안전 대안이 없는데 정상 상태 표시.
+- 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/App.tsx`, `src/ui/OperationsRiderService.tsx`, `tests/operations-service.test.ts`, `e2e/operations-rider.spec.ts`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
