@@ -44,6 +44,7 @@ import {
   loadLatestOperationsSessionForCourier,
   loadOperationsPersistedSession,
   restoreOperationsPersistedSession,
+  requestAlternativeOperationsDecision,
   resumeHeldOperationsDecision,
   saveOperationsPersistedSession,
   selectOperationsDecisionCandidate,
@@ -973,6 +974,7 @@ function InterventionDialog({
   onApprove,
   onHold,
   onResume,
+  onRequestAlternative,
 }: {
   courier: Courier;
   context: DashboardDecisionContext;
@@ -984,6 +986,7 @@ function InterventionDialog({
   onApprove: () => void;
   onHold: () => void;
   onResume: () => void;
+  onRequestAlternative: () => void;
 }) {
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
@@ -1223,6 +1226,7 @@ function InterventionDialog({
                   <button
                     key={candidate.candidateId}
                     type="button"
+                    data-candidate-id={candidate.candidateId}
                     aria-pressed={selected}
                     disabled={context.sent || !feasible || busy}
                     onClick={() => onSelectCandidate(candidate.candidateId)}
@@ -1405,6 +1409,9 @@ function InterventionDialog({
               {decision.status === "ADMIN_HELD" && (
                 <><small>관리자 보류</small><strong>현재 계획을 유지합니다</strong><span>검토를 다시 열기 전에는 승인·적용하지 않습니다.</span></>
               )}
+              {decision.status === "ADMIN_MODIFICATION_REQUESTED" && (
+                <><small>다른 지원안 요청</small><strong>현재 계획을 유지합니다</strong><span>안전한 대안을 만들 수 없어 자동 적용하지 않습니다.</span></>
+              )}
               {decision.status === "MODIFICATION_REQUESTED" && (
                 <><small>다른 방법 요청</small><strong>현재 계획을 유지합니다</strong><span>새 후보가 확정되기 전에는 다시 요청하지 않습니다.</span></>
               )}
@@ -1431,6 +1438,9 @@ function InterventionDialog({
             )}
             {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
               <>
+                <button type="button" disabled={busy} onClick={onRequestAlternative}>
+                  다른 안전한 지원안
+                </button>
                 <button type="button" disabled={busy} onClick={onHold}>
                   보류
                 </button>
@@ -1444,7 +1454,7 @@ function InterventionDialog({
                 관리자 검토 다시 열기
               </button>
             )}
-            {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED") && (
+            {(applied || decision.status === "MODIFICATION_REQUESTED" || decision.status === "RIDER_DECLINED" || decision.status === "ADMIN_MODIFICATION_REQUESTED") && (
               <button type="button" className="is-primary" onClick={onClose}>완료</button>
             )}
           </div>
@@ -2062,6 +2072,61 @@ export function OnePageDashboardDemo() {
     }
   };
 
+  const requestAlternativeFromDialog = async () => {
+    if (!decisionContext || !selectedCourier) return;
+    const decisionId = decisionContext.workspace.decisions.find(
+      (item) => item.queueItem.courierId === selectedCourier.id,
+    )?.decision.decisionId;
+    if (!decisionId) return;
+    setDialogBusy(true);
+    setDialogMessage(undefined);
+    try {
+      const result = requestAlternativeOperationsDecision(
+        decisionContext.workspace,
+        decisionContext.snapshot,
+        decisionId,
+      );
+      const session = createOperationsPersistedSession({
+        workspaceId: decisionContext.workspaceId,
+        operationsPackage: decisionContext.operationsPackage,
+        snapshot: decisionContext.snapshot,
+        fleet: decisionContext.fleet,
+        workspace: result.workspace,
+        savedAt: new Date().toISOString(),
+      });
+      const saved = await saveOperationsPersistedSession(session, {
+        baseSavedAt: decisionContext.baseSavedAt,
+      });
+      if (saved.status !== "SAVED") {
+        setDialogMessage(
+          "message" in saved
+            ? saved.message
+            : "새 지원안 상태를 저장하지 못했습니다.",
+        );
+        return;
+      }
+      setDecisionContext({
+        ...decisionContext,
+        workspace: result.workspace,
+        baseSavedAt: saved.updatedAt,
+        sent: true,
+      });
+      setDialogMessage(
+        result.status === "REGENERATED"
+          ? "기존 후보를 제외하고 다른 안전한 지원안을 계산했습니다. 영향 기사의 새 확인이 필요합니다."
+          : "현재 조건에서 다른 안전한 지원안을 만들 수 없습니다. 기존 계획을 유지합니다.",
+      );
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error
+          ? error.message
+          : "다른 안전한 지원안을 계산하지 못했습니다.",
+      );
+    } finally {
+      setDialogBusy(false);
+    }
+  };
+
   const closeSupportReview = () => {
     setDialogOpen(false);
     window.requestAnimationFrame(() => supportReviewButtonRef.current?.focus());
@@ -2594,6 +2659,7 @@ export function OnePageDashboardDemo() {
           onApprove={() => void approveDialogDecision()}
           onHold={() => void changeAdminHoldState("HOLD")}
           onResume={() => void changeAdminHoldState("RESUME")}
+          onRequestAlternative={() => void requestAlternativeFromDialog()}
         />
       )}
     </main>

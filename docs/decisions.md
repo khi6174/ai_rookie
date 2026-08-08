@@ -1598,6 +1598,17 @@
 - 기각한 대안: 예상 최저가 30 미만이면 현재값과 관계없이 빨강 사용, `30.0` 표시를 유지한 채 설명으로만 보완, 열린 모달이 배경 fleet 값을 계속 읽도록 유지, 보류를 모달 닫기로 대체, 보류 후 즉시 승인 가능, 저장하지 않는 UI 전용 보류.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, `src/application/operations/createDecisionWorkspace.ts`, `tests/operations-service.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/decisions.md`
 
+### ADR-156 — 관리자 수정 요청은 같은 decision의 다른 안전 후보와 새 동의를 만든다
+
+- 날짜: 2026-08-08
+- 상태: Approved
+- 근거: 최종 폐루프 대조에서 관리자 `ADMIN_MODIFICATION_REQUESTED`는 도메인 상태와 문서에만 있고 공개 관제에는 행동이 없었다. 상태만 기록하고 새 후보·재동의를 만들지 않으면 `docs/intervention-policy.md` 10.3·11.3과 제품 명세 7.3을 충족하지 못한다.
+- 결정: 모든 필수 기사 동의 뒤 관리자는 `다른 안전한 지원안`을 요청할 수 있다. Application 계층은 같은 decision ID와 기준 스냅샷에서 직전 선택 candidate ID를 제외하고 남은 후보 전체를 결정론 엔진으로 다시 평가·순위화한다. 가장 높은 실행 가능 후보를 새 선택으로 기록하고, 영향 기사 동의를 전부 `PENDING`으로 초기화해 `RIDER_RESPONSE_PENDING`으로 돌아간다. 직전 동의와 선택 후보는 재사용하지 않으며 관리자 승인 버튼은 새 필수 동의가 모두 완료되기 전까지 나타나지 않는다.
+- 실패 경계: 남은 실행 가능 후보가 없으면 `ADMIN_MODIFICATION_REQUESTED`와 기존 활성 계획을 유지하고 자동 적용하지 않는다. 새 후보와 재동의 상태는 기존 D1 세션의 낙관적 동시성 Gate를 통과한 경우에만 성공으로 표시한다. Safety 임계치·추천식·Risk Transfer Guard·동의 유효시간과 AI 권한은 변경하지 않는다.
+- 이유: 관리자의 수정권은 후보를 임의 편집하거나 기사 동의를 우회하는 권한이 아니다. 같은 스냅샷의 검증된 대안 집합에서 기존 선택을 제외해 다시 계산하고 새 영향을 다시 동의받아야 사람 통제와 안전 하드 제약을 함께 보존할 수 있다.
+- 기각한 대안: 상태 라벨만 `수정 요청`으로 변경, 기존 후보 재요청, 기존 기사 동의 재사용, UI에서 후보 효과 재계산, 관리자 직접 수치 편집, 다른 안전 후보가 없을 때 기존 계획을 안전하다고 표시, 새 decision ID로 과거 감사 이벤트 단절.
+- 영향 파일: `src/application/operations/createDecisionWorkspace.ts`, `src/ui/OnePageDashboardDemo.tsx`, `tests/operations-service.test.ts`, `e2e/one-page-dashboard.spec.ts`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

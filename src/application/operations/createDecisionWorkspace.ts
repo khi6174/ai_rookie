@@ -608,6 +608,108 @@ export function resumeHeldOperationsDecision(
   }));
 }
 
+export type OperationsAlternativeRequestResult =
+  | {
+      status: "REGENERATED";
+      workspace: OperationsDecisionWorkspace;
+      previousCandidateId: string;
+      selectedCandidateId: string;
+    }
+  | {
+      status: "NO_SAFE_ALTERNATIVE";
+      workspace: OperationsDecisionWorkspace;
+      previousCandidateId: string;
+    };
+
+export function requestAlternativeOperationsDecision(
+  workspace: OperationsDecisionWorkspace,
+  snapshot: DailyOperationsSnapshot,
+  decisionId: string,
+): OperationsAlternativeRequestResult {
+  let result:
+    | {
+        status: "REGENERATED";
+        previousCandidateId: string;
+        selectedCandidateId: string;
+      }
+    | {
+        status: "NO_SAFE_ALTERNATIVE";
+        previousCandidateId: string;
+      }
+    | undefined;
+  const updated = updateDecisionArtifacts(workspace, decisionId, (artifacts) => {
+    const previousCandidateId = artifacts.selectedCandidate.candidateId;
+    let decision = recordAdminDecision(artifacts.decision, {
+      adminId: "admin-synthetic-operations",
+      action: "MODIFICATION_REQUESTED",
+      at: nextDecisionAt(artifacts.decision),
+    });
+    const candidates = artifacts.candidates.filter(
+      (candidate) => candidate.candidateId !== previousCandidateId,
+    );
+    const evaluations = rankInterventions(
+      candidates.map((candidate) =>
+        evaluateIntervention(snapshot.fixture, candidate),
+      ),
+    );
+    const selectedEvaluation = evaluations.find(
+      (evaluation) => evaluation.feasibility.status === "FEASIBLE",
+    );
+    const selectedCandidate = selectedEvaluation
+      ? candidates.find(
+          (candidate) => candidate.candidateId === selectedEvaluation.candidateId,
+        )
+      : undefined;
+    if (!selectedEvaluation || !selectedCandidate) {
+      result = { status: "NO_SAFE_ALTERNATIVE", previousCandidateId };
+      return { ...artifacts, decision };
+    }
+
+    decision = recordGeneratedCandidates(
+      decision,
+      candidates,
+      nextDecisionAt(decision),
+    );
+    decision = recordEvaluatedCandidates(
+      decision,
+      evaluations,
+      selectedCandidate.candidateId,
+      nextDecisionAt(decision),
+    );
+    decision = requestCourierReview(decision, nextDecisionAt(decision));
+    decision = startCourierResponses(decision, nextDecisionAt(decision));
+    const baselinePlanVersions = Object.fromEntries(
+      selectedCandidate.affectedCourierIds.map((courierId) => {
+        const workload = workspace.store.activePlan.workloads.find(
+          (item) => item.courierId === courierId,
+        );
+        if (!workload) {
+          throw new Error(`Missing affected workload for ${courierId}`);
+        }
+        return [courierId, workload.planVersion];
+      }),
+    );
+    result = {
+      status: "REGENERATED",
+      previousCandidateId,
+      selectedCandidateId: selectedCandidate.candidateId,
+    };
+    return {
+      ...artifacts,
+      decision,
+      candidates,
+      evaluations,
+      selectedCandidate,
+      selectedEvaluation,
+      baselinePlanVersions,
+    };
+  });
+  if (!result) {
+    throw new Error(`Decision ${decisionId} alternative request did not finish`);
+  }
+  return { ...result, workspace: updated } as OperationsAlternativeRequestResult;
+}
+
 export type OperationsApplyResult = {
   status:
     | "APPLIED"

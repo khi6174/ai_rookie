@@ -22,6 +22,7 @@ import {
   approveAndApplyOperationsDecision,
   holdOperationsDecision,
   initializeOperationsDecision,
+  requestAlternativeOperationsDecision,
   resumeHeldOperationsDecision,
   respondToOperationsDecision,
   selectOperationsDecisionCandidate,
@@ -585,6 +586,66 @@ describe("multi-decision operations workspace", () => {
     ).toBe(true);
     expect(JSON.stringify(bundle)).not.toMatch(
       /01[016789][-\s]?\d{3,4}[-\s]?\d{4}|[\w.+-]+@[\w.-]+\.[A-Za-z]{2,}/,
+    );
+  });
+
+  it("regenerates a different safe candidate and requires every affected courier to consent again", async () => {
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      { createdAt: "2026-07-27T00:00:00.000Z" },
+    );
+    const fleet = evaluateOperationsFleet(snapshot);
+    const decisionId = fleet.supportQueue[0].decisionId;
+    let workspace = initializeOperationsDecision(
+      createOperationsDecisionWorkspace(snapshot, fleet),
+      snapshot,
+      fleet,
+      decisionId,
+    );
+    const original = workspace.decisions[0];
+    const originalCandidateId = original.selectedCandidate.candidateId;
+    for (const requirement of original.decision.consentRequirements.filter(
+      (item) => item.required,
+    )) {
+      workspace = respondToOperationsDecision(workspace, {
+        decisionId,
+        courierId: requirement.courierId,
+        response: "CONSENTED",
+      });
+    }
+    expect(workspace.decisions[0].decision.status).toBe(
+      "ADMIN_APPROVAL_REQUIRED",
+    );
+
+    const regenerated = requestAlternativeOperationsDecision(
+      workspace,
+      snapshot,
+      decisionId,
+    );
+    expect(regenerated.status).toBe("REGENERATED");
+    if (regenerated.status !== "REGENERATED") {
+      throw new Error("Expected a safe alternative");
+    }
+    expect(regenerated.previousCandidateId).toBe(originalCandidateId);
+    expect(regenerated.selectedCandidateId).not.toBe(originalCandidateId);
+    const revised = regenerated.workspace.decisions[0];
+    expect(revised.decision.decisionId).toBe(decisionId);
+    expect(revised.decision.status).toBe("RIDER_RESPONSE_PENDING");
+    expect(revised.decision.candidateIds).not.toContain(originalCandidateId);
+    expect(
+      revised.decision.consentRequirements
+        .filter((requirement) => requirement.required)
+        .every((requirement) => requirement.status === "PENDING"),
+    ).toBe(true);
+    expect(revised.decision.events.map((event) => event.reasonCode)).toEqual(
+      expect.arrayContaining([
+        "ADMIN_MODIFICATION_REQUESTED",
+        "CANDIDATES_REGENERATED",
+        "CONSENT_REQUESTED",
+      ]),
+    );
+    expect(regenerated.workspace.store.activePlan).toEqual(
+      workspace.store.activePlan,
     );
   });
 });

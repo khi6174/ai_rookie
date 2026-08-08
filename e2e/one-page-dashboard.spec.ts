@@ -579,6 +579,7 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   context,
   request,
 }) => {
+  test.setTimeout(60_000);
   const browserErrors: string[] = [];
   page.on("console", (message) => {
     if (message.type() === "error") browserErrors.push(message.text());
@@ -769,6 +770,79 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   await expect(
     recipientPage.getByText("내 동의 기록됨", { exact: true }),
   ).toBeVisible();
+
+  await expect(dialog.getByText("관리자 승인 대기", { exact: true })).toBeVisible();
+  const previousCandidateId = await dialog
+    .locator('.onepage-candidate-list button[aria-pressed="true"]')
+    .getAttribute("data-candidate-id");
+  expect(previousCandidateId).toBeTruthy();
+  await dialog
+    .getByRole("button", { name: "다른 안전한 지원안" })
+    .click();
+  await expect(
+    dialog.getByText(
+      "기존 후보를 제외하고 다른 안전한 지원안을 계산했습니다. 영향 기사의 새 확인이 필요합니다.",
+      { exact: true },
+    ),
+  ).toBeVisible();
+  const revisedCandidateId = await dialog
+    .locator('.onepage-candidate-list button[aria-pressed="true"]')
+    .getAttribute("data-candidate-id");
+  expect(revisedCandidateId).toBeTruthy();
+  expect(revisedCandidateId).not.toBe(previousCandidateId);
+
+  const revisedResponse = await request.get(
+    `/api/operations/sessions/${workspaceId}`,
+  );
+  expect(revisedResponse.ok()).toBe(true);
+  const revisedSession = (await revisedResponse.json()) as {
+    session: {
+      workspace: {
+        decisions: Array<{
+          decision: {
+            decisionId: string;
+            selectedCandidateId: string;
+            consentRequirements: Array<{
+              courierId: string;
+              required: boolean;
+              status: string;
+            }>;
+          };
+        }>;
+      };
+    };
+  };
+  const revisedDecision = revisedSession.session.workspace.decisions.find(
+    (item) => item.decision.decisionId === decisionId,
+  )!.decision;
+  expect(revisedDecision.selectedCandidateId).toBe(revisedCandidateId);
+  const revisedRequiredCourierIds = revisedDecision.consentRequirements
+    .filter((requirement) => requirement.required)
+    .map((requirement) => requirement.courierId);
+  expect(revisedRequiredCourierIds.length).toBeGreaterThan(0);
+  for (const requiredCourierId of revisedRequiredCourierIds) {
+    const riderPage =
+      requiredCourierId === courierId
+        ? sourcePage
+        : requiredCourierId === recipientId
+          ? recipientPage
+          : await context.newPage();
+    if (riderPage !== sourcePage && riderPage !== recipientPage) {
+      await riderPage.setViewportSize({ width: 390, height: 844 });
+      await riderPage.goto(
+        `/rider-demo?courier=${encodeURIComponent(requiredCourierId)}`,
+      );
+      await riderPage.getByRole("tab", { name: "안전지원" }).click();
+    }
+    const consentButton = riderPage.getByRole("button", {
+      name: "이 조정에 동의",
+    });
+    await expect(consentButton).toBeEnabled({ timeout: 10_000 });
+    await consentButton.click();
+    await expect(
+      riderPage.getByText("내 동의 기록됨", { exact: true }),
+    ).toBeVisible();
+  }
 
   await expect(dialog.getByText("관리자 승인 대기", { exact: true })).toBeVisible();
   await dialog.getByRole("button", { name: "보류" }).click();
