@@ -127,14 +127,18 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
   ).toBe(3);
   await expect(
     page.locator('.onepage-courier-card [data-profile-photo="synthetic"]'),
-  ).toHaveCount(20);
+  ).toHaveCount(25);
   await expect(
     page.locator('.onepage-courier-card [data-profile-photo="fallback"]'),
-  ).toHaveCount(5);
+  ).toHaveCount(0);
   await expect(page.locator(".onepage-profile-photo").first()).toHaveCSS(
     "background-image",
     /synthetic-courier-profiles-v1\.jpg/,
   );
+  await expect(
+    page.locator('[data-courier-card="demo-courier-025"] .onepage-profile-photo'),
+  ).toHaveCSS("background-image", /synthetic-courier-profiles-v2-extension\.jpg/);
+  await expect(page.getByRole("button", { name: "위험신호 0" })).toBeDisabled();
   expect(await page.locator("body").innerText()).toContain("강태현");
   expect(await page.locator("body").innerText()).not.toContain("합성 기사 001");
   expect(await page.locator("body").innerText()).not.toContain("강남 허브");
@@ -292,6 +296,7 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   await expect(page.locator(".rider-role-menu summary")).toContainText(
     target.courier.displayLabel,
   );
+  await expect(page.getByRole("button", { name: "초기화" })).toHaveCount(0);
   await expect(
     page.getByRole("heading", { name: target.plan.stops[0].coarseZone }),
   ).toBeVisible();
@@ -446,6 +451,9 @@ test("별도 기사 앱의 응급 합성 신호가 새로고침 없이 열린 �
     );
     await riderPage.getByRole("tab", { name: "안전지원" }).click();
     await riderPage.getByRole("button", { name: "응급 상황 전송" }).click();
+    await expect(
+      riderPage.getByText("관제 화면에 합성 위험 신호를 보냈습니다."),
+    ).toBeVisible();
 
     await expect
       .poll(

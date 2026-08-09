@@ -90,7 +90,7 @@ const commands = [
     "PLAYWRIGHT_E2E",
     ["run", "test:e2e"],
     /\b\d+ passed\b/,
-    300_000,
+    360_000,
   ),
   runPnpm(
     "CLEAN_START_3X",

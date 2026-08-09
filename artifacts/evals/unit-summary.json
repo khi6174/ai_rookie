@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-08-08T05:50:44.025Z",
+  "capturedAt": "2026-08-09T02:49:16.569Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 68,
-  "testCount": 406,
-  "passed": 406,
+  "testFileCount": 70,
+  "testCount": 421,
+  "passed": 421,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -203,7 +203,7 @@
     {
       "file": "operations-service.test.ts",
       "status": "passed",
-      "assertionCount": 15
+      "assertionCount": 20
     },
     {
       "file": "operations-session-store.test.ts",
@@ -233,7 +233,7 @@
     {
       "file": "rider-map-presentation.test.ts",
       "status": "passed",
-      "assertionCount": 3
+      "assertionCount": 5
     },
     {
       "file": "rider-profile-store.test.ts",
@@ -263,7 +263,7 @@
     {
       "file": "shadow-live-contract.test.ts",
       "status": "passed",
-      "assertionCount": 9
+      "assertionCount": 10
     },
     {
       "file": "shadow-live-store.test.ts",
@@ -301,6 +301,11 @@
       "assertionCount": 2
     },
     {
+      "file": "synthetic-live-operations.test.ts",
+      "status": "passed",
+      "assertionCount": 3
+    },
+    {
       "file": "synthetic-operations-documents.test.ts",
       "status": "passed",
       "assertionCount": 5
@@ -309,6 +314,11 @@
       "file": "synthetic-operations-store.test.ts",
       "status": "passed",
       "assertionCount": 3
+    },
+    {
+      "file": "synthetic-shadow-stream.test.ts",
+      "status": "passed",
+      "assertionCount": 4
     },
     {
       "file": "taas-public-data.test.ts",

@@ -1999,6 +1999,9 @@ function RiderView({
 }) {
   const [tab, setTab] = useState<RiderTab>("ROUTE");
   const [profileGuideOpen, setProfileGuideOpen] = useState(false);
+  const [dangerDemoStatus, setDangerDemoStatus] = useState<
+    "IDLE" | "SENDING" | "SENT" | "ERROR"
+  >("IDLE");
   const sharedArtifacts = sharedDecision?.workspace.decisions.find(
     (item) => item.decision.decisionId === sharedDecision.decisionId,
   );
@@ -2101,7 +2104,8 @@ function RiderView({
     setTab(nextTab);
     window.scrollTo({ top: 0, behavior: "auto" });
   };
-  const sendDangerDemoSignal = () => {
+  const sendDangerDemoSignal = async () => {
+    setDangerDemoStatus("SENDING");
     let storage: Storage | undefined;
     try {
       storage = window.localStorage;
@@ -2113,7 +2117,12 @@ function RiderView({
       storage,
       eventTarget: window,
     });
-    void saveDemoRiderDangerSignal(signal).catch(() => undefined);
+    try {
+      await saveDemoRiderDangerSignal(signal);
+      setDangerDemoStatus("SENT");
+    } catch {
+      setDangerDemoStatus("ERROR");
+    }
   };
 
   return (
@@ -2127,7 +2136,9 @@ function RiderView({
           </div>
           <div className="rider-toolbar-actions">
             <a className="rider-dashboard-link" href="/">관제</a>
-            <button type="button" className="rider-reset-button" onClick={onReset}>초기화</button>
+            {!directRiderEntry && (
+              <button type="button" className="rider-reset-button" onClick={onReset}>초기화</button>
+            )}
             {directRiderEntry
               ? <RiderProfileMenu profile={riderProfile} />
               : <RiderRoleMenu role={role} onChange={onRoleChange} />}
@@ -2267,9 +2278,23 @@ function RiderView({
               </section>
             )}
             <section className="rider-danger-demo" aria-label="응급 상황 전송">
-              <button type="button" onClick={sendDangerDemoSignal}>
-                응급 상황 전송
+              <button
+                type="button"
+                disabled={dangerDemoStatus === "SENDING"}
+                onClick={() => void sendDangerDemoSignal()}
+              >
+                {dangerDemoStatus === "SENDING" ? "전송 중…" : "응급 상황 전송"}
               </button>
+              {dangerDemoStatus === "SENT" && (
+                <p className="rider-danger-status is-sent" role="status">
+                  관제 화면에 합성 위험 신호를 보냈습니다.
+                </p>
+              )}
+              {dangerDemoStatus === "ERROR" && (
+                <p className="rider-danger-status is-error" role="alert">
+                  관제 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.
+                </p>
+              )}
             </section>
           </section>
         )}

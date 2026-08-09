@@ -7822,6 +7822,28 @@ body {
   background: #912018;
 }
 
+.rider-danger-demo > button:disabled {
+  cursor: wait;
+  opacity: 0.72;
+}
+
+.rider-danger-demo > .rider-danger-status {
+  display: block;
+  margin: 8px 2px 0;
+  color: var(--design-ink-muted);
+  font-size: 0.72rem;
+  font-weight: 750;
+  line-height: 1.45;
+}
+
+.rider-danger-demo > .rider-danger-status.is-sent {
+  color: #067647;
+}
+
+.rider-danger-demo > .rider-danger-status.is-error {
+  color: #b42318;
+}
+
 @media (max-width: 430px) {
   .rider-actions {
     grid-template-columns: repeat(3, minmax(0, 1fr));

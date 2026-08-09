@@ -76,6 +76,7 @@ import {
 import { axModelQualification } from "./axModelQualification";
 import { generateOperationsAdminExplanation } from "./operationsExplanation";
 import syntheticCourierProfiles from "../assets/synthetic-courier-profiles-v1.jpg";
+import syntheticCourierProfileExtension from "../assets/synthetic-courier-profiles-v2-extension.jpg";
 import "./one-page-dashboard.css";
 
 type SupportState =
@@ -336,12 +337,20 @@ function syntheticProfileIndex(courierId: string) {
   const match = courierId.match(/^demo-courier-(\d{3})$/);
   if (!match) return undefined;
   const index = Number.parseInt(match[1], 10) - 1;
-  return index >= 0 && index < 20 ? index : undefined;
+  return index >= 0 && index < 25 ? index : undefined;
 }
 
 function syntheticProfileStyle(courierId: string): CSSProperties | undefined {
   const index = syntheticProfileIndex(courierId);
   if (index === undefined) return undefined;
+  if (index >= 20) {
+    const extensionIndex = index - 20;
+    return {
+      backgroundImage: `url(${syntheticCourierProfileExtension})`,
+      backgroundPosition: `${extensionIndex * 25}% 0%`,
+      backgroundSize: "500% auto",
+    };
+  }
   return {
     backgroundImage: `url(${syntheticCourierProfiles})`,
     backgroundPosition: `${(index % 5) * 25}% ${Math.floor(index / 5) * (100 / 3)}%`,
@@ -2333,6 +2342,7 @@ export function OnePageDashboardDemo() {
                 type="button"
                 className={value === "SIGNAL" ? "is-danger-filter" : undefined}
                 aria-pressed={filter === value}
+                disabled={value === "SIGNAL" && count === 0}
                 onClick={() => changeFilter(value)}
               >
                 {label} <b>{count}</b>
