@@ -128,6 +128,12 @@ const checks = [
       !/drop-shadow\s*\(/.test(stylesheet),
   },
   {
+    id: "NO_ASYMMETRIC_SIDE_ACCENT",
+    passed:
+      !/border-(?:left|right)(?:-color|-width)?:/.test(stylesheet) &&
+      !/box-shadow:\s*inset/.test(stylesheet),
+  },
+  {
     id: "HUMAN_READABLE_LIMITATION",
     passed:
       ui.includes("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다") &&

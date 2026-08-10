@@ -45,6 +45,34 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
         ),
     );
   expect(shadowedElements).toEqual([]);
+  const asymmetricBorders = await page
+    .locator(".scenario-forecast, .scenario-alternative-list article")
+    .evaluateAll((elements) =>
+      elements
+        .map((element) => {
+          const style = getComputedStyle(element);
+          return {
+            element: `${element.tagName.toLowerCase()}.${element.className}`,
+            widths: [
+              style.borderTopWidth,
+              style.borderRightWidth,
+              style.borderBottomWidth,
+              style.borderLeftWidth,
+            ],
+            colors: [
+              style.borderTopColor,
+              style.borderRightColor,
+              style.borderBottomColor,
+              style.borderLeftColor,
+            ],
+          };
+        })
+        .filter(
+          ({ widths, colors }) =>
+            new Set(widths).size !== 1 || new Set(colors).size !== 1,
+        ),
+    );
+  expect(asymmetricBorders).toEqual([]);
   await page.screenshot({
     path: "artifacts/evals/screenshots/scenario-planning-1440x900.png",
     fullPage: true,

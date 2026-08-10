@@ -1685,8 +1685,8 @@
 - 날짜: 2026-08-10
 - 상태: Approved
 - 사용자 결정: `/scenario`에서 `고정 폐루프` 항목을 제거하고 현재·향후 디자인에 그림자를 사용하지 않도록 요청했다.
-- 결정: Scenario 상단에서 고정 Demo 링크와 고정 장면 비교 문구를 제거한다. 회귀검증용 `/closed-loop-demo` 경로 자체는 삭제하지 않지만 공개 이동 항목으로 노출하지 않는다. 신규·변경 UI는 `box-shadow`, `text-shadow`, `drop-shadow` 없이 경계·면색·여백·텍스트로 층위와 상태를 표현한다.
-- 검증: `/scenario` E2E에서 고정 폐루프 링크 부재와 모든 렌더 요소의 계산된 shadow 부재를 검사한다.
+- 결정: Scenario 상단에서 고정 Demo 링크와 고정 장면 비교 문구를 제거한다. 회귀검증용 `/closed-loop-demo` 경로 자체는 삭제하지 않지만 공개 이동 항목으로 노출하지 않는다. 신규·변경 UI는 `box-shadow`, `text-shadow`, `drop-shadow`와 좌우 한쪽의 두꺼운 경계 없이 사방이 동일한 경계·면색·여백·텍스트로 층위와 상태를 표현한다.
+- 검증: `/scenario` E2E에서 고정 폐루프 링크 부재, 모든 렌더 요소의 계산된 shadow 부재, 결과·개입 카드의 사방 경계 굵기와 색 일치를 검사한다.
 - 이유: 현재 서비스 경로에 과거 시연 동선을 함께 노출하지 않고, 사용자가 승인한 평면적 시각 언어를 반복해서 위반하지 않기 위해 구현 규칙과 자동 회귀검사를 함께 둔다.
 - 기각한 대안: 링크만 시각적으로 숨김, 그림자를 더 약하게 유지, 포커스 표시를 shadow ring으로 구현, 회귀검증 경로까지 삭제.
 - 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `docs/design-system.md`, `docs/product-spec.md`, `docs/decisions.md`
