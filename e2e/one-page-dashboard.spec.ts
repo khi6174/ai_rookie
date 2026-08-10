@@ -264,12 +264,15 @@ test("지도 대체 화면도 25명 마커를 표시하고 한 지점에 네 명
   const overlapCounts = await markers.evaluateAll((items) => {
     const rectangles = items.map((item) => item.getBoundingClientRect());
     return rectangles.map((rectangle) =>
-      rectangles.filter((candidate) =>
-        rectangle.left < candidate.right &&
-        rectangle.right > candidate.left &&
-        rectangle.top < candidate.bottom &&
-        rectangle.bottom > candidate.top,
-      ).length,
+      rectangles.filter((candidate) => {
+        const distance = Math.hypot(
+          rectangle.left + rectangle.width / 2 -
+            (candidate.left + candidate.width / 2),
+          rectangle.top + rectangle.height / 2 -
+            (candidate.top + candidate.height / 2),
+        );
+        return distance <= Math.min(rectangle.width, rectangle.height) / 2;
+      }).length,
     );
   });
 

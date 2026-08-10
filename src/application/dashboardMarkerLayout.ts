@@ -8,6 +8,7 @@ export type DashboardMarkerPoint = {
 
 export type DashboardMarkerLayout = {
   id: string;
+  groupId: string;
   groupSize: number;
   anchorMapX: number;
   anchorMapY: number;
@@ -75,6 +76,7 @@ export function createDashboardMarkerLayout(
     }
 
     const rowCount = Math.ceil(group.length / maximumColumns);
+    const groupId = group[0].id;
     const anchorMapX =
       group.reduce((total, point) => total + point.mapX, 0) / group.length;
     const anchorMapY =
@@ -100,6 +102,7 @@ export function createDashboardMarkerLayout(
       const column = index - rowStart;
       layout.set(point.id, {
         id: point.id,
+        groupId,
         groupSize: group.length,
         anchorMapX,
         anchorMapY,
@@ -112,4 +115,47 @@ export function createDashboardMarkerLayout(
   }
 
   return layout;
+}
+
+export function updateDashboardMarkerAnchors(
+  layout: Map<string, DashboardMarkerLayout>,
+  points: DashboardMarkerPoint[],
+): Map<string, DashboardMarkerLayout> {
+  const pointsByGroup = new Map<string, DashboardMarkerPoint[]>();
+  for (const point of points) {
+    const item = layout.get(point.id);
+    if (!item) continue;
+    const group = pointsByGroup.get(item.groupId) ?? [];
+    group.push(point);
+    pointsByGroup.set(item.groupId, group);
+  }
+
+  return new Map(
+    [...layout.entries()].map(([id, item]) => {
+      const group = pointsByGroup.get(item.groupId);
+      if (!group?.length) return [id, item];
+      const geographicGroup = group.filter(
+        (point) => point.latitude !== undefined && point.longitude !== undefined,
+      );
+      return [id, {
+        ...item,
+        anchorMapX:
+          group.reduce((total, point) => total + point.mapX, 0) / group.length,
+        anchorMapY:
+          group.reduce((total, point) => total + point.mapY, 0) / group.length,
+        anchorLatitude: geographicGroup.length === group.length
+          ? geographicGroup.reduce(
+              (total, point) => total + point.latitude!,
+              0,
+            ) / geographicGroup.length
+          : undefined,
+        anchorLongitude: geographicGroup.length === group.length
+          ? geographicGroup.reduce(
+              (total, point) => total + point.longitude!,
+              0,
+            ) / geographicGroup.length
+          : undefined,
+      }];
+    }),
+  );
 }

@@ -837,7 +837,7 @@
     var(--map-marker-offset-x, 0),
     var(--map-marker-offset-y, 0)
   );
-  transition: transform .2s linear, border-color .15s ease;
+  transition: border-color .15s ease;
 }
 
 .onepage-kakao-marker > img {
@@ -1049,7 +1049,7 @@
     var(--map-marker-offset-x, 0),
     var(--map-marker-offset-y, 0)
   );
-  transition: left .9s linear, top .9s linear, transform .2s linear, border-color .15s ease;
+  transition: left .9s linear, top .9s linear, border-color .15s ease;
 }
 
 .onepage-map-marker > span {

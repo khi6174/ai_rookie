@@ -28,6 +28,7 @@ import {
 import {
   createDashboardCameraFrameKey,
   createDashboardMarkerLayout,
+  updateDashboardMarkerAnchors,
 } from "../application/dashboardMarkerLayout";
 import {
   createSyntheticLiveOperationsFrame,
@@ -754,8 +755,12 @@ function DashboardKakaoMap({
         mapRef.current = map;
         const bounds = new maps.LatLngBounds();
 
-        const initialMarkerLayout = createDashboardMarkerLayout(
-          couriers.map((courier) => simulatedCourierPosition(courier, movementSecond)),
+        const initialMovingCouriers = couriers.map((courier) =>
+          simulatedCourierPosition(courier, movementSecond),
+        );
+        const initialMarkerLayout = updateDashboardMarkerAnchors(
+          createDashboardMarkerLayout(couriers),
+          initialMovingCouriers,
         );
         couriers.forEach((courier) => {
           if (!map) return;
@@ -991,7 +996,10 @@ function DashboardKakaoMap({
     const movingCouriers = couriers.map((courier) =>
       simulatedCourierPosition(courier, movementSecond),
     );
-    const markerLayout = createDashboardMarkerLayout(movingCouriers);
+    const markerLayout = updateDashboardMarkerAnchors(
+      createDashboardMarkerLayout(couriers),
+      movingCouriers,
+    );
     movingCouriers.forEach((movingCourier) => {
       const courier = movingCourier;
       const button = markerButtonsRef.current.get(courier.id);
@@ -1623,7 +1631,10 @@ export function OnePageDashboardDemo() {
   const movingCouriers = couriers.map((courier) =>
     simulatedCourierPosition(courier, movementSecond),
   );
-  const markerLayout = createDashboardMarkerLayout(movingCouriers);
+  const markerLayout = updateDashboardMarkerAnchors(
+    createDashboardMarkerLayout(couriers),
+    movingCouriers,
+  );
   const movingSelectedCourier =
     movingCouriers.find((courier) => courier.id === selectedId) ??
     movingCouriers[0];

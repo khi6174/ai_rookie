@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   createDashboardCameraFrameKey,
   createDashboardMarkerLayout,
+  updateDashboardMarkerAnchors,
 } from "../src/application/dashboardMarkerLayout";
 
 describe("dashboard marker layout", () => {
@@ -50,6 +51,7 @@ describe("dashboard marker layout", () => {
     expect([...first.entries()]).toEqual([...second.entries()]);
     expect(first.get("courier-c")).toEqual({
       id: "courier-c",
+      groupId: "courier-c",
       groupSize: 1,
       anchorMapX: 80,
       anchorMapY: 80,
@@ -57,6 +59,32 @@ describe("dashboard marker layout", () => {
       anchorLongitude: undefined,
       offsetColumn: 0,
       offsetRow: 0,
+    });
+  });
+
+  it("keeps group slots stable while moving their shared display anchor", () => {
+    const base = createDashboardMarkerLayout([
+      { id: "courier-a", mapX: 10, mapY: 10 },
+      { id: "courier-b", mapX: 11, mapY: 11 },
+    ]);
+    const moved = updateDashboardMarkerAnchors(base, [
+      { id: "courier-a", mapX: 20, mapY: 30, latitude: 37.5, longitude: 127 },
+      { id: "courier-b", mapX: 22, mapY: 32, latitude: 37.7, longitude: 127.2 },
+    ]);
+
+    expect(moved.get("courier-a")).toMatchObject({
+      groupId: "courier-a",
+      anchorMapX: 21,
+      anchorMapY: 31,
+      anchorLatitude: 37.6,
+      anchorLongitude: 127.1,
+      offsetColumn: -0.5,
+    });
+    expect(moved.get("courier-b")).toMatchObject({
+      groupId: "courier-a",
+      anchorMapX: 21,
+      anchorMapY: 31,
+      offsetColumn: 0.5,
     });
   });
 });
