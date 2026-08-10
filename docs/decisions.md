@@ -1700,6 +1700,15 @@
 - 검증: 1440×900 E2E에서 정확한 제목, 단일 행 높이와 `.scenario-boundary` 부재를 확인하고 390×844 overflow 검사를 유지한다.
 - 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `docs/product-spec.md`, `docs/decisions.md`
 
+### ADR-165 — Scenario 하단의 별도 남색 한계 카드를 제거한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 하단 남색 실연동 한계 카드를 삭제하고 관련 설명은 발표에서 직접 전달하도록 요청했다.
+- 결정: `.scenario-limitations` 카드와 전용 스타일을 제거한다. 출처를 실제 데이터로 오인시키지 않도록 `현재 자원`의 결정론 엔진 카드에는 `합성 기준계획`을 일반 본문으로 유지한다.
+- 검증: E2E와 Scenario 감사에서 카드·장문 문구 부재, `합성 기준계획` 출처 문구 존재를 함께 확인한다.
+- 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `scripts/run-scenario-planning-readiness.mjs`, `docs/product-spec.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

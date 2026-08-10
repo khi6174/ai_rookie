@@ -134,10 +134,12 @@ const checks = [
       !/box-shadow:\s*inset/.test(stylesheet),
   },
   {
-    id: "HUMAN_READABLE_LIMITATION",
+    id: "RESOURCE_EXPLANATION_PRESENT",
     passed:
-      ui.includes("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다") &&
-      ui.includes("운영 위험 예측"),
+      ui.includes("무엇을 계산에 사용했는가") &&
+      ui.includes("합성 기준계획의 Safety Budget") &&
+      !ui.includes("scenario-limitations") &&
+      !ui.includes("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다"),
   },
 ];
 
