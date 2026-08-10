@@ -3,10 +3,19 @@ import { expect, test } from "@playwright/test";
 test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계산한다", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/scenario");
-  await expect(
-    page.getByRole("heading", { name: "상황을 입력하면 현재 계획을 다시 예측합니다." }),
-  ).toBeVisible();
-  await expect(page.getByText("사용자 입력 운영조건", { exact: true })).toBeVisible();
+  const heroHeading = page.getByRole("heading", {
+    name: "상황에 맞게 현재 계획을 예측합니다.",
+  });
+  await expect(heroHeading).toBeVisible();
+  await expect(page.locator(".scenario-boundary")).toHaveCount(0);
+  const headingMetrics = await heroHeading.evaluate((element) => {
+    const style = getComputedStyle(element);
+    return {
+      height: element.getBoundingClientRect().height,
+      lineHeight: Number.parseFloat(style.lineHeight),
+    };
+  });
+  expect(headingMetrics.height).toBeLessThanOrEqual(headingMetrics.lineHeight * 1.2);
   await expect(page.getByRole("link", { name: "고정 폐루프" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "안전 제약 통과안" })).toBeVisible();
   await expect(page.getByText("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다.", { exact: false })).toBeVisible();

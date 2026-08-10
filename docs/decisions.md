@@ -1691,6 +1691,15 @@
 - 기각한 대안: 링크만 시각적으로 숨김, 그림자를 더 약하게 유지, 포커스 표시를 shadow ring으로 구현, 회귀검증 경로까지 삭제.
 - 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `docs/design-system.md`, `docs/product-spec.md`, `docs/decisions.md`
 
+### ADR-164 — Scenario 첫 화면의 중복 계산 카드를 제거한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 상단 `현재 계산` 카드를 삭제하고 제목을 `상황에 맞게 현재 계획을 예측합니다.`로 한 줄 표시하도록 요청했다.
+- 결정: Hero 다음에는 입력·결과 작업영역을 바로 배치한다. 출처와 외부연동 경계는 하단 `현재 자원`에서 유지해 데이터 경계를 숨기지 않는다. 제목은 데스크톱에서 한 줄, 좁은 화면에서는 overflow 없이 자연스럽게 줄바꿈한다.
+- 검증: 1440×900 E2E에서 정확한 제목, 단일 행 높이와 `.scenario-boundary` 부재를 확인하고 390×844 overflow 검사를 유지한다.
+- 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `docs/product-spec.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

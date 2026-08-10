@@ -140,7 +140,7 @@ export function ScenarioPlanningLab() {
       <header className="scenario-hero">
         <div>
           <span className="scenario-kicker">Scenario-driven Safety Copilot</span>
-          <h1>상황을 입력하면 현재 계획을 다시 예측합니다.</h1>
+          <h1>상황에 맞게 현재 계획을 예측합니다.</h1>
           <p>
             입력된 운영조건을 검증한 뒤 Safety Budget, Time-to-Breach와 실행 가능한
             개입안을 현재 결정론 엔진으로 다시 계산합니다.
@@ -150,14 +150,6 @@ export function ScenarioPlanningLab() {
           <a href="/">운영 관제</a>
         </nav>
       </header>
-
-      <section className="scenario-boundary" aria-label="현재 계산 경계">
-        <strong>현재 계산</strong>
-        <span>사용자 입력 운영조건</span>
-        <span>결정론적 합성 기준계획</span>
-        <span>외부 쓰기 없음</span>
-        <small>기상청 공개데이터 연동 근거는 문맥으로만 표시하며, 불완전한 필드는 Safety 계산에 섞지 않습니다.</small>
-      </section>
 
       <div className="scenario-layout">
         <form className="scenario-form" noValidate onSubmit={runPrediction} aria-labelledby="scenario-input-heading">
