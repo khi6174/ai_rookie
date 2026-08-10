@@ -81,21 +81,6 @@ export function createDashboardMarkerLayout(
 
     const rowCount = Math.ceil(group.length / maximumColumns);
     const groupId = group[0].id;
-    const anchorMapX =
-      group.reduce((total, point) => total + point.mapX, 0) / group.length;
-    const anchorMapY =
-      group.reduce((total, point) => total + point.mapY, 0) / group.length;
-    const geographicGroup = group.filter(
-      (point) => point.latitude !== undefined && point.longitude !== undefined,
-    );
-    const anchorLatitude = geographicGroup.length === group.length
-      ? geographicGroup.reduce((total, point) => total + point.latitude!, 0) /
-        geographicGroup.length
-      : undefined;
-    const anchorLongitude = geographicGroup.length === group.length
-      ? geographicGroup.reduce((total, point) => total + point.longitude!, 0) /
-        geographicGroup.length
-      : undefined;
     group.forEach((point, index) => {
       const row = Math.floor(index / maximumColumns);
       const rowStart = row * maximumColumns;
@@ -108,10 +93,10 @@ export function createDashboardMarkerLayout(
         id: point.id,
         groupId,
         groupSize: group.length,
-        anchorMapX,
-        anchorMapY,
-        anchorLatitude,
-        anchorLongitude,
+        anchorMapX: point.mapX,
+        anchorMapY: point.mapY,
+        anchorLatitude: point.latitude,
+        anchorLongitude: point.longitude,
         offsetColumn: column - (columnsInRow - 1) / 2,
         offsetRow: row - (rowCount - 1) / 2,
       });
@@ -125,40 +110,18 @@ export function updateDashboardMarkerAnchors(
   layout: Map<string, DashboardMarkerLayout>,
   points: DashboardMarkerPoint[],
 ): Map<string, DashboardMarkerLayout> {
-  const pointsByGroup = new Map<string, DashboardMarkerPoint[]>();
-  for (const point of points) {
-    const item = layout.get(point.id);
-    if (!item) continue;
-    const group = pointsByGroup.get(item.groupId) ?? [];
-    group.push(point);
-    pointsByGroup.set(item.groupId, group);
-  }
+  const pointsById = new Map(points.map((point) => [point.id, point]));
 
   return new Map(
     [...layout.entries()].map(([id, item]) => {
-      const group = pointsByGroup.get(item.groupId);
-      if (!group?.length) return [id, item];
-      const geographicGroup = group.filter(
-        (point) => point.latitude !== undefined && point.longitude !== undefined,
-      );
+      const point = pointsById.get(id);
+      if (!point) return [id, item];
       return [id, {
         ...item,
-        anchorMapX:
-          group.reduce((total, point) => total + point.mapX, 0) / group.length,
-        anchorMapY:
-          group.reduce((total, point) => total + point.mapY, 0) / group.length,
-        anchorLatitude: geographicGroup.length === group.length
-          ? geographicGroup.reduce(
-              (total, point) => total + point.latitude!,
-              0,
-            ) / geographicGroup.length
-          : undefined,
-        anchorLongitude: geographicGroup.length === group.length
-          ? geographicGroup.reduce(
-              (total, point) => total + point.longitude!,
-              0,
-            ) / geographicGroup.length
-          : undefined,
+        anchorMapX: point.mapX,
+        anchorMapY: point.mapY,
+        anchorLatitude: point.latitude,
+        anchorLongitude: point.longitude,
       }];
     }),
   );

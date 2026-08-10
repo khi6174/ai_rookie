@@ -1731,6 +1731,17 @@
 - 기각한 대안: 매 tick 전체 bounds 재적용, 기사 선택 때마다 fleet bounds 복원, 원본 경로 좌표 자체 수정, 8~9명을 하나의 허브 군집 버튼으로 축약, 선택 기사만 중복 렌더링.
 - 영향 파일: `src/application/dashboardMarkerLayout.ts`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/one-page-dashboard.css`, 관련 단위·E2E 테스트, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-168 — 마커 충돌 해소 중에도 기사별 독립 도로 이동을 보존한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 같은 허브 기사들이 공통 중심을 따라 한 몸처럼 이동하는 표현을 거절하고, 각 기사가 담당 구역 안에서 자유롭게 이동하도록 요청했다.
+- 결정: 각 마커의 Kakao 위경도와 Fallback `mapX/mapY` anchor는 해당 기사 자신의 `riderRoutePosition` 결과만 사용한다. 허브별 고정 슬롯은 화면상의 작은 x/y 오프셋만 제공하며, 기사 좌표를 평균하거나 공통 anchor로 대체하지 않는다. 따라서 각 기사는 자기 고유 polyline 진행률에 따라 독립적으로 움직이고 가까워질 때만 시각적으로 분리된다.
+- 검증: 단위 테스트는 같은 그룹 두 기사의 이동 후 anchor가 서로 다른 각자의 새 좌표인지 확인한다. E2E와 실배포 Kakao 검사는 25개 개별 마커, 3명 이하 밀집, 선택 가능성과 서로 다른 기사 위치 갱신을 확인한다.
+- 이유: 겹침 해소가 기사별 담당 구역·고유 코스·진행률을 지우면 지도는 실제 운영 맥락을 설명하지 못한다. 화면 충돌 방지는 위치 모델을 바꾸지 않는 프레젠테이션 보정이어야 한다.
+- 기각한 대안: 허브 평균 좌표로 전체 그룹 이동, 그룹 전체를 단일 마커로 축약, 기사별 경로 좌표 자체 변경, 겹침을 방치해 아래 마커 입력을 차단.
+- 영향 파일: `src/application/dashboardMarkerLayout.ts`, `src/ui/OnePageDashboardDemo.tsx`, 관련 단위·E2E 테스트, `docs/design-system.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

@@ -62,7 +62,7 @@ describe("dashboard marker layout", () => {
     });
   });
 
-  it("keeps group slots stable while moving their shared display anchor", () => {
+  it("keeps slots stable while moving every courier on its own route anchor", () => {
     const base = createDashboardMarkerLayout([
       { id: "courier-a", mapX: 10, mapY: 10 },
       { id: "courier-b", mapX: 11, mapY: 11 },
@@ -74,18 +74,23 @@ describe("dashboard marker layout", () => {
 
     expect(moved.get("courier-a")).toMatchObject({
       groupId: "courier-a",
-      anchorMapX: 21,
-      anchorMapY: 31,
-      anchorLatitude: 37.6,
-      anchorLongitude: 127.1,
+      anchorMapX: 20,
+      anchorMapY: 30,
+      anchorLatitude: 37.5,
+      anchorLongitude: 127,
       offsetColumn: -0.5,
     });
     expect(moved.get("courier-b")).toMatchObject({
       groupId: "courier-a",
-      anchorMapX: 21,
-      anchorMapY: 31,
+      anchorMapX: 22,
+      anchorMapY: 32,
+      anchorLatitude: 37.7,
+      anchorLongitude: 127.2,
       offsetColumn: 0.5,
     });
+    expect(moved.get("courier-a")?.anchorMapX).not.toBe(
+      moved.get("courier-b")?.anchorMapX,
+    );
   });
 
   it("uses an explicit hub key to keep crossing routes in stable groups", () => {
