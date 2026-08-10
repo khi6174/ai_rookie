@@ -253,6 +253,29 @@ test("25명 기사는 고유 배송 도로와 다음 배송지를 배정받고 �
   await expect(map).toHaveAttribute("data-map-focus-mode", "FLEET");
 });
 
+test("지도 대체 화면도 25명 마커를 표시하고 한 지점에 네 명 이상 겹치지 않는다", async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto("/");
+  const markers = page.locator(".onepage-map-canvas [data-map-marker]");
+  await expect(markers).toHaveCount(25);
+
+  const overlapCounts = await markers.evaluateAll((items) => {
+    const rectangles = items.map((item) => item.getBoundingClientRect());
+    return rectangles.map((rectangle) =>
+      rectangles.filter((candidate) =>
+        rectangle.left < candidate.right &&
+        rectangle.right > candidate.left &&
+        rectangle.top < candidate.bottom &&
+        rectangle.bottom > candidate.top,
+      ).length,
+    );
+  });
+
+  expect(Math.max(...overlapCounts)).toBeLessThanOrEqual(3);
+});
+
 test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기사 앱으로 연다", async ({
   page,
   request,

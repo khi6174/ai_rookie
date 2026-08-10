@@ -1,10 +1,10 @@
 {
   "schemaVersion": "domestic-track-compliance-v1",
-  "capturedAt": "2026-08-10T08:44:15.360Z",
+  "capturedAt": "2026-08-10T10:47:36.910Z",
   "status": "PASSED",
   "scope": {
     "competitionTrack": "DOMESTIC_AI",
-    "auditedTrackedFileCount": 183,
+    "auditedTrackedFileCount": 190,
     "auditedAreas": [
       "runtime adapters",
       "evaluation scripts",

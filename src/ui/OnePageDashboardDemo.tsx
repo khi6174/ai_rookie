@@ -26,6 +26,10 @@ import {
   type DashboardOperationsProjection,
 } from "../application/dashboardOperationsProjection";
 import {
+  createDashboardCameraFrameKey,
+  createDashboardMarkerLayout,
+} from "../application/dashboardMarkerLayout";
+import {
   createSyntheticLiveOperationsFrame,
   SYNTHETIC_LIVE_INTERVAL_MS,
   SYNTHETIC_LIVE_SAFETY_STRIDE_TICKS,
@@ -122,18 +126,6 @@ type DashboardDecisionContext = {
   baseSavedAt?: string;
   sent: boolean;
 };
-
-function hubClusters(couriers: Courier[]) {
-  return [...new Set(couriers.map((courier) => courier.hubId))].map((hubId) => {
-    const members = couriers.filter((courier) => courier.hubId === hubId);
-    return {
-      id: `cluster-${hubId}`,
-      x: members.reduce((total, courier) => total + courier.mapX, 0) / members.length,
-      y: members.reduce((total, courier) => total + courier.mapY, 0) / members.length,
-      memberIds: members.map((courier) => courier.id),
-    };
-  });
-}
 
 function courierAreaKey(courier: Courier) {
   return riderAreaKey({ areaCode: courier.area });
@@ -591,10 +583,20 @@ function AddCourierDialog({
 
 function MapMarker({
   courier,
+  offsetColumn,
+  offsetRow,
+  groupSize,
+  anchorMapX,
+  anchorMapY,
   selected,
   onSelect,
 }: {
   courier: PositionedCourier;
+  offsetColumn: number;
+  offsetRow: number;
+  groupSize: number;
+  anchorMapX: number;
+  anchorMapY: number;
   selected: boolean;
   onSelect: () => void;
 }) {
@@ -607,13 +609,19 @@ function MapMarker({
       data-latitude={courier.latitude.toFixed(6)}
       data-longitude={courier.longitude.toFixed(6)}
       data-live-activity={courier.live?.activity ?? "SNAPSHOT"}
+      data-overlap-group-size={groupSize}
       data-delivery-route-id={riderDeliveryRouteId({
         courierId: courier.id,
         areaCode: courier.area,
         mapX: courier.mapX,
         mapY: courier.mapY,
       })}
-      style={{ left: `${courier.mapX}%`, top: `${courier.mapY}%` }}
+      style={{
+        left: `${anchorMapX}%`,
+        top: `${anchorMapY}%`,
+        "--map-marker-offset-x": `${offsetColumn * 42}px`,
+        "--map-marker-offset-y": `${offsetRow * 42}px`,
+      } as CSSProperties}
       aria-label={`${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, ${stateLabel[state]}, ${supportTimingLabel(courier)}`}
       aria-pressed={selected}
       onClick={onSelect}
@@ -633,6 +641,17 @@ function updateDashboardMarkerScale(
   const size = Math.max(24, Math.round(riderMapMarkerSizePx(map.getLevel(), container.clientWidth) * 0.64));
   button.dataset.markerScale = scale;
   button.style.setProperty("--dashboard-marker-size", `${size}px`);
+  const offsetColumn = Number(button.dataset.offsetColumn ?? 0);
+  const offsetRow = Number(button.dataset.offsetRow ?? 0);
+  const markerGap = size + 14;
+  button.style.setProperty(
+    "--map-marker-offset-x",
+    `${offsetColumn * markerGap}px`,
+  );
+  button.style.setProperty(
+    "--map-marker-offset-y",
+    `${offsetRow * markerGap}px`,
+  );
   button.classList.toggle("is-scale-street", scale === "STREET");
   button.classList.toggle("is-scale-district", scale === "DISTRICT");
   button.classList.toggle("is-scale-overview", scale === "OVERVIEW");
@@ -690,6 +709,7 @@ function DashboardKakaoMap({
   const mapsNamespaceRef = useRef<KakaoMapsNamespace | undefined>(undefined);
   const mapRef = useRef<KakaoMapInstance | undefined>(undefined);
   const fleetBoundsRef = useRef<KakaoLatLngBounds | undefined>(undefined);
+  const cameraFrameKeyRef = useRef("");
   const [mapReadyVersion, setMapReadyVersion] = useState(0);
   const selectRef = useRef(onSelect);
   const javaScriptKey =
@@ -734,6 +754,9 @@ function DashboardKakaoMap({
         mapRef.current = map;
         const bounds = new maps.LatLngBounds();
 
+        const initialMarkerLayout = createDashboardMarkerLayout(
+          couriers.map((courier) => simulatedCourierPosition(courier, movementSecond)),
+        );
         couriers.forEach((courier) => {
           if (!map) return;
           const path = riderRoutePolyline({
@@ -760,7 +783,11 @@ function DashboardKakaoMap({
         couriers.forEach((courier) => {
           if (!map) return;
           const point = simulatedCourierPosition(courier, movementSecond);
-          const position = new maps.LatLng(point.latitude, point.longitude);
+          const markerLayout = initialMarkerLayout.get(courier.id)!;
+          const position = new maps.LatLng(
+            markerLayout.anchorLatitude ?? point.latitude,
+            markerLayout.anchorLongitude ?? point.longitude,
+          );
           const state = supportState(courier.budget, courier.currentScore);
           const button = document.createElement("button");
           const truckImage = document.createElement("img");
@@ -778,6 +805,9 @@ function DashboardKakaoMap({
           });
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
+          button.dataset.offsetColumn = String(markerLayout.offsetColumn);
+          button.dataset.offsetRow = String(markerLayout.offsetRow);
+          button.dataset.overlapGroupSize = String(markerLayout.groupSize);
           button.setAttribute("aria-label", `${courier.name} 기사 갱신 위치, 안전 지원 점수 ${budgetDisplay(courier.budget)}, ${stateLabel[state]}`);
           truckImage.src = "/assets/rider-truck-top-2d.png";
           truckImage.alt = "";
@@ -865,6 +895,7 @@ function DashboardKakaoMap({
       mapsNamespaceRef.current = undefined;
       mapRef.current = undefined;
       fleetBoundsRef.current = undefined;
+      cameraFrameKeyRef.current = "";
       container.replaceChildren();
       map = undefined;
     };
@@ -920,13 +951,21 @@ function DashboardKakaoMap({
       }));
       routeBounds.extend(position);
     });
-    map.setBounds(
-      focusMode === "COURIER" ? routeBounds : fleetBoundsRef.current ?? routeBounds,
-      focusMode === "COURIER" ? 86 : 56,
-      focusMode === "COURIER" ? 86 : 56,
-      focusMode === "COURIER" ? 86 : 56,
-      focusMode === "COURIER" ? 86 : 56,
+    const cameraFrameKey = createDashboardCameraFrameKey(
+      mapReadyVersion,
+      focusMode,
+      selectedId,
     );
+    if (cameraFrameKeyRef.current !== cameraFrameKey) {
+      map.setBounds(
+        focusMode === "COURIER" ? routeBounds : fleetBoundsRef.current ?? routeBounds,
+        focusMode === "COURIER" ? 86 : 56,
+        focusMode === "COURIER" ? 86 : 56,
+        focusMode === "COURIER" ? 86 : 56,
+        focusMode === "COURIER" ? 86 : 56,
+      );
+      cameraFrameKeyRef.current = cameraFrameKey;
+    }
     return () => detailOverlays.forEach((overlay) => overlay.setMap(null));
   }, [
     focusMode,
@@ -949,15 +988,26 @@ function DashboardKakaoMap({
   useEffect(() => {
     const maps = mapsNamespaceRef.current;
     if (!maps) return;
-    couriers.forEach((courier) => {
-      const movingCourier = simulatedCourierPosition(courier, movementSecond);
+    const movingCouriers = couriers.map((courier) =>
+      simulatedCourierPosition(courier, movementSecond),
+    );
+    const markerLayout = createDashboardMarkerLayout(movingCouriers);
+    movingCouriers.forEach((movingCourier) => {
+      const courier = movingCourier;
       const button = markerButtonsRef.current.get(courier.id);
       if (button) {
         const state = supportState(courier.budget, courier.currentScore);
+        const layout = markerLayout.get(courier.id)!;
         button.dataset.latitude = movingCourier.latitude.toFixed(6);
         button.dataset.longitude = movingCourier.longitude.toFixed(6);
         button.dataset.liveActivity = courier.live?.activity ?? "SNAPSHOT";
+        button.dataset.offsetColumn = String(layout.offsetColumn);
+        button.dataset.offsetRow = String(layout.offsetRow);
+        button.dataset.overlapGroupSize = String(layout.groupSize);
         button.className = `onepage-map-marker onepage-kakao-marker state-${state.toLowerCase()}${courier.id === selectedId ? " is-selected" : ""}`;
+        const map = mapRef.current;
+        const container = containerRef.current;
+        if (map && container) updateDashboardMarkerScale(button, map, container);
         button.setAttribute(
           "aria-label",
           `${courier.name} 기사 ${courier.live?.activityLabel ?? "갱신 위치"}, 안전 지원 점수 ${budgetDisplay(courier.budget)}, ${stateLabel[state]}`,
@@ -965,7 +1015,10 @@ function DashboardKakaoMap({
       }
       markerOverlaysRef.current
         .get(courier.id)
-        ?.setPosition(new maps.LatLng(movingCourier.latitude, movingCourier.longitude));
+        ?.setPosition(new maps.LatLng(
+          markerLayout.get(courier.id)?.anchorLatitude ?? movingCourier.latitude,
+          markerLayout.get(courier.id)?.anchorLongitude ?? movingCourier.longitude,
+        ));
     });
   }, [couriers, movementSecond, selectedId]);
 
@@ -1543,10 +1596,6 @@ export function OnePageDashboardDemo() {
       (liveStateByCourier.get(courier.id)?.completedStopCount ?? courier.completed),
   }));
   const hubs = projection?.hubs ?? [];
-  const clusters = hubClusters(couriers);
-  const clusteredIds = new Set(
-    clusters.flatMap((cluster) => cluster.memberIds),
-  );
   const selectedCourier = couriers.find((courier) => courier.id === selectedId) ?? couriers[0];
   const urgentCouriers = couriers
     .filter((courier) => courier.budget < 45)
@@ -1574,6 +1623,7 @@ export function OnePageDashboardDemo() {
   const movingCouriers = couriers.map((courier) =>
     simulatedCourierPosition(courier, movementSecond),
   );
+  const markerLayout = createDashboardMarkerLayout(movingCouriers);
   const movingSelectedCourier =
     movingCouriers.find((courier) => courier.id === selectedId) ??
     movingCouriers[0];
@@ -2185,7 +2235,6 @@ export function OnePageDashboardDemo() {
     );
   }
 
-  const selectedIsClustered = clusteredIds.has(selectedId);
   const selectedHub = hubs.find((hub) => hub.hubId === selectedCourier.hubId)!;
   const selectedRoutePoints = riderRoutePolyline({
     courierId: selectedCourier.id,
@@ -2516,44 +2565,22 @@ export function OnePageDashboardDemo() {
                   </span>
                 ))}
 
-                {movingCouriers
-                  .filter((courier) => !clusteredIds.has(courier.id))
-                  .map((courier) => (
+                {movingCouriers.map((courier) => {
+                  const layout = markerLayout.get(courier.id)!;
+                  return (
                     <MapMarker
                       key={courier.id}
                       courier={courier}
+                      offsetColumn={layout.offsetColumn}
+                      offsetRow={layout.offsetRow}
+                      groupSize={layout.groupSize}
+                      anchorMapX={layout.anchorMapX}
+                      anchorMapY={layout.anchorMapY}
                       selected={selectedId === courier.id}
                       onSelect={() => selectCourier(courier.id, true)}
                     />
-                  ))}
-
-                {clusters.map((cluster) => {
-                  const members = cluster.memberIds
-                    .map((id) => couriers.find((courier) => courier.id === id))
-                    .filter((courier): courier is Courier => Boolean(courier));
-                  const priority = [...members].sort((a, b) => a.budget - b.budget)[0];
-                  return (
-                    <button
-                      key={cluster.id}
-                      className="onepage-map-cluster"
-                      style={{ left: `${cluster.x}%`, top: `${cluster.y}%` }}
-                      aria-label={`${priority.name} 기사 외 ${members.length - 1}명 묶음`}
-                      onClick={() => selectCourier(priority.id, true)}
-                      type="button"
-                    >
-                      <strong>{members.length}</strong>
-                      <small>{stateLabel[supportState(priority.budget, priority.currentScore)]}</small>
-                    </button>
                   );
                 })}
-
-                {selectedIsClustered ? (
-                  <MapMarker
-                    courier={movingSelectedCourier}
-                    selected
-                    onSelect={() => selectCourier(selectedCourier.id, true)}
-                  />
-                ) : null}
               </>
             ) : null}
 
