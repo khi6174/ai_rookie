@@ -7,6 +7,13 @@
   font-variant-numeric: tabular-nums;
 }
 
+.scenario-page,
+.scenario-page *,
+.scenario-page *::before,
+.scenario-page *::after {
+  box-shadow: none;
+  text-shadow: none;
+}
 .scenario-page * { box-sizing: border-box; }
 .scenario-page button,
 .scenario-page input,
@@ -38,7 +45,7 @@
 .scenario-layout { display: grid; grid-template-columns: minmax(360px, .82fr) minmax(560px, 1.18fr); gap: 20px; margin-top: 20px; align-items: start; }
 .scenario-form,
 .scenario-results,
-.scenario-resources { border: 1px solid #d9e2ec; border-radius: 18px; background: #fff; box-shadow: 0 16px 40px rgb(16 42 67 / .06); }
+.scenario-resources { border: 1px solid #d9e2ec; border-radius: 18px; background: #fff; }
 .scenario-form,
 .scenario-results { padding: 22px; }
 

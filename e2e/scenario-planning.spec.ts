@@ -7,6 +7,7 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
     page.getByRole("heading", { name: "상황을 입력하면 현재 계획을 다시 예측합니다." }),
   ).toBeVisible();
   await expect(page.getByText("사용자 입력 운영조건", { exact: true })).toBeVisible();
+  await expect(page.getByRole("link", { name: "고정 폐루프" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "안전 제약 통과안" })).toBeVisible();
   await expect(page.getByText("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다.", { exact: false })).toBeVisible();
 
@@ -23,6 +24,27 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
     )
     .not.toBe(initialScenarioId);
   await expect(page.locator(".scenario-recommended-card")).toBeVisible();
+  const shadowedElements = await page
+    .locator(".scenario-page, .scenario-page *")
+    .evaluateAll((elements) =>
+      elements
+        .map((element) => {
+          const style = getComputedStyle(element);
+          return {
+            element: `${element.tagName.toLowerCase()}.${element.className}`,
+            boxShadow: style.boxShadow,
+            textShadow: style.textShadow,
+            filter: style.filter,
+          };
+        })
+        .filter(
+          ({ boxShadow, textShadow, filter }) =>
+            boxShadow !== "none" ||
+            textShadow !== "none" ||
+            filter.includes("drop-shadow"),
+        ),
+    );
+  expect(shadowedElements).toEqual([]);
   await page.screenshot({
     path: "artifacts/evals/screenshots/scenario-planning-1440x900.png",
     fullPage: true,

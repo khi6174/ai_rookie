@@ -50,6 +50,7 @@ const files = Object.fromEntries(
       "src/domain/scenario-planning/contracts.ts",
       "src/application/scenarioPlanning.ts",
       "src/ui/ScenarioPlanningLab.tsx",
+      "src/ui/scenario-planning.css",
       "src/main.tsx",
       "docs/scenario-driven-service.md",
       "tests/scenario-planning.test.ts",
@@ -61,6 +62,7 @@ const files = Object.fromEntries(
 const contract = files["src/domain/scenario-planning/contracts.ts"];
 const application = files["src/application/scenarioPlanning.ts"];
 const ui = files["src/ui/ScenarioPlanningLab.tsx"];
+const stylesheet = files["src/ui/scenario-planning.css"];
 const route = files["src/main.tsx"];
 const document = files["docs/scenario-driven-service.md"];
 
@@ -109,11 +111,21 @@ const checks = [
       application.includes("networkWritePerformed: false"),
   },
   {
-    id: "ROUTE_AND_ENTRY_LINK",
+    id: "ROUTE_AND_PUBLIC_NAVIGATION",
     passed:
       route.includes('pathname.startsWith("/scenario")') &&
       ui.includes('href="/"') &&
-      ui.includes('href="/closed-loop-demo"'),
+      !ui.includes('href="/closed-loop-demo"'),
+  },
+  {
+    id: "SHADOW_FREE_DESIGN",
+    passed:
+      stylesheet.includes("box-shadow: none") &&
+      stylesheet.includes("text-shadow: none") &&
+      [...stylesheet.matchAll(/(?:box|text)-shadow:\s*([^;]+);/g)].every(
+        ([, value]) => value.trim() === "none",
+      ) &&
+      !/drop-shadow\s*\(/.test(stylesheet),
   },
   {
     id: "HUMAN_READABLE_LIMITATION",

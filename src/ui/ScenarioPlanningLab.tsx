@@ -142,13 +142,12 @@ export function ScenarioPlanningLab() {
           <span className="scenario-kicker">Scenario-driven Safety Copilot</span>
           <h1>상황을 입력하면 현재 계획을 다시 예측합니다.</h1>
           <p>
-            고정 장면을 재생하지 않습니다. 입력된 운영조건을 검증한 뒤 Safety Budget,
-            Time-to-Breach와 실행 가능한 개입안을 현재 결정론 엔진으로 다시 계산합니다.
+            입력된 운영조건을 검증한 뒤 Safety Budget, Time-to-Breach와 실행 가능한
+            개입안을 현재 결정론 엔진으로 다시 계산합니다.
           </p>
         </div>
         <nav aria-label="화면 이동">
           <a href="/">운영 관제</a>
-          <a href="/closed-loop-demo">고정 폐루프</a>
         </nav>
       </header>
 

@@ -5,7 +5,7 @@
 - 상태: Approved
 - 담당: 팀 안전빵
 - 최종 갱신: 2026-08-06
-- 디자인 버전: `design-v2.14.0`
+- 디자인 버전: `design-v2.15.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/privacy-and-ai-policy.md`
 
 ## 1. 디자인 목표
@@ -100,8 +100,8 @@ SafeRoute AI의 화면은 위험을 과장하거나 기사를 감시하는 인�
 
 | 레퍼런스 | 확인 노드 | 가져올 패턴 | SafeRoute 적용 경계 |
 |---|---|---|---|
-| [100 card design templates UI kit — Community](https://www.figma.com/design/92BlPHdkKlsMiqt29MCRpZ/100-card-design-templates-UI-kit--Community-?node-id=416-1265&m=dev) | `416:1265`과 카드 예시 `418:1543` | 흰 작업면, 얇은 경계, 16px 안팎 모서리, 제목·근거·행동의 짧은 계층, 절제된 2단 그림자 | 기존 지도·표·폐루프 정보구조를 유지한 채 KPI, 지원 큐, 비교·기사 카드의 시각 문법에만 적용. 텍스트 카드 옆의 별도 색상 막대는 사용하지 않음 |
-| [Material X design system — Community](https://www.figma.com/design/QVEOugTH7EqU3EJvujJmaq/Material-X-design-system--Community-?node-id=0-1&m=dev) | UI Kit `0:1`, Segments `687:125` | 28~40px 높이의 compact capsule, 연한 상태면, 선택 항목의 흰 면과 얕은 그림자, 텍스트로 구분되는 상태 | Segments를 그대로 사용하지 않고 상태 badge의 모서리·간격·경계·상태 대비만 전환 |
+| [100 card design templates UI kit — Community](https://www.figma.com/design/92BlPHdkKlsMiqt29MCRpZ/100-card-design-templates-UI-kit--Community-?node-id=416-1265&m=dev) | `416:1265`과 카드 예시 `418:1543` | 흰 작업면, 얇은 경계, 16px 안팎 모서리, 제목·근거·행동의 짧은 계층 | 기존 지도·표·폐루프 정보구조를 유지한 채 KPI, 지원 큐, 비교·기사 카드의 시각 문법에만 적용. 그림자와 텍스트 카드 옆의 별도 색상 막대는 사용하지 않음 |
+| [Material X design system — Community](https://www.figma.com/design/QVEOugTH7EqU3EJvujJmaq/Material-X-design-system--Community-?node-id=0-1&m=dev) | UI Kit `0:1`, Segments `687:125` | 28~40px 높이의 compact capsule, 연한 상태면, 텍스트로 구분되는 상태 | Segments를 그대로 사용하지 않고 상태 badge의 모서리·간격·경계·상태 대비만 전환하며 그림자는 가져오지 않음 |
 
 Figma 레퍼런스의 React·Tailwind 예제, 원본 로고·아이콘·이미지와 컴포넌트 파일은 복사하지 않는다. 기존 React·TypeScript와 CSS custom property 구조로 재작성하며 외부 런타임 에셋이나 새 UI 의존성을 추가하지 않는다.
 
@@ -231,7 +231,7 @@ G3-B에서 기사 화면을 설치 가능한 PWA app shell로 확장했다. 온�
 
 ## 4. 디자인 토큰
 
-구현 시 CSS custom properties 또는 Tailwind theme의 단일 토큰으로 관리한다. 컴포넌트에서 임의 hex·간격·shadow를 직접 추가하지 않는다.
+구현 시 CSS custom properties 또는 Tailwind theme의 단일 토큰으로 관리한다. 컴포넌트에서 임의 hex·간격을 직접 추가하지 않고 shadow는 사용하지 않는다.
 
 ### 4.1 색상
 
@@ -375,14 +375,10 @@ font-family:
 
 ### 4.6 그림자
 
-```text
-shadow-sm: 0 1px 2px rgba(16, 28, 44, 0.06)
-shadow-card: 0 1px 2px rgba(6, 40, 199, 0.07), 0 10px 28px rgba(16, 28, 44, 0.07)
-shadow-md: 0 8px 24px rgba(6, 40, 199, 0.10)
-shadow-modal: 0 20px 60px rgba(16, 28, 44, 0.18)
-```
-
-운영 패널은 경계 중심으로 구분하고 그림자를 남용하지 않는다.
+- 신규·변경 화면에는 `box-shadow`, `text-shadow`, CSS `filter: drop-shadow()`를 사용하지 않는다.
+- 카드·패널·입력·버튼·모달·지도 overlay의 층위는 경계, 면색, 여백과 명시적 상태 텍스트로 구분한다.
+- 포커스는 그림자형 ring이 아니라 `outline`과 `outline-offset`으로 표시한다.
+- 기존 화면을 수정할 때 해당 범위에 남은 장식 그림자도 함께 제거한다.
 
 ### 4.7 상태 badge
 
