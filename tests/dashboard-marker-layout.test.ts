@@ -87,4 +87,16 @@ describe("dashboard marker layout", () => {
       offsetColumn: 0.5,
     });
   });
+
+  it("uses an explicit hub key to keep crossing routes in stable groups", () => {
+    const layout = createDashboardMarkerLayout([
+      { id: "north-a", mapX: 10, mapY: 10, groupKey: "north" },
+      { id: "north-b", mapX: 80, mapY: 80, groupKey: "north" },
+      { id: "south-a", mapX: 11, mapY: 11, groupKey: "south" },
+    ]);
+
+    expect(layout.get("north-a")?.groupId).toBe("north-a");
+    expect(layout.get("north-b")?.groupId).toBe("north-a");
+    expect(layout.get("south-a")?.groupSize).toBe(1);
+  });
 });

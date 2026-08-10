@@ -2,6 +2,7 @@ export type DashboardMarkerPoint = {
   id: string;
   mapX: number;
   mapY: number;
+  groupKey?: string;
   latitude?: number;
   longitude?: number;
 };
@@ -38,6 +39,9 @@ function overlaps(
   left: DashboardMarkerPoint,
   right: DashboardMarkerPoint,
 ) {
+  if (left.groupKey !== undefined || right.groupKey !== undefined) {
+    return left.groupKey !== undefined && left.groupKey === right.groupKey;
+  }
   return (
     Math.abs(left.mapX - right.mapX) <= overlapThresholdX &&
     Math.abs(left.mapY - right.mapY) <= overlapThresholdY

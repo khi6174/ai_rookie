@@ -151,6 +151,17 @@ function simulatedCourierPosition(
   };
 }
 
+function createCourierMarkerLayout(couriers: Courier[]) {
+  return createDashboardMarkerLayout(
+    couriers.map((courier) => ({
+      id: courier.id,
+      mapX: courier.mapX,
+      mapY: courier.mapY,
+      groupKey: courier.hubId,
+    })),
+  );
+}
+
 function supportState(
   budget: number,
   currentBudget = Number.POSITIVE_INFINITY,
@@ -759,7 +770,7 @@ function DashboardKakaoMap({
           simulatedCourierPosition(courier, movementSecond),
         );
         const initialMarkerLayout = updateDashboardMarkerAnchors(
-          createDashboardMarkerLayout(couriers),
+          createCourierMarkerLayout(couriers),
           initialMovingCouriers,
         );
         couriers.forEach((courier) => {
@@ -997,7 +1008,7 @@ function DashboardKakaoMap({
       simulatedCourierPosition(courier, movementSecond),
     );
     const markerLayout = updateDashboardMarkerAnchors(
-      createDashboardMarkerLayout(couriers),
+      createCourierMarkerLayout(couriers),
       movingCouriers,
     );
     movingCouriers.forEach((movingCourier) => {
@@ -1632,7 +1643,7 @@ export function OnePageDashboardDemo() {
     simulatedCourierPosition(courier, movementSecond),
   );
   const markerLayout = updateDashboardMarkerAnchors(
-    createDashboardMarkerLayout(couriers),
+    createCourierMarkerLayout(couriers),
     movingCouriers,
   );
   const movingSelectedCourier =
