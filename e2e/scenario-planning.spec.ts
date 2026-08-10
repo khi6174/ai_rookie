@@ -24,7 +24,7 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
       exact: false,
     }),
   ).toHaveCount(0);
-  await expect(page.getByText("합성 기준계획의", { exact: false })).toBeVisible();
+  await expect(page.getByText("시연 기준계획의", { exact: false })).toBeVisible();
 
   const initialScenarioId = await page
     .locator(".scenario-results .scenario-section-heading > small")

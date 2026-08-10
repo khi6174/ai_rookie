@@ -294,7 +294,7 @@ export function ScenarioPlanningLab() {
         </div>
         <div className="scenario-resource-grid">
           <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무·기상·경로 조건을 이 세션에서만 계산합니다.</p></article>
-          <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>합성 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
+          <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>시연 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
           <article><span>기상청 연동 근거</span><strong>8개 준비 · 2개 차단</strong><p>미래 시정과 현재 시간당 적설이 부족해 문맥으로만 표시합니다.</p></article>
           <article><span>지도·생성 AI</span><strong>수치 계산 미사용</strong><p>지도는 표현, AI는 검증된 설명에만 사용합니다.</p></article>
         </div>

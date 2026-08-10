@@ -134,8 +134,8 @@ export function createKakaoMapDemoDirectionsUrl(
 ) {
   return [
     "https://map.kakao.com/link/by/car",
-    kakaoMapSegment("합성 현재 위치", model.current),
-    kakaoMapSegment("합성 휴식 지점", model.rest),
-    kakaoMapSegment("합성 17번째 배송지", model.next),
+    kakaoMapSegment("시연 현재 위치", model.current),
+    kakaoMapSegment("시연 휴식 지점", model.rest),
+    kakaoMapSegment("시연 17번째 배송지", model.next),
   ].join("/");
 }

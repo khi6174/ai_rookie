@@ -1709,6 +1709,16 @@
 - 검증: E2E와 Scenario 감사에서 카드·장문 문구 부재, `합성 기준계획` 출처 문구 존재를 함께 확인한다.
 - 영향 파일: `src/ui/ScenarioPlanningLab.tsx`, `src/ui/scenario-planning.css`, `e2e/scenario-planning.spec.ts`, `scripts/run-scenario-planning-readiness.mjs`, `docs/product-spec.md`, `docs/decisions.md`
 
+### ADR-166 — 발표용 공개 UI에서 `합성`을 `시연` 언어로 전환한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 발표용으로 프로젝트 공개 화면에서 `합성`이라는 단어를 잠시 제거하도록 요청했다.
+- 결정: 공개 React UI, 지도 표시명, 고객안내 미리보기에서 보이는 한국어 `합성`은 `시연`, `시연용`, `검증용`, `가명`으로 역할에 맞게 바꾼다. `실제 TMS 아님`, `GPS 길안내 아님`, `Demo fixture`처럼 오인을 막는 경계는 유지한다.
+- 내부 경계: 데이터 계약의 `SYNTHETIC`, provenance, fixture ID, DB 검증, 감사기록과 승인 문서의 사실 기록은 삭제하거나 Live로 바꾸지 않는다. 이번 결정은 표시 언어 전환이지 실제 데이터 승격이 아니다.
+- 검증: 모든 공개 앱 경로의 본문·접근성 이름에서 `적합성`을 제외한 `합성` 표기가 나타나지 않는지 E2E로 검사한다.
+- 영향 파일: `src/ui/`, 공개 표시용 지도·고객안내 presentation, 관련 E2E·단위 테스트, `docs/product-spec.md`, `docs/decisions.md`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

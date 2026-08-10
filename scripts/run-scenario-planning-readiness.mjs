@@ -137,7 +137,7 @@ const checks = [
     id: "RESOURCE_EXPLANATION_PRESENT",
     passed:
       ui.includes("무엇을 계산에 사용했는가") &&
-      ui.includes("합성 기준계획의 Safety Budget") &&
+      ui.includes("시연 기준계획의 Safety Budget") &&
       !ui.includes("scenario-limitations") &&
       !ui.includes("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다"),
   },

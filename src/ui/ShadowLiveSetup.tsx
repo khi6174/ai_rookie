@@ -139,8 +139,8 @@ function SyntheticShadowStreamPanel() {
     <section className="shadow-live-simulator" aria-labelledby="synthetic-stream-title">
       <div className="shadow-live-simulator-heading">
         <div>
-          <span className="shadow-live-mode-badge">합성 실시간 재생 · 실제 TMS 아님</span>
-          <h2 id="synthetic-stream-title">합성 배송 진행 재생</h2>
+          <span className="shadow-live-mode-badge">시연용 실시간 재생 · 실제 TMS 아님</span>
+          <h2 id="synthetic-stream-title">배송 진행 시연</h2>
           <p>가명 기사 6명의 배송 진행을 2초 간격으로 재현합니다.</p>
         </div>
         <strong className={`shadow-live-simulator-state is-${status.toLowerCase()}`} role="status">
@@ -148,7 +148,7 @@ function SyntheticShadowStreamPanel() {
         </strong>
       </div>
 
-      <div className="shadow-live-simulator-controls" aria-label="합성 실시간 재생 제어">
+      <div className="shadow-live-simulator-controls" aria-label="시연용 실시간 재생 제어">
         {status !== "RUNNING" ? (
           <button type="button" className="is-primary" onClick={start}>
             {status === "COMPLETE" ? "다시 재생" : "재생 시작"}
@@ -192,7 +192,7 @@ function SyntheticShadowStreamPanel() {
         </div>
 
         <aside className="shadow-live-recent-events" aria-live="polite">
-          <h3>최근 합성 이벤트</h3>
+          <h3>최근 시연 이벤트</h3>
           {recentEvents.length === 0 ? (
             <p>재생 시작 또는 한 단계를 선택하면 이벤트가 표시됩니다.</p>
           ) : (
@@ -244,7 +244,7 @@ export function ShadowLiveSetup() {
           <span>SafeRoute AI · Shadow Live v1</span>
         </div>
         <div className="shadow-live-header-statuses">
-          <strong className="shadow-live-mode-badge">합성 실시간 재생 · 실제 TMS 아님</strong>
+          <strong className="shadow-live-mode-badge">시연용 실시간 재생 · 실제 TMS 아님</strong>
           <strong className={`shadow-live-status ${resultClass}`}>
             {resultLabel(result)}
           </strong>
@@ -253,10 +253,10 @@ export function ShadowLiveSetup() {
 
       <section className="shadow-live-hero" aria-labelledby="shadow-live-title">
         <div>
-          <span className="shadow-live-kicker">합성 스트림 실습 + 읽기 전용 연결 준비</span>
-          <h1 id="shadow-live-title">합성 배송 진행을 재생하고 실제 연결 계약을 검증합니다.</h1>
+          <span className="shadow-live-kicker">시연 스트림 실습 + 읽기 전용 연결 준비</span>
+          <h1 id="shadow-live-title">배송 진행을 재생하고 실제 연결 계약을 검증합니다.</h1>
           <p>
-            합성 재생과 가명 이벤트 검사는 이 브라우저 탭에서만 실행됩니다. 원문과 재생
+            시연 재생과 가명 이벤트 검사는 이 브라우저 탭에서만 실행됩니다. 원문과 재생
             상태를 서버·D1·AI로 전송하거나 저장하지 않습니다.
           </p>
         </div>
@@ -276,7 +276,7 @@ export function ShadowLiveSetup() {
               <span>STEP 2</span>
               <h2 id="shadow-input-title">가명 이벤트 계약 검사</h2>
             </div>
-            <button type="button" onClick={loadSample}>합성 예시 불러오기</button>
+            <button type="button" onClick={loadSample}>시연 예시 불러오기</button>
           </div>
           <label htmlFor="shadow-live-json">JSON 이벤트 묶음</label>
           <textarea

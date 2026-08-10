@@ -11,10 +11,10 @@ type LoadState =
   | { status: "ERROR"; message: string };
 
 const gates = [
-  ["합성 인증·권한", "서버 전용 token과 tenant·site·actor·role을 모두 검증"],
+  ["시연 인증·권한", "서버 전용 token과 tenant·site·actor·role을 모두 검증"],
   ["TMS Simulator", "정상·중복·역순·지연 이벤트를 공급자 독립 계약으로 재현"],
   ["계획 적용 Outbox", "동의·승인·최신 버전·Risk Transfer Guard 통과 명령만 기록"],
-  ["고객안내 Outbox", "합성 수신자와 승인 템플릿만 기록하고 네트워크 발송 금지"],
+  ["고객안내 Outbox", "가명 수신자와 승인 템플릿만 기록하고 네트워크 발송 금지"],
   ["D1 복구", "낙관적 버전, 보존 만료, 백업 해시와 무변경 복원 검증"],
   ["운영 보호", "rate limit, Kill switch, 장애 Fallback과 감사기록"],
 ] as const;
@@ -72,7 +72,7 @@ export function IntegrationSandboxStatus() {
               : state.status === "ERROR"
                 ? "확인 실패"
                 : enabled
-                  ? "준비됨 · 합성 운영 전용"
+                  ? "준비됨 · 시연 운영 전용"
                   : "비활성 · 안전하게 닫힘"}
           </h2>
           <p role="status" aria-live="polite">

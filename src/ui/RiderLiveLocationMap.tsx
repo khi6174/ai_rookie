@@ -311,7 +311,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
               <img src="/assets/rider-truck-top-2d.png" alt="" />
               <span>{hasDevicePoint ? "내 위치" : "경로 위치"}</span>
             </div>
-            <p>{mapStatus === "ERROR" ? "지도를 불러오지 못했습니다" : mapStatus === "LOADING" ? "지도를 준비하고 있습니다" : profile.areaCode}</p>
+            <p>{mapStatus === "ERROR" ? "지도를 불러오지 못했습니다" : mapStatus === "LOADING" ? "지도를 준비하고 있습니다" : profile.areaCode.replace(/합성\s*/g, "")}</p>
           </div>
         )}
       </div>

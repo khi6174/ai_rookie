@@ -116,7 +116,7 @@ test("기사 미리보기는 360×800에서도 지도·길찾기와 44px 터치 
 }) => {
   await page.setViewportSize({ width: 360, height: 800 });
   await page.goto("/design-preview#rider-route");
-  await expect(page.getByRole("img", { name: /기사의 합성 현재 위치/ })).toBeVisible();
+  await expect(page.getByRole("img", { name: /기사의 시연 현재 위치/ })).toBeVisible();
   await expect(page.getByRole("link", { name: "카카오맵에서 Demo 길찾기" })).toHaveAttribute(
     "href",
     /map\.kakao\.com/,

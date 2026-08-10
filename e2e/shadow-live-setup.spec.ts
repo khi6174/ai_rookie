@@ -13,14 +13,14 @@ test("Shadow Live 준비 화면은 가명 이벤트를 브라우저에서만 검
   await page.goto("/shadow-live-setup");
   await expect(
     page.getByRole("heading", {
-      name: "합성 배송 진행을 재생하고 실제 연결 계약을 검증합니다.",
+      name: "배송 진행을 재생하고 실제 연결 계약을 검증합니다.",
     }),
   ).toBeVisible();
   await expect(
-    page.getByText("합성 실시간 재생 · 실제 TMS 아님", { exact: true }).first(),
+    page.getByText("시연용 실시간 재생 · 실제 TMS 아님", { exact: true }).first(),
   ).toBeVisible();
   await expect(
-    page.getByRole("heading", { name: "합성 배송 진행 재생" }),
+    page.getByRole("heading", { name: "배송 진행 시연" }),
   ).toBeVisible();
   await expect(
     page.getByRole("heading", { name: "연결 전", exact: true }),
@@ -38,7 +38,7 @@ test("Shadow Live 준비 화면은 가명 이벤트를 브라우저에서만 검
   await expect(page.getByText("서버·D1 전송", { exact: true })).toBeVisible();
   await expect(page.getByText("없음", { exact: true }).first()).toBeVisible();
 
-  await page.getByRole("button", { name: "합성 예시 불러오기" }).click();
+  await page.getByRole("button", { name: "시연 예시 불러오기" }).click();
   await page.getByRole("button", { name: "로컬에서 검증" }).click();
   await expect(
     page.getByRole("heading", { name: "계약 검증 통과", exact: true }),

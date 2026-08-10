@@ -236,9 +236,9 @@ describe("Kakao directions browser contract", () => {
     };
     const url = createKakaoMapDemoDirectionsUrl(model);
     expect(url).toMatch(/^https:\/\/map\.kakao\.com\/link\/by\/car\//);
-    expect(decodeURIComponent(url)).toContain("합성 현재 위치");
-    expect(decodeURIComponent(url)).toContain("합성 휴식 지점");
-    expect(decodeURIComponent(url)).toContain("합성 17번째 배송지");
+    expect(decodeURIComponent(url)).toContain("시연 현재 위치");
+    expect(decodeURIComponent(url)).toContain("시연 휴식 지점");
+    expect(decodeURIComponent(url)).toContain("시연 17번째 배송지");
   });
 
   it("serializes the selected operations route as a same-origin request", async () => {

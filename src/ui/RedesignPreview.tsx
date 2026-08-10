@@ -199,7 +199,7 @@ function DirectionsCard({ model }: { model: RiderCompactMapModel }) {
   return (
     <section className="rd-directions-card" aria-label="Kakao Demo 길찾기">
       <div>
-        <span>자동차 길찾기 · 합성 세 지점</span>
+        <span>자동차 길찾기 · 시연용 세 지점</span>
         <strong>{preview ? `${kilometers} km · 약 ${minutes}분` : "Demo 경로로 계속"}</strong>
       </div>
       <span className={preview ? "is-live" : "is-fallback"}>
@@ -212,7 +212,7 @@ function DirectionsCard({ model }: { model: RiderCompactMapModel }) {
       >
         카카오맵에서 Demo 길찾기
       </a>
-      <small>합성 위치 표시 전용 · Safety 계산과 배송순서를 변경하지 않습니다.</small>
+      <small>시연 위치 표시 전용 · Safety 계산과 배송순서를 변경하지 않습니다.</small>
     </section>
   );
 }
@@ -268,7 +268,7 @@ function AdminNav({
       </nav>
       <div className="rd-simulation-note">
         <strong>Simulation result</strong>
-        <span>실제 사고감소 효과가 아닙니다. 합성 fixture 기반 결정론적 시뮬레이션입니다.</span>
+        <span>실제 사고감소 효과가 아닙니다. 검증용 fixture 기반 결정론적 시뮬레이션입니다.</span>
       </div>
     </aside>
   );
@@ -366,9 +366,9 @@ function AdminSupportScreen({
           </article>
         </div>
         <article className="rd-card rd-map-column">
-          <div className="rd-card-topline"><strong>다지역 합성 운영 지도</strong><b>권역 보기</b></div>
+          <div className="rd-card-topline"><strong>다지역 시연 운영 지도</strong><b>권역 보기</b></div>
           <DesignKakaoMap
-            ariaLabel="Kakao 기반 세 합성 권역 지원 상황 지도"
+            ariaLabel="Kakao 기반 세 시연 권역 지원 상황 지도"
             markers={nationalMarkers}
             className="rd-admin-overview-map"
           />
@@ -390,7 +390,7 @@ function AdminRouteScreen({
 }) {
   return (
     <>
-      <AdminHeader title="경로 · 계획 vs 적용" subtitle="합성 북부권역 / R-017 / decision-scenario-a-ui-v1" />
+      <AdminHeader title="경로 · 계획 vs 적용" subtitle="북부권역 / R-017 / decision-scenario-a-ui-v1" />
       <KpiStrip />
       <section className="rd-route-grid">
         <article className="rd-card">
@@ -486,7 +486,7 @@ function AdminAuditScreen() {
         <article className="rd-card rd-audit-timeline">
           <div className="rd-card-topline"><strong>결정 타임라인</strong><b>Demo</b></div>
           <ol>{events.map(([time, title, detail]) => <li key={time}><time>{time}</time><div><strong>{title}</strong><span>{detail}</span></div></li>)}</ol>
-          <div className="rd-blocked-note">실제 사고감소 효과가 아닌 합성 화면 연결 결과입니다.</div>
+          <div className="rd-blocked-note">실제 사고감소 효과가 아닌 시연 화면 연결 결과입니다.</div>
         </article>
         <article className="rd-card rd-audit-table">
           <div className="rd-card-topline"><strong>감사 로그</strong><b>읽기 전용</b></div>
@@ -559,7 +559,7 @@ function RiderFrame({
     <main className="rd-rider-stage">
       <section className="rd-phone">
         <MobileStatus />
-        <header className="rd-rider-header"><div className="rd-brand"><span>SR</span><div><strong>{title}</strong><small>합성 Demo 화면</small></div></div><a href="/">기존 화면</a></header>
+        <header className="rd-rider-header"><div className="rd-brand"><span>SR</span><div><strong>{title}</strong><small>시연 화면</small></div></div><a href="/">기존 화면</a></header>
         <div className="rd-rider-scroll">{children}</div>
         <RiderTabs screen={screen} navigate={navigate} />
       </section>
@@ -573,7 +573,7 @@ function RiderLoginScreen({ navigate }: { navigate: (screen: PreviewScreen) => v
       <section className="rd-phone rd-login">
         <MobileStatus />
         <div className="rd-login-hero"><div className="rd-brand"><span>SR</span><strong>SafeRoute AI</strong></div><div className="rd-login-route-art"><i /><i /><i /><b /></div><p>오늘의 배송을 시작하기 전에</p><h1>안전한 운행을<br />함께 준비합니다.</h1></div>
-        <div className="rd-login-panel"><span className="rd-fixture-pill">◇ Demo fixture</span><h2>기사 계정 확인</h2><p>배정된 허브와 차량을 확인하고 업무 화면으로 이동합니다.</p><dl><div><dt>기사 ID</dt><dd>R-017</dd></div><div><dt>배정 허브</dt><dd>관악 합성 허브</dd></div><div><dt>차량</dt><dd>EV-24 · 확인됨</dd></div></dl><button type="button" className="rd-primary-button" onClick={() => navigate("rider-route")}>데모 계정으로 시작</button><a href="/">관리자 화면으로 돌아가기</a><small>실제 개인정보나 로그인 정보는 사용하지 않습니다.</small></div>
+        <div className="rd-login-panel"><span className="rd-fixture-pill">◇ Demo fixture</span><h2>기사 계정 확인</h2><p>배정된 허브와 차량을 확인하고 업무 화면으로 이동합니다.</p><dl><div><dt>기사 ID</dt><dd>R-017</dd></div><div><dt>배정 허브</dt><dd>관악 허브</dd></div><div><dt>차량</dt><dd>EV-24 · 확인됨</dd></div></dl><button type="button" className="rd-primary-button" onClick={() => navigate("rider-route")}>데모 계정으로 시작</button><a href="/">관리자 화면으로 돌아가기</a><small>실제 개인정보나 로그인 정보는 사용하지 않습니다.</small></div>
       </section>
     </main>
   );
@@ -602,7 +602,7 @@ function RiderRouteScreen({
       <div className="rd-rider-content">
         <div className="rd-mobile-two"><article className="rd-card"><span className="rd-safe-text">● 운행 중</span><strong>14 <small>/31 배송</small></strong><div className="rd-progress"><i /></div></article><article className="rd-card"><span>데이터 상태</span><DataBadges /></article></div>
         <article className="rd-card rd-rider-safety"><div className="rd-gauge"><strong>54.7</strong><span>주의 구간</span></div><div><span>내 안전여유</span><b>Safe-until 16:20</b><small>약 52분 · 45~60 주의 구간</small></div></article>
-        <article className="rd-card"><div className="rd-card-topline"><strong>오늘 경로</strong><b>합성 Demo 경로 · GPS 길안내 아님</b></div><DesignKakaoMap ariaLabel="기사의 합성 현재 위치, 휴식과 17번째 배송지 Kakao 지도" markers={markers} paths={[riderModel.path]} className="rd-rider-map" /></article>
+        <article className="rd-card"><div className="rd-card-topline"><strong>오늘 경로</strong><b>시연 경로 · GPS 길안내 아님</b></div><DesignKakaoMap ariaLabel="기사의 시연 현재 위치, 휴식과 17번째 배송지 Kakao 지도" markers={markers} paths={[riderModel.path]} className="rd-rider-map" /></article>
         <DirectionsCard model={riderModel} />
         <article className="rd-card rd-recommend-card"><span>◈ 권장 지원 화면</span><h2>10분 휴식 + 배송 8건 이관</h2><p>안전여유 <b>29.9 → 47.2</b> · 정차 후 검토</p><button type="button" className="rd-primary-button" onClick={() => navigate("rider-support-source")}>안전지원 검토하기</button></article>
       </div>
@@ -644,10 +644,10 @@ function RiderProfileScreen({
 }) {
   return (
     <RiderFrame screen={screen} navigate={navigate} title="내 정보">
-      <section className="rd-profile-hero"><span>내 정보 · Demo 안내</span><h1>필요한 운영 상태만 공유합니다</h1><p>실제 인증이나 개인정보를 사용하지 않는 합성 기사 계정 화면입니다.</p></section>
+      <section className="rd-profile-hero"><span>내 정보 · Demo 안내</span><h1>필요한 운영 상태만 공유합니다</h1><p>실제 인증이나 개인정보를 사용하지 않는 시연 기사 계정 화면입니다.</p></section>
       <div className="rd-rider-content">
         <div className="rd-profile-icons"><article><span>◇</span><strong>공유</strong><small>운영 파생 상태</small></article><article><span>⊘</span><strong>비공유</strong><small>생체·장기 궤적</small></article><article><span>↺</span><strong>기사 권리</strong><small>수정·거절·정정</small></article></div>
-        <section className="rd-profile-list"><article><span>관리자에게 보이는 정보</span><strong>날씨·경로·작업량의 파생 상태</strong></article><article><span>이 결정에 사용한 데이터</span><strong>결정론적 합성 fixture</strong></article><article><span>현재 연결 기능</span><strong>Kakao 지도·길찾기</strong></article></section>
+        <section className="rd-profile-list"><article><span>관리자에게 보이는 정보</span><strong>날씨·경로·작업량의 파생 상태</strong></article><article><span>이 결정에 사용한 데이터</span><strong>결정론적 시연 fixture</strong></article><article><span>현재 연결 기능</span><strong>Kakao 지도·길찾기</strong></article></section>
         <div className="rd-blocked-note">실제 인증·위치 권한·푸시 알림은 포함하지 않습니다.</div>
       </div>
     </RiderFrame>
@@ -710,7 +710,7 @@ export function RedesignPreview() {
   };
 
   const nationalMarkers = mapData.national.regions.map<DesignMarker>((region, index) => ({
-    label: `${region.label} ${region.supportDecisionCount}`,
+    label: `${region.label.replace(/합성\s*/g, "")} ${region.supportDecisionCount}`,
     point: region.geographicPoint,
     tone: index === 0 ? "red" : "green",
   }));

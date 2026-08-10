@@ -175,7 +175,7 @@ export function applyPlanAtomically(input: {
           channel: "ALIMTALK_PREVIEW" as const,
           updatedEta: stop.expectedArrivalAt,
           reasonCode: "SAFE_OPERATION_ADJUSTMENT" as const,
-          message: `안전운영 조정으로 합성 배송지 ${stop.stopId}의 예정 시간이 ${etaLabel}로 갱신되었습니다. 실제 메시지는 발송되지 않습니다.`,
+          message: `안전운영 조정으로 시연 배송지 ${stop.stopId}의 예정 시간이 ${etaLabel}로 갱신되었습니다. 실제 메시지는 발송되지 않습니다.`,
           generationMode: "TEMPLATE" as const,
           citationIds: [stop.stopId, proposedWorkload.planVersion],
           deliveryStatus: "PREVIEW_ONLY" as const,
@@ -183,7 +183,7 @@ export function applyPlanAtomically(input: {
             {
               kind: "DERIVED" as const,
               sourceId: noticeId,
-              sourceLabel: "SafeRoute 합성 고객안내 템플릿",
+              sourceLabel: "SafeRoute 시연 고객안내 템플릿",
               collectedAt: input.at,
               validAt: stop.expectedArrivalAt,
               transformedBy: "customer-notice-template-v1",
