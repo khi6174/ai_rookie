@@ -1667,6 +1667,19 @@
 - 기각한 대안: 공개 Demo를 Live로 재표시, 실제 원천 없이 실제 인증 완료 주장, 브라우저에 Sandbox token 포함, 무인증 운영 endpoint, 실제 연락처로 시험 발송, 합성 이벤트를 Safety Live 입력으로 승격, 독립 사람 검토를 자동 Gate로 대체.
 - 영향 파일: `docs/integration-ready-sandbox-goal.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`, `server/`, `src/domain/operations/`, `src/application/operations/`, `src/ui/`, `tests/`, `e2e/`, `scripts/`, D1 migration과 평가 증거
 
+### ADR-162 — 고정 Demo를 보존하고 사용자 입력 Scenario 예측을 주 시연 경로로 추가한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 실제 외부 연결 전 단계에서 가상 운영상황을 주면 현재 확보한 자원으로 결과를 다시 예측하는 서비스 방향으로 발전시키도록 요청했다.
+- 결정: `/scenario`에 숫자·범주형 사용자 입력, 결정론적 합성 기준계획, Safety/개입 재평가와 출처 경계를 추가한다. 고정 Demo는 회귀·비상 시연으로 보존한다.
+- 데이터 경계: 입력은 `USER_ENTERED`, 생성 계획은 합성 reference다. 기상청 연동 근거는 coverage가 불완전해 문맥으로만 표시하고 Safety 입력에 혼합하지 않는다. 실제 TMS·기사·GPS·고객 발송·개인정보와 서버 쓰기는 없다.
+- AI·지도 경계: 결정론 엔진만 수치·실행 가능성·Risk Transfer Guard·추천을 소유한다. 지도는 표현, AI는 검증된 설명에만 사용한다.
+- 성능 계측 경계: production build에서 Scenario lazy UI·계약·개입 비교가 추가한 8,422 gzip bytes는 비공간 증분으로 2.5D 기준선에 귀속한다. 2.5D renderer의 기존 추가 50KiB 상한은 완화하지 않는다.
+- 이유: 매번 다른 입력이 같은 엔진을 통과하는 모습을 보여주면 고정 fixture 재생보다 제품의 일반성과 실제 연동 준비도를 직접 증명할 수 있다.
+- 기각한 대안: 공개 기상 일부 필드를 합성 필드와 섞어 Live로 표시, 자유문 시나리오를 LLM이 수치로 변환, 고정 Demo 삭제, 실제 기사·주소 입력 허용, 안전하지 않은 후보 중 최선 추천.
+- 영향 파일: `src/domain/scenario-planning`, `src/application/scenarioPlanning.ts`, `src/ui/ScenarioPlanningLab.tsx`, 관련 CSS·테스트·평가·승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

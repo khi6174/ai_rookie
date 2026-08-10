@@ -21,7 +21,7 @@ const options = {
   rateLimitPerMinute: 120,
   now: () => new Date("2026-08-10T03:00:00.000Z"),
 };
-const baseUrl = "https://integration-sandbox.audit/api/integration-sandbox";
+const baseUrl = "https://local.test/api/integration-sandbox";
 const checks = [];
 
 function headers(role = "PLATFORM_OPERATOR") {

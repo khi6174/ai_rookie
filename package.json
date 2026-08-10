@@ -44,6 +44,7 @@
     "audit:service-goal": "node scripts/run-service-goal-readiness.mjs",
     "audit:integration-sandbox": "node scripts/run-integration-sandbox-readiness.mjs",
     "audit:integration-sandbox:goal": "node scripts/run-integration-sandbox-goal-audit.mjs",
+    "audit:scenario-planning": "node scripts/run-scenario-planning-readiness.mjs",
     "eval:taas:check": "node scripts/run-taas-smoke.mjs --check",
     "eval:taas:mock": "node scripts/run-taas-smoke.mjs --mock",
     "eval:taas:live": "node scripts/run-taas-smoke.mjs --live",

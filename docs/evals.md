@@ -761,3 +761,14 @@ artifacts/evals/
 필수 검사는 안전 기본 비활성, 인증·역할·tenant 격리, strict 계약, 민감 필드 재귀 거부, TMS 이벤트 멱등성·순서 충돌, 계획 stale·동의·안전 proof·Kill switch, 고객안내 무발송, rate limit, D1 revision 충돌, backup hash·무변경 restore verification과 보존 삭제다.
 
 `PASSED`는 `INTEGRATION_READY_SANDBOX` 기술 상태만 뜻한다. 실제 원천·인증·기사·GPS·고객 발송·현장 Pilot가 없으므로 `LIVE_PILOT`, 실제 택배 운영 또는 사고감소 근거로 사용할 수 없다.
+
+## 32. Scenario-driven Planning Gate
+
+- 단위·계약: `tests/scenario-planning.test.ts`
+- 브라우저: `e2e/scenario-planning.spec.ts`
+- 실행: `pnpm run audit:scenario-planning`
+- 증거: `artifacts/evals/scenario-planning-readiness-latest.json`
+
+세 preset strict 결과, 동일 입력 수치 재현, 강수·남은 작업 단조성, 수신 기사 위험전가 차단, 초과 근무관계·추가 필드 거부, 실제 연결·개인정보·네트워크 쓰기 0, 공개데이터 미혼합과 모바일 390×844 조작·overflow를 검증한다.
+
+`PASSED`는 사용자 입력 상황을 현재 결정론 엔진으로 재계산할 수 있다는 뜻이다. 입력이 실제 TMS·기사 관측이거나 공개데이터가 Safety에 Live 연결됐다는 뜻은 아니다.

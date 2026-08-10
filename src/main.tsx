@@ -39,6 +39,11 @@ const IntegrationSandboxStatus = lazy(() =>
     default: module.IntegrationSandboxStatus,
   })),
 );
+const ScenarioPlanningLab = lazy(() =>
+  import("./ui/ScenarioPlanningLab").then((module) => ({
+    default: module.ScenarioPlanningLab,
+  })),
+);
 
 const root = document.getElementById("root");
 const pathname = window.location.pathname;
@@ -72,6 +77,8 @@ createRoot(root).render(
         <ShadowLiveSetup />
       ) : pathname.startsWith("/integration-sandbox-status") ? (
         <IntegrationSandboxStatus />
+      ) : pathname.startsWith("/scenario") ? (
+        <ScenarioPlanningLab />
       ) : pathname.startsWith("/design-preview") ? (
         <RedesignPreview />
       ) : (

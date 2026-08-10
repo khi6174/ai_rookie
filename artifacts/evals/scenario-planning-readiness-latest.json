@@ -1,0 +1,90 @@
+{
+  "schemaVersion": "scenario-planning-readiness-v1",
+  "capturedAt": "2026-08-10T08:46:13.368Z",
+  "status": "PASSED",
+  "dataMode": "USER_ENTERED_SIMULATION",
+  "commands": [
+    {
+      "id": "TYPECHECK",
+      "command": "pnpm run typecheck",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 1834,
+      "outputSha256": "0198fbefb5ced841c37ccbfa7bfee989ad6abe8cda0d2117ca9476102b90a953"
+    },
+    {
+      "id": "SCENARIO_UNIT_CONTRACT",
+      "command": "pnpm exec vitest run tests/scenario-planning.test.ts",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 4291,
+      "outputSha256": "1fe76b2c755f9b35fa2c1b6f646a07b56d65a7ba58fa0c956f9a5c8f7d42cf36"
+    },
+    {
+      "id": "SCENARIO_BROWSER",
+      "command": "pnpm run test:e2e -- e2e/scenario-planning.spec.ts",
+      "passed": true,
+      "exitCode": 0,
+      "durationMs": 13039,
+      "outputSha256": "21fe3c3c91d1eb51a0b82e65594803f68ebcd784e0b6b84156ee4683888da859"
+    }
+  ],
+  "checks": [
+    {
+      "id": "COMMANDS",
+      "passed": true
+    },
+    {
+      "id": "APPROVED_SPEC",
+      "passed": true
+    },
+    {
+      "id": "STRICT_INPUT",
+      "passed": true
+    },
+    {
+      "id": "PROVENANCE_BOUNDARY",
+      "passed": true
+    },
+    {
+      "id": "DETERMINISTIC_ENGINE",
+      "passed": true
+    },
+    {
+      "id": "PUBLIC_WEATHER_NOT_MIXED",
+      "passed": true
+    },
+    {
+      "id": "AI_AND_MAP_NUMERIC_BOUNDARY",
+      "passed": true
+    },
+    {
+      "id": "NO_EXTERNAL_WRITE_OR_ACTUAL_DATA",
+      "passed": true
+    },
+    {
+      "id": "ROUTE_AND_ENTRY_LINK",
+      "passed": true
+    },
+    {
+      "id": "HUMAN_READABLE_LIMITATION",
+      "passed": true
+    }
+  ],
+  "failedChecks": [],
+  "summary": {
+    "presets": 3,
+    "unitContractTests": 5,
+    "browserTests": 2,
+    "publicWeatherUsedForSafety": false,
+    "actualTmsConnected": false,
+    "actualCourierConnected": false,
+    "actualPersonalDataCount": 0,
+    "networkWritePerformed": false
+  },
+  "limitations": [
+    "User-entered conditions are not actual TMS or courier observations.",
+    "Public weather evidence remains context-only until complete WeatherState coverage is approved.",
+    "Passing this audit is not LIVE_PILOT or field-effect evidence."
+  ]
+}

@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-08-10T07:34:35.707Z",
+  "capturedAt": "2026-08-10T08:44:15.289Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 73,
-  "testCount": 444,
-  "passed": 444,
+  "testFileCount": 74,
+  "testCount": 449,
+  "passed": 449,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -269,6 +269,11 @@
       "file": "safety-engine.test.ts",
       "status": "passed",
       "assertionCount": 19
+    },
+    {
+      "file": "scenario-planning.test.ts",
+      "status": "passed",
+      "assertionCount": 5
     },
     {
       "file": "service-goal-readiness-checks.test.ts",

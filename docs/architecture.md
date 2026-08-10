@@ -474,3 +474,11 @@ Kakao 계층은 fleet overview에서 모든 기사 경로를 낮은 대비로 �
 D1은 `.openai/drizzle/0006_integration_sandbox.sql`의 tenant별 상태 row를 사용한다. payload는 파생 상태만 가지며 revision compare-and-swap으로 동시 저장 충돌을 `409`로 차단한다. Worker isolate의 rate window는 payload·backup에 저장하지 않는다. 백업 검증은 상태를 덮어쓰지 않고, 복구 적용은 계획·고객안내·AI Kill switch가 모두 활성인 경우에만 같은 tenant·site의 검증된 합성 상태를 복원한다.
 
 공개 Demo·운영 화면은 Sandbox token을 알지 못한다. `/integration-sandbox-status`는 공개 health만 읽고 외부 연결 부재와 승격 조건을 표시한다. 상세 운영은 서버 측 감사 명령과 인증된 API로만 수행한다.
+
+## 23. Scenario-driven Application 경계
+
+`src/domain/scenario-planning/contracts.ts`는 주소·이름 없는 strict 입력과 결과 projection을 소유한다. `src/application/scenarioPlanning.ts`는 입력 hash로 scenario ID를 만들고 `scenarioFactory → evaluateSafetyBudget → evaluateIntervention → recommendIntervention`의 기존 결정론 경로만 조합한다.
+
+`ScenarioPlanningLab`은 세 preset과 사용자 조정 form을 제공하지만 수치를 UI에서 계산하지 않는다. 입력과 결과는 React 메모리에만 있고 네트워크·D1·영구 브라우저 저장소로 보내지 않는다. 고정 Demo와 다기사 운영 서비스의 권위 상태를 변경하지 않는다.
+
+기상청 evidence는 현재 field coverage를 공개하는 표시 projection이며 `publicWeatherUsedForSafety=false`다. 공개 데이터 coverage가 완전해지고 별도 승인된 `WeatherState` mapping을 통과하기 전에는 사용자 입력 날씨와 혼합하지 않는다. Kakao는 표현, Upstage·국내 AI는 검증된 설명 계층이며 숫자 예측과 추천의 의존성이 아니다.

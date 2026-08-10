@@ -2027,3 +2027,21 @@ type RiderDeliveryRoute = {
 ### 29.5 D1 상태·백업
 
 `integration-sandbox-state-v1`은 파생 이벤트, 두 Outbox, 계획 버전, 감사 이벤트와 Kill switch만 저장한다. tenant별 revision compare-and-swap으로 stale 저장을 차단한다. `integration-sandbox-backup-v1`은 canonical SHA-256을 가진다. restore verification은 hash와 tenant·site·금지 필드를 검사하고 `stateMutationPerformed=false`를 유지하며, restore apply는 세 Kill switch가 모두 켜진 경우에만 상태를 복구하고 그 사실을 감사 이벤트로 남긴다.
+
+## 30. Scenario Planning 계약
+
+### 30.1 입력
+
+`scenario-planning-input-v1`은 `CUSTOM | RAIN_HILL | HEAT_STAIRS | NIGHT_UNFAMILIAR`, 남은 배송 4~40건, 총 근무 1~11시간, 연속작업 0.25~5시간, 두 기사 안전여유, 강수·체감온도·시정·경사·좁은 도로·주차·계단 비율과 권역 숙련도만 허용한다. 연속작업은 총 근무를 넘을 수 없고 strict 계약 밖 필드는 거부한다.
+
+입력에는 실제 기사 ID, 이름, 연락처, 주소, 차량번호, GPS, 위경도, 고객정보와 자유문장이 없다. 세션 내 계산에만 사용하며 서버·D1·AI·브라우저 영구 저장소로 전송하지 않는다.
+
+### 30.2 결과
+
+`scenario-planning-result-v1`은 `USER_ENTERED_SIMULATION`, 입력 hash 기반 scenario ID, 기준 예측, 후보 비교, 추천 상태와 출처 경계를 가진다. 기준 예측은 Safety Budget, 위험 밴드, 예상 최저, 초과 상태·시간·배송지, 신뢰도와 기여요인을 포함한다.
+
+후보는 기존 `InterventionEvaluation`에서 투영한 실행 가능성, source/recipient 예상 최저, Safety gain, ETA, 정책 reason code를 가진다. `recommended=true`는 기존 `recommendIntervention`의 첫 안전 후보 하나에만 허용한다.
+
+### 30.3 출처
+
+Safety 입력은 `USER_ENTERED + DETERMINISTIC_SYNTHETIC_REFERENCE`다. 공개 기상 근거는 `PARTIAL_CONTEXT_ONLY`, `publicWeatherUsedForSafety=false`이고 지도·AI의 숫자 계산도 `false`다. 실제 TMS·기사·개인정보와 네트워크 쓰기는 모두 `false`여야 한다.

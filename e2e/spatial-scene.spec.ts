@@ -192,8 +192,13 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
       || /^VITE_KAKAO_MAP_JAVASCRIPT_KEY\s*=\s*\S+/m.test(localEnv),
   );
   const integrationSandboxNonSpatialGzipBytes = 3_629;
+  // ADR-162's lazy Scenario planning page and deterministic intervention
+  // comparison add 8,422 gzip bytes outside the 2.5D renderer. Keep the
+  // renderer cap unchanged and attribute only that measured non-spatial delta.
+  const scenarioPlanningNonSpatialGzipBytes = 8_422;
   const previousG4BGzipJsBytes = 157_214
     + integrationSandboxNonSpatialGzipBytes
+    + scenarioPlanningNonSpatialGzipBytes
     + (hasKakaoJavascriptBuild ? 6_250 : 0);
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),

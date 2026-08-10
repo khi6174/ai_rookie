@@ -1,6 +1,6 @@
 {
   "schemaVersion": "integration-sandbox-readiness-audit-v1",
-  "capturedAt": "2026-08-10T07:38:27.622Z",
+  "capturedAt": "2026-08-10T08:37:54.173Z",
   "status": "PASSED",
   "goal": "INTEGRATION_READY_SANDBOX",
   "dataMode": "PRODUCTION_SANDBOX",

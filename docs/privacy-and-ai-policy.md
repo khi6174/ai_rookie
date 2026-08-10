@@ -955,3 +955,12 @@ Fallback은 다음을 만족한다.
 - 고객안내는 합성 수신자 참조와 템플릿만 Outbox에 기록한다. 외부 발송 기능, 실제 연락처, 공급자 credential은 이 범위에서 존재하지 않는다.
 - 공개 health는 구성 여부와 외부 연결 부재만 노출한다. tenant ID, site ID, count, retention, rate limit과 Kill switch를 포함한 readiness는 인증된 운영자·tenant 관리자에게만 제공한다.
 - 실제 인증·TMS·GPS·고객 발송·개인정보 처리범위 확대는 별도 사용자 재승인, 계약, 보안·보존 검토 전에는 활성화하지 않는다.
+
+## 32. Scenario Mode 입력·AI 권한 잠금
+
+- 공개 Scenario form은 숫자·범주형 운영조건만 받고 실제 이름·주소·연락처·차량번호·고객·GPS·생체정보·자유문장을 받지 않는다.
+- 입력은 현재 브라우저 메모리에서만 계산하고 API·D1·localStorage·Cache Storage·AI 제공자로 전송하지 않는다.
+- 사용자 입력은 `USER_ENTERED`, 생성된 계획·경로·기사 참조는 `DETERMINISTIC_SYNTHETIC_REFERENCE`로 표시한다. 사용자 입력을 실제 TMS·기사 관측으로 재표시하지 않는다.
+- 불완전한 기상청 공개데이터 연동 근거는 문맥으로만 표시하고 Safety 입력과 필드 단위로 혼합하지 않는다.
+- AI와 지도는 Safety Budget, Time-to-Breach, 실행 가능성, Risk Transfer Guard와 추천 후보를 계산하거나 변경하지 않는다.
+- 결과는 운영 위험 예측이며 실제 사고확률·현장 효과·실서비스 연결 완료로 주장하지 않는다.

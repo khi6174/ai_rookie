@@ -2247,11 +2247,14 @@ const InitialSafetyStateSchema = z
   })
   .strict()
   .superRefine((value, context) => {
-    if (value.provenance.kind !== "MOCK" || !value.provenance.isDemo) {
+    if (
+      !["MOCK", "USER_ENTERED"].includes(value.provenance.kind) ||
+      !value.provenance.isDemo
+    ) {
       context.addIssue({
         code: "custom",
         path: ["provenance"],
-        message: "Initial safety state requires demo MOCK provenance",
+        message: "Initial safety state requires Demo MOCK or USER_ENTERED provenance",
       });
     }
   });

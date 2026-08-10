@@ -1,6 +1,6 @@
 {
   "schemaVersion": "integration-sandbox-goal-audit-v1",
-  "capturedAt": "2026-08-10T07:38:30.911Z",
+  "capturedAt": "2026-08-10T08:37:57.506Z",
   "goal": "INTEGRATION_READY_SANDBOX",
   "status": "READY_FOR_EXTERNAL_ADAPTER_INTEGRATION",
   "dataMode": "PRODUCTION_SANDBOX",
@@ -10,7 +10,7 @@
       "command": "pnpm run typecheck",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2005,
+      "durationMs": 1593,
       "summary": "$ tsc --noEmit --pretty false",
       "outputSha256": "507f76e1efc69ab12bdfac9f3e5365db390a1b50a8d49d4aa7af14f5e70ce7ca"
     },
@@ -19,25 +19,25 @@
       "command": "pnpm exec vitest run tests/integration-sandbox-contracts.test.ts tests/integration-sandbox-store.test.ts tests/integration-sandbox-build-boundary.test.ts",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 2323,
-      "summary": " Test Files  3 passed (3) |       Tests  22 passed (22) |    Start at  16:38:13 |    Duration  871ms (transform 248ms, setup 0ms, import 601ms, tests 135ms, environment 1ms)",
-      "outputSha256": "6fb950ac82e56eb2ca3346ca3cc37e925802541c557e3b8fbfe2397a21a53e19"
+      "durationMs": 1980,
+      "summary": " Test Files  3 passed (3) |       Tests  22 passed (22) |    Start at  17:37:43 |    Duration  798ms (transform 193ms, setup 0ms, import 473ms, tests 150ms, environment 0ms)",
+      "outputSha256": "b06291dfc3024aa991e75a9f37f806be775a739394349ccc4c543b560b314a68"
     },
     {
       "id": "SANDBOX_E2E",
       "command": "pnpm run test:e2e -- e2e/integration-sandbox-status.spec.ts",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 12354,
-      "summary": "Running 1 test using 1 worker |   ok 1 e2e\\integration-sandbox-status.spec.ts:3:1 › 외부 연결 전 Sandbox 상태는 비활성 경계와 승격 조건을 공개한다 (6.8s) |   1 passed (8.8s) | $ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 \"--\" \"e2e/integration-sandbox-status.spec.ts\"",
-      "outputSha256": "15283dc4bf12e8736a97253102751499e4b59e2d71c9b9c479562e69588b252a"
+      "durationMs": 9367,
+      "summary": "Running 1 test using 1 worker |   ok 1 e2e\\integration-sandbox-status.spec.ts:3:1 › 외부 연결 전 Sandbox 상태는 비활성 경계와 승격 조건을 공개한다 (5.0s) |   1 passed (6.3s) | $ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 \"--\" \"e2e/integration-sandbox-status.spec.ts\"",
+      "outputSha256": "7a5a81272ac1feb31956a7827ae93f8ec022b04296058adcc705a3826e0cf8e6"
     },
     {
       "id": "SANDBOX_TECHNICAL_AUDIT",
       "command": "pnpm run audit:integration-sandbox",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 818,
+      "durationMs": 769,
       "summary": "INTEGRATION_SANDBOX_AUDIT_PASSED checks=16 failed=0 artifact=C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\integration-sandbox-readiness-latest.json | $ node scripts/run-integration-sandbox-readiness.mjs",
       "outputSha256": "5d48fe66dde2a3f4e5de52125c0bed4b1d3326fc01453cee21e46aa926dd3617"
     },
@@ -46,9 +46,9 @@
       "command": "pnpm run build",
       "exitCode": 0,
       "passed": true,
-      "durationMs": 3206,
-      "summary": "dist/assets/index-DS1SdZxm.js                                     311.30 kB │ gzip: 95.76 kB | \u001b[32m✓ built in 529ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb | $ node scripts/build-operations-document-template.mjs --verify && tsc --noEmit && vite build && node scripts/build-sites-worker.mjs",
-      "outputSha256": "20166c141e4d40da3bf8ea6a1d18614101ce2252c4b6d3511a2781a7d2f2f4d2"
+      "durationMs": 3267,
+      "summary": "dist/assets/index-BiW4JZrd.js                                     311.65 kB │ gzip: 95.87 kB | \u001b[32m✓ built in 515ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb | $ node scripts/build-operations-document-template.mjs --verify && tsc --noEmit && vite build && node scripts/build-sites-worker.mjs",
+      "outputSha256": "ec210028709f79f5620e34b2bc242f69787cdf19d86b104d3158ff98176c91ea"
     }
   ],
   "checks": {
@@ -89,33 +89,33 @@
     },
     {
       "path": "docs/decisions.md",
-      "bytes": 292071,
-      "sha256": "84d07fd0342532a1cc70d5172414bc195d3eaab5386074416e07a5fcd5ea4ebd"
+      "bytes": 293953,
+      "sha256": "74411eb8adadcf1fbd218452211528d251ece4b17a79820998d47e5098f4893d"
     },
     {
       "path": "docs/product-spec.md",
-      "bytes": 51175,
-      "sha256": "c3bdcab3b10af4b43308ab9dc2597348ea85ea6418021abafad2d1d10f53e4e6"
+      "bytes": 52487,
+      "sha256": "15320c4ce6836951eba69fac0c186a3e7284a0f7055cc3d1470843b04c9bc58b"
     },
     {
       "path": "docs/data-contracts.md",
-      "bytes": 83432,
-      "sha256": "fef7e0acb6f8d93823aaada581f6a643277455ee5b11ee26c2f05fcf8c87d7bc"
+      "bytes": 85004,
+      "sha256": "502b7850cfc34ea5c388320af1d29631133fa93d282434671a2d8d22923b4faf"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",
-      "bytes": 44112,
-      "sha256": "f82cf063a171513cada7742a1110fadc0a3e9b32d7dacd51f0c5ed36eac68c22"
+      "bytes": 45112,
+      "sha256": "96e62412bd89a759c0f6e47861f34aedaaa818867f4523cacdee4cde345eca0a"
     },
     {
       "path": "docs/architecture.md",
-      "bytes": 50455,
-      "sha256": "fa2716c278a70b0dff5c1e270a073b10e953f471e4dd92b0a0a0f0b64c663122"
+      "bytes": 51576,
+      "sha256": "2bac36832758e431a0f9e4f64e3258fb3980988afc4b3a6c9ccf13ba83b005ac"
     },
     {
       "path": "docs/evals.md",
-      "bytes": 79869,
-      "sha256": "58bf4420e5ba8d9e90a9ddcbb05ccb7f9471b203d5a5f92d07b8ebf2ccf76c2a"
+      "bytes": 80643,
+      "sha256": "9df06a4fc0e9b2e00d1697c42f82759560e3b22f8fc8bc65e008801ea147346b"
     },
     {
       "path": "src/domain/operations/integrationSandbox.ts",
@@ -140,7 +140,7 @@
     {
       "path": "artifacts/evals/integration-sandbox-readiness-latest.json",
       "bytes": 2688,
-      "sha256": "3cfa2f4f9ec0e154ea23b372c3ecbddb8c9a75210511ceae9af761d9102523d4"
+      "sha256": "f3dffa22191d4089ebb9285e379523d1f6255db9e784652251cfeb21a42f11b8"
     }
   ],
   "explicitLimitations": [

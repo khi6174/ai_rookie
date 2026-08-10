@@ -9,7 +9,7 @@ import type {
   WorkloadState,
 } from "../../domain/contracts";
 
-type ScenarioConfig = {
+export type ScenarioConfig = {
   fixtureId: string;
   evaluatedAt: string;
   title: string;
@@ -33,6 +33,7 @@ type ScenarioConfig = {
   initialSourceBudget: number;
   initialRecipientBudget: number;
   expectedAssertions: ScenarioFixture["expectedAssertions"];
+  inputProvenance?: Provenance;
 };
 
 function mockProvenance(
@@ -81,6 +82,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
   const sourceCourierId = `${config.fixtureId}-courier-source`;
   const recipientCourierId = `${config.fixtureId}-courier-recipient`;
   const mock = mockProvenance(config.fixtureId, "operations", evaluatedAt);
+  const entered = config.inputProvenance;
   const syntheticFeature = syntheticFeatureProvenance(
     config.fixtureId,
     "area-weather",
@@ -124,7 +126,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
       },
       priority: sequence % 9 === 0 ? "HIGH" : "NORMAL",
       status: "PENDING",
-      provenance: [mock],
+      provenance: entered ? [mock, entered] : [mock],
     };
   });
 
@@ -143,7 +145,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
     areaRiskProfileId: areaId,
     legalForVehicleClasses: ["VAN", "MOTORCYCLE", "BICYCLE"],
     routeAlternativeKind: "CURRENT",
-    provenance: [mock, syntheticFeature],
+    provenance: entered ? [mock, syntheticFeature, entered] : [mock, syntheticFeature],
   }));
 
   const saferRouteId = `${config.fixtureId}-route-safer`;
@@ -188,7 +190,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
         isStopped: true,
         offline: false,
       },
-      provenance: [mock],
+      provenance: entered ? [mock, entered] : [mock],
     },
     {
       courierId: recipientCourierId,
@@ -248,7 +250,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
       atRiskHardTimeWindowCount: Math.floor(stops.length / 7),
       atRiskSoftTimeWindowCount: Math.floor(stops.length / 5),
       projectedEndAt: atMinutes(stops.length * 3 + 15),
-      provenance: [mock],
+      provenance: entered ? [mock, entered] : [mock],
     },
     {
       courierId: recipientCourierId,
@@ -278,7 +280,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
     visibilityMeters: Math.max(500, config.visibility - index * 100),
     windSpeedMetersPerSecond: 3.2,
     roadSurface: config.roadSurface,
-    provenance: syntheticFeature,
+    provenance: entered ?? syntheticFeature,
   }));
 
   const areaRiskProfiles: AreaRiskProfile[] = [
@@ -297,7 +299,7 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
         lastValidatedAt: hoursBefore(12),
         weatherInteractionTags: config.rainfall > 0 ? ["RAIN"] : ["NIGHT"],
       },
-      provenance: [syntheticFeature],
+      provenance: entered ? [syntheticFeature, entered] : [syntheticFeature],
     },
   ];
 
@@ -321,14 +323,14 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
         currentBudget: config.initialSourceBudget,
         derivedFromHistory: false,
         rationale: "Deterministic demo starting state; not derived from live shift history",
-        provenance: mock,
+        provenance: entered ?? mock,
       },
       {
         courierId: recipientCourierId,
         currentBudget: config.initialRecipientBudget,
         derivedFromHistory: false,
         rationale: "Deterministic recipient guard starting state for transfer simulation",
-        provenance: mock,
+        provenance: entered ?? mock,
       },
     ],
     interventionInputs: {
@@ -378,6 +380,6 @@ export function createScenarioFixture(config: ScenarioConfig): ScenarioFixture {
       ],
     },
     expectedAssertions: config.expectedAssertions,
-    provenance: [mock, syntheticFeature],
+    provenance: entered ? [mock, syntheticFeature, entered] : [mock, syntheticFeature],
   };
 }

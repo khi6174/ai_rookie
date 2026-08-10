@@ -107,6 +107,11 @@ const commands = [
     ["run", "eval:core-artifacts"],
     /CORE_EVAL_ARTIFACTS_PASS/,
   ),
+  runPnpm(
+    "SCENARIO_PLANNING_AUDIT",
+    ["run", "audit:scenario-planning"],
+    /SCENARIO_PLANNING_AUDIT_PASS/,
+  ),
 ];
 const playwrightE2eCount = Number(
   commands
@@ -136,6 +141,7 @@ const requiredApprovedDocuments = [
   "docs/goal-completion-audit.md",
   "docs/integration-ready-sandbox-goal.md",
   "docs/integration-sandbox-runbook.md",
+  "docs/scenario-driven-service.md",
 ];
 const documentStatuses = [];
 for (const file of requiredApprovedDocuments) {
@@ -164,6 +170,9 @@ const integrationSandbox = await readJson(
 );
 const integrationSandboxReadiness = await readJson(
   "integration-sandbox-readiness-latest.json",
+);
+const scenarioPlanning = await readJson(
+  "scenario-planning-readiness-latest.json",
 );
 const riderReferenceStimulus = await readJson(
   "rider-reference-round2-stimulus-manifest.json",
@@ -464,6 +473,18 @@ const evidenceChecks = [
     `${integrationSandboxReadiness.summary.passed}/${integrationSandboxReadiness.checks.length} technical checks, external connections=false`,
   ),
   check(
+    "SCENARIO_DRIVEN_PLANNING",
+    scenarioPlanning.status === "PASSED" &&
+      scenarioPlanning.failedChecks.length === 0 &&
+      scenarioPlanning.checks.every((item) => item.passed) &&
+      scenarioPlanning.summary.publicWeatherUsedForSafety === false &&
+      scenarioPlanning.summary.actualTmsConnected === false &&
+      scenarioPlanning.summary.actualCourierConnected === false &&
+      scenarioPlanning.summary.actualPersonalDataCount === 0 &&
+      scenarioPlanning.summary.networkWritePerformed === false,
+    `${scenarioPlanning.checks.filter((item) => item.passed).length}/${scenarioPlanning.checks.length} checks, external writes=false`,
+  ),
+  check(
     "ACCESSIBILITY_VIEWPORTS",
     accessibility.passed && accessibility.checks.length === 6,
     `${accessibility.checks.filter((item) => item.passed).length}/${accessibility.checks.length} checks passed`,
@@ -621,6 +642,8 @@ const result = {
     integrationSandboxStatus: integrationSandbox.status,
     integrationSandboxTechnicalChecks:
       integrationSandboxReadiness.checks.length,
+    scenarioPlanningStatus: scenarioPlanning.status,
+    scenarioPlanningChecks: scenarioPlanning.checks.length,
     g5HumanComprehensionStatus: spatialComprehension.status,
     g5HumanComprehensionStudyId: spatialComprehension.studyId ?? null,
     g5HumanEvidenceRound: spatialComprehensionRound4
