@@ -60,7 +60,7 @@ const adminTabs: Array<{
     hash: "operations-day",
     title: "오늘의 운영자료를 확정합니다",
     subtitle:
-      "합성 근무표·작업표·경로표를 검증하고 모든 기사를 같은 시각으로 계산합니다.",
+      "근무표·작업표·경로표를 검증하고 모든 기사를 같은 시각으로 계산합니다.",
   },
   {
     value: "SUPPORT",
@@ -78,7 +78,7 @@ const adminTabs: Array<{
     shortLabel: "경로",
     hash: "route-review",
     title: "경로와 도착 영향 확인",
-    subtitle: "Kakao 지도와 구조화 대안으로 합성 경로를 확인합니다.",
+    subtitle: "Kakao 지도와 구조화 대안으로 경로를 확인합니다.",
   },
   {
     value: "INTERVENTIONS",
@@ -188,7 +188,7 @@ export function OperationsService() {
   const [inputSummary, setInputSummary] = useState<OperationsInputSummary>({
     kind: "NORMALIZED_PACKAGE",
     documentCount: 0,
-    label: "합성 운영 DB 확인 중",
+    label: "운영 DB 확인 중",
   });
   const [snapshot, setSnapshot] =
     useState<DailyOperationsSnapshot | null>(null);
@@ -258,7 +258,7 @@ export function OperationsService() {
         persistenceBaseSavedAtRef.current = undefined;
         setPersistenceState({
           status: "EMPTY",
-          label: "새 합성 workspace",
+          label: "새 workspace",
         });
       } else {
         setPersistenceState({
@@ -277,7 +277,7 @@ export function OperationsService() {
           setInputSummary({
             kind: "NORMALIZED_PACKAGE",
             documentCount: 0,
-            label: `${packageResult.storage} · 검증된 합성 기사 ${packageResult.operationsPackage.records.length}명`,
+            label: `${packageResult.storage} · 검증된 기사 ${packageResult.operationsPackage.records.length}명`,
           });
         } else {
           setOperationsPackage(bundledDailyOperationsPackage);
@@ -636,7 +636,7 @@ export function OperationsService() {
     if (!file) return;
     setLoadState({
       status: "LOADING",
-      message: "합성 운영 문서와 추출 결과를 교차 검증하고 있습니다.",
+      message: "운영 문서와 추출 결과를 교차 검증하고 있습니다.",
     });
     try {
       const parsed = JSON.parse(await file.text()) as unknown;
@@ -671,7 +671,7 @@ export function OperationsService() {
         status: "ERROR",
         message: "운영 입력 JSON을 읽지 못했습니다.",
         details: [
-          "다운로드한 SafeRoute 합성 문서 번들 또는 정규화 패키지를 사용해 주세요.",
+          "다운로드한 SafeRoute 문서 번들 또는 정규화 패키지를 사용해 주세요.",
         ],
       });
     } finally {
@@ -763,7 +763,7 @@ export function OperationsService() {
           <span aria-hidden="true">OP</span>
           <span>
             <strong>운영 관리자 · OP-01</strong>
-            <small>합성 Demo 계정</small>
+            <small>시연 계정</small>
           </span>
         </div>
       </header>
@@ -815,7 +815,7 @@ export function OperationsService() {
           ))}
         </nav>
         <div className="operations-sidebar-footer">
-          <span title="실제 기사·고객·GPS 데이터가 없는 합성 Demo">합성</span>
+          <span title="제출용 시연 데이터">시연 데이터</span>
           <a className="operations-demo-link" href="/" title="기존 P0 데모 열기">
             P0
           </a>
@@ -825,7 +825,7 @@ export function OperationsService() {
       <main id="operations-main" className="operations-main" tabIndex={-1}>
         <header className="operations-page-header">
           <div>
-            <p className="operations-kicker">PAID PILOT READY · SYNTHETIC OPERATIONS</p>
+            <p className="operations-kicker">SAFEROUTE OPERATIONS</p>
             <h1>{activeTab.title}</h1>
             <p>{activeTab.subtitle}</p>
           </div>
@@ -854,7 +854,7 @@ export function OperationsService() {
                   href={bundledDocumentTemplateUrl}
                   download="daily-operations-documents-2026-07-25-bundled-v1.json"
                 >
-                  합성 문서 번들 내려받기
+                  문서 번들 내려받기
                 </a>
               </>
             )}
@@ -880,7 +880,7 @@ export function OperationsService() {
               <li>
                 입력{" "}
                 {inputSummary.kind === "DOCUMENT_BUNDLE"
-                  ? `합성 문서 ${inputSummary.documentCount}개`
+                  ? `문서 ${inputSummary.documentCount}개`
                   : "정규화 패키지"}
               </li>
               <li>추출 상태 {inputSummary.label}</li>
@@ -894,7 +894,7 @@ export function OperationsService() {
               className="visually-hidden"
               type="file"
               accept="application/json,.json"
-              aria-label="합성 운영 문서 또는 정규화 JSON 첨부"
+              aria-label="운영 문서 또는 정규화 JSON 첨부"
               onChange={(event) => void onPackageFile(event.currentTarget.files?.[0])}
             />
             <label className="button button-neutral" htmlFor="operations-package-file">
@@ -1281,7 +1281,7 @@ export function OperationsService() {
                               ? `Fallback 템플릿 · ${selectedExplanation.fallbackReason.code}`
                               : selectedExplanation.status === "LIVE"
                                 ? "Upstage Live · 스키마 검증 통과"
-                                : "Upstage Mock · 스키마 검증 통과"}
+                                : "검증 문구 · 스키마 검증 통과"}
                           </span>
                           <p>{selectedExplanation.data.summary}</p>
                           <small>
@@ -1466,7 +1466,7 @@ export function OperationsService() {
                 </div>
                 <div>
                   <dt>데이터 모드</dt>
-                  <dd>SYNTHETIC · MOCK</dd>
+                  <dd>시연 데이터</dd>
                 </div>
                 <div>
                   <dt>원문 보존</dt>

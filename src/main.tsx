@@ -34,6 +34,11 @@ const ShadowLiveSetup = lazy(() =>
     default: module.ShadowLiveSetup,
   })),
 );
+const IntegrationSandboxStatus = lazy(() =>
+  import("./ui/IntegrationSandboxStatus").then((module) => ({
+    default: module.IntegrationSandboxStatus,
+  })),
+);
 
 const root = document.getElementById("root");
 const pathname = window.location.pathname;
@@ -65,6 +70,8 @@ createRoot(root).render(
         <OperationsService />
       ) : pathname.startsWith("/shadow-live-setup") ? (
         <ShadowLiveSetup />
+      ) : pathname.startsWith("/integration-sandbox-status") ? (
+        <IntegrationSandboxStatus />
       ) : pathname.startsWith("/design-preview") ? (
         <RedesignPreview />
       ) : (

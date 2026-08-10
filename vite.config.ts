@@ -17,6 +17,10 @@ import {
   createMemoryShadowLiveStore,
   handleShadowLiveRequest,
 } from "./server/shadow-live-store.mjs";
+import {
+  createMemoryIntegrationSandboxStore,
+  handleIntegrationSandboxRequest,
+} from "./server/integration-sandbox-store.mjs";
 import { handleUpstageExplanationRequest } from "./server/upstage-explanation-proxy.mjs";
 import {
   createMemorySyntheticOperationsStore,
@@ -52,6 +56,7 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
   const riderProfileStore = createMemoryRiderProfileStore();
   const riderDangerSignalStore = createMemoryRiderDangerSignalStore();
   const shadowLiveStore = createMemoryShadowLiveStore();
+  const integrationSandboxStore = createMemoryIntegrationSandboxStore();
   const syntheticOperationsStore = createMemorySyntheticOperationsStore(
     bundledSyntheticOperationsDocument,
   );
@@ -70,11 +75,55 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
         );
         const method = incoming.method ?? "GET";
         const body =
-          method === "PUT" || method === "POST"
+          method === "PUT" || method === "POST" || method === "PATCH"
             ? await readIncomingBody(
                 request as unknown as AsyncIterable<Uint8Array | string>,
               )
             : undefined;
+        const integrationSandboxResponse = await handleIntegrationSandboxRequest(
+          new Request(requestUrl, {
+            method,
+            headers: {
+              "content-type": String(
+                incoming.headers["content-type"] ?? "application/json",
+              ),
+              ...(incoming.headers.authorization
+                ? { authorization: String(incoming.headers.authorization) }
+                : {}),
+              ...(incoming.headers["x-sandbox-tenant"]
+                ? { "x-sandbox-tenant": String(incoming.headers["x-sandbox-tenant"]) }
+                : {}),
+              ...(incoming.headers["x-sandbox-site"]
+                ? { "x-sandbox-site": String(incoming.headers["x-sandbox-site"]) }
+                : {}),
+              ...(incoming.headers["x-sandbox-actor"]
+                ? { "x-sandbox-actor": String(incoming.headers["x-sandbox-actor"]) }
+                : {}),
+              ...(incoming.headers["x-sandbox-role"]
+                ? { "x-sandbox-role": String(incoming.headers["x-sandbox-role"]) }
+                : {}),
+            },
+            body,
+          }),
+          {
+            memoryStore: integrationSandboxStore,
+            enabled: environment.INTEGRATION_SANDBOX_ENABLED === "true",
+            serviceToken: environment.INTEGRATION_SANDBOX_SERVICE_TOKEN,
+            tenantId: environment.INTEGRATION_SANDBOX_TENANT_ID,
+            siteId: environment.INTEGRATION_SANDBOX_SITE_ID,
+            retentionHours: environment.INTEGRATION_SANDBOX_RETENTION_HOURS,
+            rateLimitPerMinute: environment.INTEGRATION_SANDBOX_RATE_LIMIT_PER_MINUTE,
+            aiConfigured: Boolean(environment.UPSTAGE_API_KEY && environment.UPSTAGE_MODEL),
+          },
+        );
+        if (integrationSandboxResponse) {
+          response.statusCode = integrationSandboxResponse.status;
+          integrationSandboxResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await integrationSandboxResponse.text());
+          return;
+        }
         const shadowLiveResponse = await handleShadowLiveRequest(
           new Request(requestUrl, {
             method,

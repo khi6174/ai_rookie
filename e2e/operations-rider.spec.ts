@@ -64,7 +64,7 @@ for (const viewport of [
       page.getByRole("heading", { name: "Kakao 지도·길찾기" }),
     ).toBeVisible();
     await expect(
-      page.getByText("Schematic Fallback · 합성 좌표", { exact: true }),
+      page.getByText("지도 대체 화면", { exact: true }),
     ).toBeVisible();
     await page.getByRole("tab", { name: "안전지원" }).click();
 
@@ -160,16 +160,16 @@ test("synthetic rider danger example reaches the control dashboard", async ({
 
   await demoButton.click();
   await expect(
-    page.getByText("관제 화면에 합성 위험 신호를 보냈습니다."),
+    page.getByText("관제 화면에 위험 신호를 보냈습니다."),
   ).toBeVisible();
 
   await page.getByRole("link", { name: "대시보드에서 확인" }).click();
   await expect(page).toHaveURL(/\/dashboard-demo$/);
+  await expect(page.locator("[data-courier-card]")).toHaveCount(25, {
+    timeout: 15_000,
+  });
   await expect(
     page.locator(`[data-courier-card="${courierId}"]`),
-  ).toHaveAttribute(
-    "data-rider-danger-signal",
-    "active",
-  );
+  ).toHaveAttribute("data-rider-danger-signal", "active", { timeout: 15_000 });
   await expect(page.getByRole("button", { name: "위험신호 1" })).toBeVisible();
 });

@@ -945,3 +945,13 @@ Fallback은 다음을 만족한다.
 - 재생 상태와 최근 이벤트는 현재 브라우저 탭 메모리에만 두고 서버·D1·브라우저 영구 저장소·AI·로그에 보내지 않는다.
 - 공개 화면은 재생 상태 가까이에 `합성 실시간 재생 · 실제 TMS 아님`을 항상 표시한다. 마지막 안내나 발표자 구두 설명만으로 출처 표시를 대체하지 않는다.
 - 합성 재생을 실제 배송 진행, 운영사 연동, 현장 검증 또는 실시간 서비스 전환 완료로 주장하지 않는다.
+
+## 31. Integration-ready Sandbox 개인정보·권한 잠금
+
+- Sandbox는 실제 인증 공급자를 연결하지 않고 서버 전용 token과 합성 tenant·site·actor·role만 검증한다. token은 브라우저 번들·URL·응답·로그·평가 증거에 포함하지 않는다.
+- 실제 이름·표시명·전화번호·이메일·주소·고객·차량번호·GPS·위경도·정밀 위치·생체정보 필드를 중첩 위치와 관계없이 전체 요청에서 거부한다.
+- 다른 tenant·site header는 인증 실패로 처리하고 해당 데이터 존재 여부를 반환하지 않는다. `COURIER`는 readiness·Outbox·Kill switch·backup endpoint를 사용할 수 없다.
+- D1 payload는 `actualPersonalDataCount=0`, `rawStored=false`, `networkDeliveryPerformed=false`를 유지한다. 보존값은 1~168시간이며 만료된 파생 이벤트와 Outbox를 삭제하고 삭제 감사 이벤트를 남긴다.
+- 고객안내는 합성 수신자 참조와 템플릿만 Outbox에 기록한다. 외부 발송 기능, 실제 연락처, 공급자 credential은 이 범위에서 존재하지 않는다.
+- 공개 health는 구성 여부와 외부 연결 부재만 노출한다. tenant ID, site ID, count, retention, rate limit과 Kill switch를 포함한 readiness는 인증된 운영자·tenant 관리자에게만 제공한다.
+- 실제 인증·TMS·GPS·고객 발송·개인정보 처리범위 확대는 별도 사용자 재승인, 계약, 보안·보존 검토 전에는 활성화하지 않는다.

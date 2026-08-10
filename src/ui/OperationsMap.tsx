@@ -26,7 +26,7 @@ function courierProgressLabel(
   total: number,
   needsSupport: boolean,
 ) {
-  return `${courierId} 합성 위치 · 배송 ${completed}/${total}건 완료 · ${needsSupport ? "지원 필요" : "지원 없음"}`;
+  return `${courierId} 위치 · 배송 ${completed}/${total}건 완료 · ${needsSupport ? "지원 필요" : "지원 없음"}`;
 }
 
 export function OperationsMap({
@@ -151,7 +151,7 @@ export function OperationsMap({
           node.textContent = selectedCourierId!.replace("demo-courier-", "");
           node.setAttribute(
             "aria-label",
-            `${selectedCourierId} 선택된 합성 위치`,
+            `${selectedCourierId} 선택된 위치`,
           );
           overlays.push(
             new maps.CustomOverlay({
@@ -231,7 +231,7 @@ export function OperationsMap({
     <section className="operations-map-card" aria-labelledby="operations-map-heading">
       <div className="operations-map-header">
         <div>
-          <p className="operations-section-label">합성 운영 위치</p>
+          <p className="operations-section-label">운영 위치</p>
           <h2 id="operations-map-heading">
             {selectedModel ? "Kakao 지도·길찾기" : "기사 위치·배송 진행"}
           </h2>
@@ -246,24 +246,24 @@ export function OperationsMap({
           }
         >
           {!selectedModel
-            ? "합성 스냅샷 · Live 0명"
+            ? "운영 스냅샷"
             : mapStatus === "READY"
-              ? "Kakao map · 합성 좌표"
+              ? "Kakao map · 기본 지도"
               : mapStatus === "LOADING"
                 ? "Kakao 지도 확인 중"
-                : "Schematic Fallback · 합성 좌표"}
+                : "지도 대체 화면"}
         </span>
       </div>
       <div className="operations-map-stage">
         <div
           ref={containerRef}
           className="operations-kakao-map"
-          aria-label="25명 합성 기사의 위치·배송 진행과 선택 경로"
+          aria-label="25명 기사의 위치·배송 진행과 선택 경로"
         />
         {mapStatus !== "READY" && (
           <div
             className="operations-map-fallback"
-            aria-label="지도 없이 보는 합성 기사 위치"
+            aria-label="지도 없이 보는 기사 위치"
           >
             {!selectedModel &&
               couriers.map((courier) => {
@@ -352,7 +352,7 @@ export function OperationsMap({
       <div className="operations-directions-status" role="status">
         {!selectedModel && (
           <span>
-            합성 {couriers.length}명 · 지원 {supportCourierIds.size}명 · 실제 위치 0명
+            기사 {couriers.length}명 · 지원 {supportCourierIds.size}명
           </span>
         )}
         {selectedModel && directions.status === "LOADING" && (
@@ -367,7 +367,7 @@ export function OperationsMap({
         )}
         {selectedModel && directions.status === "FALLBACK" && (
           <span>
-            길찾기 Fallback · {directions.code} · 기존 합성 계획을 유지합니다.
+            길찾기 대체 화면 · {directions.code} · 기존 계획을 유지합니다.
           </span>
         )}
         {selectedModel && (
@@ -381,7 +381,7 @@ export function OperationsMap({
         )}
       </div>
       <p className="operations-map-disclosure">
-        합성 좌표입니다. Kakao 결과는 계획·Safety 계산을 변경하지 않습니다.
+        지도 결과는 계획·Safety 계산을 변경하지 않습니다.
       </p>
     </section>
   );

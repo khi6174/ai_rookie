@@ -25,6 +25,8 @@ const workspaceId =
   "operations-workspace-00000000-0000-4000-8000-000000000617";
 const endpoint = `${siteUrl}/api/operations/sessions/${workspaceId}`;
 const explanationEndpoint = `${siteUrl}/api/upstage-explanation`;
+const integrationSandboxHealthEndpoint =
+  `${siteUrl}/api/integration-sandbox/health`;
 const reviewManifestEndpoint =
   `${siteUrl}/tools/operations-service-review/study-manifest.json`;
 const outputDirectory = path.join(root, "artifacts", "evals");
@@ -158,6 +160,30 @@ try {
   const explanationBody = await explanationResponse
     .json()
     .catch(() => ({}));
+  const integrationSandboxHealthResponse = await fetch(
+    integrationSandboxHealthEndpoint,
+    {
+      cache: "no-store",
+      headers: {
+        Accept: "application/json",
+        "Cache-Control": "no-cache",
+      },
+    },
+  );
+  const integrationSandboxHealthBody = await integrationSandboxHealthResponse
+    .json()
+    .catch(() => ({}));
+  const integrationSandboxBoundaryVerified =
+    integrationSandboxHealthResponse.status === 200 &&
+    integrationSandboxHealthBody.schemaVersion ===
+      "integration-sandbox-health-v1" &&
+    integrationSandboxHealthBody.status === "DISABLED" &&
+    integrationSandboxHealthBody.dataMode === "PRODUCTION_SANDBOX" &&
+    integrationSandboxHealthBody.configured === false &&
+    integrationSandboxHealthBody.externalTmsConnected === false &&
+    integrationSandboxHealthBody.actualAuthenticationConnected === false &&
+    integrationSandboxHealthBody.customerNetworkDeliveryEnabled === false &&
+    integrationSandboxHealthBody.actualPersonalDataAllowed === false;
   const reviewManifestUrl = new URL(reviewManifestEndpoint);
   reviewManifestUrl.searchParams.set("release-check", Date.now().toString());
   const reviewManifestResponse = await fetch(reviewManifestUrl, {
@@ -221,6 +247,7 @@ try {
     restored &&
     conflictProtected &&
     upstageExplanationLive &&
+    integrationSandboxBoundaryVerified &&
     publicReviewManifestVerified;
   const artifact = {
     schemaVersion: "operations-deployed-smoke-v1",
@@ -235,12 +262,14 @@ try {
     loadStatus: loadResponse.status,
     staleWriteStatus: staleResponse.status,
     explanationStatus: explanationResponse.status,
+    integrationSandboxHealthStatus: integrationSandboxHealthResponse.status,
     reviewManifestStatus: reviewManifestResponse.status,
     reviewManifestContentType,
     storage: saveBody.storage,
     restored,
     conflictProtected,
     upstageExplanationLive,
+    integrationSandboxBoundaryVerified,
     publicReviewManifestVerified,
     deployedReleaseCommit: reviewManifestBody.releaseCommit,
     reviewManifestSha256: reviewManifestBody.manifestSha256,
@@ -261,7 +290,7 @@ try {
   };
   await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
   console.log(
-    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected} upstage=${upstageExplanationLive} review=${publicReviewManifestVerified}`,
+    `OPERATIONS_DEPLOYED_SMOKE_${artifact.status} storage=${artifact.storage ?? "NONE"} conflict=${conflictProtected} upstage=${upstageExplanationLive} sandbox=${integrationSandboxBoundaryVerified} review=${publicReviewManifestVerified}`,
   );
   console.log(`JSON: ${outputPath}`);
   if (!passed) process.exitCode = 1;

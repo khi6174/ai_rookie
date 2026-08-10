@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-08-09T02:49:16.569Z",
+  "capturedAt": "2026-08-10T07:34:35.707Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
-  "testFileCount": 70,
-  "testCount": 421,
-  "passed": 421,
+  "testFileCount": 73,
+  "testCount": 444,
+  "passed": 444,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -139,6 +139,21 @@
       "file": "goal-completion.test.ts",
       "status": "passed",
       "assertionCount": 5
+    },
+    {
+      "file": "integration-sandbox-build-boundary.test.ts",
+      "status": "passed",
+      "assertionCount": 3
+    },
+    {
+      "file": "integration-sandbox-contracts.test.ts",
+      "status": "passed",
+      "assertionCount": 6
+    },
+    {
+      "file": "integration-sandbox-store.test.ts",
+      "status": "passed",
+      "assertionCount": 13
     },
     {
       "file": "intervention-bundles.test.ts",
@@ -303,7 +318,7 @@
     {
       "file": "synthetic-live-operations.test.ts",
       "status": "passed",
-      "assertionCount": 3
+      "assertionCount": 4
     },
     {
       "file": "synthetic-operations-documents.test.ts",

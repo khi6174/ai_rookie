@@ -126,3 +126,14 @@ ON shadow_live_progress_events(connection_id, sequence DESC)`;
 
 export const shadowLiveExpiresIndexSql = `CREATE INDEX IF NOT EXISTS idx_shadow_live_expires
 ON shadow_live_progress_events(expires_at)`;
+
+export const integrationSandboxStateTableSql = `CREATE TABLE IF NOT EXISTS integration_sandbox_state (
+  tenant_id TEXT PRIMARY KEY,
+  site_id TEXT NOT NULL,
+  revision INTEGER NOT NULL,
+  payload_json TEXT NOT NULL,
+  updated_at TEXT NOT NULL
+)`;
+
+export const integrationSandboxStateSiteIndexSql = `CREATE INDEX IF NOT EXISTS idx_integration_sandbox_state_site
+ON integration_sandbox_state(site_id, updated_at DESC)`;

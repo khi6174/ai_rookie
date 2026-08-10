@@ -40,7 +40,7 @@ for (const viewport of [
       page.getByRole("heading", { name: "기사 위치·배송 진행" }),
     ).toBeVisible();
     await expect(
-      page.getByText("합성 스냅샷 · Live 0명", { exact: true }),
+      page.getByText("운영 스냅샷", { exact: true }),
     ).toBeVisible();
     await page.getByRole("tab", { name: "지원 상황" }).click();
     await expect(

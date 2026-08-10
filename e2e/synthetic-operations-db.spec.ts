@@ -28,7 +28,7 @@ test("검증된 합성 기사 25명을 DB API에서 운영 화면으로 전달�
   await page.goto("/operations");
   await expect(
     page.getByText(
-      "추출 상태 MEMORY_DEV · 검증된 합성 기사 25명",
+      "추출 상태 MEMORY_DEV · 검증된 기사 25명",
       { exact: true },
     ),
   ).toBeVisible();

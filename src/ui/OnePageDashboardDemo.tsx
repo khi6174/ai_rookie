@@ -174,6 +174,10 @@ function budgetDisplay(value: number) {
   return value < 30 && Number(rounded) >= 30 ? "<30.0" : rounded;
 }
 
+function displayOperationalLabel(label: string) {
+  return label.replace(/합성\s*/g, "");
+}
+
 function matchesCourierFilter(
   courier: Courier,
   filter: CourierFilter,
@@ -248,7 +252,7 @@ function decisionStatusLabel(status: string) {
 
 function explanationSourceLabel(result: ExplanationResult) {
   if (result.status === "LIVE") return "Upstage · 검증 완료";
-  if (result.status === "MOCK") return "Upstage Mock · 검증 완료";
+  if (result.status === "MOCK") return "검증 문구 · 준비 완료";
   return "안전 템플릿 · 검증 완료";
 }
 
@@ -521,7 +525,7 @@ function AddCourierDialog({
       >
         <header className="onepage-add-courier-header">
           <div>
-            <small>합성 Demo 등록</small>
+            <small>시연 등록</small>
             <h2 id="add-courier-title">기사 추가</h2>
           </div>
           <button
@@ -536,10 +540,10 @@ function AddCourierDialog({
         <form className="onepage-add-courier-form" onSubmit={submit}>
           <div className="onepage-add-courier-notice">
             <strong>실제 개인정보를 입력하지 않습니다.</strong>
-            <span>승인된 합성 사진과 별칭만 사용하며, 운영계획 검증 전에는 안전 계산에서 제외됩니다.</span>
+            <span>승인된 프로필 사진과 별칭만 사용하며, 운영계획 검증 전에는 안전 계산에서 제외됩니다.</span>
           </div>
           <label>
-            <span>합성 별칭</span>
+            <span>기사 별칭</span>
             <input
               ref={aliasRef}
               type="text"
@@ -813,10 +817,10 @@ function DashboardKakaoMap({
           const hubIcon = document.createElement("span");
           const hubLabel = document.createElement("strong");
           hub.className = "onepage-hub onepage-kakao-hub";
-          hub.setAttribute("aria-label", `${hubProjection.label} 합성 위치`);
+          hub.setAttribute("aria-label", `${hubProjection.label.replace("합성 ", "")} 위치`);
           hubIcon.className = "onepage-hub-icon";
           hubIcon.setAttribute("aria-hidden", "true");
-          hubLabel.textContent = hubProjection.label;
+          hubLabel.textContent = hubProjection.label.replace("합성 ", "");
           hub.append(hubIcon, hubLabel);
           overlays.push(new maps.CustomOverlay({
             map,
@@ -905,7 +909,7 @@ function DashboardKakaoMap({
       const content = document.createElement("span");
       content.className = "onepage-kakao-delivery-stop";
       content.textContent = String(stop.stopOrdinal);
-      content.setAttribute("aria-label", `${stop.label} 합성 배송지`);
+      content.setAttribute("aria-label", `${stop.label} 배송지`);
       detailOverlays.push(new maps.CustomOverlay({
         map,
         position,
@@ -1193,7 +1197,7 @@ function InterventionDialog({
             <div>
               <h2 id="intervention-dialog-title">{courier.name} 기사</h2>
               <span>
-                {courier.area} | 배송 {baselineRecord.plan.completedStopCount}/
+                {displayOperationalLabel(courier.area)} | 배송 {baselineRecord.plan.completedStopCount}/
                 {baselineRecord.plan.totalStopCount}
               </span>
             </div>
@@ -1221,7 +1225,7 @@ function InterventionDialog({
                     : "향후 60분은 현재 계획을 유지합니다."}
               </strong>
               <small>
-                합성 운영자료의 운영 위험지수 · 기사 확인과 관리자 승인 전에는 계획을 바꾸지 않습니다.
+                운영 위험지수 · 기사 확인과 관리자 승인 전에는 계획을 바꾸지 않습니다.
               </small>
             </div>
             <div className="onepage-dialog-section-title">
@@ -1921,8 +1925,13 @@ export function OnePageDashboardDemo() {
         sent: false,
       });
       setDialogOpen(true);
-    } catch {
-      setDialogMessage("지원 검토 정보를 준비하지 못했습니다.");
+    } catch (error) {
+      setDialogMessage(
+        error instanceof Error &&
+          error.message.includes("has no feasible intervention")
+          ? "현재 안전한 지원 후보가 없습니다. 현재 계획을 유지하고 다시 평가해 주세요."
+          : "지원 검토 정보를 준비하지 못했습니다.",
+      );
     } finally {
       setDialogBusy(false);
     }
@@ -2170,7 +2179,7 @@ export function OnePageDashboardDemo() {
     return (
       <main className="onepage-demo">
         <div className="onepage-data-loading" role="status">
-          합성 운영 DB에서 기사·배송·Safety projection을 확인하고 있습니다.
+          운영 DB에서 기사·배송·Safety projection을 확인하고 있습니다.
         </div>
       </main>
     );
@@ -2219,7 +2228,7 @@ export function OnePageDashboardDemo() {
             <small>
               {projection.storage === "BUNDLED_FALLBACK"
                 ? "DB 장애 · 승인 번들 Fallback"
-                : `${projection.storage} · 합성 기사 ${couriers.length}명`}
+                : `${projection.storage} · 기사 ${couriers.length}명`}
             </small>
           </span>
         </div>
@@ -2228,7 +2237,7 @@ export function OnePageDashboardDemo() {
         </div>
         <div className="onepage-header-status">
           <span className="onepage-synthetic-stream-link" role="status">
-            합성 운행 중 · 실제 TMS 아님
+            시연 데이터
           </span>
           <time dateTime={now.toISOString()} aria-label={`현재 시각 ${currentTimeLabel}`}>
             {currentTimeLabel}
@@ -2389,7 +2398,7 @@ export function OnePageDashboardDemo() {
         <div className="onepage-map-section" aria-label="기사 위치 지도">
           <div className="onepage-map-toolbar">
             <div>
-              <strong>합성 운영권역 · {hubs.length}개 허브</strong>
+              <strong>운영권역 · {hubs.length}개 허브</strong>
               <span>
                 {mapStatus === "READY"
                   ? "도로 운행 1초·Safety 5초 연속 갱신"
@@ -2398,7 +2407,7 @@ export function OnePageDashboardDemo() {
                     : "도로 운행 1초·Safety 5초 연속 갱신 · 지도 대체 화면"}
               </span>
             </div>
-            <div className="onepage-live-controls" aria-label="합성 운행 상태와 지도 보기">
+            <div className="onepage-live-controls" aria-label="운행 상태와 지도 보기">
               <span aria-live="polite">운행·배송·안전여유 연속 반영 중</span>
               <button
                 type="button"
@@ -2412,7 +2421,7 @@ export function OnePageDashboardDemo() {
                 {mapFocusMode === "COURIER" ? "전체 보기" : "배송구역 확대"}
               </button>
             </div>
-            <div className="onepage-region-capacity" aria-label="허브별 합성 운영 현황">
+            <div className="onepage-region-capacity" aria-label="허브별 운영 현황">
               {hubs.map((hub) => (
                 <span key={hub.hubId} className="is-ok">
                   <strong>{hub.label.replace("합성 ", "")}</strong>
@@ -2470,7 +2479,7 @@ export function OnePageDashboardDemo() {
                     key={stop.stopOrdinal}
                     className="onepage-fallback-delivery-stop"
                     data-delivery-stop={stop.stopOrdinal}
-                    aria-label={`${stop.label} 합성 배송지`}
+                    aria-label={`${stop.label} 배송지`}
                     style={{ left: `${stop.mapX}%`, top: `${stop.mapY}%` }}
                   >
                     {stop.stopOrdinal}
@@ -2489,18 +2498,18 @@ export function OnePageDashboardDemo() {
                     }}
                   />
                 ))}
-                <span className="onepage-district label-yeoksam">합성 서부권역</span>
-                <span className="onepage-district label-daechi">합성 북부권역</span>
-                <span className="onepage-district label-dogok">합성 남부권역</span>
+                <span className="onepage-district label-yeoksam">서부권역</span>
+                <span className="onepage-district label-daechi">북부권역</span>
+                <span className="onepage-district label-dogok">남부권역</span>
                 {hubs.map((hub) => (
                   <span
                     key={hub.hubId}
                     className="onepage-hub"
-                    aria-label={`${hub.label} 합성 위치`}
+                    aria-label={`${hub.label.replace("합성 ", "")} 위치`}
                     style={{ left: `${hub.mapX}%`, top: `${hub.mapY}%` }}
                   >
                     <span className="onepage-hub-icon" aria-hidden="true" />
-                    <strong>{hub.label}</strong>
+                    <strong>{hub.label.replace("합성 ", "")}</strong>
                   </span>
                 ))}
 
@@ -2592,7 +2601,7 @@ export function OnePageDashboardDemo() {
               />
               <div>
                 <strong>{selectedCourier.name}</strong>
-                <span>{selectedCourier.area}</span>
+                <span>{displayOperationalLabel(selectedCourier.area)}</span>
               </div>
               <em className={`onepage-state-pill state-${supportState(selectedCourier.budget, selectedCourier.currentScore).toLowerCase()}`}>
                 {supportPanelStateLabel(selectedCourier)}
@@ -2645,7 +2654,7 @@ export function OnePageDashboardDemo() {
                 >
                   <span>
                     <strong>{courier.name}</strong>
-                    <small>{courier.area}</small>
+                    <small>{displayOperationalLabel(courier.area)}</small>
                   </span>
                   <span>
                     <b className={`state-${supportState(courier.budget, courier.currentScore).toLowerCase()}`}>

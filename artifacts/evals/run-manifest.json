@@ -1,9 +1,9 @@
 {
   "schemaVersion": "core-eval-run-manifest-v1",
-  "capturedAt": "2026-08-09T02:49:16.569Z",
+  "capturedAt": "2026-08-10T07:34:35.707Z",
   "generator": "scripts/run-core-eval-artifacts.mjs",
   "command": "pnpm run eval:core-artifacts",
-  "baseCommit": "64638d708dfd02235d79d7f1dc76bef43f0e847f",
+  "baseCommit": "21d9b0d51668cb3eeaf442e92534ff81a3d9cbd6",
   "workingTreeDirty": true,
   "dataClassification": "synthetic Demo fixtures and redacted evaluation summaries",
   "credentialsStored": false,
@@ -100,7 +100,7 @@
     },
     {
       "file": "e2e/spatial-scene.spec.ts",
-      "sha256": "4b6d705d55221fb10a6ce7d927e086220a5e0bf015cf6ab39b6b5fad715e93aa"
+      "sha256": "5bbdba8dceb22a1ce4b094e9c5ebd4d1728fae8a7cd88c4448c94d513a17d52a"
     },
     {
       "file": "e2e/saferoute-demo.spec.ts",
@@ -130,8 +130,8 @@
   "artifacts": [
     {
       "file": "unit-summary.json",
-      "bytes": 8268,
-      "sha256": "941a743eab0a4e15a5d25d13777da0540db01a78f2fbb1d83cca8b166899d0c2"
+      "bytes": 8630,
+      "sha256": "2acd2b67b22e6f7f70a94faf7502ae5b428b9e366e4346212dfd4675fd1d027d"
     },
     {
       "file": "scenario-results.csv",
@@ -151,7 +151,7 @@
     {
       "file": "frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "32419db4e3ecdc041a876ab2f5351f8bc2be763fc097932a92dfbb23de51ebda"
+      "sha256": "4310e8aa4280c861c4aa621f9bfc0d4f96daaf151ec3005d5cd393a83c835ff9"
     },
     {
       "file": "risk-transfer-boundaries.csv",
@@ -161,7 +161,7 @@
     {
       "file": "risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "6fa189a88470904bd1627f347b9a5a3832d244be338fbaa0703d9ec776290152"
+      "sha256": "1f99a02c6d1d55cbadfbf23f965b67b581b872273a618e1c011b31d422215997"
     },
     {
       "file": "decision-workflow-boundaries.csv",
@@ -171,12 +171,12 @@
     {
       "file": "decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "2597f1fbd8cb741441f8a25d108d3f75c30080c7a9266f46024dcdf5b136e350"
+      "sha256": "de18b71957142b797db371ba7d868899535dab79d21ab6f7795a18658a38d561"
     },
     {
       "file": "domestic-track-compliance-latest.json",
       "bytes": 5129,
-      "sha256": "5ec885954ed5de9f99865e251ea841acf2be3d3c42fc0ac12bd0529c1b45669d"
+      "sha256": "0b95984c68920474a4b28bdb3cdc9523e72cf47e58ed80be9a5d522f78d9151e"
     },
     {
       "file": "domestic-ai-smoke.csv",
@@ -211,17 +211,17 @@
     {
       "file": "accessibility-summary.json",
       "bytes": 2579,
-      "sha256": "ceb2f78f58eb087767e467cd1f482d093ce2079c7b25195704933322476f3c5b"
+      "sha256": "f076c0f883d99bf665372d80efb6e7dafd14580ca75848fdefbcd0377e082bbb"
     },
     {
       "file": "map-performance-summary.json",
-      "bytes": 2499,
-      "sha256": "1cd4b4640e0d90bd32f0ec831e26f2c333369af0bff8263705c89745c0de50fa"
+      "bytes": 2500,
+      "sha256": "45927a92a7b30c25098301a49d5326956020393666ad6c4423dabe2e4be14860"
     },
     {
       "file": "spatial-scene-summary.json",
       "bytes": 1194,
-      "sha256": "36dfcaf7b344d81ed5074659d73c45b77c3f94ffa4deb68385721ffd2c0db8df"
+      "sha256": "e83bd860bbe6593018b6aa834cdf0bbc48e20344c40cbf0cf4df2645e371ac2c"
     },
     {
       "file": "rider-reference-round2-stimulus-manifest.json",

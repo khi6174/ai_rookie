@@ -464,3 +464,13 @@ ADR-128의 `SyntheticCourierDirectory`는 운영 레코드의 불변 ID에 합�
 `riderMapPresentation`은 권역 하나당 공통 polyline을 반환하지 않는다. 합성 북부·남부·서부권역의 3×4 도로 교차점 grid와 9개 도로 조합 template을 두고, 권역 내 기사 순번을 template에 결속해 25개 고유 `synthetic-road-route-{courierId}`를 만든다. 같은 함수가 진행률 위치, 담당 코스 라벨과 다음 최대 4개 배송지 표식을 계산한다.
 
 Kakao 계층은 fleet overview에서 모든 기사 경로를 낮은 대비로 그리고 선택 경로를 별도 polyline과 번호 overlay로 강조한다. `COURIER` focus는 선택 경로 bounds, `FLEET` focus는 전체 bounds를 사용한다. Fallback은 같은 route point를 SVG polyline과 절대 위치 번호 표식으로 렌더링한다. 확대·선택·표식은 프레젠테이션 상태이며 운영 패키지, Safety, decision과 D1을 변경하지 않는다.
+
+## 22. Integration-ready Sandbox 서버 경계
+
+`server/integration-sandbox-store.mjs`는 `/api/integration-sandbox/*`를 단일 경계로 소유한다. 공개 `/health`는 민감정보 없는 `READY | DISABLED`와 실제 TMS·인증·고객 발송·개인정보 부재만 반환한다. `/readiness`, TMS Simulator ingest, 계획·고객 Outbox, Kill switch, backup·restore verification과 retention은 완전한 설정과 합성 principal 인증을 요구한다.
+
+도메인의 `integrationSandbox.ts`는 Zod strict 계약을 소유하고 Worker는 같은 allowlist와 금지 필드를 독립 재검증한다. `createIntegrationSandboxScenario.ts`는 seed·시작시각·tick으로 동일 batch를 만드는 순수 Simulator다. 실제 공급자 Adapter나 네트워크 발송 코드는 포함하지 않는다.
+
+D1은 `.openai/drizzle/0006_integration_sandbox.sql`의 tenant별 상태 row를 사용한다. payload는 파생 상태만 가지며 revision compare-and-swap으로 동시 저장 충돌을 `409`로 차단한다. Worker isolate의 rate window는 payload·backup에 저장하지 않는다. 백업 검증은 상태를 덮어쓰지 않고, 복구 적용은 계획·고객안내·AI Kill switch가 모두 활성인 경우에만 같은 tenant·site의 검증된 합성 상태를 복원한다.
+
+공개 Demo·운영 화면은 Sandbox token을 알지 못한다. `/integration-sandbox-status`는 공개 health만 읽고 외부 연결 부재와 승격 조건을 표시한다. 상세 운영은 서버 측 감사 명령과 인증된 API로만 수행한다.

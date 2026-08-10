@@ -24,7 +24,7 @@ test("최신 공개 연속 관제의 다섯 핵심 장면을 같은 기사 ID로
   await page.goto("/");
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
   await expect(
-    page.getByText("합성 운행 중 · 실제 TMS 아님", { exact: true }),
+    page.getByText("시연 데이터", { exact: true }),
   ).toBeVisible();
   await expect(page.getByRole("button", { name: "일시정지" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "처음부터" })).toHaveCount(0);

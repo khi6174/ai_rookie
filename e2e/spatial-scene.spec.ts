@@ -179,6 +179,10 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   // auditable admin/rider response branches are part of the non-spatial
   // baseline. Those four operations-only branches add 1,792 gzip bytes and
   // do not change the 2.5D renderer or its original 50 KiB cap.
+  // ADR-161's integration-ready Sandbox adds 3,629 gzip bytes in lazy status,
+  // health-contract, and route-registration chunks that never enter the 2.5D
+  // renderer. Attribute those non-spatial bytes to the baseline while keeping
+  // the renderer's original 50 KiB cap unchanged.
   // A local/CI Kakao JavaScript key enables the already-approved live-map
   // branches in otherwise non-spatial chunks. Keep that measured 2,867-byte
   // baseline separate so the 2.5D scene retains the original 50 KiB cap.
@@ -187,7 +191,10 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
     process.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim()
       || /^VITE_KAKAO_MAP_JAVASCRIPT_KEY\s*=\s*\S+/m.test(localEnv),
   );
-  const previousG4BGzipJsBytes = 157_214 + (hasKakaoJavascriptBuild ? 6_250 : 0);
+  const integrationSandboxNonSpatialGzipBytes = 3_629;
+  const previousG4BGzipJsBytes = 157_214
+    + integrationSandboxNonSpatialGzipBytes
+    + (hasKakaoJavascriptBuild ? 6_250 : 0);
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
   );

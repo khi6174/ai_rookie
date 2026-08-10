@@ -658,3 +658,13 @@ Upstage 또는 Live 데이터 실패 상태에서도 Demo fixture 표시와 함�
 - 관리자 지도는 전체 보기에서 25개 경로를 낮은 대비로 유지하고 선택 기사 경로와 다음 최대 4개 배송지를 강조한다. `배송구역 확대`는 선택 경로 bounds로 이동하고 `전체 보기`는 fleet bounds로 복귀한다.
 - 기사 앱과 관리자 지도는 같은 `routeId`와 polyline 진행률을 사용한다. 선택 기사나 배송 완료 수가 바뀌면 다음 배송지 번호도 같은 frame에서 갱신된다.
 - 경로 좌표와 배송지 표식은 합성 표시용이며 실제 주소·GPS·Kakao Directions 응답이 아니다. 지도 경로는 Safety Budget·추천·Risk Transfer Guard의 입력이 아니다.
+
+## 21. Integration-ready 운영 Sandbox
+
+- `/integration-sandbox-status`는 실제 연결 전 `PRODUCTION_SANDBOX`의 공개 최소 health와 외부 연결 부재를 표시한다. 상세 readiness와 상태 변경은 서버 전용 인증 없이는 제공하지 않는다.
+- Sandbox는 합성 tenant·site·actor·role, 결정론적 TMS Simulator, 계획 적용 Outbox와 고객안내 Outbox만 허용한다.
+- 모든 변경 endpoint는 명시적 enable, 32자 이상 서버 전용 token, 합성 tenant·site, 1~168시간 보존값과 분당 요청 한도가 모두 유효하지 않으면 body를 읽기 전에 닫힌다.
+- 계획 Outbox는 필수 기사 동의, 관리자 승인, 최신 계획 버전, 실행 가능한 후보와 통과한 Risk Transfer Guard 증거를 요구한다. 실패·stale·Kill switch에서는 현재 계획 버전을 변경하지 않는다.
+- 고객안내 Outbox는 적용된 합성 계획 버전, 합성 수신자 참조와 승인 템플릿만 기록하며 외부 네트워크 발송은 항상 `false`다.
+- D1 상태는 낙관적 revision으로 저장하고 충돌 시 최신 상태 재조회를 요구한다. 백업은 원문·token·개인정보를 포함하지 않는다. 복원 검증은 상태를 바꾸지 않으며 실제 Sandbox 복구는 계획·고객안내·AI Kill switch가 모두 켜진 경우에만 수행한다.
+- 이 기능은 실제 인증·TMS·기사·고객 연결, Live Pilot, 현장효과 또는 사고감소 완료를 뜻하지 않는다.

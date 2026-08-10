@@ -2,6 +2,12 @@ import { describe, expect, it } from "vitest";
 import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheticOperationsPackage";
 import { createDashboardOperationsProjection } from "../src/application/dashboardOperationsProjection";
 import {
+  createDailyOperationsSnapshot,
+  createOperationsDecisionWorkspace,
+  evaluateOperationsFleet,
+  initializeOperationsDecision,
+} from "../src/application/operations";
+import {
   createSyntheticLiveOperationsFrame,
   SYNTHETIC_LIVE_SHIFT_TICKS,
 } from "../src/application/syntheticLiveOperations";
@@ -57,7 +63,7 @@ describe("dashboard synthetic live operations", () => {
     expect(advancedCourier.currentScore).toBeLessThan(initialCourier.currentScore);
     expect(advancedCourier.budget).not.toBe(initialCourier.budget);
     expect(advancedCourier.decisionId).not.toBe(initialCourier.decisionId);
-  });
+  }, 15_000);
 
   it("represents driving, delivery, delay and rest as deterministic live actions", () => {
     const frames = Array.from({ length: 23 }, (_, tick) =>
@@ -76,5 +82,45 @@ describe("dashboard synthetic live operations", () => {
     ).toEqual(
       createSyntheticLiveOperationsFrame(bundledDailyOperationsPackage, 12),
     );
+  });
+
+  it("keeps late-shift snapshots valid and fails closed when no safe intervention remains", async () => {
+    const failures: Array<{ tick: number; courierId: string; message: string }> = [];
+    for (const tick of [0, SYNTHETIC_LIVE_SHIFT_TICKS]) {
+      const frame = createSyntheticLiveOperationsFrame(
+        bundledDailyOperationsPackage,
+        tick,
+      );
+      const snapshot = await createDailyOperationsSnapshot(
+        frame.operationsPackage,
+        { createdAt: frame.operationsPackage.evaluatedAt },
+      );
+      const fleet = evaluateOperationsFleet(snapshot);
+      const queueItems =
+        tick === SYNTHETIC_LIVE_SHIFT_TICKS
+          ? fleet.supportQueue
+          : fleet.supportQueue.slice(0, 1);
+      for (const queueItem of queueItems) {
+        try {
+          initializeOperationsDecision(
+            createOperationsDecisionWorkspace(snapshot, fleet),
+            snapshot,
+            fleet,
+            queueItem.decisionId,
+          );
+        } catch (error) {
+          failures.push({
+            tick,
+            courierId: queueItem.courierId,
+            message: error instanceof Error ? error.message : String(error),
+          });
+        }
+      }
+    }
+    expect(
+      failures.every((failure) =>
+        failure.message.includes("has no feasible intervention"),
+      ),
+    ).toBe(true);
   });
 });

@@ -22,7 +22,7 @@ test.describe("synthetic operations service", () => {
     await expect(page.getByText("입력 정규화 패키지")).toBeVisible();
     await expect(
       page.getByText(
-        "추출 상태 MEMORY_DEV · 검증된 합성 기사 25명",
+        "추출 상태 MEMORY_DEV · 검증된 기사 25명",
         { exact: true },
       ),
     ).toBeVisible();
@@ -35,7 +35,7 @@ test.describe("synthetic operations service", () => {
     ).toBe("nowrap");
 
     const documentBundleLink = page.getByRole("link", {
-      name: "합성 문서 번들 내려받기",
+      name: "문서 번들 내려받기",
     });
     expect(
       await documentBundleLink.evaluate(
@@ -64,7 +64,7 @@ test.describe("synthetic operations service", () => {
     expect(documentBundle.documents).toHaveLength(100);
     expect(documentBundle.extractedRecords).toHaveLength(25);
     await page
-      .getByLabel("합성 운영 문서 또는 정규화 JSON 첨부")
+      .getByLabel("운영 문서 또는 정규화 JSON 첨부")
       .setInputFiles(downloadedBundlePath!);
     await expect(
       page.getByText("추출 상태 SAFEROUTE DETERMINISTIC · strict 추출 통과"),
@@ -85,13 +85,15 @@ test.describe("synthetic operations service", () => {
       page.getByRole("heading", { name: "기사 위치·배송 진행" }),
     ).toBeVisible();
     await expect(
-      page.getByText("합성 스냅샷 · Live 0명", { exact: true }),
+      page
+        .getByLabel("기사 위치·배송 진행")
+        .getByText("운영 스냅샷", { exact: true }),
     ).toBeVisible();
     const courierMarkers = page.locator(".operations-map-courier-marker");
     await expect(courierMarkers).toHaveCount(25);
     await expect(courierMarkers.first()).toHaveAttribute(
       "aria-label",
-      /합성 위치 · 배송 \d+\/\d+건 완료/,
+      /위치 · 배송 \d+\/\d+건 완료/,
     );
     const supportMarkers = page.locator(
       ".operations-map-courier-marker:not([disabled])",
@@ -154,7 +156,7 @@ test.describe("synthetic operations service", () => {
     ).toBeVisible();
     await page.getByRole("tab", { name: "경로" }).click();
     await expect(page.locator(".operations-map-header > span")).toHaveText(
-      /^(Kakao map|Schematic Fallback) · 합성 좌표$/,
+      /^(Kakao map · 기본 지도|지도 대체 화면)$/,
       { timeout: 15_000 },
     );
     await expect(

@@ -43,7 +43,7 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     page.getByRole("heading", { name: "Safety Control Tower" }),
   ).toBeVisible();
   await expect(
-    page.getByText("합성 운행 중 · 실제 TMS 아님", { exact: true }),
+    page.getByText("시연 데이터", { exact: true }),
   ).toBeVisible();
   await expect(
     page.getByRole("link", { name: "합성 실시간 재생" }),
@@ -64,7 +64,7 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     "승인 전 계획 유지",
   );
   await expect(
-    page.getByText(`${body.storage} · 합성 기사 25명`, { exact: true }),
+    page.getByText(`${body.storage} · 기사 25명`, { exact: true }),
   ).toBeVisible();
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
   await expect(page.locator(".onepage-courier-card.state-forecast")).not.toHaveCount(0);
@@ -73,7 +73,7 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
   await expect(page.locator(".onepage-courier-card.state-stable")).not.toHaveCount(0);
   await expect(page.locator(".onepage-region-capacity > span")).toHaveCount(3);
   await expect(
-    page.getByText("합성 운영권역 · 3개 허브", { exact: true }),
+    page.getByText("운영권역 · 3개 허브", { exact: true }),
   ).toBeVisible();
 
   const stateSemantics = await page
@@ -174,7 +174,7 @@ test("기사 추가는 합성 등록 요청만 만들고 활성 안전 계산 25
     animations: "disabled",
   });
 
-  const aliasInput = dialog.getByLabel("합성 별칭");
+  const aliasInput = dialog.getByLabel("기사 별칭");
   await expect(aliasInput).toBeFocused();
   await aliasInput.fill("합성 기사 새봄");
   await dialog.getByRole("button", { name: "등록 요청 저장" }).click();
@@ -182,7 +182,7 @@ test("기사 추가는 합성 등록 요청만 만들고 활성 안전 계산 25
   await expect(dialog).toBeHidden();
   await expect(page.getByRole("button", { name: /기사 추가.*대기 1/ })).toBeFocused();
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
-  await expect(page.getByText(/합성 기사 25명/, { exact: false })).toBeVisible();
+  await expect(page.getByText(/기사 25명/, { exact: false })).toBeVisible();
 
   await page.getByRole("button", { name: /기사 추가.*대기 1/ }).click();
   await page.keyboard.press("Escape");
@@ -298,7 +298,9 @@ test("대시보드에서 선택한 합성 기사를 같은 이름·업무의 기
   );
   await expect(page.getByRole("button", { name: "초기화" })).toHaveCount(0);
   await expect(
-    page.getByRole("heading", { name: target.plan.stops[0].coarseZone }),
+    page.getByRole("heading", {
+      name: target.plan.stops[0].coarseZone.replace(/^합성\s+/, ""),
+    }),
   ).toBeVisible();
   await expect(
     page.getByRole("progressbar", { name: "오늘 배송률" }),
@@ -452,7 +454,7 @@ test("별도 기사 앱의 응급 합성 신호가 새로고침 없이 열린 �
     await riderPage.getByRole("tab", { name: "안전지원" }).click();
     await riderPage.getByRole("button", { name: "응급 상황 전송" }).click();
     await expect(
-      riderPage.getByText("관제 화면에 합성 위험 신호를 보냈습니다."),
+      riderPage.getByText("관제 화면에 위험 신호를 보냈습니다."),
     ).toBeVisible();
 
     await expect

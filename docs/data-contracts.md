@@ -2005,3 +2005,25 @@ type RiderDeliveryRoute = {
 - 북부·남부·서부 각 권역의 좌표 grid와 9개 도로 조합 template은 버전된 코드 설정이다. 난수·브라우저 위치·실제 주소·Directions 응답을 사용하지 않는다.
 - `visibleStops`는 현재 완료 수 다음부터 최대 4개만 표시하며 원본 합성 계획의 전체·완료 수를 넘지 않는다.
 - Kakao와 Fallback 지도, 관리자와 기사 화면은 같은 경로 함수를 사용한다. 확대 상태는 UI 로컬 상태이며 저장·Safety 입력·decision ID에 포함하지 않는다.
+
+## 29. Integration-ready Sandbox 계약
+
+### 29.1 합성 Principal
+
+`integration-sandbox-principal-v1`은 `PRODUCTION_SANDBOX`, `sandbox-tenant-*`, `sandbox-site-*`, `sandbox-actor-*`와 `PLATFORM_OPERATOR | TENANT_ADMIN | DISPATCHER | COURIER`만 허용한다. 실제 계정이나 인증 완료를 뜻하지 않는다.
+
+### 29.2 TMS Simulator Batch
+
+`integration-sandbox-tms-batch-v1`은 `DETERMINISTIC_TMS_SIMULATOR` source와 단조 sequence의 합성 이벤트 1~500건을 가진다. 이벤트는 `anon-*` 기사, `plan-*` 계획, 계획 버전, 완료·전체 배송 수와 거친 권역만 포함한다. 같은 event ID·같은 hash는 멱등 성공이고 같은 ID·다른 내용 또는 저장 sequence 이하의 새 이벤트는 `409`다.
+
+### 29.3 계획 적용 Outbox
+
+`integration-sandbox-plan-command-v1`은 `SIMULATED_TMS_OUTBOX`, command·idempotency key, workspace·decision·plan 참조, 예상/다음 계획 버전, 필수 동의, 관리자 승인과 safety proof를 요구한다. safety proof는 `FEASIBLE`, `Risk Transfer Guard PASSED`, `unsafeRecommendedCount=0`을 모두 만족해야 한다. Simulator 성공만 계획 버전을 1 증가시키며 네트워크 요청은 수행하지 않는다.
+
+### 29.4 고객안내 Outbox
+
+`integration-sandbox-customer-notice-v1`은 합성 수신자 참조, 적용된 계획 버전, 승인 템플릿, ETA와 `networkDelivery=false`를 요구한다. 전화번호·이메일·주소·고객 필드는 계약에 존재하지 않는다.
+
+### 29.5 D1 상태·백업
+
+`integration-sandbox-state-v1`은 파생 이벤트, 두 Outbox, 계획 버전, 감사 이벤트와 Kill switch만 저장한다. tenant별 revision compare-and-swap으로 stale 저장을 차단한다. `integration-sandbox-backup-v1`은 canonical SHA-256을 가진다. restore verification은 hash와 tenant·site·금지 필드를 검사하고 `stateMutationPerformed=false`를 유지하며, restore apply는 세 Kill switch가 모두 켜진 경우에만 상태를 복구하고 그 사실을 감사 이벤트로 남긴다.

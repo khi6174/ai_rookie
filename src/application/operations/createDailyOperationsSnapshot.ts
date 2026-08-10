@@ -218,6 +218,10 @@ export function createScenarioFixtureFromOperationsPackage(
       provenance: [provenance],
     });
 
+    const stairStopsRemaining = Math.min(
+      record.operatingConditions.stairsStopCount,
+      record.plan.stops.length,
+    );
     const recordStops: DeliveryStop[] = record.plan.stops.map(
       (sourceStop, index) => {
         const expectedArrivalAt = alignToPackageEvaluation(
@@ -225,7 +229,7 @@ export function createScenarioFixtureFromOperationsPackage(
           record,
           operationsPackage,
         );
-        const isStairStop = index < record.operatingConditions.stairsStopCount;
+        const isStairStop = index < stairStopsRemaining;
         return {
           stopId: sourceStop.stopId,
           planId,
@@ -332,7 +336,7 @@ export function createScenarioFixtureFromOperationsPackage(
         totalWeightKg: remainingWeightKg,
         totalVolumeLiters: remainingVolumeLiters,
       },
-      stairStopsRemaining: record.operatingConditions.stairsStopCount,
+      stairStopsRemaining,
       atRiskHardTimeWindowCount: recordStops.filter(
         (stop) => stop.timeWindow?.kind === "HARD",
       ).length,

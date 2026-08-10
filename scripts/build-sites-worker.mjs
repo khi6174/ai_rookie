@@ -29,6 +29,10 @@ const riderDangerSignalStoreSource = resolve(
   "server/rider-danger-signal-store.mjs",
 );
 const shadowLiveStoreSource = resolve(root, "server/shadow-live-store.mjs");
+const integrationSandboxStoreSource = resolve(
+  root,
+  "server/integration-sandbox-store.mjs",
+);
 const riderProfilesSource = resolve(root, "server/rider-profiles.mjs");
 const upstageExplanationProxySource = resolve(
   root,
@@ -68,10 +72,12 @@ import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
 import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
 import { handleRiderDangerSignalRequest } from "./rider-danger-signal-store.mjs";
 import { handleShadowLiveRequest } from "./shadow-live-store.mjs";
+import { handleIntegrationSandboxRequest } from "./integration-sandbox-store.mjs";
 import { handleSyntheticOperationsRequest } from "./synthetic-operations-store.mjs";
 import { handleUpstageExplanationRequest } from "./upstage-explanation-proxy.mjs";
 
 let bundledSyntheticOperationsDocument;
+const integrationSandboxRateStore = new Map();
 
 async function loadBundledSyntheticOperationsDocument(request, env) {
   if (bundledSyntheticOperationsDocument) {
@@ -92,9 +98,13 @@ async function loadBundledSyntheticOperationsDocument(request, env) {
 }
 
 const securityHeaders = {
+  "Cross-Origin-Opener-Policy": "same-origin",
+  "Permissions-Policy": "camera=(), microphone=(), geolocation=(self)",
   "Referrer-Policy": "no-referrer",
+  "Strict-Transport-Security": "max-age=31536000; includeSubDomains",
   "X-Content-Type-Options": "nosniff",
   "X-Frame-Options": "DENY",
+  "X-Permitted-Cross-Domain-Policies": "none",
 };
 
 function secure(response) {
@@ -112,6 +122,20 @@ function secure(response) {
 const worker = {
   async fetch(request, env) {
     const url = new URL(request.url);
+    const integrationSandboxResponse = await handleIntegrationSandboxRequest(request, {
+      database: env.DB,
+      rateStore: integrationSandboxRateStore,
+      enabled: env.INTEGRATION_SANDBOX_ENABLED === "true",
+      serviceToken: env.INTEGRATION_SANDBOX_SERVICE_TOKEN,
+      tenantId: env.INTEGRATION_SANDBOX_TENANT_ID,
+      siteId: env.INTEGRATION_SANDBOX_SITE_ID,
+      retentionHours: env.INTEGRATION_SANDBOX_RETENTION_HOURS,
+      rateLimitPerMinute: env.INTEGRATION_SANDBOX_RATE_LIMIT_PER_MINUTE,
+      aiConfigured: Boolean(env.UPSTAGE_API_KEY && env.UPSTAGE_MODEL),
+    });
+    if (integrationSandboxResponse) {
+      return secure(integrationSandboxResponse);
+    }
     const shadowLiveResponse = await handleShadowLiveRequest(request, {
       database: env.DB,
       enabled: env.SHADOW_LIVE_INGEST_ENABLED === "true",
@@ -385,6 +409,10 @@ await copyFile(
 await copyFile(
   shadowLiveStoreSource,
   resolve(workerDirectory, "shadow-live-store.mjs"),
+);
+await copyFile(
+  integrationSandboxStoreSource,
+  resolve(workerDirectory, "integration-sandbox-store.mjs"),
 );
 await copyFile(
   riderProfilesSource,

@@ -1653,6 +1653,20 @@
 - 기각한 대안: 21~25번에 실제 인물 사진 사용, 같은 얼굴 반복, reset을 공개 기사 앱에 유지, D1 응답 전에 낙관적 성공 표시, 0건 필터 클릭 시 조용히 전체 목록 유지.
 - 영향 파일: `src/assets/synthetic-courier-profiles-v2-extension.jpg`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/App.tsx`, 관련 CSS·E2E 테스트, `scripts/run-final-readiness-audit.mjs`, `docs/decisions.md`
 
+### ADR-161 — 외부 연결 전 프로덕션급 합성 운영 Sandbox를 별도 Goal로 완성한다
+
+- 날짜: 2026-08-10
+- 상태: Approved
+- 사용자 결정: 실제 데이터·TMS·택배사·기사 연결은 제외하되, 외부 연동 직전의 프로덕션급 운영 Sandbox 완료 상태를 새 Goal로 정하고 해당 상태까지 구현하도록 요청했다.
+- 결정: 기존 본선 Demo와 `PAID_PILOT_READY_WITH_SYNTHETIC_OPERATIONS` 증거를 보존하고, 별도 `INTEGRATION_READY_SANDBOX` 경계를 추가한다. Sandbox는 공급자 독립 합성 인증·조직·역할 계약, TMS 이벤트와 결정론 Simulator, 계획 적용·고객안내 Outbox, D1 스키마 버전·보존·삭제·백업·복구, health/readiness, Kill switch, rate limit, 장애·롤백 Gate를 소유한다. 실제 공급자 연결과 실제 사용자 인증은 구현하지 않는다.
+- 데이터·권한 경계: 실제 이름·연락처·주소·고객·차량번호·GPS·위경도·생체정보를 재귀적으로 거부한다. Sandbox 전용 32자 이상 Bearer token과 합성 tenant·actor·role header는 서버에서만 검증하고 브라우저 번들·URL·응답·증거에 저장하지 않는다. 다른 tenant 데이터의 존재 여부를 노출하지 않는다.
+- 성능 계측 경계: ADR-161의 lazy 운영 상태·health 계약·route registration은 production build 기준 3,629 gzip bytes의 비공간 증분이다. 이를 2.5D 기준선에 명시적으로 귀속하되 2.5D 추가 번들의 50 KiB 상한은 완화하지 않는다.
+- 적용 경계: 계획 적용과 고객안내는 네트워크 외부로 전송하지 않고 Outbox와 결정론 Simulator까지만 진행한다. 계획 명령은 기사 동의·관리자 승인·최신 버전·안전 Gate를 증명하는 불변 참조를 요구하고, stale·중복·Kill switch·부분 실패에서는 기존 활성 계획을 유지한다. 고객안내는 합성 수신자 참조와 검증된 템플릿만 허용한다.
+- 표시·승격 경계: Sandbox를 `LIVE`, 실제 TMS, 실제 인증 또는 현장 운영으로 표시하지 않는다. 실제 원천·계약·보존·개인정보·인증·보상 트랜잭션·고객 발송·현장 Pilot은 별도 사용자 재승인과 검증 뒤에만 연결한다.
+- 이유: 현재 안전 폐루프와 D1·Shadow Live 기반을 외부 파트너 없이도 운영·보안·복구 관점에서 강화할 수 있다. 공급자별 세부 구현보다 계약과 실패 의미를 먼저 고정하면 실제 연결 시 Safety와 사람 권리를 유지한 채 Adapter만 교체할 수 있다.
+- 기각한 대안: 공개 Demo를 Live로 재표시, 실제 원천 없이 실제 인증 완료 주장, 브라우저에 Sandbox token 포함, 무인증 운영 endpoint, 실제 연락처로 시험 발송, 합성 이벤트를 Safety Live 입력으로 승격, 독립 사람 검토를 자동 Gate로 대체.
+- 영향 파일: `docs/integration-ready-sandbox-goal.md`, `docs/product-spec.md`, `docs/data-contracts.md`, `docs/privacy-and-ai-policy.md`, `docs/architecture.md`, `docs/evals.md`, `server/`, `src/domain/operations/`, `src/application/operations/`, `src/ui/`, `tests/`, `e2e/`, `scripts/`, D1 migration과 평가 증거
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

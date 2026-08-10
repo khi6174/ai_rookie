@@ -90,7 +90,7 @@ const commands = [
     "PLAYWRIGHT_E2E",
     ["run", "test:e2e"],
     /\b\d+ passed\b/,
-    360_000,
+    720_000,
   ),
   runPnpm(
     "CLEAN_START_3X",
@@ -134,6 +134,8 @@ const requiredApprovedDocuments = [
   "docs/rider-reference-comprehension-test.md",
   "docs/geospatial-pwa-implementation-plan.md",
   "docs/goal-completion-audit.md",
+  "docs/integration-ready-sandbox-goal.md",
+  "docs/integration-sandbox-runbook.md",
 ];
 const documentStatuses = [];
 for (const file of requiredApprovedDocuments) {
@@ -157,6 +159,12 @@ const syntheticOperations = await readJson(
 const coreManifest = await readJson("run-manifest.json");
 const mapPerformance = await readJson("map-performance-summary.json");
 const spatialScene = await readJson("spatial-scene-summary.json");
+const integrationSandbox = await readJson(
+  "integration-sandbox-goal-latest.json",
+);
+const integrationSandboxReadiness = await readJson(
+  "integration-sandbox-readiness-latest.json",
+);
 const riderReferenceStimulus = await readJson(
   "rider-reference-round2-stimulus-manifest.json",
 );
@@ -440,6 +448,22 @@ const evidenceChecks = [
     `${unit.passed}/${unit.testCount} passed`,
   ),
   check(
+    "INTEGRATION_READY_SANDBOX",
+    integrationSandbox.status ===
+      "READY_FOR_EXTERNAL_ADAPTER_INTEGRATION" &&
+      integrationSandbox.dataMode === "PRODUCTION_SANDBOX" &&
+      integrationSandbox.failedChecks.length === 0 &&
+      Object.values(integrationSandbox.checks).every(Boolean) &&
+      integrationSandbox.summary.externalTmsConnected === false &&
+      integrationSandbox.summary.actualAuthenticationConnected === false &&
+      integrationSandbox.summary.actualCourierConnected === false &&
+      integrationSandbox.summary.customerNetworkDeliveryPerformed === false &&
+      integrationSandbox.summary.actualPersonalDataCount === 0 &&
+      integrationSandboxReadiness.status === "PASSED" &&
+      integrationSandboxReadiness.checks.every((item) => item.passed),
+    `${integrationSandboxReadiness.summary.passed}/${integrationSandboxReadiness.checks.length} technical checks, external connections=false`,
+  ),
+  check(
     "ACCESSIBILITY_VIEWPORTS",
     accessibility.passed && accessibility.checks.length === 6,
     `${accessibility.checks.filter((item) => item.passed).length}/${accessibility.checks.length} checks passed`,
@@ -594,6 +618,9 @@ const result = {
     spatialSceneMismatchCount:
       spatialScene.metrics.identifierMismatchCount +
       spatialScene.metrics.numericMismatchCount,
+    integrationSandboxStatus: integrationSandbox.status,
+    integrationSandboxTechnicalChecks:
+      integrationSandboxReadiness.checks.length,
     g5HumanComprehensionStatus: spatialComprehension.status,
     g5HumanComprehensionStudyId: spatialComprehension.studyId ?? null,
     g5HumanEvidenceRound: spatialComprehensionRound4

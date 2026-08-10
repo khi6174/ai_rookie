@@ -271,9 +271,7 @@ function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
       <summary aria-label={`${profile.displayName} 기사 화면 전환`}>
         <span>{profile.displayName}</span>
         <small>
-          {profile.courierId.startsWith("demo-courier-")
-            ? "합성 기사"
-            : "기사"}
+          기사
         </small>
       </summary>
       <div className="rider-profile-options" aria-label="기사 앱 선택">
@@ -284,7 +282,7 @@ function RiderProfileMenu({ profile }: { profile: RiderProfile }) {
             aria-current={rider.courierId === profile.courierId ? "page" : undefined}
           >
             <strong>{rider.displayName}</strong>
-            <small>{rider.areaCode} / 배송 {rider.completedCount}/{rider.totalCount}</small>
+            <small>{displayOperationalLabel(rider.areaCode)} / 배송 {rider.completedCount}/{rider.totalCount}</small>
           </a>
         ))}
       </div>
@@ -2155,13 +2153,13 @@ function RiderView({
               <figure>
                 <img
                   src="/assets/rider-delivery-area-seoul.jpg"
-                  alt={`${riderProfile.deliveryZone} 배송 구역을 나타내는 주거지역 전경`}
+                  alt={`${displayOperationalLabel(riderProfile.deliveryZone)} 배송 구역을 나타내는 주거지역 전경`}
                 />
                 <figcaption>배송 구역 대표 이미지</figcaption>
               </figure>
               <div className="rider-delivery-copy">
-                <span>{riderProfile.areaCode}</span>
-                <h1>{riderProfile.deliveryZone}</h1>
+                <span>{displayOperationalLabel(riderProfile.areaCode)}</span>
+                <h1>{displayOperationalLabel(riderProfile.deliveryZone)}</h1>
                 <div className="rider-delivery-progress-copy">
                   <span>배송 {deliveryCompletedCount}/{deliveryTotalCount}</span>
                   <strong>{deliveryRate}%</strong>
@@ -2183,7 +2181,7 @@ function RiderView({
                 <section className="rider-zone-route" aria-label="오늘의 간단한 운행 경로">
                   <div className="rider-zone-route-heading">
                     <span>오늘 운행</span>
-                    <strong>{riderProfile.areaCode} 안에서 이동</strong>
+                    <strong>{displayOperationalLabel(riderProfile.areaCode)} 안에서 이동</strong>
                   </div>
                   <ol>
                     <li className="is-current"><span>현재</span><strong>{Math.min(deliveryCompletedCount + 1, deliveryTotalCount)}번째</strong></li>
@@ -2287,7 +2285,7 @@ function RiderView({
               </button>
               {dangerDemoStatus === "SENT" && (
                 <p className="rider-danger-status is-sent" role="status">
-                  관제 화면에 합성 위험 신호를 보냈습니다.
+                  관제 화면에 위험 신호를 보냈습니다.
                 </p>
               )}
               {dangerDemoStatus === "ERROR" && (
@@ -2305,14 +2303,14 @@ function RiderView({
               <span className="rider-profile-avatar" aria-hidden="true">{riderProfile.displayName.slice(0, 1)}</span>
               <div className="rider-profile-identity-copy">
                 <h1>{riderProfile.displayName} 기사</h1>
-                <p>{riderProfile.courierId} · {riderProfile.areaCode} · {riderProfile.vehicleId}</p>
+                <p>{riderProfile.courierId} · {displayOperationalLabel(riderProfile.areaCode)} · {riderProfile.vehicleId}</p>
               </div>
             </header>
 
             <section className="rider-profile-work" aria-labelledby="rider-profile-work-heading">
               <div className="rider-profile-section-heading">
                 <h2 id="rider-profile-work-heading">오늘 내 업무</h2>
-                <span>{riderProfile.deliveryZone}</span>
+                <span>{displayOperationalLabel(riderProfile.deliveryZone)}</span>
               </div>
               <dl>
                 <div><dt>배송 진행</dt><dd>{deliveryCompletedCount}/{deliveryTotalCount}</dd></div>

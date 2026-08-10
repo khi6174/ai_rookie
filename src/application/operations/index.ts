@@ -1,4 +1,6 @@
 export * from "./createDailyOperationsSnapshot";
+export * from "./createIntegrationSandboxScenario";
+export * from "./integrationSandboxHealth";
 export * from "./createDecisionWorkspace";
 export * from "./evaluateFleet";
 export * from "./exportOperations";

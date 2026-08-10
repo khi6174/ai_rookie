@@ -1,0 +1,110 @@
+{
+  "schemaVersion": "integration-sandbox-readiness-audit-v1",
+  "capturedAt": "2026-08-10T07:38:27.622Z",
+  "status": "PASSED",
+  "goal": "INTEGRATION_READY_SANDBOX",
+  "dataMode": "PRODUCTION_SANDBOX",
+  "checks": [
+    {
+      "id": "SAFE_DEFAULT_HEALTH",
+      "passed": true,
+      "details": "DISABLED"
+    },
+    {
+      "id": "AUTHENTICATION_REQUIRED",
+      "passed": true,
+      "details": "status=401"
+    },
+    {
+      "id": "ROLE_BOUNDARY",
+      "passed": true,
+      "details": "status=403"
+    },
+    {
+      "id": "AI_TEMPLATE_FALLBACK_BOUNDARY",
+      "passed": true,
+      "details": "status=200 mode=TEMPLATE_FALLBACK_ONLY"
+    },
+    {
+      "id": "TMS_SIMULATOR_INGEST",
+      "passed": true,
+      "details": "status=202 accepted=1"
+    },
+    {
+      "id": "EVENT_IDEMPOTENCY",
+      "passed": true,
+      "details": "status=200 duplicate=1"
+    },
+    {
+      "id": "PERSONAL_DATA_REJECTION",
+      "passed": true,
+      "details": "status=400"
+    },
+    {
+      "id": "PLAN_OUTBOX_APPLY",
+      "passed": true,
+      "details": "status=202 outcome=SIMULATED_APPLIED"
+    },
+    {
+      "id": "PLAN_COMMAND_IDEMPOTENCY",
+      "passed": true,
+      "details": "status=200"
+    },
+    {
+      "id": "STALE_PLAN_BLOCKED",
+      "passed": true,
+      "details": "status=409"
+    },
+    {
+      "id": "CUSTOMER_OUTBOX_NO_DELIVERY",
+      "passed": true,
+      "details": "status=202"
+    },
+    {
+      "id": "KILL_SWITCH",
+      "passed": true,
+      "details": "status=200"
+    },
+    {
+      "id": "REDACTED_BACKUP",
+      "passed": true,
+      "details": "status=200"
+    },
+    {
+      "id": "RESTORE_HASH_VERIFIED",
+      "passed": true,
+      "details": "status=200"
+    },
+    {
+      "id": "RESTORE_WITH_KILL_SWITCHES",
+      "passed": true,
+      "details": "status=200"
+    },
+    {
+      "id": "D1_MIGRATION",
+      "passed": true,
+      "details": "0006_integration_sandbox.sql"
+    }
+  ],
+  "summary": {
+    "passed": 16,
+    "failed": 0,
+    "eventCount": 1,
+    "planOutboxCount": 1,
+    "customerOutboxCount": 1,
+    "auditCount": 6,
+    "externalTmsConnected": false,
+    "actualAuthenticationConnected": false,
+    "customerNetworkDeliveryPerformed": false,
+    "actualPersonalDataCount": 0
+  },
+  "migration": {
+    "path": ".openai/drizzle/0006_integration_sandbox.sql",
+    "sha256": "c06c05b292f28420d06983d2f8eb338c0689fa4e53a57f757ecd9f4b797306ad"
+  },
+  "limitations": [
+    "The audit uses deterministic synthetic identities and events only.",
+    "No actual carrier, TMS, courier account, GPS, address, customer contact, or notification provider is connected.",
+    "Passing this audit is not LIVE_PILOT or field-effect evidence."
+  ]
+}

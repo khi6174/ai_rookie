@@ -1,6 +1,6 @@
 {
   "schemaVersion": "final-readiness-audit-v1",
-  "capturedAt": "2026-08-09T02:44:00.789Z",
+  "capturedAt": "2026-08-10T07:28:53.663Z",
   "status": "PASSED",
   "releaseScope": "AI_ROOKIE_DOMESTIC_TRACK_FINALS_DEMO",
   "dataClassification": "synthetic Demo fixtures, public weather evidence, and redacted AI evaluation summaries",
@@ -11,9 +11,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 2537,
-      "outputSha256": "926841ad649de4f5a1cca6a2b2c50107c2904d13a27fb7ce3614669157d82bba",
-      "evidenceLine": "\u001b[32m✓ built in 360ms\u001b[39m"
+      "elapsedMs": 2878,
+      "outputSha256": "010c2451cbc6b8bc14342806db889d3521f4f6f73965bf17a08f52e7d92ca39b",
+      "evidenceLine": "\u001b[32m✓ built in 417ms\u001b[39m"
     },
     {
       "id": "PLAYWRIGHT_E2E",
@@ -21,9 +21,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 288505,
-      "outputSha256": "8b69d60bfaa222bc218d92d91d53a8a8d70f5a6e7ac37b1cd96851530fb2ab5d",
-      "evidenceLine": "55 passed (4.8m)"
+      "elapsedMs": 304785,
+      "outputSha256": "d37608a21c072007d7a20ddebb1cf4a538be468cc47206b9c458c5704221ceed",
+      "evidenceLine": "56 passed (5.0m)"
     },
     {
       "id": "CLEAN_START_3X",
@@ -31,9 +31,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 23198,
-      "outputSha256": "3bb6ec629cf282375958796e43f0f9df732a87a34f6742c2c3b7e3e8469cc9cb",
-      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=22.25"
+      "elapsedMs": 32694,
+      "outputSha256": "32815e119a420d98fadce310f16c675ed68d13eec09f2b48c2efe12b8c765c46",
+      "evidenceLine": "CLEAN_START_3X_PASS elapsedSeconds=31.43"
     },
     {
       "id": "DOMESTIC_TRACK_AUDIT",
@@ -41,9 +41,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 837,
-      "outputSha256": "e294990aa77ba3493853845491af58df1912e35ddaa59f08bf1a273a36e7ac3d",
-      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=d03debf179622f59a401f9b8b7b1dec1e94ca1c8b1cd3b938a6c547f33a9ab6d"
+      "elapsedMs": 902,
+      "outputSha256": "e19e960bdbd63e43607ed4fe25e69edb6dd1662d2cf7406a05597cb485316c39",
+      "evidenceLine": "DOMESTIC_TRACK_AUDIT_PASS checks=7 hosts=10 sha256=efffcbe888b2b81187237bd9791410055fa8a9c050986e211193728b2dbdf6fd"
     },
     {
       "id": "CORE_EVIDENCE",
@@ -51,9 +51,9 @@
       "passed": true,
       "exitCode": 0,
       "signal": null,
-      "elapsedMs": 80814,
-      "outputSha256": "ebc1bfc8641084eeca72b843c1f8e14d929ca42c67a74d3e555ad89fd24870c1",
-      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=421 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
+      "elapsedMs": 106336,
+      "outputSha256": "00139227f7f3219bc115e423208831a83335405492a19d9504f1f53b3133b6cc",
+      "evidenceLine": "CORE_EVAL_ARTIFACTS_PASS tests=444 scenarios=3 frozenVariants=30 comparisons=90 transferBoundaries=23 directTransferBoundaries=20 decisionWorkflowBoundaries=30 domesticProviders=4 upstageTasks=12 artifacts=20"
     }
   ],
   "documentStatuses": [
@@ -151,18 +151,33 @@
       "file": "docs/goal-completion-audit.md",
       "status": "Approved",
       "approved": true
+    },
+    {
+      "file": "docs/integration-ready-sandbox-goal.md",
+      "status": "Approved",
+      "approved": true
+    },
+    {
+      "file": "docs/integration-sandbox-runbook.md",
+      "status": "Approved",
+      "approved": true
     }
   ],
   "evidenceChecks": [
     {
       "id": "APPROVED_DOCUMENTS",
       "passed": true,
-      "details": "19/19 approved"
+      "details": "21/21 approved"
     },
     {
       "id": "UNIT_TESTS",
       "passed": true,
-      "details": "421/421 passed"
+      "details": "444/444 passed"
+    },
+    {
+      "id": "INTEGRATION_READY_SANDBOX",
+      "passed": true,
+      "details": "16/16 technical checks, external connections=false"
     },
     {
       "id": "ACCESSIBILITY_VIEWPORTS",
@@ -217,7 +232,7 @@
     {
       "id": "SPATIAL_SCENE_G5_A",
       "passed": true,
-      "details": "renderer=PROVIDER_INDEPENDENT_SVG_2_5D, mismatch=0, dependencies=0, gzipDelta=49.99KiB"
+      "details": "renderer=PROVIDER_INDEPENDENT_SVG_2_5D, mismatch=0, dependencies=0, gzipDelta=49.95KiB"
     },
     {
       "id": "PUBLIC_DEMO_BUILD",
@@ -231,8 +246,8 @@
     }
   ],
   "summary": {
-    "unitTests": 421,
-    "e2eTests": 55,
+    "unitTests": 444,
+    "e2eTests": 56,
     "cleanStartRuns": 3,
     "requiredViewports": 4,
     "screenshotAndAccessibilityChecks": 6,
@@ -251,6 +266,8 @@
     "maxEvaluatedMapCouriers": 240,
     "spatialSceneRenderer": "PROVIDER_INDEPENDENT_SVG_2_5D",
     "spatialSceneMismatchCount": 0,
+    "integrationSandboxStatus": "READY_FOR_EXTERNAL_ADAPTER_INTEGRATION",
+    "integrationSandboxTechnicalChecks": 16,
     "g5HumanComprehensionStatus": "DO_NOT_PROMOTE",
     "g5HumanComprehensionStudyId": "g5-b-decision-spatial-comprehension-round3-001",
     "g5HumanEvidenceRound": "ROUND_3",

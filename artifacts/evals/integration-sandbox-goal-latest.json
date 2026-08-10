@@ -1,0 +1,151 @@
+{
+  "schemaVersion": "integration-sandbox-goal-audit-v1",
+  "capturedAt": "2026-08-10T07:38:30.911Z",
+  "goal": "INTEGRATION_READY_SANDBOX",
+  "status": "READY_FOR_EXTERNAL_ADAPTER_INTEGRATION",
+  "dataMode": "PRODUCTION_SANDBOX",
+  "commands": [
+    {
+      "id": "TYPECHECK",
+      "command": "pnpm run typecheck",
+      "exitCode": 0,
+      "passed": true,
+      "durationMs": 2005,
+      "summary": "$ tsc --noEmit --pretty false",
+      "outputSha256": "507f76e1efc69ab12bdfac9f3e5365db390a1b50a8d49d4aa7af14f5e70ce7ca"
+    },
+    {
+      "id": "SANDBOX_UNIT_CONTRACT",
+      "command": "pnpm exec vitest run tests/integration-sandbox-contracts.test.ts tests/integration-sandbox-store.test.ts tests/integration-sandbox-build-boundary.test.ts",
+      "exitCode": 0,
+      "passed": true,
+      "durationMs": 2323,
+      "summary": " Test Files  3 passed (3) |       Tests  22 passed (22) |    Start at  16:38:13 |    Duration  871ms (transform 248ms, setup 0ms, import 601ms, tests 135ms, environment 1ms)",
+      "outputSha256": "6fb950ac82e56eb2ca3346ca3cc37e925802541c557e3b8fbfe2397a21a53e19"
+    },
+    {
+      "id": "SANDBOX_E2E",
+      "command": "pnpm run test:e2e -- e2e/integration-sandbox-status.spec.ts",
+      "exitCode": 0,
+      "passed": true,
+      "durationMs": 12354,
+      "summary": "Running 1 test using 1 worker |   ok 1 e2e\\integration-sandbox-status.spec.ts:3:1 › 외부 연결 전 Sandbox 상태는 비활성 경계와 승격 조건을 공개한다 (6.8s) |   1 passed (8.8s) | $ powershell -NoProfile -ExecutionPolicy Bypass -File scripts/run-playwright.ps1 \"--\" \"e2e/integration-sandbox-status.spec.ts\"",
+      "outputSha256": "15283dc4bf12e8736a97253102751499e4b59e2d71c9b9c479562e69588b252a"
+    },
+    {
+      "id": "SANDBOX_TECHNICAL_AUDIT",
+      "command": "pnpm run audit:integration-sandbox",
+      "exitCode": 0,
+      "passed": true,
+      "durationMs": 818,
+      "summary": "INTEGRATION_SANDBOX_AUDIT_PASSED checks=16 failed=0 artifact=C:\\Users\\khiyw\\ai_rookie\\artifacts\\evals\\integration-sandbox-readiness-latest.json | $ node scripts/run-integration-sandbox-readiness.mjs",
+      "outputSha256": "5d48fe66dde2a3f4e5de52125c0bed4b1d3326fc01453cee21e46aa926dd3617"
+    },
+    {
+      "id": "PRODUCTION_BUILD",
+      "command": "pnpm run build",
+      "exitCode": 0,
+      "passed": true,
+      "durationMs": 3206,
+      "summary": "dist/assets/index-DS1SdZxm.js                                     311.30 kB │ gzip: 95.76 kB | \u001b[32m✓ built in 529ms\u001b[39m | SITES_WORKER_BUILD_PASS project=appgprj_6a5b2db03688819192df94fdc5ba24eb | $ node scripts/build-operations-document-template.mjs --verify && tsc --noEmit && vite build && node scripts/build-sites-worker.mjs",
+      "outputSha256": "20166c141e4d40da3bf8ea6a1d18614101ce2252c4b6d3511a2781a7d2f2f4d2"
+    }
+  ],
+  "checks": {
+    "commands": true,
+    "approvedGoal": true,
+    "technicalAudit": true,
+    "safeDefault": true,
+    "tenantAndRoleBoundary": true,
+    "deterministicOutboxes": true,
+    "recovery": true,
+    "aiFallbackBoundary": true,
+    "d1Migration": true,
+    "packagedWorker": true,
+    "noExternalConnections": true,
+    "tokenNotExposed": true
+  },
+  "failedChecks": [],
+  "summary": {
+    "technicalChecks": 16,
+    "technicalChecksPassed": 16,
+    "externalTmsConnected": false,
+    "actualAuthenticationConnected": false,
+    "actualCourierConnected": false,
+    "customerNetworkDeliveryPerformed": false,
+    "actualPersonalDataCount": 0,
+    "livePilotApproved": false
+  },
+  "manifest": [
+    {
+      "path": "docs/integration-ready-sandbox-goal.md",
+      "bytes": 4910,
+      "sha256": "16312f93fd3c9ca51213cd6ee4b038718219ebb9d296a81c02e53d3a807be256"
+    },
+    {
+      "path": "docs/integration-sandbox-runbook.md",
+      "bytes": 6286,
+      "sha256": "5c2f1ff223099ef5a3aa5bb274585137cf0d93263a67d18587e248f622c0b543"
+    },
+    {
+      "path": "docs/decisions.md",
+      "bytes": 292071,
+      "sha256": "84d07fd0342532a1cc70d5172414bc195d3eaab5386074416e07a5fcd5ea4ebd"
+    },
+    {
+      "path": "docs/product-spec.md",
+      "bytes": 51175,
+      "sha256": "c3bdcab3b10af4b43308ab9dc2597348ea85ea6418021abafad2d1d10f53e4e6"
+    },
+    {
+      "path": "docs/data-contracts.md",
+      "bytes": 83432,
+      "sha256": "fef7e0acb6f8d93823aaada581f6a643277455ee5b11ee26c2f05fcf8c87d7bc"
+    },
+    {
+      "path": "docs/privacy-and-ai-policy.md",
+      "bytes": 44112,
+      "sha256": "f82cf063a171513cada7742a1110fadc0a3e9b32d7dacd51f0c5ed36eac68c22"
+    },
+    {
+      "path": "docs/architecture.md",
+      "bytes": 50455,
+      "sha256": "fa2716c278a70b0dff5c1e270a073b10e953f471e4dd92b0a0a0f0b64c663122"
+    },
+    {
+      "path": "docs/evals.md",
+      "bytes": 79869,
+      "sha256": "58bf4420e5ba8d9e90a9ddcbb05ccb7f9471b203d5a5f92d07b8ebf2ccf76c2a"
+    },
+    {
+      "path": "src/domain/operations/integrationSandbox.ts",
+      "bytes": 8396,
+      "sha256": "300dc37c9828f2db453d67054e6d9766f6421e763e93fc96fd53fae446bd962b"
+    },
+    {
+      "path": "src/application/operations/createIntegrationSandboxScenario.ts",
+      "bytes": 5265,
+      "sha256": "c9b2c67ac7e9b272cfc0d1c3331ee1826886b97b9a0d9e70eb1e2337affc99b2"
+    },
+    {
+      "path": "server/integration-sandbox-store.mjs",
+      "bytes": 49166,
+      "sha256": "869d71cc688bf0c747a3872af33adc5ee83c9abf2412171781a3bbec9f752cfe"
+    },
+    {
+      "path": ".openai/drizzle/0006_integration_sandbox.sql",
+      "bytes": 338,
+      "sha256": "c06c05b292f28420d06983d2f8eb338c0689fa4e53a57f757ecd9f4b797306ad"
+    },
+    {
+      "path": "artifacts/evals/integration-sandbox-readiness-latest.json",
+      "bytes": 2688,
+      "sha256": "3cfa2f4f9ec0e154ea23b372c3ecbddb8c9a75210511ceae9af761d9102523d4"
+    }
+  ],
+  "explicitLimitations": [
+    "This is an integration-ready production Sandbox, not a live carrier service.",
+    "No actual carrier, TMS/WMS, identity provider, courier account, GPS, address, customer contact, or notification provider is connected.",
+    "Synthetic technical evidence is not field usability, operational effect, or accident-reduction evidence."
+  ]
+}

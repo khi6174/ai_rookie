@@ -90,7 +90,7 @@ export function OperationsRiderService() {
         setLoadState({
           status: "ERROR",
           message:
-            "최신 합성 운영 결정을 불러오지 못했습니다. 관리자에게 링크 갱신을 요청하세요.",
+            "최신 운영 결정을 불러오지 못했습니다. 관리자에게 링크 갱신을 요청하세요.",
         });
         return;
       }
@@ -231,12 +231,12 @@ export function OperationsRiderService() {
     });
     try {
       await saveDemoRiderDangerSignal(result.signal);
-      setDangerDemoMessage("관제 화면에 합성 위험 신호를 보냈습니다.");
+      setDangerDemoMessage("관제 화면에 위험 신호를 보냈습니다.");
     } catch {
       setDangerDemoMessage(
         result.persisted
           ? "공유 저장소 연결이 지연되어 이 브라우저에만 신호를 표시합니다."
-          : "응급 합성 신호를 보존하지 못했습니다.",
+          : "응급 신호를 보존하지 못했습니다.",
       );
     }
   };
@@ -274,8 +274,8 @@ export function OperationsRiderService() {
           {riderTab === "ROUTE"
             ? "오늘의 운행"
             : riderTab === "SUPPORT"
-              ? "합성 기사 검토"
-              : "Demo 계정"}
+              ? "기사 검토"
+              : "시연 계정"}
         </span>
       </header>
       <main>
@@ -288,7 +288,7 @@ export function OperationsRiderService() {
             tabIndex={-1}
           >
             <section className="operations-rider-hero is-route">
-              <p>합성 운행 · {courierId}</p>
+              <p>오늘의 운행 · {courierId}</p>
               <h1>다음 배송과 안전지원 경로를 확인하세요</h1>
               <span>{decisionId}</span>
             </section>
@@ -316,11 +316,11 @@ export function OperationsRiderService() {
               aria-labelledby="operations-rider-danger-demo-title"
             >
               <div>
-                <span>합성 예시 / 실제 신고 아님</span>
+                <span>시연 예시</span>
                 <strong id="operations-rider-danger-demo-title">
                   매우 위험한 상태 감지
                 </strong>
-                <p>합성 위험 신호를 관제로 보냅니다.</p>
+                <p>위험 신호를 관제로 보냅니다.</p>
               </div>
               <button
                 type="button"
@@ -456,7 +456,7 @@ export function OperationsRiderService() {
             tabIndex={-1}
           >
             <section className="operations-rider-hero is-profile">
-              <p>합성 Demo 계정</p>
+              <p>시연 계정</p>
               <h1>내 정보와 데이터 경계를 확인합니다</h1>
               <span>{courierId}</span>
             </section>
@@ -476,7 +476,7 @@ export function OperationsRiderService() {
                 </div>
                 <div>
                   <dt>데이터 모드</dt>
-                  <dd>SYNTHETIC · 실제 개인정보 없음</dd>
+                  <dd>시연 데이터 · 실제 개인정보 없음</dd>
                 </div>
                 <div>
                   <dt>결정 권리</dt>
@@ -485,7 +485,7 @@ export function OperationsRiderService() {
               </dl>
               <p>
                 이 화면은 실제 위치·생체정보·배송기사 개인정보를 수집하지
-                않습니다. 응답은 현재 합성 decision에만 연결됩니다.
+                않습니다. 응답은 현재 decision에만 연결됩니다.
               </p>
               <a href="/operations">관리자 운영 화면으로 돌아가기</a>
             </section>

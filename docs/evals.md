@@ -750,3 +750,14 @@ artifacts/evals/
 - 사람 검증이 없으면 자동 테스트가 모두 통과해도 최종 Goal은 완료가 아니다.
 
 2026-08-07 사용자 일정 결정으로 이번 제출 주기에는 운영 서비스 독립 검토를 수행하지 않는다. 관리자 `0/3`, 기사 `0/5`, `HUMAN_VALIDATION_REQUIRED`를 그대로 보존하고 `합성 운영 데모 준비 완료 · 독립 사람 검토 미실시`로만 보고한다. 공개 검토 도구와 고정 자극은 후속 검증을 위해 유지한다.
+
+## 31. Integration-ready Sandbox Gate
+
+- 실행: `pnpm run audit:integration-sandbox`
+- 증거: `artifacts/evals/integration-sandbox-readiness-latest.json`
+- 단위·계약: `tests/integration-sandbox-contracts.test.ts`, `tests/integration-sandbox-store.test.ts`
+- 공개 상태 E2E: `e2e/integration-sandbox-status.spec.ts`
+
+필수 검사는 안전 기본 비활성, 인증·역할·tenant 격리, strict 계약, 민감 필드 재귀 거부, TMS 이벤트 멱등성·순서 충돌, 계획 stale·동의·안전 proof·Kill switch, 고객안내 무발송, rate limit, D1 revision 충돌, backup hash·무변경 restore verification과 보존 삭제다.
+
+`PASSED`는 `INTEGRATION_READY_SANDBOX` 기술 상태만 뜻한다. 실제 원천·인증·기사·GPS·고객 발송·현장 Pilot가 없으므로 `LIVE_PILOT`, 실제 택배 운영 또는 사고감소 근거로 사용할 수 없다.
