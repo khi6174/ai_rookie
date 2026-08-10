@@ -2253,7 +2253,7 @@ function RiderView({
               <div className={isRecipient ? "is-boundary" : "is-safe"}>
                 <span>{isRecipient ? "이관 후 최소" : "조정 후 최소"}</span>
                 <strong>{formatBudget(impact.candidateMinimumBudget)}</strong>
-                <small>{isRecipient ? "기준선 45 · 여유 없음" : "임계치 30 통과"}</small>
+                <small>{isRecipient ? "기준선 45 통과" : "임계치 30 통과"}</small>
               </div>
             </section>
 
