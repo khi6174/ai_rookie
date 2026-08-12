@@ -85,10 +85,9 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(observedImpact).toBeVisible();
   await expect(observedImpact).toContainText("시간당 강수");
   await expect(observedImpact).toContainText("시정");
-  await expect(observedImpact).toContainText("예상 최저");
-  await expect(observedImpact).toContainText("안전한계 시점");
-  await expect(observedImpact).toContainText("추천 변화");
-  await expect(observedImpact).toContainText("1-2에 반영된 관측 결과");
+  await expect(observedImpact).toContainText("1-2에 반영된 관측 입력");
+  await expect(observedImpact).toContainText("예측 결과 변화 없음");
+  await expect(observedImpact).toContainText("현재 위험 구간을 바꾸지 않아");
   await expect(page.getByText("ASOS 관측 기반", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveCount(0);
   await expect(page.getByLabel("권역 숙련도")).toHaveCount(0);

@@ -521,6 +521,38 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
   page,
   context,
 }) => {
+  await context.route("**/api/kakao-directions?*", async (route) => {
+    const url = new URL(route.request().url());
+    if (url.searchParams.get("profile") !== "fleet-demo") {
+      await route.continue();
+      return;
+    }
+    const coordinates = [
+      url.searchParams.get("origin"),
+      ...(url.searchParams.get("waypoints")?.split("|") ?? []),
+      url.searchParams.get("destination"),
+    ].filter((value): value is string => Boolean(value));
+    const path = coordinates.map((coordinate) => {
+      const [longitude, latitude] = coordinate.split(",").map(Number);
+      return { latitude, longitude };
+    });
+    await route.fulfill({
+      contentType: "application/json",
+      body: JSON.stringify({
+        schemaVersion: "kakao-directions-preview-v1",
+        status: "LIVE",
+        provider: "KAKAO_MOBILITY",
+        profile: "fleet-demo",
+        capturedAt: "2026-08-12T09:00:00+09:00",
+        distanceMeters: 4_200,
+        durationSeconds: 900,
+        path,
+        isDemo: true,
+        coordinateSource: "DETERMINISTIC_SYNTHETIC_FIXTURE",
+        safetyEngineInputApproved: false,
+      }),
+    });
+  });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/");
   const targetCard = page.locator("[data-courier-card]").first();
@@ -533,6 +565,8 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
     `[data-map-marker="${courierId}"]`,
   );
   await expect(dashboardMarker).toBeVisible();
+  await expect(page.locator("[data-road-route-status]"))
+    .toHaveAttribute("data-road-route-status", /^(LIVE|PARTIAL)$/);
   const firstDashboardPoint = await dashboardMarker.evaluate((marker) => ({
     latitude: marker.getAttribute("data-latitude"),
     longitude: marker.getAttribute("data-longitude"),
@@ -558,6 +592,8 @@ test("관리자와 기사 지도는 같은 기사 ID의 합성 위치를 매초 
   const riderMap = riderPage.locator(".rider-live-map-fallback");
   await expect(riderMap).toHaveAttribute("data-courier-id", courierId!);
   await expect(riderMap).toHaveAttribute("data-location-source", "ROUTE");
+  await expect(riderMap).toHaveAttribute("data-route-geometry", "KAKAO_MOBILITY");
+  await expect(riderPage.getByText("관제와 동일한 도로 경로", { exact: true })).toBeVisible();
   const firstRiderPoint = await riderMap.evaluate((map) => ({
     latitude: map.getAttribute("data-latitude"),
     longitude: map.getAttribute("data-longitude"),

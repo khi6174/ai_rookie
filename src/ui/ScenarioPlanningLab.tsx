@@ -226,6 +226,11 @@ export function ScenarioPlanningLab() {
   const selectedWeatherPoint = selectedWeatherDay?.points.find(
     (point) => point.observedAt.slice(11, 13) === selectedPlanned.hour,
   );
+  const observedOutcomeChanged = observedWeatherImpact
+    ? observedWeatherImpact.minimumBudgetBefore.toFixed(1) !== observedWeatherImpact.minimumBudgetAfter.toFixed(1)
+      || observedWeatherImpact.breachBefore !== observedWeatherImpact.breachAfter
+      || observedWeatherImpact.recommendationBefore !== observedWeatherImpact.recommendationAfter
+    : false;
 
   useEffect(() => {
     const controller = new AbortController();
@@ -439,7 +444,7 @@ export function ScenarioPlanningLab() {
             {observedWeatherImpact ? (
               <section className="scenario-weather-impact" aria-live="polite" data-observed-weather-impact>
                 <div>
-                  <span>1-2에 반영된 관측 결과</span>
+                  <span>1-2에 반영된 관측 입력</span>
                   <strong>{observedWeatherImpact.observedAt.slice(0, 16).replace("T", " ")}</strong>
                 </div>
                 {observedWeatherImpact.changes.length > 0 ? (
@@ -452,20 +457,27 @@ export function ScenarioPlanningLab() {
                     ))}
                   </ul>
                 ) : <p>이 시점에는 반영 가능한 강수·시정 관측값이 없습니다.</p>}
-                <dl>
-                  <div>
-                    <dt>예상 최저</dt>
-                    <dd>{observedWeatherImpact.minimumBudgetBefore.toFixed(1)} → {observedWeatherImpact.minimumBudgetAfter.toFixed(1)}</dd>
+                {observedOutcomeChanged ? (
+                  <dl>
+                    <div>
+                      <dt>예상 최저</dt>
+                      <dd>{observedWeatherImpact.minimumBudgetBefore.toFixed(1)} → {observedWeatherImpact.minimumBudgetAfter.toFixed(1)}</dd>
+                    </div>
+                    <div>
+                      <dt>안전한계 시점</dt>
+                      <dd>{observedWeatherImpact.breachBefore} → {observedWeatherImpact.breachAfter}</dd>
+                    </div>
+                    <div>
+                      <dt>추천 변화</dt>
+                      <dd>{observedWeatherImpact.recommendationBefore} → {observedWeatherImpact.recommendationAfter}</dd>
+                    </div>
+                  </dl>
+                ) : (
+                  <div className="scenario-weather-impact-unchanged">
+                    <strong>예측 결과 변화 없음</strong>
+                    <p>반영된 관측값이 현재 위험 구간을 바꾸지 않아 예상 최저·안전한계 시점·추천이 유지됩니다.</p>
                   </div>
-                  <div>
-                    <dt>안전한계 시점</dt>
-                    <dd>{observedWeatherImpact.breachBefore} → {observedWeatherImpact.breachAfter}</dd>
-                  </div>
-                  <div>
-                    <dt>추천 변화</dt>
-                    <dd>{observedWeatherImpact.recommendationBefore} → {observedWeatherImpact.recommendationAfter}</dd>
-                  </div>
-                </dl>
+                )}
                 <p>관측 기온은 체감온도로 임의 변환하지 않아 계산에 반영하지 않았습니다.</p>
               </section>
             ) : null}

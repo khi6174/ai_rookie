@@ -6,10 +6,13 @@ import {
   type RiderLocationPoint,
 } from "../application/riderLiveLocation";
 import {
+  geographicRoutePoint,
   riderMapMarkerScale,
   riderMapMarkerSizePx,
+  riderRoutePolyline,
   riderRoutePosition,
   riderRoutePositionAtProgress,
+  type RiderRoutePoint,
 } from "../application/riderMapPresentation";
 import {
   syntheticLiveActivityLabel,
@@ -18,7 +21,8 @@ import {
   SYNTHETIC_LIVE_INTERVAL_MS,
 } from "../application/syntheticLiveOperations";
 import type { RiderProfile } from "../application/riderProfileRepository";
-import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapsNamespace } from "../adapters/maps/kakao";
+import { fetchKakaoFleetRoadRoute } from "../adapters/maps/kakaoDirections";
+import { loadKakaoMapsSdk, type KakaoCustomOverlay, type KakaoMapInstance, type KakaoMapOverlay, type KakaoMapsNamespace } from "../adapters/maps/kakao";
 
 type MapStatus = "LOADING" | "READY" | "FALLBACK" | "ERROR";
 
@@ -98,11 +102,14 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   const [simulationTick, setSimulationTick] = useState<number | undefined>(
     simulationClock.initialTick,
   );
+  const [roadRoute, setRoadRoute] = useState<RiderRoutePoint[]>();
+  const [roadRouteStatus, setRoadRouteStatus] = useState<"LOADING" | "KAKAO_MOBILITY" | "FALLBACK">("LOADING");
   const routePoint = simulationTick === undefined
-    ? riderRoutePosition(profile, movementSecond)
+    ? riderRoutePosition(profile, movementSecond, roadRoute)
     : riderRoutePositionAtProgress(
         profile,
         syntheticLiveCourierRouteProgress(profile.courierId, simulationTick),
+        roadRoute,
       );
   const syntheticActivity = simulationTick === undefined
     ? undefined
@@ -122,6 +129,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   const mapRef = useRef<KakaoMapInstance | undefined>(undefined);
   const mapsRef = useRef<KakaoMapsNamespace | undefined>(undefined);
   const overlayRef = useRef<KakaoCustomOverlay | undefined>(undefined);
+  const routeOverlayRef = useRef<KakaoMapOverlay | undefined>(undefined);
   const markerRef = useRef<HTMLDivElement | undefined>(undefined);
   const pointRef = useRef(displayPoint);
   const renderedPointRef = useRef(displayPoint);
@@ -130,6 +138,29 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
   const animationFrameRef = useRef<number | undefined>(undefined);
   pointRef.current = displayPoint;
   pointSourceRef.current = hasDevicePoint ? "DEVICE" : "ROUTE";
+
+  useEffect(() => {
+    if (!online) {
+      setRoadRoute(undefined);
+      setRoadRouteStatus("FALLBACK");
+      return;
+    }
+    const controller = new AbortController();
+    setRoadRoute(undefined);
+    setRoadRouteStatus("LOADING");
+    void fetchKakaoFleetRoadRoute({
+      points: riderRoutePolyline(profile),
+      signal: controller.signal,
+    })
+      .then((preview) => {
+        setRoadRoute(preview.path.map(geographicRoutePoint));
+        setRoadRouteStatus("KAKAO_MOBILITY");
+      })
+      .catch(() => {
+        if (!controller.signal.aborted) setRoadRouteStatus("FALLBACK");
+      });
+    return () => controller.abort();
+  }, [online, profile.areaCode, profile.courierId, profile.mapX, profile.mapY]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -166,7 +197,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
         if (!active || !containerRef.current) return;
         const point = pointRef.current;
         const position = new maps.LatLng(point.latitude, point.longitude);
-        const map = new maps.Map(containerRef.current, { center: position, level: 3 });
+        const map = new maps.Map(containerRef.current, { center: position, level: 4 });
         createdMap = map;
         createdMaps = maps;
         const marker = createTruckMarker();
@@ -215,12 +246,35 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
       }
       resizeObserver?.disconnect();
       createdOverlay?.setMap(null);
+      routeOverlayRef.current?.setMap(null);
+      routeOverlayRef.current = undefined;
       overlayRef.current = undefined;
       markerRef.current = undefined;
       mapRef.current = undefined;
       mapsRef.current = undefined;
     };
   }, [kakaoJavaScriptKey, kakaoRequested, profile.courierId]);
+
+  useEffect(() => {
+    const maps = mapsRef.current;
+    const map = mapRef.current;
+    if (!maps || !map || mapStatus !== "READY") return;
+    routeOverlayRef.current?.setMap(null);
+    const route = roadRoute ?? riderRoutePolyline(profile);
+    routeOverlayRef.current = new maps.Polyline({
+      map,
+      path: route.map((point) => new maps.LatLng(point.latitude, point.longitude)),
+      strokeWeight: 5,
+      strokeColor: "#0f766e",
+      strokeOpacity: 0.72,
+      strokeStyle: "solid",
+      zIndex: 4,
+    });
+    return () => {
+      routeOverlayRef.current?.setMap(null);
+      routeOverlayRef.current = undefined;
+    };
+  }, [mapStatus, profile.areaCode, profile.courierId, profile.mapX, profile.mapY, roadRoute]);
 
   useEffect(() => {
     const maps = mapsRef.current;
@@ -302,6 +356,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
             data-location-source={hasDevicePoint ? "DEVICE" : "ROUTE"}
             data-movement-second={movementSecond}
             data-simulation-tick={simulationTick ?? ""}
+            data-route-geometry={roadRouteStatus}
             data-latitude={displayPoint.latitude.toFixed(6)}
             data-longitude={displayPoint.longitude.toFixed(6)}
           >
@@ -318,7 +373,7 @@ export function RiderLiveLocationMap({ profile, online }: { profile: RiderProfil
       <div className="rider-live-location-footer">
         <div>
           <strong>{hasDevicePoint ? `${updateTime} 갱신` : syntheticActivity ?? "배송 구역 기준 위치"}</strong>
-          <span>{hasDevicePoint ? `정확도 약 ${Math.round(state.accuracyMeters)}m` : "기기 위치는 이 화면에서만 사용"}</span>
+          <span>{hasDevicePoint ? `정확도 약 ${Math.round(state.accuracyMeters)}m` : roadRouteStatus === "KAKAO_MOBILITY" ? "관제와 동일한 도로 경로" : "기기 위치는 이 화면에서만 사용"}</span>
         </div>
         <button type="button" onClick={request} disabled={state.status === "REQUESTING"}>
           {state.status === "REQUESTING" ? "확인 중" : buttonLabel}

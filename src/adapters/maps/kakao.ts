@@ -5,6 +5,7 @@ export type KakaoLatLng = object;
 
 export type KakaoMapInstance = {
   getLevel(): number;
+  setLevel(level: number): void;
   relayout(): void;
   panTo(point: KakaoLatLng): void;
   setBounds(

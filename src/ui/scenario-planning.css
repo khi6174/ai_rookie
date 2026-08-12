@@ -172,6 +172,9 @@
 .scenario-weather-impact li span { color: #627d98; }
 .scenario-weather-impact dl { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 7px; margin: 0; }
 .scenario-weather-impact dl > div { min-width: 0; padding: 8px; border-radius: 8px; background: #fff; }
+.scenario-weather-impact-unchanged { padding: 10px; border: 1px solid #b8d8d2; border-radius: 9px; background: #fff; }
+.scenario-weather-impact-unchanged strong { color: #075e5a; font-size: .76rem; }
+.scenario-weather-impact-unchanged p { margin: 4px 0 0; }
 .scenario-weather-impact dt { color: #627d98; font-size: .64rem; }
 .scenario-weather-impact dd { margin: 4px 0 0; overflow-wrap: anywhere; color: #102a43; font-size: .72rem; font-weight: 800; line-height: 1.4; }
 .scenario-weather-impact p { margin: 0; color: #486581; font-size: .66rem; line-height: 1.45; }

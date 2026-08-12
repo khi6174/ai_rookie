@@ -2004,7 +2004,7 @@ type RiderDeliveryRoute = {
 - `routeId`는 기사 ID와 일대일이며 동일 권역 안에서도 polyline point sequence가 중복되지 않아야 한다.
 - 북부·남부·서부 각 권역의 좌표 grid와 9개 도로 조합 template은 버전된 코드 설정이다. 난수·브라우저 위치·실제 주소·Directions 응답을 사용하지 않는다.
 - `visibleStops`는 현재 완료 수 다음부터 최대 4개만 표시하며 원본 합성 계획의 전체·완료 수를 넘지 않는다.
-- Kakao와 Fallback 지도, 관리자와 기사 화면은 같은 경로 함수를 사용한다. 확대 상태는 UI 로컬 상태이며 저장·Safety 입력·decision ID에 포함하지 않는다.
+- Kakao와 Fallback 지도, 관리자와 기사 화면은 같은 경로 함수와 같은 `fleet-demo` Kakao Mobility 정규화 경로를 사용한다. 기사 앱은 같은 `courierId`의 버전된 시작·경유·도착점을 서버에 보내고, 관제와 동일한 progress 시각으로 같은 경로 위 위치를 계산한다. 확대 상태는 UI 로컬 상태이며 저장·Safety 입력·decision ID에 포함하지 않는다.
 
 ## 29. Integration-ready Sandbox 계약
 

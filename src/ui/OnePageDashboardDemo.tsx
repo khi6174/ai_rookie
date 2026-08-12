@@ -750,7 +750,7 @@ function DashboardKakaoMap({
   selectRef.current = onSelect;
 
   useEffect(() => {
-    if (!requested || couriers.length === 0) {
+    if (couriers.length === 0) {
       setRoadRoutes({});
       setRoadRouteStatus("FALLBACK");
       return;
@@ -806,7 +806,7 @@ function DashboardKakaoMap({
       disposed = true;
       controller.abort();
     };
-  }, [courierIdentityKey, requested]);
+  }, [courierIdentityKey]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -953,6 +953,7 @@ function DashboardKakaoMap({
         });
         fleetBoundsRef.current = bounds;
         map.setBounds(bounds, 56, 56, 56, 56);
+        map.setLevel(map.getLevel() + 1);
         updateMarkerScales = () => {
           if (!map) return;
           markerButtonsRef.current.forEach((button) => {
@@ -1079,6 +1080,7 @@ function DashboardKakaoMap({
         focusMode === "COURIER" ? 86 : 56,
         focusMode === "COURIER" ? 86 : 56,
       );
+      map.setLevel(map.getLevel() + 1);
       cameraFrameKeyRef.current = cameraFrameKey;
     }
     return () => detailOverlays.forEach((overlay) => overlay.setMap(null));
