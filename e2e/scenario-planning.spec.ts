@@ -58,8 +58,8 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.getByRole("heading", { name: "안전 제약 통과안" })).toBeVisible();
   await expect(page.getByRole("heading", { name: "날짜·시간과 기상 관측" })).toBeVisible();
   await expect(page.getByText("1-1 · 관측 시점 선택", { exact: true })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "업무·안전여유와 상황 가정" })).toBeVisible();
-  await expect(page.getByText("1-2 · 시뮬레이션 조건 설정", { exact: true })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "업무 및 안전여유 입력" })).toBeVisible();
+  await expect(page.getByText("1-2 · 업무 및 안전여유", { exact: true })).toBeVisible();
   await expect(page.locator(".scenario-calendar-days button")).toHaveCount(31);
   await expect(page.locator(".scenario-calendar-heading > strong")).toContainText("ASOS");
   await expect(page.getByLabel("연속 작업")).toHaveAttribute("type", "range");
@@ -69,7 +69,7 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.getByRole("button", { name: "폭염·계단" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "야간·낯선 권역" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "강수·시정을 1-2에 적용" })).toHaveCount(0);
-  await expect(page.getByText("관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요.", { exact: true })).toBeVisible();
+  await expect(page.getByText("관측 값을 설정했습니다. 업무 및 안전여유를 입력해주세요.", { exact: true })).toBeVisible();
   const observedImpact = page.locator("[data-observed-weather-impact]");
   await expect(observedImpact).toBeVisible();
   await expect(observedImpact).toContainText("시간당 강수");
@@ -79,8 +79,10 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(observedImpact).toContainText("추천 변화");
   await expect(observedImpact).toContainText("1-2에 반영된 관측 결과");
   await expect(page.getByText("ASOS 관측 기반", { exact: true })).toBeVisible();
-  await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveAttribute("aria-pressed", "false");
-  await expect(page.getByRole("group", { name: "가상 기상 스트레스 테스트" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveCount(0);
+  await expect(page.getByLabel("권역 숙련도")).toHaveCount(0);
+  await expect(page.getByLabel("오르막 경사")).toHaveCount(0);
+  await expect(page.getByLabel("시간당 강수")).toHaveCount(0);
   await expect(page.getByText("입력 변경됨")).toHaveCount(0);
   await page.screenshot({
     path: "artifacts/evals/screenshots/scenario-observation-impact-1440x900.png",
@@ -92,15 +94,17 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
       exact: false,
     }),
   ).toHaveCount(0);
-  await expect(page.getByText("시연 기준계획의", { exact: false })).toBeVisible();
+  await expect(page.getByText("경로 조건과 체감온도는 시연 기준계획의 고정값을 사용합니다.", { exact: true })).toBeVisible();
 
   const initialScenarioId = await page
     .locator(".scenario-results .scenario-section-heading > small")
     .textContent();
-  await page.getByRole("button", { name: "가상 기상 스트레스 테스트" }).click();
-  await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveAttribute("aria-pressed", "true");
-  await expect(page.getByText("사용자 가상 기상", { exact: true })).toBeVisible();
-  await page.getByLabel("체감온도").fill("38");
+  await page.getByLabel("연속 작업").evaluate((element) => {
+    const input = element as HTMLInputElement;
+    input.value = "4.2";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
   await expect(page.getByText("입력 변경됨")).toBeVisible();
   await page.getByRole("button", { name: "이 조건으로 다시 예측" }).click();
   await expect(page.getByText("입력 변경됨")).toHaveCount(0);
@@ -169,7 +173,7 @@ test("잘못된 작업시간은 차단하고 모바일에서도 핵심 조작이
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/scenario");
   await expect(page.getByText("1-1 · 관측 시점 선택", { exact: true })).toBeVisible();
-  await expect(page.getByText("1-2 · 시뮬레이션 조건 설정", { exact: true })).toBeVisible();
+  await expect(page.getByText("1-2 · 업무 및 안전여유", { exact: true })).toBeVisible();
   await page.getByLabel("총 근무").fill("2");
   await page.getByLabel("연속 작업").evaluate((element) => {
     const input = element as HTMLInputElement;

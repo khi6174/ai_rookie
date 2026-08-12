@@ -106,7 +106,6 @@ function NumberField({
 
 function ScenarioSlider({
   label,
-  sourceBadge,
   value,
   min,
   max,
@@ -116,7 +115,6 @@ function ScenarioSlider({
   onChange,
 }: {
   label: string;
-  sourceBadge?: string;
   value: number;
   min: number;
   max: number;
@@ -129,10 +127,7 @@ function ScenarioSlider({
   return (
     <label className="scenario-slider-field">
       <span className="scenario-slider-heading">
-        <span className="scenario-slider-title">
-          <span>{label}</span>
-          {sourceBadge ? <small>{sourceBadge}</small> : null}
-        </span>
+        <span>{label}</span>
         <strong>{stateLabel}</strong>
       </span>
       <input
@@ -211,13 +206,6 @@ function recipientState(value: number) {
   return "여유";
 }
 
-function intensityState(value: number, thresholds: [number, number, number], labels: [string, string, string, string]) {
-  if (value < thresholds[0]) return labels[0];
-  if (value < thresholds[1]) return labels[1];
-  if (value < thresholds[2]) return labels[2];
-  return labels[3];
-}
-
 export function ScenarioPlanningLab() {
   const [input, setInput] = useState<ScenarioPlanningInput>(defaultScenarioPlanningInput);
   const [result, setResult] = useState(() => createScenarioPlanningResult(defaultScenarioPlanningInput));
@@ -228,7 +216,6 @@ export function ScenarioPlanningLab() {
     { status: "LOADING" } | { status: "LIVE" } | { status: "FALLBACK"; code: KmaAsosCalendarFallbackCode }
   >({ status: "LOADING" });
   const [observedWeatherImpact, setObservedWeatherImpact] = useState<ObservedWeatherImpact>();
-  const [weatherOverrideEnabled, setWeatherOverrideEnabled] = useState(false);
   const recommended = useMemo(
     () => result.alternatives.find((candidate) => candidate.recommended) ?? null,
     [result],
@@ -269,21 +256,11 @@ export function ScenarioPlanningLab() {
       | "continuousWorkHours"
       | "currentSafetyBudget"
       | "recipientSafetyBudget"
-      | "rainfallMmPerHour"
-      | "feelsLikeCelsius"
-      | "visibilityMeters"
-      | "uphillGradePct"
-      | "narrowRoadFactor"
-      | "parkingDifficultyFactor"
-      | "stairStopRatio"
     >,
     value: number,
   ) => {
     setInput((current) => ({ ...current, preset: "CUSTOM", [key]: value }));
     setDirty(true);
-    if (key === "rainfallMmPerHour" || key === "feelsLikeCelsius" || key === "visibilityMeters") {
-      setObservedWeatherImpact(undefined);
-    }
   };
 
   const changePlannedAt = (date: string, hour = selectedPlanned.hour) => {
@@ -342,8 +319,8 @@ export function ScenarioPlanningLab() {
   };
 
   useEffect(() => {
-    if (selectedWeatherPoint && !weatherOverrideEnabled) applyObservedWeather();
-  }, [selectedWeatherPoint?.observedAt, weatherOverrideEnabled]);
+    if (selectedWeatherPoint) applyObservedWeather();
+  }, [selectedWeatherPoint?.observedAt]);
 
   const runPrediction = (event: FormEvent) => {
     event.preventDefault();
@@ -446,24 +423,18 @@ export function ScenarioPlanningLab() {
               </div>
             </div>
             <p className="scenario-calendar-note">
-              {weatherOverrideEnabled
-                ? "관측값을 확인했습니다. 현재는 가상 기상 조건이 계산에 적용됩니다."
-                : "관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요."}
+              관측 값을 설정했습니다. 업무 및 안전여유를 입력해주세요.
             </p>
           </section>
 
           <section className="scenario-assumptions" aria-labelledby="scenario-assumptions-heading">
             <div className="scenario-assumptions-heading">
               <div>
-                <span>1-2 · 시뮬레이션 조건 설정</span>
-                <h3 id="scenario-assumptions-heading">업무·안전여유와 상황 가정</h3>
-                <p>관측 기상은 자동으로 사용하고 업무·배송 경로 조건만 조정합니다.</p>
+                <span>1-2 · 업무 및 안전여유</span>
+                <h3 id="scenario-assumptions-heading">업무 및 안전여유 입력</h3>
+                <p>관측 기상은 자동으로 사용하고 현재 업무 조건만 입력합니다.</p>
               </div>
-              {weatherOverrideEnabled
-                ? <strong>사용자 가상 기상</strong>
-                : observedWeatherImpact
-                  ? <strong>ASOS 관측 기반</strong>
-                  : <strong>사용자 가정</strong>}
+              {observedWeatherImpact ? <strong>ASOS 관측 기반</strong> : <strong>시연 기준계획</strong>}
             </div>
             {observedWeatherImpact ? (
               <section className="scenario-weather-impact" aria-live="polite" data-observed-weather-impact>
@@ -498,20 +469,6 @@ export function ScenarioPlanningLab() {
                 <p>관측 기온은 체감온도로 임의 변환하지 않아 계산에 반영하지 않았습니다.</p>
               </section>
             ) : null}
-            <div className="scenario-weather-mode">
-              <div>
-                <strong>기상 입력 방식</strong>
-                <p>{weatherOverrideEnabled ? "ASOS 대신 가상 강수·체감온도·시정을 사용합니다." : "선택한 날짜·시간의 ASOS 강수·시정을 사용합니다."}</p>
-              </div>
-              <button
-                type="button"
-                aria-pressed={weatherOverrideEnabled}
-                onClick={() => setWeatherOverrideEnabled((enabled) => !enabled)}
-              >
-                가상 기상 스트레스 테스트
-              </button>
-            </div>
-
           <fieldset>
             <legend>업무와 안전여유</legend>
             <div className="scenario-field-grid">
@@ -520,47 +477,12 @@ export function ScenarioPlanningLab() {
               <ScenarioSlider label="연속 작업" value={input.continuousWorkHours} min={0.25} max={5} step={0.1} unit="시간" stateLabel={workState(input.continuousWorkHours)} onChange={(value) => changeNumber("continuousWorkHours", value)} />
               <ScenarioSlider label="현재 안전여유" value={input.currentSafetyBudget} min={25} max={90} step={1} unit="점" stateLabel={safetyState(input.currentSafetyBudget)} onChange={(value) => changeNumber("currentSafetyBudget", value)} />
               <ScenarioSlider label="분담 기사 여유" value={input.recipientSafetyBudget} min={45} max={95} step={1} unit="점" stateLabel={recipientState(input.recipientSafetyBudget)} onChange={(value) => changeNumber("recipientSafetyBudget", value)} />
-              <ScenarioSlider
-                label="권역 숙련도"
-                value={({ UNFAMILIAR: 0, PARTIAL: 1, FAMILIAR: 2 } as const)[input.areaFamiliarity]}
-                min={0}
-                max={2}
-                step={1}
-                unit="단계"
-                stateLabel={{ UNFAMILIAR: "낯섦", PARTIAL: "일부 익숙", FAMILIAR: "익숙함" }[input.areaFamiliarity]}
-                onChange={(value) => {
-                  const areaFamiliarity = (["UNFAMILIAR", "PARTIAL", "FAMILIAR"] as const)[value];
-                  setInput((current) => ({ ...current, preset: "CUSTOM", areaFamiliarity }));
-                  setDirty(true);
-                }}
-              />
             </div>
           </fieldset>
-
-          <fieldset>
-            <legend>배송 경로 조건</legend>
-            <div className="scenario-field-grid">
-              <ScenarioSlider label="오르막 경사" value={input.uphillGradePct} min={0} max={20} step={1} unit="%" stateLabel={intensityState(input.uphillGradePct, [3, 8, 14], ["평지", "완만", "가파름", "매우 가파름"])} onChange={(value) => changeNumber("uphillGradePct", value)} />
-              <ScenarioSlider label="좁은 도로" value={input.narrowRoadFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.narrowRoadFactor, [0.3, 0.6, 0.85], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("narrowRoadFactor", value)} />
-              <ScenarioSlider label="주차 난이도" value={input.parkingDifficultyFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.parkingDifficultyFactor, [0.3, 0.6, 0.85], ["쉬움", "보통", "어려움", "매우 어려움"])} onChange={(value) => changeNumber("parkingDifficultyFactor", value)} />
-              <ScenarioSlider label="계단 배송" value={input.stairStopRatio} min={0} max={1} step={0.01} unit="비율" stateLabel={intensityState(input.stairStopRatio, [0.25, 0.5, 0.75], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("stairStopRatio", value)} />
-            </div>
-          </fieldset>
-
-          {weatherOverrideEnabled ? (
-            <fieldset className="scenario-weather-override">
-              <legend>가상 기상 스트레스 테스트</legend>
-              <p>관측값 대신 더 강한 기상 상황을 가정할 때만 조정합니다.</p>
-              <div className="scenario-field-grid">
-                <ScenarioSlider label="시간당 강수" value={input.rainfallMmPerHour} min={0} max={20} step={0.5} unit="mm/h" stateLabel={intensityState(input.rainfallMmPerHour, [0.5, 5, 12], ["없음", "약함", "강함", "매우 강함"])} onChange={(value) => changeNumber("rainfallMmPerHour", value)} />
-                <ScenarioSlider label="체감온도" value={input.feelsLikeCelsius} min={-15} max={45} step={1} unit="°C" stateLabel={intensityState(input.feelsLikeCelsius, [10, 28, 35], ["추움", "선선", "더움", "폭염"])} onChange={(value) => changeNumber("feelsLikeCelsius", value)} />
-                <ScenarioSlider label="시정" value={input.visibilityMeters} min={500} max={20000} step={100} unit="m" stateLabel={intensityState(input.visibilityMeters, [1500, 5000, 10000], ["매우 나쁨", "주의", "보통", "좋음"])} onChange={(value) => changeNumber("visibilityMeters", value)} />
-              </div>
-            </fieldset>
-          ) : null}
 
           {error && <p className="scenario-error" role="alert">{error}</p>}
           <button className="scenario-submit" type="submit">이 조건으로 다시 예측</button>
+          <p className="scenario-fixed-note">경로 조건과 체감온도는 시연 기준계획의 고정값을 사용합니다.</p>
           <p className="scenario-form-note">이름·주소·연락처·GPS를 입력하거나 저장하지 않습니다.</p>
           </section>
         </form>
@@ -641,7 +563,7 @@ export function ScenarioPlanningLab() {
           <div><span>04 · 현재 자원</span><h2 id="scenario-resource-heading">무엇을 계산에 사용했는가</h2></div>
         </div>
         <div className="scenario-resource-grid">
-          <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무·기상·경로 조건을 이 세션에서만 계산합니다.</p></article>
+          <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무 조건과 선택 시점 관측을 이 세션에서만 계산합니다.</p></article>
           <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>시연 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
           <article>
             <span>기상청 관측 문맥</span>
