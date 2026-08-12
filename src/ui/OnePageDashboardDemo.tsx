@@ -177,8 +177,10 @@ function supportState(
 }
 
 function budgetDisplay(value: number) {
-  const rounded = value.toFixed(1);
-  return value < 30 && Number(rounded) >= 30 ? "<30.0" : rounded;
+  const displayValue = value < 30
+    ? Math.floor((value + Number.EPSILON) * 10) / 10
+    : Math.round((value + Number.EPSILON) * 10) / 10;
+  return displayValue.toFixed(1);
 }
 
 function displayOperationalLabel(label: string) {

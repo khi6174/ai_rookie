@@ -35,6 +35,17 @@ const contributionLabels = {
   RECOVERY: "회복",
 } as const;
 
+type ObservedWeatherImpact = {
+  observedAt: string;
+  changes: Array<{ label: string; before: string; after: string }>;
+  minimumBudgetBefore: number;
+  minimumBudgetAfter: number;
+  breachBefore: string;
+  breachAfter: string;
+  recommendationBefore: string;
+  recommendationAfter: string;
+};
+
 function predictedSummary(result: ScenarioPlanningResult) {
   const { baseline } = result;
   if (baseline.breachStatus === "PREDICTED") {
@@ -47,6 +58,21 @@ function predictedSummary(result: ScenarioPlanningResult) {
     return "필수 입력이 부족해 초과 시점을 계산하지 못했습니다.";
   }
   return "현재 입력 범위에서는 계획 종료 전 안전한계 초과가 예상되지 않습니다.";
+}
+
+function breachTimingLabel(result: ScenarioPlanningResult) {
+  const { baseline } = result;
+  if (baseline.breachStatus === "PREDICTED") {
+    return `${Math.round(baseline.timeToBreachMinutes ?? 0)}분 후 · ${baseline.breachStopOrdinal}번째 전`;
+  }
+  if (baseline.breachStatus === "ALREADY_BREACHED") return "현재 한계 초과";
+  if (baseline.breachStatus === "INSUFFICIENT_DATA") return "계산 불가";
+  return "계획 종료 전 초과 없음";
+}
+
+function recommendationLabel(result: ScenarioPlanningResult) {
+  return result.alternatives.find((candidate) => candidate.recommended)?.label
+    ?? "안전한 자동 추천 없음";
 }
 
 function NumberField({
@@ -203,6 +229,7 @@ export function ScenarioPlanningLab() {
   const [weatherCalendarStatus, setWeatherCalendarStatus] = useState<
     { status: "LOADING" } | { status: "LIVE" } | { status: "FALLBACK"; code: KmaAsosCalendarFallbackCode }
   >({ status: "LOADING" });
+  const [observedWeatherImpact, setObservedWeatherImpact] = useState<ObservedWeatherImpact>();
   const recommended = useMemo(
     () => result.alternatives.find((candidate) => candidate.recommended) ?? null,
     [result],
@@ -255,23 +282,26 @@ export function ScenarioPlanningLab() {
   ) => {
     setInput((current) => ({ ...current, preset: "CUSTOM", [key]: value }));
     setDirty(true);
+    setObservedWeatherImpact(undefined);
   };
 
   const applyPreset = (key: keyof typeof scenarioPlanningPresets) => {
     setInput((current) => ({ ...scenarioPlanningPresets[key], plannedAt: current.plannedAt }));
     setDirty(true);
     setError(null);
+    setObservedWeatherImpact(undefined);
   };
 
   const changePlannedAt = (date: string, hour = selectedPlanned.hour) => {
     setInput((current) => ({ ...current, preset: "CUSTOM", plannedAt: plannedAt(date, hour) }));
     setDirty(true);
+    setObservedWeatherImpact(undefined);
   };
 
   const applyObservedWeather = () => {
     if (!selectedWeatherPoint) return;
-    setInput((current) => ({
-      ...current,
+    const nextInput: ScenarioPlanningInput = {
+      ...input,
       preset: "CUSTOM",
       ...(selectedWeatherPoint.rainfallMmPerHour !== undefined
         ? { rainfallMmPerHour: Math.min(20, selectedWeatherPoint.rainfallMmPerHour) }
@@ -279,8 +309,43 @@ export function ScenarioPlanningLab() {
       ...(selectedWeatherPoint.visibilityMeters !== undefined
         ? { visibilityMeters: Math.max(500, Math.min(20_000, selectedWeatherPoint.visibilityMeters)) }
         : {}),
-    }));
-    setDirty(true);
+    };
+    try {
+      const before = createScenarioPlanningResult(input);
+      const after = createScenarioPlanningResult(nextInput);
+      const changes: ObservedWeatherImpact["changes"] = [];
+      if (selectedWeatherPoint.rainfallMmPerHour !== undefined) {
+        changes.push({
+          label: "시간당 강수",
+          before: `${input.rainfallMmPerHour.toFixed(1)}mm/h`,
+          after: `${nextInput.rainfallMmPerHour.toFixed(1)}mm/h`,
+        });
+      }
+      if (selectedWeatherPoint.visibilityMeters !== undefined) {
+        changes.push({
+          label: "시정",
+          before: `${(input.visibilityMeters / 1_000).toFixed(1)}km`,
+          after: `${(nextInput.visibilityMeters / 1_000).toFixed(1)}km`,
+        });
+      }
+      setInput(nextInput);
+      setResult(after);
+      setObservedWeatherImpact({
+        observedAt: selectedWeatherPoint.observedAt,
+        changes,
+        minimumBudgetBefore: before.baseline.minimumForecastBudget,
+        minimumBudgetAfter: after.baseline.minimumForecastBudget,
+        breachBefore: breachTimingLabel(before),
+        breachAfter: breachTimingLabel(after),
+        recommendationBefore: recommendationLabel(before),
+        recommendationAfter: recommendationLabel(after),
+      });
+      setDirty(false);
+      setError(null);
+    } catch (caught) {
+      const issues = (caught as { issues?: Array<{ message?: string }> } | null)?.issues;
+      setError(issues?.find((issue) => issue.message)?.message ?? "입력값을 확인해 주세요.");
+    }
   };
 
   const runPrediction = (event: FormEvent) => {
@@ -382,12 +447,45 @@ export function ScenarioPlanningLab() {
                 )}
               </div>
               <button type="button" disabled={!selectedWeatherPoint} onClick={applyObservedWeather}>
-                관측 문맥 반영
+                관측 반영하고 예측
               </button>
             </div>
             <p className="scenario-calendar-note">
               관측값은 과거 상황을 고르는 문맥입니다. 결측값을 만들지 않으며, 선택 후 조정한 조건만 Safety 계산에 사용합니다.
             </p>
+            {observedWeatherImpact ? (
+              <section className="scenario-weather-impact" aria-live="polite" data-observed-weather-impact>
+                <div>
+                  <span>관측 문맥 반영 결과</span>
+                  <strong>{observedWeatherImpact.observedAt.slice(0, 16).replace("T", " ")}</strong>
+                </div>
+                {observedWeatherImpact.changes.length > 0 ? (
+                  <ul aria-label="반영된 입력값">
+                    {observedWeatherImpact.changes.map((change) => (
+                      <li key={change.label}>
+                        <span>{change.label}</span>
+                        <strong>{change.before} → {change.after}</strong>
+                      </li>
+                    ))}
+                  </ul>
+                ) : <p>이 시점에는 반영 가능한 강수·시정 관측값이 없습니다.</p>}
+                <dl>
+                  <div>
+                    <dt>예상 최저</dt>
+                    <dd>{observedWeatherImpact.minimumBudgetBefore.toFixed(1)} → {observedWeatherImpact.minimumBudgetAfter.toFixed(1)}</dd>
+                  </div>
+                  <div>
+                    <dt>안전한계 시점</dt>
+                    <dd>{observedWeatherImpact.breachBefore} → {observedWeatherImpact.breachAfter}</dd>
+                  </div>
+                  <div>
+                    <dt>추천 변화</dt>
+                    <dd>{observedWeatherImpact.recommendationBefore} → {observedWeatherImpact.recommendationAfter}</dd>
+                  </div>
+                </dl>
+                <p>관측 기온은 체감온도로 임의 변환하지 않아 계산에 반영하지 않았습니다.</p>
+              </section>
+            ) : null}
           </section>
 
           <div className="scenario-presets" aria-label="상황 예시">
@@ -423,6 +521,7 @@ export function ScenarioPlanningLab() {
                   const areaFamiliarity = (["UNFAMILIAR", "PARTIAL", "FAMILIAR"] as const)[value];
                   setInput((current) => ({ ...current, preset: "CUSTOM", areaFamiliarity }));
                   setDirty(true);
+                  setObservedWeatherImpact(undefined);
                 }}
               />
             </div>

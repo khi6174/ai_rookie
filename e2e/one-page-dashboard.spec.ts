@@ -100,6 +100,23 @@ test("공개 관제는 DB의 합성 기사 25명과 3개 허브를 같은 ID로 
     }
   }
 
+  const budgetDisplays = await page.locator("[data-courier-card]").evaluateAll((cards) =>
+    cards.map((card) => ({
+      courierId: (card as HTMLElement).dataset.courierCard,
+      projected: Number((card as HTMLElement).dataset.projectedScore),
+      displayed: card.querySelector(".onepage-card-safety b")?.textContent?.trim() ?? "",
+    })),
+  );
+  expect(budgetDisplays).toHaveLength(25);
+  for (const item of budgetDisplays) {
+    expect(Number.isFinite(item.projected), item.courierId).toBe(true);
+    expect(item.displayed, item.courierId).toMatch(/^\d+\.\d$/);
+    const expected = item.projected < 30
+      ? Math.floor((item.projected + Number.EPSILON) * 10) / 10
+      : Math.round((item.projected + Number.EPSILON) * 10) / 10;
+    expect(item.displayed, item.courierId).toBe(expected.toFixed(1));
+  }
+
   for (const record of body.package.records) {
     const card = page.locator(
       `[data-courier-card="${record.courier.courierId}"]`,

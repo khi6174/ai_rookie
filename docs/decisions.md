@@ -1755,6 +1755,14 @@
 - 기각한 대안: 화면상 직선에 모서리만 추가, 25명 공통 도로 경로, 실패를 Live 도로로 표시, 지원되지 않는 31일 미래예보 주장, 기온을 체감온도로 복사, 의미 없는 점수형 숫자 입력 유지.
 - 영향 파일: `server/kakao-directions-proxy.mjs`, `server/kma-asos-calendar-proxy.mjs`, `src/adapters/maps/`, `src/adapters/weather/`, `src/application/riderMapPresentation.ts`, `src/domain/scenario-planning/`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/ScenarioPlanningLab.tsx`, 관련 CSS·테스트·평가·승인 문서
 
+### ADR-170 — Budget 경계 표시와 ASOS 반영 결과를 즉시 검증 가능하게 한다
+
+- 날짜: 2026-08-12
+- 결정: 기사 카드의 Budget은 소수 첫째 자리 숫자로만 표시하고, 30 미만 값이 반올림으로 `30.0`이 되지 않도록 해당 경계 아래에서 보수적으로 절삭한다. ASOS `관측 반영하고 예측`은 강수·시정 입력과 결정론적 예상 최저·안전한계 시점·추천의 전후를 같은 화면에서 즉시 다시 계산해 표시한다.
+- 이유: `<30.0` 표기는 결측·오류처럼 읽히고 기사별 표시 일관성을 해친다. 또한 관측값을 입력에 복사만 하면 사용자가 Safety 결과에 미친 영향을 추적하기 어렵다.
+- 기각한 대안: 실제 30 미만 값을 `30.0`으로 반올림하는 방식은 위험 밴드를 오인하게 하므로 기각했다. ASOS 관측 기온을 체감온도로 자동 변환하는 방식은 공급되지 않은 수치를 만들기 때문에 기각했다.
+- 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, `src/ui/ScenarioPlanningLab.tsx`, 관련 CSS·E2E·디자인 및 Scenario 승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

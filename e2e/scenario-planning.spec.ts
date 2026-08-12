@@ -1,6 +1,44 @@
 import { expect, test } from "@playwright/test";
 
+const asosDays = Array.from({ length: 31 }, (_, index) => {
+  const date = new Date(Date.UTC(2026, 6, 12 + index)).toISOString().slice(0, 10);
+  return {
+    date,
+    pointCount: 1,
+    summary: {
+      averageAirTemperatureCelsius: 26,
+      maximumRainfallMmPerHour: 2,
+      minimumVisibilityMeters: 10_000,
+      maximumWindSpeedMetersPerSecond: 2,
+    },
+    points: [{
+      observedAt: `${date}T09:00:00+09:00`,
+      airTemperatureCelsius: 26,
+      relativeHumidityPercent: 70,
+      rainfallMmPerHour: 2,
+      visibilityMeters: 10_000,
+      windSpeedMetersPerSecond: 2,
+    }],
+  };
+});
+
 test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계산한다", async ({ page }) => {
+  await page.route("**/api/kma-asos-calendar", (route) => route.fulfill({
+    contentType: "application/json",
+    body: JSON.stringify({
+      schemaVersion: "kma-asos-calendar-v1",
+      status: "LIVE",
+      provider: "KMA_API_HUB_ASOS",
+      station: { id: "108", label: "서울" },
+      capturedAt: "2026-08-12T00:00:00+09:00",
+      range: { startDate: "2026-07-12", endDate: "2026-08-11", dayCount: 31 },
+      days: asosDays,
+      isDemo: true,
+      use: "HISTORICAL_CONTEXT_FOR_USER_SCENARIO",
+      safetyEngineInputApproved: false,
+      rawResponseStored: false,
+    }),
+  }));
   await page.setViewportSize({ width: 1440, height: 900 });
   await page.goto("/scenario");
   const heroHeading = page.getByRole("heading", {
@@ -23,6 +61,21 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.locator(".scenario-calendar-heading > strong")).toContainText("ASOS");
   await expect(page.getByLabel("연속 작업")).toHaveAttribute("type", "range");
   await expect(page.getByLabel("현재 안전여유")).toHaveAttribute("type", "range");
+  const applyObservation = page.getByRole("button", { name: "관측 반영하고 예측" });
+  await expect(applyObservation).toBeEnabled();
+  await applyObservation.click();
+  const observedImpact = page.locator("[data-observed-weather-impact]");
+  await expect(observedImpact).toBeVisible();
+  await expect(observedImpact).toContainText("시간당 강수");
+  await expect(observedImpact).toContainText("시정");
+  await expect(observedImpact).toContainText("예상 최저");
+  await expect(observedImpact).toContainText("안전한계 시점");
+  await expect(observedImpact).toContainText("추천 변화");
+  await expect(page.getByText("입력 변경됨")).toHaveCount(0);
+  await page.screenshot({
+    path: "artifacts/evals/screenshots/scenario-observation-impact-1440x900.png",
+    fullPage: true,
+  });
   await expect(page.locator(".scenario-limitations")).toHaveCount(0);
   await expect(
     page.getByText("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다.", {
