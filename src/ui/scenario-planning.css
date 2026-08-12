@@ -49,10 +49,6 @@
 .scenario-section-heading > small { max-width: 220px; overflow: hidden; color: #829ab1; font-size: .7rem; text-overflow: ellipsis; white-space: nowrap; }
 .scenario-section-heading.compact { margin-bottom: 13px; }
 
-.scenario-presets { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin: 16px 0; }
-.scenario-presets button { min-height: 44px; border: 1px solid #bcccdc; border-radius: 10px; color: #334e68; background: #f8fafc; cursor: pointer; font-weight: 750; }
-.scenario-presets button[aria-pressed="true"] { border-color: #087f7a; color: #075e5a; background: #e6f6f2; }
-
 .scenario-weather-calendar {
   margin-top: 18px;
   padding: 15px;
@@ -114,6 +110,35 @@
   font-size: .68rem;
   white-space: nowrap;
 }
+
+.scenario-weather-mode {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid #d9e2ec;
+  border-radius: 12px;
+  background: #fff;
+}
+.scenario-weather-mode strong { color: #334e68; font-size: .78rem; }
+.scenario-weather-mode p,
+.scenario-weather-override > p { margin: 4px 0 0; color: #627d98; font-size: .68rem; line-height: 1.45; }
+.scenario-weather-mode button {
+  min-height: 44px;
+  padding: 0 12px;
+  border: 1px solid #bcccdc;
+  border-radius: 9px;
+  color: #334e68;
+  background: #f8fafc;
+  cursor: pointer;
+  font-size: .72rem;
+  font-weight: 800;
+  white-space: nowrap;
+}
+.scenario-weather-mode button[aria-pressed="true"] { border-color: #b7791f; color: #7c4a03; background: #fff8e8; }
+.scenario-weather-override { border-color: #e7c77b !important; background: #fffaf0 !important; }
 
 .scenario-calendar-weekdays,
 .scenario-calendar-days { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
@@ -298,7 +323,6 @@
   .scenario-hero { flex-direction: column; }
   .scenario-hero nav { width: 100%; }
   .scenario-hero a { flex: 1; }
-  .scenario-presets,
   .scenario-field-grid,
   .scenario-alternative-list,
   .scenario-resource-grid { grid-template-columns: 1fr; }
@@ -308,6 +332,7 @@
   .scenario-assumptions-heading { align-items: stretch; flex-direction: column; }
   .scenario-assumptions-heading > strong { align-self: flex-start; }
   .scenario-calendar-selection { grid-template-columns: 1fr; }
+  .scenario-weather-mode { align-items: stretch; flex-direction: column; }
   .scenario-weather-impact dl { grid-template-columns: 1fr; }
   .scenario-calendar-days { gap: 3px; }
   .scenario-calendar-days button { min-height: 46px; border-radius: 7px; }

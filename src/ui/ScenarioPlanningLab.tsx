@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from
 import {
   createScenarioPlanningResult,
   defaultScenarioPlanningInput,
-  scenarioPlanningPresets,
 } from "../application/scenarioPlanning";
 import type { ScenarioPlanningInput, ScenarioPlanningResult } from "../domain/scenario-planning";
 import {
@@ -11,12 +10,6 @@ import {
   type KmaAsosCalendarFallbackCode,
 } from "../adapters/weather";
 import "./scenario-planning.css";
-
-const presetLabels = {
-  RAIN_HILL: "우천·경사",
-  HEAT_STAIRS: "폭염·계단",
-  NIGHT_UNFAMILIAR: "야간·낯선 권역",
-} as const;
 
 const bandLabels = {
   STABLE: "안정",
@@ -235,6 +228,7 @@ export function ScenarioPlanningLab() {
     { status: "LOADING" } | { status: "LIVE" } | { status: "FALLBACK"; code: KmaAsosCalendarFallbackCode }
   >({ status: "LOADING" });
   const [observedWeatherImpact, setObservedWeatherImpact] = useState<ObservedWeatherImpact>();
+  const [weatherOverrideEnabled, setWeatherOverrideEnabled] = useState(false);
   const recommended = useMemo(
     () => result.alternatives.find((candidate) => candidate.recommended) ?? null,
     [result],
@@ -287,14 +281,9 @@ export function ScenarioPlanningLab() {
   ) => {
     setInput((current) => ({ ...current, preset: "CUSTOM", [key]: value }));
     setDirty(true);
-    setObservedWeatherImpact(undefined);
-  };
-
-  const applyPreset = (key: keyof typeof scenarioPlanningPresets) => {
-    setInput((current) => ({ ...scenarioPlanningPresets[key], plannedAt: current.plannedAt }));
-    setDirty(true);
-    setError(null);
-    setObservedWeatherImpact(undefined);
+    if (key === "rainfallMmPerHour" || key === "feelsLikeCelsius" || key === "visibilityMeters") {
+      setObservedWeatherImpact(undefined);
+    }
   };
 
   const changePlannedAt = (date: string, hour = selectedPlanned.hour) => {
@@ -353,8 +342,8 @@ export function ScenarioPlanningLab() {
   };
 
   useEffect(() => {
-    if (selectedWeatherPoint) applyObservedWeather();
-  }, [selectedWeatherPoint?.observedAt]);
+    if (selectedWeatherPoint && !weatherOverrideEnabled) applyObservedWeather();
+  }, [selectedWeatherPoint?.observedAt, weatherOverrideEnabled]);
 
   const runPrediction = (event: FormEvent) => {
     event.preventDefault();
@@ -457,7 +446,9 @@ export function ScenarioPlanningLab() {
               </div>
             </div>
             <p className="scenario-calendar-note">
-              관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요.
+              {weatherOverrideEnabled
+                ? "관측값을 확인했습니다. 현재는 가상 기상 조건이 계산에 적용됩니다."
+                : "관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요."}
             </p>
           </section>
 
@@ -466,9 +457,13 @@ export function ScenarioPlanningLab() {
               <div>
                 <span>1-2 · 시뮬레이션 조건 설정</span>
                 <h3 id="scenario-assumptions-heading">업무·안전여유와 상황 가정</h3>
-                <p>우천·경사 같은 기준 상황을 고르고 필요한 조건만 조정합니다.</p>
+                <p>관측 기상은 자동으로 사용하고 업무·배송 경로 조건만 조정합니다.</p>
               </div>
-              {observedWeatherImpact ? <strong>ASOS 관측 적용됨</strong> : <strong>사용자 가정</strong>}
+              {weatherOverrideEnabled
+                ? <strong>사용자 가상 기상</strong>
+                : observedWeatherImpact
+                  ? <strong>ASOS 관측 기반</strong>
+                  : <strong>사용자 가정</strong>}
             </div>
             {observedWeatherImpact ? (
               <section className="scenario-weather-impact" aria-live="polite" data-observed-weather-impact>
@@ -503,17 +498,18 @@ export function ScenarioPlanningLab() {
                 <p>관측 기온은 체감온도로 임의 변환하지 않아 계산에 반영하지 않았습니다.</p>
               </section>
             ) : null}
-            <div className="scenario-presets" aria-label="상황 예시">
-              {Object.entries(presetLabels).map(([key, label]) => (
-                <button
-                  key={key}
-                  type="button"
-                  aria-pressed={input.preset === key}
-                  onClick={() => applyPreset(key as keyof typeof scenarioPlanningPresets)}
-                >
-                  {label}
-                </button>
-              ))}
+            <div className="scenario-weather-mode">
+              <div>
+                <strong>기상 입력 방식</strong>
+                <p>{weatherOverrideEnabled ? "ASOS 대신 가상 강수·체감온도·시정을 사용합니다." : "선택한 날짜·시간의 ASOS 강수·시정을 사용합니다."}</p>
+              </div>
+              <button
+                type="button"
+                aria-pressed={weatherOverrideEnabled}
+                onClick={() => setWeatherOverrideEnabled((enabled) => !enabled)}
+              >
+                가상 기상 스트레스 테스트
+              </button>
             </div>
 
           <fieldset>
@@ -536,24 +532,32 @@ export function ScenarioPlanningLab() {
                   const areaFamiliarity = (["UNFAMILIAR", "PARTIAL", "FAMILIAR"] as const)[value];
                   setInput((current) => ({ ...current, preset: "CUSTOM", areaFamiliarity }));
                   setDirty(true);
-                  setObservedWeatherImpact(undefined);
                 }}
               />
             </div>
           </fieldset>
 
           <fieldset>
-            <legend>기상과 경로</legend>
+            <legend>배송 경로 조건</legend>
             <div className="scenario-field-grid">
-              <ScenarioSlider label="시간당 강수" sourceBadge={observedWeatherImpact ? "관측 적용됨" : undefined} value={input.rainfallMmPerHour} min={0} max={20} step={0.5} unit="mm/h" stateLabel={intensityState(input.rainfallMmPerHour, [0.5, 5, 12], ["없음", "약함", "강함", "매우 강함"])} onChange={(value) => changeNumber("rainfallMmPerHour", value)} />
-              <ScenarioSlider label="체감온도" value={input.feelsLikeCelsius} min={-15} max={45} step={1} unit="°C" stateLabel={intensityState(input.feelsLikeCelsius, [10, 28, 35], ["추움", "선선", "더움", "폭염"])} onChange={(value) => changeNumber("feelsLikeCelsius", value)} />
-              <ScenarioSlider label="시정" sourceBadge={observedWeatherImpact ? "관측 적용됨" : undefined} value={input.visibilityMeters} min={500} max={20000} step={100} unit="m" stateLabel={intensityState(input.visibilityMeters, [1500, 5000, 10000], ["매우 나쁨", "주의", "보통", "좋음"])} onChange={(value) => changeNumber("visibilityMeters", value)} />
               <ScenarioSlider label="오르막 경사" value={input.uphillGradePct} min={0} max={20} step={1} unit="%" stateLabel={intensityState(input.uphillGradePct, [3, 8, 14], ["평지", "완만", "가파름", "매우 가파름"])} onChange={(value) => changeNumber("uphillGradePct", value)} />
               <ScenarioSlider label="좁은 도로" value={input.narrowRoadFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.narrowRoadFactor, [0.3, 0.6, 0.85], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("narrowRoadFactor", value)} />
               <ScenarioSlider label="주차 난이도" value={input.parkingDifficultyFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.parkingDifficultyFactor, [0.3, 0.6, 0.85], ["쉬움", "보통", "어려움", "매우 어려움"])} onChange={(value) => changeNumber("parkingDifficultyFactor", value)} />
               <ScenarioSlider label="계단 배송" value={input.stairStopRatio} min={0} max={1} step={0.01} unit="비율" stateLabel={intensityState(input.stairStopRatio, [0.25, 0.5, 0.75], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("stairStopRatio", value)} />
             </div>
           </fieldset>
+
+          {weatherOverrideEnabled ? (
+            <fieldset className="scenario-weather-override">
+              <legend>가상 기상 스트레스 테스트</legend>
+              <p>관측값 대신 더 강한 기상 상황을 가정할 때만 조정합니다.</p>
+              <div className="scenario-field-grid">
+                <ScenarioSlider label="시간당 강수" value={input.rainfallMmPerHour} min={0} max={20} step={0.5} unit="mm/h" stateLabel={intensityState(input.rainfallMmPerHour, [0.5, 5, 12], ["없음", "약함", "강함", "매우 강함"])} onChange={(value) => changeNumber("rainfallMmPerHour", value)} />
+                <ScenarioSlider label="체감온도" value={input.feelsLikeCelsius} min={-15} max={45} step={1} unit="°C" stateLabel={intensityState(input.feelsLikeCelsius, [10, 28, 35], ["추움", "선선", "더움", "폭염"])} onChange={(value) => changeNumber("feelsLikeCelsius", value)} />
+                <ScenarioSlider label="시정" value={input.visibilityMeters} min={500} max={20000} step={100} unit="m" stateLabel={intensityState(input.visibilityMeters, [1500, 5000, 10000], ["매우 나쁨", "주의", "보통", "좋음"])} onChange={(value) => changeNumber("visibilityMeters", value)} />
+              </div>
+            </fieldset>
+          ) : null}
 
           {error && <p className="scenario-error" role="alert">{error}</p>}
           <button className="scenario-submit" type="submit">이 조건으로 다시 예측</button>

@@ -65,7 +65,9 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.getByLabel("연속 작업")).toHaveAttribute("type", "range");
   await expect(page.getByLabel("현재 안전여유")).toHaveAttribute("type", "range");
   await page.getByRole("button", { name: /^2026-07-22/ }).click();
-  await expect(page.getByRole("button", { name: "우천·경사" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByRole("button", { name: "우천·경사" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "폭염·계단" })).toHaveCount(0);
+  await expect(page.getByRole("button", { name: "야간·낯선 권역" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "강수·시정을 1-2에 적용" })).toHaveCount(0);
   await expect(page.getByText("관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요.", { exact: true })).toBeVisible();
   const observedImpact = page.locator("[data-observed-weather-impact]");
@@ -76,9 +78,9 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(observedImpact).toContainText("안전한계 시점");
   await expect(observedImpact).toContainText("추천 변화");
   await expect(observedImpact).toContainText("1-2에 반영된 관측 결과");
-  await expect(page.getByText("ASOS 관측 적용됨", { exact: true })).toBeVisible();
-  await expect(page.getByText("관측 적용됨", { exact: true })).toHaveCount(2);
-  await expect(page.getByRole("button", { name: "우천·경사" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("ASOS 관측 기반", { exact: true })).toBeVisible();
+  await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveAttribute("aria-pressed", "false");
+  await expect(page.getByRole("group", { name: "가상 기상 스트레스 테스트" })).toHaveCount(0);
   await expect(page.getByText("입력 변경됨")).toHaveCount(0);
   await page.screenshot({
     path: "artifacts/evals/screenshots/scenario-observation-impact-1440x900.png",
@@ -95,7 +97,10 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   const initialScenarioId = await page
     .locator(".scenario-results .scenario-section-heading > small")
     .textContent();
-  await page.getByRole("button", { name: "폭염·계단" }).click();
+  await page.getByRole("button", { name: "가상 기상 스트레스 테스트" }).click();
+  await expect(page.getByRole("button", { name: "가상 기상 스트레스 테스트" })).toHaveAttribute("aria-pressed", "true");
+  await expect(page.getByText("사용자 가상 기상", { exact: true })).toBeVisible();
+  await page.getByLabel("체감온도").fill("38");
   await expect(page.getByText("입력 변경됨")).toBeVisible();
   await page.getByRole("button", { name: "이 조건으로 다시 예측" }).click();
   await expect(page.getByText("입력 변경됨")).toHaveCount(0);
