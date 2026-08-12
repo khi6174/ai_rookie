@@ -302,7 +302,6 @@ export function ScenarioPlanningLab() {
     if (!selectedWeatherPoint) return;
     const nextInput: ScenarioPlanningInput = {
       ...input,
-      preset: "CUSTOM",
       ...(selectedWeatherPoint.rainfallMmPerHour !== undefined
         ? { rainfallMmPerHour: Math.min(20, selectedWeatherPoint.rainfallMmPerHour) }
         : {}),
