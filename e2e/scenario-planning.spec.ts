@@ -61,6 +61,8 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.locator(".scenario-calendar-heading > strong")).toContainText("ASOS");
   await expect(page.getByLabel("연속 작업")).toHaveAttribute("type", "range");
   await expect(page.getByLabel("현재 안전여유")).toHaveAttribute("type", "range");
+  await page.getByRole("button", { name: /^2026-07-22/ }).click();
+  await expect(page.getByRole("button", { name: "우천·경사" })).toHaveAttribute("aria-pressed", "true");
   const applyObservation = page.getByRole("button", { name: "관측 반영하고 예측" });
   await expect(applyObservation).toBeEnabled();
   await applyObservation.click();
@@ -71,6 +73,7 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(observedImpact).toContainText("예상 최저");
   await expect(observedImpact).toContainText("안전한계 시점");
   await expect(observedImpact).toContainText("추천 변화");
+  await expect(page.getByRole("button", { name: "우천·경사" })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByText("입력 변경됨")).toHaveCount(0);
   await page.screenshot({
     path: "artifacts/evals/screenshots/scenario-observation-impact-1440x900.png",

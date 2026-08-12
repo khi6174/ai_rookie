@@ -293,7 +293,7 @@ export function ScenarioPlanningLab() {
   };
 
   const changePlannedAt = (date: string, hour = selectedPlanned.hour) => {
-    setInput((current) => ({ ...current, preset: "CUSTOM", plannedAt: plannedAt(date, hour) }));
+    setInput((current) => ({ ...current, plannedAt: plannedAt(date, hour) }));
     setDirty(true);
     setObservedWeatherImpact(undefined);
   };
