@@ -19,6 +19,7 @@ import {
   type KakaoMapOverlay,
   type KakaoMapsNamespace,
 } from "../adapters/maps/kakao";
+import { fetchKakaoFleetRoadRoute } from "../adapters/maps";
 import {
   createDashboardOperationsProjection,
   type DashboardCourierProjection,
@@ -70,6 +71,7 @@ import {
   riderAreaKey,
   riderAssignedDeliveryZone,
   riderDeliveryRouteId,
+  geographicRoutePoint,
   riderMapMarkerScale,
   riderMapMarkerSizePx,
   riderRoutePolyline,
@@ -135,6 +137,7 @@ function courierAreaKey(courier: Courier) {
 function simulatedCourierPosition(
   courier: Courier,
   movementSecond: number,
+  routeOverride?: readonly RiderRoutePoint[],
 ): PositionedCourier {
   const profile = {
     courierId: courier.id,
@@ -143,8 +146,8 @@ function simulatedCourierPosition(
     mapY: courier.mapY,
   };
   const point = courier.live
-    ? riderRoutePositionAtProgress(profile, courier.live.routeProgress)
-    : riderRoutePosition(profile, movementSecond);
+    ? riderRoutePositionAtProgress(profile, courier.live.routeProgress, routeOverride)
+    : riderRoutePosition(profile, movementSecond, routeOverride);
   return {
     ...courier,
     ...point,
@@ -718,11 +721,17 @@ function DashboardKakaoMap({
   const containerRef = useRef<HTMLDivElement>(null);
   const markerButtonsRef = useRef(new Map<string, HTMLButtonElement>());
   const markerOverlaysRef = useRef(new Map<string, MovableKakaoOverlay>());
+  const routeOverlaysRef = useRef(new Map<string, KakaoMapOverlay>());
+  const renderedRoadRoutesRef = useRef(new Set<string>());
   const mapsNamespaceRef = useRef<KakaoMapsNamespace | undefined>(undefined);
   const mapRef = useRef<KakaoMapInstance | undefined>(undefined);
   const fleetBoundsRef = useRef<KakaoLatLngBounds | undefined>(undefined);
   const cameraFrameKeyRef = useRef("");
   const [mapReadyVersion, setMapReadyVersion] = useState(0);
+  const [roadRoutes, setRoadRoutes] = useState<Record<string, RiderRoutePoint[]>>({});
+  const [roadRouteStatus, setRoadRouteStatus] = useState<
+    "LOADING" | "LIVE" | "PARTIAL" | "FALLBACK"
+  >("LOADING");
   const selectRef = useRef(onSelect);
   const javaScriptKey =
     import.meta.env.VITE_KAKAO_MAP_JAVASCRIPT_KEY?.trim() ?? "";
@@ -737,6 +746,65 @@ function DashboardKakaoMap({
     .join("|");
 
   selectRef.current = onSelect;
+
+  useEffect(() => {
+    if (!requested || couriers.length === 0) {
+      setRoadRoutes({});
+      setRoadRouteStatus("FALLBACK");
+      return;
+    }
+    let disposed = false;
+    let cursor = 0;
+    let failures = 0;
+    let successes = 0;
+    let stopRequests = false;
+    const controller = new AbortController();
+    setRoadRoutes({});
+    setRoadRouteStatus("LOADING");
+    const loadNext = async () => {
+      while (!disposed && !stopRequests) {
+        const courier = couriers[cursor++];
+        if (!courier) return;
+        const profile = {
+          courierId: courier.id,
+          areaCode: courier.area,
+          mapX: courier.mapX,
+          mapY: courier.mapY,
+        };
+        try {
+          const preview = await fetchKakaoFleetRoadRoute({
+            points: riderRoutePolyline(profile),
+            signal: controller.signal,
+          });
+          if (disposed) return;
+          const route = preview.path.map(geographicRoutePoint);
+          successes += 1;
+          setRoadRoutes((current) => ({ ...current, [courier.id]: route }));
+        } catch (error) {
+          failures += 1;
+          const code = (error as { code?: string } | null)?.code;
+          if (["NOT_CONFIGURED", "UNAUTHORIZED", "RATE_LIMITED"].includes(code ?? "")) {
+            stopRequests = true;
+          }
+        }
+      }
+    };
+    void Promise.all(Array.from({ length: Math.min(4, couriers.length) }, loadNext))
+      .then(() => {
+        if (disposed) return;
+        setRoadRouteStatus(
+          successes === 0
+            ? "FALLBACK"
+            : failures > 0 || successes < couriers.length
+              ? "PARTIAL"
+              : "LIVE",
+        );
+      });
+    return () => {
+      disposed = true;
+      controller.abort();
+    };
+  }, [courierIdentityKey, requested]);
 
   useEffect(() => {
     const container = containerRef.current;
@@ -767,7 +835,7 @@ function DashboardKakaoMap({
         const bounds = new maps.LatLngBounds();
 
         const initialMovingCouriers = couriers.map((courier) =>
-          simulatedCourierPosition(courier, movementSecond),
+          simulatedCourierPosition(courier, movementSecond, roadRoutes[courier.id]),
         );
         const initialMarkerLayout = updateDashboardMarkerAnchors(
           createCourierMarkerLayout(couriers),
@@ -785,7 +853,7 @@ function DashboardKakaoMap({
             bounds.extend(position);
             return position;
           });
-          overlays.push(new maps.Polyline({
+          const routeOverlay = new maps.Polyline({
             map,
             path,
             strokeWeight: 2,
@@ -793,12 +861,14 @@ function DashboardKakaoMap({
             strokeOpacity: 0.11,
             strokeStyle: "solid",
             zIndex: 2,
-          }));
+          });
+          overlays.push(routeOverlay);
+          routeOverlaysRef.current.set(courier.id, routeOverlay);
         });
 
         couriers.forEach((courier) => {
           if (!map) return;
-          const point = simulatedCourierPosition(courier, movementSecond);
+          const point = simulatedCourierPosition(courier, movementSecond, roadRoutes[courier.id]);
           const markerLayout = initialMarkerLayout.get(courier.id)!;
           const position = new maps.LatLng(
             markerLayout.anchorLatitude ?? point.latitude,
@@ -821,6 +891,7 @@ function DashboardKakaoMap({
           });
           button.dataset.latitude = point.latitude.toFixed(6);
           button.dataset.longitude = point.longitude.toFixed(6);
+          button.dataset.routeGeometry = roadRoutes[courier.id] ? "KAKAO_MOBILITY" : "DETERMINISTIC_FALLBACK";
           button.dataset.offsetColumn = String(markerLayout.offsetColumn);
           button.dataset.offsetRow = String(markerLayout.offsetRow);
           button.dataset.overlapGroupSize = String(markerLayout.groupSize);
@@ -908,6 +979,9 @@ function DashboardKakaoMap({
       overlays.forEach((overlay) => overlay.setMap(null));
       buttons.clear();
       markerOverlays.clear();
+      routeOverlaysRef.current.forEach((overlay) => overlay.setMap(null));
+      routeOverlaysRef.current.clear();
+      renderedRoadRoutesRef.current.clear();
       mapsNamespaceRef.current = undefined;
       mapRef.current = undefined;
       fleetBoundsRef.current = undefined;
@@ -924,6 +998,27 @@ function DashboardKakaoMap({
   useEffect(() => {
     const maps = mapsNamespaceRef.current;
     const map = mapRef.current;
+    if (!maps || !map || mapReadyVersion === 0) return;
+    Object.entries(roadRoutes).forEach(([courierId, route]) => {
+      if (renderedRoadRoutesRef.current.has(courierId)) return;
+      routeOverlaysRef.current.get(courierId)?.setMap(null);
+      const overlay = new maps.Polyline({
+        map,
+        path: route.map((point) => new maps.LatLng(point.latitude, point.longitude)),
+        strokeWeight: 3,
+        strokeColor: "#167c7a",
+        strokeOpacity: 0.24,
+        strokeStyle: "solid",
+        zIndex: 2,
+      });
+      routeOverlaysRef.current.set(courierId, overlay);
+      renderedRoadRoutesRef.current.add(courierId);
+    });
+  }, [mapReadyVersion, roadRoutes]);
+
+  useEffect(() => {
+    const maps = mapsNamespaceRef.current;
+    const map = mapRef.current;
     if (!maps || !map || !selectedCourier || mapReadyVersion === 0) return;
     const profile = {
       courierId: selectedCourier.id,
@@ -931,7 +1026,7 @@ function DashboardKakaoMap({
       mapX: selectedCourier.mapX,
       mapY: selectedCourier.mapY,
     };
-    const routePoints = riderRoutePolyline(profile);
+    const routePoints = roadRoutes[selectedCourier.id] ?? riderRoutePolyline(profile);
     const path = routePoints.map(
       (point) => new maps.LatLng(point.latitude, point.longitude),
     );
@@ -951,6 +1046,8 @@ function DashboardKakaoMap({
       profile,
       selectedCompleted,
       selectedTotal,
+      4,
+      routePoints,
     ).forEach((stop) => {
       const position = new maps.LatLng(stop.latitude, stop.longitude);
       const content = document.createElement("span");
@@ -992,6 +1089,7 @@ function DashboardKakaoMap({
     selectedCourier?.mapY,
     selectedId,
     selectedTotal,
+    roadRoutes,
   ]);
 
   useEffect(() => {
@@ -1005,7 +1103,7 @@ function DashboardKakaoMap({
     const maps = mapsNamespaceRef.current;
     if (!maps) return;
     const movingCouriers = couriers.map((courier) =>
-      simulatedCourierPosition(courier, movementSecond),
+      simulatedCourierPosition(courier, movementSecond, roadRoutes[courier.id]),
     );
     const markerLayout = updateDashboardMarkerAnchors(
       createCourierMarkerLayout(couriers),
@@ -1019,6 +1117,7 @@ function DashboardKakaoMap({
         const layout = markerLayout.get(courier.id)!;
         button.dataset.latitude = movingCourier.latitude.toFixed(6);
         button.dataset.longitude = movingCourier.longitude.toFixed(6);
+        button.dataset.routeGeometry = roadRoutes[courier.id] ? "KAKAO_MOBILITY" : "DETERMINISTIC_FALLBACK";
         button.dataset.liveActivity = courier.live?.activity ?? "SNAPSHOT";
         button.dataset.offsetColumn = String(layout.offsetColumn);
         button.dataset.offsetRow = String(layout.offsetRow);
@@ -1039,14 +1138,31 @@ function DashboardKakaoMap({
           markerLayout.get(courier.id)?.anchorLongitude ?? movingCourier.longitude,
         ));
     });
-  }, [couriers, movementSecond, selectedId]);
+  }, [couriers, movementSecond, roadRoutes, selectedId]);
 
+  const roadRouteCount = Object.keys(roadRoutes).length;
   return (
-    <div
-      ref={containerRef}
-      className="onepage-kakao-layer"
-      aria-label="Kakao 지도 위 기사 위치"
-    />
+    <>
+      <div
+        ref={containerRef}
+        className="onepage-kakao-layer"
+        aria-label="Kakao 지도 위 실제 도로 경로를 따르는 기사 위치"
+      />
+      <span
+        className={`onepage-road-route-status is-${roadRouteStatus.toLowerCase()}`}
+        data-road-route-status={roadRouteStatus}
+        data-road-route-count={roadRouteCount}
+        role="status"
+      >
+        {roadRouteStatus === "LOADING"
+          ? `Kakao Mobility 도로 경로 연결 중 · ${roadRouteCount}/${couriers.length}`
+          : roadRouteStatus === "LIVE"
+            ? `Kakao Mobility 도로 경로 · ${roadRouteCount}명`
+            : roadRouteStatus === "PARTIAL"
+              ? `도로 경로 ${roadRouteCount}명 · 나머지 대체 경로`
+              : "도로 길찾기 대체 경로"}
+      </span>
+    </>
   );
 }
 

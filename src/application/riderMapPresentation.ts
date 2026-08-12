@@ -174,6 +174,7 @@ export function riderRouteDeliveryStops(
   completedStopCount: number,
   totalStopCount: number,
   maximumVisibleStops = 4,
+  routeOverride?: readonly RiderRoutePoint[],
 ): RiderDeliveryRouteStop[] {
   const remainingStopCount = Math.max(0, totalStopCount - completedStopCount);
   const count = Math.min(maximumVisibleStops, remainingStopCount);
@@ -181,7 +182,7 @@ export function riderRouteDeliveryStops(
   return Array.from({ length: count }, (_, index) => {
     const progress = baseProgress[index] ?? (index + 1) / (count + 1);
     return {
-      ...riderRoutePositionAtProgress(profile, progress),
+      ...riderRoutePositionAtProgress(profile, progress, routeOverride),
       stopOrdinal: completedStopCount + index + 1,
       label: `배송 ${completedStopCount + index + 1}`,
       progress,
@@ -192,8 +193,11 @@ export function riderRouteDeliveryStops(
 export function riderRoutePositionAtProgress(
   profile: RiderRouteProfile,
   requestedProgress: number,
+  routeOverride?: readonly RiderRoutePoint[],
 ): RiderRoutePoint {
-  const route = riderRoutePolyline(profile);
+  const route = routeOverride && routeOverride.length >= 2
+    ? routeOverride
+    : riderRoutePolyline(profile);
   const progress = Math.max(0, Math.min(1, requestedProgress));
   const lengths = route.slice(1).map((point, index) =>
     Math.hypot(
@@ -226,12 +230,23 @@ export function riderRoutePositionAtProgress(
 export function riderRoutePosition(
   profile: RiderRouteProfile,
   movementSecond: number,
+  routeOverride?: readonly RiderRoutePoint[],
 ): RiderRoutePoint {
   const courierPhase = Number.parseInt(profile.courierId.replace(/\D/g, ""), 10) || 0;
   const normalizedSecond = Number.isFinite(movementSecond) ? Math.floor(movementSecond) : 0;
   const cycle = (((normalizedSecond + courierPhase * 5) % 24) + 24) % 24 / 12;
   const progress = cycle <= 1 ? cycle : 2 - cycle;
-  return riderRoutePositionAtProgress(profile, progress);
+  return riderRoutePositionAtProgress(profile, progress, routeOverride);
+}
+
+export function geographicRoutePoint({
+  latitude,
+  longitude,
+}: {
+  latitude: number;
+  longitude: number;
+}): RiderRoutePoint {
+  return geographicPoint(latitude, longitude);
 }
 
 export function riderMapMarkerScale(level: number): RiderMapMarkerScale {

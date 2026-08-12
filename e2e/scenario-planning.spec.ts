@@ -18,6 +18,11 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   expect(headingMetrics.height).toBeLessThanOrEqual(headingMetrics.lineHeight * 1.2);
   await expect(page.getByRole("link", { name: "고정 폐루프" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "안전 제약 통과안" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "최근 31일 운영상황 달력" })).toBeVisible();
+  await expect(page.locator(".scenario-calendar-days button")).toHaveCount(31);
+  await expect(page.locator(".scenario-calendar-heading > strong")).toContainText("ASOS");
+  await expect(page.getByLabel("연속 작업")).toHaveAttribute("type", "range");
+  await expect(page.getByLabel("현재 안전여유")).toHaveAttribute("type", "range");
   await expect(page.locator(".scenario-limitations")).toHaveCount(0);
   await expect(
     page.getByText("실제 TMS·기사 계정·GPS·주소·고객 발송은 연결되지 않았습니다.", {
@@ -98,7 +103,12 @@ test("잘못된 작업시간은 차단하고 모바일에서도 핵심 조작이
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/scenario");
   await page.getByLabel("총 근무").fill("2");
-  await page.getByLabel("연속 작업").fill("3");
+  await page.getByLabel("연속 작업").evaluate((element) => {
+    const input = element as HTMLInputElement;
+    input.value = "3";
+    input.dispatchEvent(new Event("input", { bubbles: true }));
+    input.dispatchEvent(new Event("change", { bubbles: true }));
+  });
   await page.getByRole("button", { name: "이 조건으로 다시 예측" }).click();
   await expect(page.getByRole("alert")).toContainText(
     "연속 작업시간은 총 근무시간을 넘을 수 없습니다.",

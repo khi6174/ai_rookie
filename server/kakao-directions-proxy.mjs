@@ -2,6 +2,7 @@ const KAKAO_DIRECTIONS_URL =
   "https://apis-navi.kakaomobility.com/v1/directions";
 const PROFILE = "rider-demo";
 const OPERATIONS_PROFILE = "operations-demo";
+const FLEET_PROFILE = "fleet-demo";
 const MAX_PROVIDER_BYTES = 1_500_000;
 const MAX_PATH_POINTS = 500;
 
@@ -63,11 +64,7 @@ function normalizedPath(route, fallbackRoute) {
     }
   }
   if (rawPoints.length < 2) {
-    return [
-      fallbackRoute.origin,
-      fallbackRoute.rest,
-      fallbackRoute.destination,
-    ];
+    return fallbackRoute.points;
   }
   const stride = Math.max(1, Math.ceil(rawPoints.length / MAX_PATH_POINTS));
   const sampled = rawPoints.filter((_, index) => index % stride === 0);
@@ -84,19 +81,29 @@ function requestRoute(requestUrl) {
     ) {
       return undefined;
     }
-    return { profile, route: DEMO_ROUTE };
+    return {
+      profile,
+      route: {
+        origin: DEMO_ROUTE.origin,
+        waypoints: [DEMO_ROUTE.rest],
+        destination: DEMO_ROUTE.destination,
+        points: [DEMO_ROUTE.origin, DEMO_ROUTE.rest, DEMO_ROUTE.destination],
+      },
+    };
   }
-  if (profile !== OPERATIONS_PROFILE) return undefined;
+  if (profile !== OPERATIONS_PROFILE && profile !== FLEET_PROFILE) return undefined;
   const allowedKeys = new Set([
     "profile",
     "source",
     "origin",
-    "waypoint",
+    profile === FLEET_PROFILE ? "waypoints" : "waypoint",
     "destination",
   ]);
+  const expectedSource = profile === FLEET_PROFILE
+    ? "deterministic-synthetic-fleet"
+    : "deterministic-synthetic-operations";
   if (
-    requestUrl.searchParams.get("source") !==
-      "deterministic-synthetic-operations" ||
+    requestUrl.searchParams.get("source") !== expectedSource ||
     [...requestUrl.searchParams.keys()].some((key) => !allowedKeys.has(key))
   ) {
     return undefined;
@@ -107,12 +114,31 @@ function requestRoute(requestUrl) {
     return isValidPoint(candidate) ? candidate : undefined;
   };
   const origin = parse("origin");
-  const rest = parse("waypoint");
   const destination = parse("destination");
-  if (!origin || !rest || !destination) return undefined;
+  if (!origin || !destination) return undefined;
+  const waypoints = profile === FLEET_PROFILE
+    ? (requestUrl.searchParams.get("waypoints") ?? "")
+        .split("|")
+        .filter(Boolean)
+        .map((value) => {
+          const values = value.split(",");
+          const candidate = point(values[1], values[0]);
+          return isValidPoint(candidate) ? candidate : undefined;
+        })
+    : [parse("waypoint")];
+  if (
+    waypoints.length < 1 ||
+    waypoints.length > 4 ||
+    waypoints.some((candidate) => !candidate)
+  ) return undefined;
   return {
     profile,
-    route: { origin, rest, destination },
+    route: {
+      origin,
+      waypoints,
+      destination,
+      points: [origin, ...waypoints, destination],
+    },
   };
 }
 
@@ -146,7 +172,9 @@ export async function handleKakaoDirectionsRequest(
   );
   endpoint.searchParams.set(
     "waypoints",
-    `${requested.route.rest.longitude},${requested.route.rest.latitude}`,
+    requested.route.waypoints
+      .map((waypoint) => `${waypoint.longitude},${waypoint.latitude}`)
+      .join("|"),
   );
   endpoint.searchParams.set("priority", "RECOMMEND");
   endpoint.searchParams.set("summary", "false");

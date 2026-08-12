@@ -1,6 +1,7 @@
 import { defineConfig, loadEnv, type Plugin } from "vite";
 import bundledSyntheticOperationsDocument from "./public/templates/daily-operations-documents-2026-07-25-bundled-v1.json";
 import { handleKakaoDirectionsRequest } from "./server/kakao-directions-proxy.mjs";
+import { handleKmaAsosCalendarRequest } from "./server/kma-asos-calendar-proxy.mjs";
 import {
   createMemoryOperationsSessionStore,
   handleOperationsSessionRequest,
@@ -267,6 +268,22 @@ function kakaoDirectionsDevProxy(mode: string): Plugin {
             response.setHeader(name, value);
           });
           response.end(await upstageResponse.text());
+          return;
+        }
+        const weatherCalendarResponse = await handleKmaAsosCalendarRequest(
+          new Request(requestUrl, { method }),
+          {
+            apiKey: environment.KMA_API_HUB_AUTH_KEY,
+            enabled: mode !== "test" && environment.KMA_ASOS_CALENDAR_ENABLED !== "false",
+            endpointUrl: environment.KMA_ASOS_HOURLY_RANGE_URL,
+          },
+        );
+        if (weatherCalendarResponse) {
+          response.statusCode = weatherCalendarResponse.status;
+          weatherCalendarResponse.headers.forEach((value, name) => {
+            response.setHeader(name, value);
+          });
+          response.end(await weatherCalendarResponse.text());
           return;
         }
         if (requestUrl.pathname !== "/api/kakao-directions") {

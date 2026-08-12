@@ -11,6 +11,10 @@ const directionsProxySource = resolve(
   root,
   "server/kakao-directions-proxy.mjs",
 );
+const kmaAsosCalendarProxySource = resolve(
+  root,
+  "server/kma-asos-calendar-proxy.mjs",
+);
 const operationsSessionStoreSource = resolve(
   root,
   "server/operations-session-store.mjs",
@@ -68,6 +72,7 @@ if (typeof hosting.project_id !== "string" || hosting.project_id.length === 0) {
 }
 
 const workerSource = `import { handleKakaoDirectionsRequest } from "./kakao-directions-proxy.mjs";
+import { handleKmaAsosCalendarRequest } from "./kma-asos-calendar-proxy.mjs";
 import { handleOperationsSessionRequest } from "./operations-session-store.mjs";
 import { handleRiderProfileRequest } from "./rider-profile-store.mjs";
 import { handleRiderDangerSignalRequest } from "./rider-danger-signal-store.mjs";
@@ -191,6 +196,14 @@ const worker = {
         apiKey: env.KAKAO_MOBILITY_REST_API_KEY,
         enabled: env.KAKAO_DIRECTIONS_ENABLED !== "false",
       }));
+    }
+    const weatherCalendarResponse = await handleKmaAsosCalendarRequest(request, {
+      apiKey: env.KMA_API_HUB_AUTH_KEY,
+      enabled: env.KMA_ASOS_CALENDAR_ENABLED !== "false",
+      endpointUrl: env.KMA_ASOS_HOURLY_RANGE_URL,
+    });
+    if (weatherCalendarResponse) {
+      return secure(weatherCalendarResponse);
     }
 
     const response = await env.ASSETS.fetch(request);
@@ -385,6 +398,10 @@ await writeFile(resolve(workerDirectory, "index.js"), workerSource, "utf8");
 await copyFile(
   directionsProxySource,
   resolve(workerDirectory, "kakao-directions-proxy.mjs"),
+);
+await copyFile(
+  kmaAsosCalendarProxySource,
+  resolve(workerDirectory, "kma-asos-calendar-proxy.mjs"),
 );
 await copyFile(
   operationsSessionStoreSource,

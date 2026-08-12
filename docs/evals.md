@@ -769,6 +769,8 @@ artifacts/evals/
 - 실행: `pnpm run audit:scenario-planning`
 - 증거: `artifacts/evals/scenario-planning-readiness-latest.json`
 
-세 preset strict 결과, 동일 입력 수치 재현, 강수·남은 작업 단조성, 수신 기사 위험전가 차단, 초과 근무관계·추가 필드 거부, 실제 연결·개인정보·네트워크 쓰기 0, 공개데이터 미혼합과 모바일 390×844 조작·overflow를 검증한다.
+세 preset strict 결과, 동일 입력 수치 재현, 강수·남은 작업 단조성, 수신 기사 위험전가 차단, 초과 근무관계·추가 필드 거부, 실제 연결·개인정보·네트워크 쓰기 0, 공개데이터 미혼합과 모바일 390×844 조작·overflow를 검증한다. 추가로 ASOS 31일 범위·서울 지점·시간자료 strict parse·403 활용신청 대기, 달력 31개 날짜·시간 선택, 단계형 range 조작과 결측 비대체를 검증한다.
+
+Kakao Live Gate는 고정 미리보기와 `fleet-demo` 다중 경유점 모두 200 `LIVE`, 2개 이상 도로 좌표를 요구한다. 브라우저 Live 검증은 Kakao 지도 도메인에서 25명 전원이 `data-route-geometry=KAKAO_MOBILITY`이고 서로 다른 좌표로 계속 갱신되는지 확인한다. 공급자 미사용 회귀에서는 기존 지도 대체 화면을 유지한다.
 
 `PASSED`는 사용자 입력 상황을 현재 결정론 엔진으로 재계산할 수 있다는 뜻이다. 입력이 실제 TMS·기사 관측이거나 공개데이터가 Safety에 Live 연결됐다는 뜻은 아니다.

@@ -10,7 +10,7 @@ export const KakaoDirectionsPreviewSchema = z.object({
   schemaVersion: z.literal("kakao-directions-preview-v1"),
   status: z.literal("LIVE"),
   provider: z.literal("KAKAO_MOBILITY"),
-  profile: z.enum(["rider-demo", "operations-demo"]),
+  profile: z.enum(["rider-demo", "operations-demo", "fleet-demo"]),
   capturedAt: z.string().datetime({ offset: true }),
   distanceMeters: z.number().int().positive().max(1_500_000),
   durationSeconds: z.number().int().positive().max(172_800),
@@ -116,6 +116,69 @@ export async function fetchKakaoDirectionsPreview({
   }
   const parsed = KakaoDirectionsPreviewSchema.safeParse(body);
   if (!parsed.success) {
+    throw new KakaoDirectionsClientError("MALFORMED_RESPONSE");
+  }
+  return parsed.data;
+}
+
+export async function fetchKakaoFleetRoadRoute({
+  points,
+  fetchImplementation = fetch,
+  signal,
+}: {
+  points: ReadonlyArray<{ latitude: number; longitude: number }>;
+  fetchImplementation?: typeof fetch;
+  signal?: AbortSignal;
+}) {
+  if (points.length < 3 || points.length > 6) {
+    throw new KakaoDirectionsClientError("MALFORMED_RESPONSE");
+  }
+  const coordinate = (point: { latitude: number; longitude: number }) =>
+    `${point.longitude},${point.latitude}`;
+  const query = new URLSearchParams({
+    profile: "fleet-demo",
+    source: "deterministic-synthetic-fleet",
+    origin: coordinate(points[0]),
+    waypoints: points.slice(1, -1).map(coordinate).join("|"),
+    destination: coordinate(points[points.length - 1]),
+  });
+  let response: Response;
+  try {
+    response = await fetchImplementation(`/api/kakao-directions?${query}`, {
+      method: "GET",
+      headers: { Accept: "application/json" },
+      signal,
+    });
+  } catch (error) {
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new KakaoDirectionsClientError("TIMEOUT");
+    }
+    throw new KakaoDirectionsClientError("NETWORK_ERROR");
+  }
+  let body: unknown;
+  try {
+    body = await response.json();
+  } catch {
+    throw new KakaoDirectionsClientError("MALFORMED_RESPONSE");
+  }
+  if (!response.ok) {
+    const fallback = FallbackEnvelopeSchema.safeParse(body);
+    throw new KakaoDirectionsClientError(
+      fallback.success && [
+        "NOT_CONFIGURED",
+        "UNAUTHORIZED",
+        "RATE_LIMITED",
+        "TIMEOUT",
+        "PROVIDER_ERROR",
+        "MALFORMED_RESPONSE",
+        "NETWORK_ERROR",
+      ].includes(fallback.data.code)
+        ? fallback.data.code as KakaoDirectionsFallbackCode
+        : "PROVIDER_ERROR",
+    );
+  }
+  const parsed = KakaoDirectionsPreviewSchema.safeParse(body);
+  if (!parsed.success || parsed.data.profile !== "fleet-demo") {
     throw new KakaoDirectionsClientError("MALFORMED_RESPONSE");
   }
   return parsed.data;

@@ -1,10 +1,15 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type CSSProperties, type FormEvent } from "react";
 import {
   createScenarioPlanningResult,
   defaultScenarioPlanningInput,
   scenarioPlanningPresets,
 } from "../application/scenarioPlanning";
 import type { ScenarioPlanningInput, ScenarioPlanningResult } from "../domain/scenario-planning";
+import {
+  fetchKmaAsosCalendar,
+  type KmaAsosCalendar,
+  type KmaAsosCalendarFallbackCode,
+} from "../adapters/weather";
 import "./scenario-planning.css";
 
 const presetLabels = {
@@ -80,15 +85,155 @@ function NumberField({
   );
 }
 
+function ScenarioSlider({
+  label,
+  value,
+  min,
+  max,
+  step,
+  unit,
+  stateLabel,
+  onChange,
+}: {
+  label: string;
+  value: number;
+  min: number;
+  max: number;
+  step: number;
+  unit: string;
+  stateLabel: string;
+  onChange: (value: number) => void;
+}) {
+  const progress = ((value - min) / (max - min)) * 100;
+  return (
+    <label className="scenario-slider-field">
+      <span className="scenario-slider-heading">
+        <span>{label}</span>
+        <strong>{stateLabel}</strong>
+      </span>
+      <input
+        type="range"
+        value={value}
+        min={min}
+        max={max}
+        step={step}
+        style={{ "--scenario-range-progress": `${progress}%` } as CSSProperties}
+        aria-valuetext={`${stateLabel}, ${value} ${unit}`}
+        onChange={(event) => onChange(Number(event.currentTarget.value))}
+      />
+      <span className="scenario-slider-scale" aria-hidden="true">
+        <small>낮음</small>
+        <output>{value} {unit}</output>
+        <small>높음</small>
+      </span>
+    </label>
+  );
+}
+
+const hourOptions = Array.from({ length: 24 }, (_, hour) => String(hour).padStart(2, "0"));
+
+function rollingCalendarDates(dayCount = 31) {
+  const formatter = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Seoul",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  });
+  const latest = new Date(Date.now() - 24 * 60 * 60_000);
+  return Array.from({ length: dayCount }, (_, index) => {
+    const date = new Date(latest);
+    date.setUTCDate(date.getUTCDate() - (dayCount - index - 1));
+    return formatter.format(date);
+  });
+}
+
+function plannedParts(plannedAt: string) {
+  return { date: plannedAt.slice(0, 10), hour: plannedAt.slice(11, 13) };
+}
+
+function plannedAt(date: string, hour: string) {
+  return `${date}T${hour}:00:00+09:00`;
+}
+
+function calendarColumn(date: string) {
+  const day = new Date(`${date}T12:00:00Z`).getUTCDay();
+  return ((day + 6) % 7) + 1;
+}
+
+function calendarFallbackLabel(code?: KmaAsosCalendarFallbackCode) {
+  if (code === "PERMISSION_REQUIRED") return "ASOS 활용신청 대기";
+  if (code === "NOT_CONFIGURED") return "ASOS 연결 설정 대기";
+  return "기상청 연결 대체 상태";
+}
+
+function workState(value: number) {
+  if (value < 1.5) return "여유";
+  if (value < 2.8) return "보통";
+  if (value < 4) return "길음";
+  return "포화 근접";
+}
+
+function safetyState(value: number) {
+  if (value < 35) return "부족";
+  if (value < 50) return "주의";
+  if (value < 70) return "안전";
+  return "여유";
+}
+
+function recipientState(value: number) {
+  if (value < 55) return "빠듯";
+  if (value < 70) return "분담 가능";
+  if (value < 85) return "안전";
+  return "여유";
+}
+
+function intensityState(value: number, thresholds: [number, number, number], labels: [string, string, string, string]) {
+  if (value < thresholds[0]) return labels[0];
+  if (value < thresholds[1]) return labels[1];
+  if (value < thresholds[2]) return labels[2];
+  return labels[3];
+}
+
 export function ScenarioPlanningLab() {
   const [input, setInput] = useState<ScenarioPlanningInput>(defaultScenarioPlanningInput);
   const [result, setResult] = useState(() => createScenarioPlanningResult(defaultScenarioPlanningInput));
   const [dirty, setDirty] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [weatherCalendar, setWeatherCalendar] = useState<KmaAsosCalendar>();
+  const [weatherCalendarStatus, setWeatherCalendarStatus] = useState<
+    { status: "LOADING" } | { status: "LIVE" } | { status: "FALLBACK"; code: KmaAsosCalendarFallbackCode }
+  >({ status: "LOADING" });
   const recommended = useMemo(
     () => result.alternatives.find((candidate) => candidate.recommended) ?? null,
     [result],
   );
+  const selectedPlanned = plannedParts(input.plannedAt);
+  const calendarDates = weatherCalendar?.days.map((day) => day.date) ?? rollingCalendarDates();
+  const selectedWeatherDay = weatherCalendar?.days.find((day) => day.date === selectedPlanned.date);
+  const selectedWeatherPoint = selectedWeatherDay?.points.find(
+    (point) => point.observedAt.slice(11, 13) === selectedPlanned.hour,
+  );
+
+  useEffect(() => {
+    const controller = new AbortController();
+    void fetchKmaAsosCalendar({ signal: controller.signal })
+      .then((calendar) => {
+        setWeatherCalendar(calendar);
+        setWeatherCalendarStatus({ status: "LIVE" });
+        const latest = calendar.days.at(-1);
+        if (latest && !calendar.days.some((day) => day.date === plannedParts(input.plannedAt).date)) {
+          setInput((current) => ({ ...current, plannedAt: plannedAt(latest.date, plannedParts(current.plannedAt).hour) }));
+        }
+      })
+      .catch((caught) => {
+        if (controller.signal.aborted) return;
+        setWeatherCalendarStatus({
+          status: "FALLBACK",
+          code: (caught as { code?: KmaAsosCalendarFallbackCode } | null)?.code ?? "NETWORK_ERROR",
+        });
+      });
+    return () => controller.abort();
+  }, []);
 
   const changeNumber = (
     key: keyof Pick<
@@ -113,9 +258,29 @@ export function ScenarioPlanningLab() {
   };
 
   const applyPreset = (key: keyof typeof scenarioPlanningPresets) => {
-    setInput(scenarioPlanningPresets[key]);
+    setInput((current) => ({ ...scenarioPlanningPresets[key], plannedAt: current.plannedAt }));
     setDirty(true);
     setError(null);
+  };
+
+  const changePlannedAt = (date: string, hour = selectedPlanned.hour) => {
+    setInput((current) => ({ ...current, preset: "CUSTOM", plannedAt: plannedAt(date, hour) }));
+    setDirty(true);
+  };
+
+  const applyObservedWeather = () => {
+    if (!selectedWeatherPoint) return;
+    setInput((current) => ({
+      ...current,
+      preset: "CUSTOM",
+      ...(selectedWeatherPoint.rainfallMmPerHour !== undefined
+        ? { rainfallMmPerHour: Math.min(20, selectedWeatherPoint.rainfallMmPerHour) }
+        : {}),
+      ...(selectedWeatherPoint.visibilityMeters !== undefined
+        ? { visibilityMeters: Math.max(500, Math.min(20_000, selectedWeatherPoint.visibilityMeters)) }
+        : {}),
+    }));
+    setDirty(true);
   };
 
   const runPrediction = (event: FormEvent) => {
@@ -161,6 +326,70 @@ export function ScenarioPlanningLab() {
             {dirty && <em role="status">입력 변경됨</em>}
           </div>
 
+          <section className="scenario-weather-calendar" aria-labelledby="scenario-calendar-heading">
+            <div className="scenario-calendar-heading">
+              <div>
+                <span>날짜·시간 선택</span>
+                <h3 id="scenario-calendar-heading">최근 31일 운영상황 달력</h3>
+              </div>
+              <strong className={`is-${weatherCalendarStatus.status.toLowerCase()}`}>
+                {weatherCalendarStatus.status === "LOADING"
+                  ? "기상청 확인 중"
+                  : weatherCalendarStatus.status === "LIVE"
+                    ? "기상청 ASOS 관측"
+                    : calendarFallbackLabel(weatherCalendarStatus.code)}
+              </strong>
+            </div>
+            <div className="scenario-calendar-weekdays" aria-hidden="true">
+              {['월', '화', '수', '목', '금', '토', '일'].map((day) => <span key={day}>{day}</span>)}
+            </div>
+            <div className="scenario-calendar-days" role="group" aria-label="예측 기준일 선택">
+              {calendarDates.map((date, index) => {
+                const day = weatherCalendar?.days.find((candidate) => candidate.date === date);
+                const rainy = (day?.summary.maximumRainfallMmPerHour ?? 0) > 0;
+                const hot = (day?.summary.averageAirTemperatureCelsius ?? 0) >= 30;
+                return (
+                  <button
+                    key={date}
+                    type="button"
+                    className={rainy ? "has-rain" : hot ? "has-heat" : ""}
+                    style={index === 0 ? { gridColumnStart: calendarColumn(date) } : undefined}
+                    aria-pressed={date === selectedPlanned.date}
+                    aria-label={`${date}${rainy ? ", 비 관측" : hot ? ", 고온 관측" : ""}`}
+                    onClick={() => changePlannedAt(date)}
+                  >
+                    <span>{Number(date.slice(8, 10))}</span>
+                    <small>{date.slice(5, 7)}월</small>
+                  </button>
+                );
+              })}
+            </div>
+            <div className="scenario-calendar-selection">
+              <label>
+                <span>선택 시간</span>
+                <select value={selectedPlanned.hour} onChange={(event) => changePlannedAt(selectedPlanned.date, event.currentTarget.value)}>
+                  {hourOptions.map((hour) => <option key={hour} value={hour}>{hour}:00</option>)}
+                </select>
+              </label>
+              <div className="scenario-weather-observation" aria-live="polite">
+                <span>{selectedPlanned.date} {selectedPlanned.hour}:00</span>
+                {selectedWeatherPoint ? (
+                  <p>
+                    관측 기온 {selectedWeatherPoint.airTemperatureCelsius?.toFixed(1) ?? "결측"}°C · 강수 {selectedWeatherPoint.rainfallMmPerHour?.toFixed(1) ?? "결측"}mm/h · 시정 {selectedWeatherPoint.visibilityMeters !== undefined ? `${(selectedWeatherPoint.visibilityMeters / 1_000).toFixed(1)}km` : "결측"}
+                  </p>
+                ) : (
+                  <p>이 시점은 임의 운영조건을 직접 설정해 예측합니다.</p>
+                )}
+              </div>
+              <button type="button" disabled={!selectedWeatherPoint} onClick={applyObservedWeather}>
+                관측 문맥 반영
+              </button>
+            </div>
+            <p className="scenario-calendar-note">
+              관측값은 과거 상황을 고르는 문맥입니다. 결측값을 만들지 않으며, 선택 후 조정한 조건만 Safety 계산에 사용합니다.
+            </p>
+          </section>
+
           <div className="scenario-presets" aria-label="상황 예시">
             {Object.entries(presetLabels).map(([key, label]) => (
               <button
@@ -179,36 +408,36 @@ export function ScenarioPlanningLab() {
             <div className="scenario-field-grid">
               <NumberField label="남은 배송" value={input.remainingStopCount} min={4} max={40} step={1} unit="건" onChange={(value) => changeNumber("remainingStopCount", value)} />
               <NumberField label="총 근무" value={input.shiftElapsedHours} min={1} max={11} step={0.1} unit="시간" onChange={(value) => changeNumber("shiftElapsedHours", value)} />
-              <NumberField label="연속 작업" value={input.continuousWorkHours} min={0.25} max={5} step={0.1} unit="시간" onChange={(value) => changeNumber("continuousWorkHours", value)} />
-              <NumberField label="현재 안전여유" value={input.currentSafetyBudget} min={25} max={90} step={0.1} unit="점" onChange={(value) => changeNumber("currentSafetyBudget", value)} />
-              <NumberField label="분담 기사 안전여유" value={input.recipientSafetyBudget} min={45} max={95} step={0.1} unit="점" onChange={(value) => changeNumber("recipientSafetyBudget", value)} />
-              <label className="scenario-field">
-                <span>권역 숙련도</span>
-                <select
-                  value={input.areaFamiliarity}
-                  onChange={(event) => {
-                    setInput((current) => ({ ...current, preset: "CUSTOM", areaFamiliarity: event.currentTarget.value as ScenarioPlanningInput["areaFamiliarity"] }));
-                    setDirty(true);
-                  }}
-                >
-                  <option value="FAMILIAR">익숙함</option>
-                  <option value="PARTIAL">일부 익숙함</option>
-                  <option value="UNFAMILIAR">낯선 권역</option>
-                </select>
-              </label>
+              <ScenarioSlider label="연속 작업" value={input.continuousWorkHours} min={0.25} max={5} step={0.1} unit="시간" stateLabel={workState(input.continuousWorkHours)} onChange={(value) => changeNumber("continuousWorkHours", value)} />
+              <ScenarioSlider label="현재 안전여유" value={input.currentSafetyBudget} min={25} max={90} step={1} unit="점" stateLabel={safetyState(input.currentSafetyBudget)} onChange={(value) => changeNumber("currentSafetyBudget", value)} />
+              <ScenarioSlider label="분담 기사 여유" value={input.recipientSafetyBudget} min={45} max={95} step={1} unit="점" stateLabel={recipientState(input.recipientSafetyBudget)} onChange={(value) => changeNumber("recipientSafetyBudget", value)} />
+              <ScenarioSlider
+                label="권역 숙련도"
+                value={({ UNFAMILIAR: 0, PARTIAL: 1, FAMILIAR: 2 } as const)[input.areaFamiliarity]}
+                min={0}
+                max={2}
+                step={1}
+                unit="단계"
+                stateLabel={{ UNFAMILIAR: "낯섦", PARTIAL: "일부 익숙", FAMILIAR: "익숙함" }[input.areaFamiliarity]}
+                onChange={(value) => {
+                  const areaFamiliarity = (["UNFAMILIAR", "PARTIAL", "FAMILIAR"] as const)[value];
+                  setInput((current) => ({ ...current, preset: "CUSTOM", areaFamiliarity }));
+                  setDirty(true);
+                }}
+              />
             </div>
           </fieldset>
 
           <fieldset>
             <legend>기상과 경로</legend>
             <div className="scenario-field-grid">
-              <NumberField label="시간당 강수" value={input.rainfallMmPerHour} min={0} max={20} step={0.5} unit="mm/h" onChange={(value) => changeNumber("rainfallMmPerHour", value)} />
-              <NumberField label="체감온도" value={input.feelsLikeCelsius} min={-15} max={45} step={1} unit="°C" onChange={(value) => changeNumber("feelsLikeCelsius", value)} />
-              <NumberField label="시정" value={input.visibilityMeters} min={500} max={20000} step={100} unit="m" onChange={(value) => changeNumber("visibilityMeters", value)} />
-              <NumberField label="오르막 경사" value={input.uphillGradePct} min={0} max={20} step={1} unit="%" onChange={(value) => changeNumber("uphillGradePct", value)} />
-              <NumberField label="좁은 도로" value={input.narrowRoadFactor} min={0} max={1} step={0.01} unit="0~1" onChange={(value) => changeNumber("narrowRoadFactor", value)} />
-              <NumberField label="주차 난이도" value={input.parkingDifficultyFactor} min={0} max={1} step={0.01} unit="0~1" onChange={(value) => changeNumber("parkingDifficultyFactor", value)} />
-              <NumberField label="계단 배송 비율" value={input.stairStopRatio} min={0} max={1} step={0.01} unit="0~1" onChange={(value) => changeNumber("stairStopRatio", value)} />
+              <ScenarioSlider label="시간당 강수" value={input.rainfallMmPerHour} min={0} max={20} step={0.5} unit="mm/h" stateLabel={intensityState(input.rainfallMmPerHour, [0.5, 5, 12], ["없음", "약함", "강함", "매우 강함"])} onChange={(value) => changeNumber("rainfallMmPerHour", value)} />
+              <ScenarioSlider label="체감온도" value={input.feelsLikeCelsius} min={-15} max={45} step={1} unit="°C" stateLabel={intensityState(input.feelsLikeCelsius, [10, 28, 35], ["추움", "선선", "더움", "폭염"])} onChange={(value) => changeNumber("feelsLikeCelsius", value)} />
+              <ScenarioSlider label="시정" value={input.visibilityMeters} min={500} max={20000} step={100} unit="m" stateLabel={intensityState(input.visibilityMeters, [1500, 5000, 10000], ["매우 나쁨", "주의", "보통", "좋음"])} onChange={(value) => changeNumber("visibilityMeters", value)} />
+              <ScenarioSlider label="오르막 경사" value={input.uphillGradePct} min={0} max={20} step={1} unit="%" stateLabel={intensityState(input.uphillGradePct, [3, 8, 14], ["평지", "완만", "가파름", "매우 가파름"])} onChange={(value) => changeNumber("uphillGradePct", value)} />
+              <ScenarioSlider label="좁은 도로" value={input.narrowRoadFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.narrowRoadFactor, [0.3, 0.6, 0.85], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("narrowRoadFactor", value)} />
+              <ScenarioSlider label="주차 난이도" value={input.parkingDifficultyFactor} min={0} max={1} step={0.01} unit="수준" stateLabel={intensityState(input.parkingDifficultyFactor, [0.3, 0.6, 0.85], ["쉬움", "보통", "어려움", "매우 어려움"])} onChange={(value) => changeNumber("parkingDifficultyFactor", value)} />
+              <ScenarioSlider label="계단 배송" value={input.stairStopRatio} min={0} max={1} step={0.01} unit="비율" stateLabel={intensityState(input.stairStopRatio, [0.25, 0.5, 0.75], ["적음", "보통", "많음", "포화"])} onChange={(value) => changeNumber("stairStopRatio", value)} />
             </div>
           </fieldset>
 
@@ -295,7 +524,11 @@ export function ScenarioPlanningLab() {
         <div className="scenario-resource-grid">
           <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무·기상·경로 조건을 이 세션에서만 계산합니다.</p></article>
           <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>시연 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
-          <article><span>기상청 연동 근거</span><strong>8개 준비 · 2개 차단</strong><p>미래 시정과 현재 시간당 적설이 부족해 문맥으로만 표시합니다.</p></article>
+          <article>
+            <span>기상청 관측 문맥</span>
+            <strong>{weatherCalendarStatus.status === "LIVE" ? "서울 ASOS · 최근 31일" : "31일 ASOS · 승인 대기"}</strong>
+            <p>{weatherCalendarStatus.status === "LIVE" ? "날짜·시간별 관측을 보고 시뮬레이션 조건을 선택합니다." : "연동 승인 전에는 날짜를 고른 뒤 임의 조건을 직접 설정합니다."}</p>
+          </article>
           <article><span>지도·생성 AI</span><strong>수치 계산 미사용</strong><p>지도는 표현, AI는 검증된 설명에만 사용합니다.</p></article>
         </div>
       </section>

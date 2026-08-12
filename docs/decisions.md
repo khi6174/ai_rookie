@@ -1742,6 +1742,19 @@
 - 기각한 대안: 허브 평균 좌표로 전체 그룹 이동, 그룹 전체를 단일 마커로 축약, 기사별 경로 좌표 자체 변경, 겹침을 방치해 아래 마커 입력을 차단.
 - 영향 파일: `src/application/dashboardMarkerLayout.ts`, `src/ui/OnePageDashboardDemo.tsx`, 관련 단위·E2E 테스트, `docs/design-system.md`, `docs/decisions.md`
 
+### ADR-169 — 기사 이동을 Kakao 도로 geometry에 스냅하고 Scenario를 31일 날짜·상태형 입력으로 전환한다
+
+- 날짜: 2026-08-12
+- 상태: Approved
+- 사용자 결정: 관제 지도에서 기사 차량이 직선·대각선 최단거리로 이동하는 표현을 실제 도로 기반 이동으로 고치고, 예측 입력은 기상청 1개월 문맥의 날짜·시간 선택과 연속작업·안전여유·분담 여유·숙련도 등의 상태형 slider로 바꾸도록 요청했다.
+- 지도 결정: 기존 기사별 시연 경유점을 Kakao Mobility `fleet-demo` 길찾기에 보내고 성공한 기사만 최대 500점 도로 polyline으로 치환한다. 마커, 선택 경로와 다음 배송지 표식은 같은 polyline 진행률을 사용한다. 공급자 실패 시 기사별 결정론적 대체 경로를 유지하고 `Kakao Mobility 도로 경로 n명` 또는 대체 상태를 표시한다.
+- 날씨 결정: 기상청 ASOS 서울 108 시간자료 기간조회는 최대 31일을 서버에서 정규화한다. 현재 키는 해당 API 활용신청이 없어 실제 403을 확인했으므로 이를 `PERMISSION_REQUIRED`로 표시한다. 승인 전에도 31일 날짜·시간 선택과 임의 조건 시뮬레이션은 가능하며 Live로 가장하지 않는다.
+- 입력 결정: `plannedAt`을 strict 입력 계약에 추가하고 연속작업·두 기사 안전여유·숙련도·기상·경로 강도를 range slider로 제공한다. `여유·안전·주의·포화` 상태어와 정확값을 함께 표시하며 관측 기온을 체감온도로 바꾸거나 결측을 0으로 채우지 않는다.
+- 안전·개인정보 경계: Kakao geometry와 ASOS 관측은 표현·선택 문맥이며 Safety Budget, Time-to-Breach, 실행 가능성, Risk Transfer Guard와 추천을 직접 변경하지 않는다. 실제 기사·주소·GPS·고객·개인정보는 추가하지 않고 공급자 원문·secret을 저장하지 않는다.
+- 검증: Kakao 고정 route 84점과 fleet route 121점 Live smoke, ASOS 31일 계약·403 Fallback, Scenario 데스크톱·390×844 달력·slider·overflow E2E를 Gate로 둔다.
+- 기각한 대안: 화면상 직선에 모서리만 추가, 25명 공통 도로 경로, 실패를 Live 도로로 표시, 지원되지 않는 31일 미래예보 주장, 기온을 체감온도로 복사, 의미 없는 점수형 숫자 입력 유지.
+- 영향 파일: `server/kakao-directions-proxy.mjs`, `server/kma-asos-calendar-proxy.mjs`, `src/adapters/maps/`, `src/adapters/weather/`, `src/application/riderMapPresentation.ts`, `src/domain/scenario-planning/`, `src/ui/OnePageDashboardDemo.tsx`, `src/ui/ScenarioPlanningLab.tsx`, 관련 CSS·테스트·평가·승인 문서
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

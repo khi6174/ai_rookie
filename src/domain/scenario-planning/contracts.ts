@@ -6,6 +6,7 @@ export const ScenarioPlanningInputSchema = z
   .object({
     schemaVersion: z.literal("scenario-planning-input-v1"),
     preset: z.enum(["CUSTOM", "RAIN_HILL", "HEAT_STAIRS", "NIGHT_UNFAMILIAR"]),
+    plannedAt: z.string().datetime({ offset: true }),
     remainingStopCount: z.number().int().min(4).max(40),
     shiftElapsedHours: finite.min(1).max(11),
     continuousWorkHours: finite.min(0.25).max(5),

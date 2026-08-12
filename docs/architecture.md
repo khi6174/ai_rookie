@@ -190,6 +190,10 @@ DS-003의 `src/adapters/traffic/taas.ts`는 한국도로교통공단 TAAS의 화
 
 Runtime 선택기는 `safeForSafetyEngine=false`인 KMA evidence와 Demo fixture를 받으면 일부 필드를 섞지 않고 Demo `WeatherState[]` 전체를 `FALLBACK`으로 선택한다. Live evidence는 출처·해시·준비/차단 필드만 별도 보존하고 Safety 엔진에는 전달하지 않는다. 이 선택 결과는 관리자·기사 공통 배지와 감사 패널에 노출되며, 계산 모드는 계속 Demo다.
 
+Scenario의 31일 관측 어댑터는 서버 전용 `KMA_API_HUB_AUTH_KEY`로 ASOS 기간조회 API를 호출한다. 지점은 서울 108로 고정하고 최대 31일·5MB·12초·exact endpoint를 검증한다. 활용신청이 없는 403은 `PERMISSION_REQUIRED`로 반환하며 UI는 임의 조건 달력을 유지한다. 원문과 인증키는 저장하거나 브라우저로 전달하지 않는다.
+
+관제 지도는 기사별 3~6개 시연 경유점을 서버 전용 Kakao Mobility 길찾기로 도로 polyline에 스냅한다. 최대 네 요청을 병렬 처리하고 성공한 geometry만 마커 이동·선택 경로·배송지 표식에 사용한다. 공급자 실패·쿼터·인증 오류는 기사별 결정론적 대체 경로로 닫히며 Domain Safety와 계획 상태에는 전달하지 않는다.
+
 ### 5.4 UI
 
 - 도메인 계산을 다시 구현하지 않는다.

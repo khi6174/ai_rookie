@@ -17,6 +17,7 @@ export {
   KakaoDirectionsClientError,
   KakaoDirectionsPreviewSchema,
   createKakaoMapDemoDirectionsUrl,
+  fetchKakaoFleetRoadRoute,
   fetchKakaoDirectionsPreview,
   type KakaoDirectionsFallbackCode,
   type KakaoDirectionsPreview,

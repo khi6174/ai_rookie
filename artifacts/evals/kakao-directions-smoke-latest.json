@@ -1,13 +1,22 @@
 {
   "schemaVersion": "kakao-directions-smoke-v1",
-  "checkedAt": "2026-07-27T10:54:31.875Z",
+  "checkedAt": "2026-08-12T02:18:37.429Z",
   "httpStatus": 200,
   "status": "LIVE",
   "provider": "KAKAO_MOBILITY",
   "profile": "rider-demo",
   "distanceMeters": 1738,
-  "durationSeconds": 441,
+  "durationSeconds": 455,
   "pathPointCount": 84,
   "isDemo": true,
-  "safetyEngineInputApproved": false
+  "safetyEngineInputApproved": false,
+  "fleetRoadRoute": {
+    "httpStatus": 200,
+    "status": "LIVE",
+    "profile": "fleet-demo",
+    "distanceMeters": 5316,
+    "durationSeconds": 1407,
+    "pathPointCount": 121,
+    "safetyEngineInputApproved": false
+  }
 }

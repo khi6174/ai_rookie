@@ -823,6 +823,30 @@
   opacity: 1;
 }
 
+.onepage-road-route-status {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  z-index: 12;
+  display: inline-flex;
+  min-height: 32px;
+  align-items: center;
+  padding: 6px 10px;
+  border: 1px solid rgba(15, 118, 110, .34);
+  border-radius: 999px;
+  color: #075e5a;
+  background: rgba(240, 253, 250, .94);
+  font-size: .72rem;
+  font-weight: 800;
+}
+
+.onepage-road-route-status.is-fallback,
+.onepage-road-route-status.is-partial {
+  border-color: rgba(156, 93, 0, .35);
+  color: #7c4a03;
+  background: rgba(255, 251, 235, .95);
+}
+
 .onepage-kakao-layer .onepage-map-marker,
 .onepage-kakao-layer .onepage-hub {
   position: relative;

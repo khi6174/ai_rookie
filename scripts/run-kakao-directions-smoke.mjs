@@ -19,6 +19,16 @@ const response = await handleKakaoDirectionsRequest(
   },
 );
 const body = await response.json();
+const fleetResponse = await handleKakaoDirectionsRequest(
+  new Request(
+    "https://local.test/api/kakao-directions?profile=fleet-demo&source=deterministic-synthetic-fleet&origin=127.0225%2C37.4968&waypoints=127.0395%2C37.4968%7C127.0395%2C37.5007&destination=127.0275%2C37.5007",
+  ),
+  {
+    apiKey: environment.KAKAO_MOBILITY_REST_API_KEY,
+    enabled: environment.KAKAO_DIRECTIONS_ENABLED !== "false",
+  },
+);
+const fleetBody = await fleetResponse.json();
 const artifact = {
   schemaVersion: "kakao-directions-smoke-v1",
   checkedAt: new Date().toISOString(),
@@ -32,6 +42,16 @@ const artifact = {
   fallbackCode: body.code,
   isDemo: body.isDemo,
   safetyEngineInputApproved: body.safetyEngineInputApproved,
+  fleetRoadRoute: {
+    httpStatus: fleetResponse.status,
+    status: fleetBody.status,
+    profile: fleetBody.profile,
+    distanceMeters: fleetBody.distanceMeters,
+    durationSeconds: fleetBody.durationSeconds,
+    pathPointCount: Array.isArray(fleetBody.path) ? fleetBody.path.length : 0,
+    fallbackCode: fleetBody.code,
+    safetyEngineInputApproved: fleetBody.safetyEngineInputApproved,
+  },
 };
 const outputDirectory = resolve(root, "artifacts/evals");
 await mkdir(outputDirectory, { recursive: true });
@@ -41,7 +61,13 @@ const outputPath = resolve(
 );
 await writeFile(outputPath, `${JSON.stringify(artifact, null, 2)}\n`, "utf8");
 console.log(
-  `Kakao directions smoke: ${artifact.status} status=${response.status} points=${artifact.pathPointCount}`,
+  `Kakao directions smoke: ${artifact.status} status=${response.status} points=${artifact.pathPointCount} fleet=${artifact.fleetRoadRoute.status} fleet_points=${artifact.fleetRoadRoute.pathPointCount}`,
 );
 console.log(`JSON: ${outputPath}`);
-if (response.status !== 200 || body.status !== "LIVE") process.exitCode = 1;
+if (
+  response.status !== 200 ||
+  body.status !== "LIVE" ||
+  fleetResponse.status !== 200 ||
+  fleetBody.status !== "LIVE" ||
+  artifact.fleetRoadRoute.pathPointCount < 2
+) process.exitCode = 1;

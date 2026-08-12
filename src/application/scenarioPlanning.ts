@@ -21,6 +21,7 @@ export const scenarioPlanningPresets = {
   RAIN_HILL: {
     schemaVersion: "scenario-planning-input-v1",
     preset: "RAIN_HILL",
+    plannedAt: "2026-08-10T09:00:00+09:00",
     remainingStopCount: 24,
     shiftElapsedHours: 8.5,
     continuousWorkHours: 3.1,
@@ -38,6 +39,7 @@ export const scenarioPlanningPresets = {
   HEAT_STAIRS: {
     schemaVersion: "scenario-planning-input-v1",
     preset: "HEAT_STAIRS",
+    plannedAt: "2026-08-10T14:00:00+09:00",
     remainingStopCount: 18,
     shiftElapsedHours: 7.5,
     continuousWorkHours: 2.8,
@@ -55,6 +57,7 @@ export const scenarioPlanningPresets = {
   NIGHT_UNFAMILIAR: {
     schemaVersion: "scenario-planning-input-v1",
     preset: "NIGHT_UNFAMILIAR",
+    plannedAt: "2026-08-10T21:00:00+09:00",
     remainingStopCount: 14,
     shiftElapsedHours: 6.2,
     continuousWorkHours: 2.4,
@@ -135,7 +138,7 @@ export function createScenarioPlanningResult(
   options: { evaluatedAt?: string } = {},
 ): ScenarioPlanningResult {
   const input = ScenarioPlanningInputSchema.parse(rawInput);
-  const evaluatedAt = options.evaluatedAt ?? new Date().toISOString();
+  const evaluatedAt = options.evaluatedAt ?? input.plannedAt;
   const scenarioId = `scenario-user-${fnv1a(stableStringify(input))}`;
   const enteredProvenance = {
     kind: "USER_ENTERED" as const,

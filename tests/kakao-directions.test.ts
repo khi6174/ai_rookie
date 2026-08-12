@@ -4,6 +4,7 @@ import {
   KakaoDirectionsPreviewSchema,
   createKakaoMapDemoDirectionsUrl,
   fetchKakaoDirectionsPreview,
+  fetchKakaoFleetRoadRoute,
   type RiderCompactMapModel,
 } from "../src/adapters/maps";
 import {
@@ -183,6 +184,27 @@ describe("Kakao Mobility directions server boundary", () => {
     expect(requested.searchParams.get("waypoints")).toBe("127.02,37.6");
     expect(requested.searchParams.get("destination")).toBe("127.03,37.61");
   });
+
+  it("accepts a bounded fleet route and forwards every intermediate road waypoint", async () => {
+    let requestedUrl = "";
+    const response = await handleKakaoDirectionsRequest(
+      new Request(
+        "https://demo.example/api/kakao-directions?profile=fleet-demo&source=deterministic-synthetic-fleet&origin=127.01%2C37.59&waypoints=127.02%2C37.60%7C127.025%2C37.605&destination=127.03%2C37.61",
+      ),
+      {
+        apiKey: secret,
+        fetchImplementation: async (input) => {
+          requestedUrl = String(input);
+          return new Response(JSON.stringify(providerResponse), { status: 200 });
+        },
+      },
+    );
+    expect(response.status).toBe(200);
+    expect(await response.json()).toMatchObject({ profile: "fleet-demo" });
+    expect(new URL(requestedUrl).searchParams.get("waypoints")).toBe(
+      "127.02,37.6|127.025,37.605",
+    );
+  });
 });
 
 describe("Kakao directions browser contract", () => {
@@ -270,5 +292,25 @@ describe("Kakao directions browser contract", () => {
       "deterministic-synthetic-operations",
     );
     expect(query.searchParams.get("origin")).toBe("127.01,37.59");
+  });
+
+  it("serializes a multi-waypoint fleet route for road-snapped movement", async () => {
+    let requested = "";
+    const points = [
+      { latitude: 37.59, longitude: 127.01 },
+      { latitude: 37.6, longitude: 127.02 },
+      { latitude: 37.605, longitude: 127.025 },
+      { latitude: 37.61, longitude: 127.03 },
+    ];
+    await fetchKakaoFleetRoadRoute({
+      points,
+      fetchImplementation: async (input) => {
+        requested = String(input);
+        return new Response(JSON.stringify({ ...livePreview, profile: "fleet-demo" }), { status: 200 });
+      },
+    });
+    const query = new URL(requested, "https://demo.example");
+    expect(query.searchParams.get("profile")).toBe("fleet-demo");
+    expect(query.searchParams.get("waypoints")).toBe("127.02,37.6|127.025,37.605");
   });
 });

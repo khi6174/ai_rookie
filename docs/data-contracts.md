@@ -2032,7 +2032,7 @@ type RiderDeliveryRoute = {
 
 ### 30.1 입력
 
-`scenario-planning-input-v1`은 `CUSTOM | RAIN_HILL | HEAT_STAIRS | NIGHT_UNFAMILIAR`, 남은 배송 4~40건, 총 근무 1~11시간, 연속작업 0.25~5시간, 두 기사 안전여유, 강수·체감온도·시정·경사·좁은 도로·주차·계단 비율과 권역 숙련도만 허용한다. 연속작업은 총 근무를 넘을 수 없고 strict 계약 밖 필드는 거부한다.
+`scenario-planning-input-v1`은 `CUSTOM | RAIN_HILL | HEAT_STAIRS | NIGHT_UNFAMILIAR`, KST offset이 있는 `plannedAt`, 남은 배송 4~40건, 총 근무 1~11시간, 연속작업 0.25~5시간, 두 기사 안전여유, 강수·체감온도·시정·경사·좁은 도로·주차·계단 비율과 권역 숙련도만 허용한다. 연속작업은 총 근무를 넘을 수 없고 strict 계약 밖 필드는 거부한다.
 
 입력에는 실제 기사 ID, 이름, 연락처, 주소, 차량번호, GPS, 위경도, 고객정보와 자유문장이 없다. 세션 내 계산에만 사용하며 서버·D1·AI·브라우저 영구 저장소로 전송하지 않는다.
 
@@ -2045,3 +2045,13 @@ type RiderDeliveryRoute = {
 ### 30.3 출처
 
 Safety 입력은 `USER_ENTERED + DETERMINISTIC_SYNTHETIC_REFERENCE`다. 공개 기상 근거는 `PARTIAL_CONTEXT_ONLY`, `publicWeatherUsedForSafety=false`이고 지도·AI의 숫자 계산도 `false`다. 실제 TMS·기사·개인정보와 네트워크 쓰기는 모두 `false`여야 한다.
+
+### 30.4 최근 31일 ASOS 관측 문맥
+
+`kma-asos-calendar-v1`은 서울 ASOS 지점 108의 최대 31일 시간자료를 서버에서 조회해 날짜별 1~24개 관측점으로 정규화한다. 관측점은 관측시각, 기온, 습도, 시간당 강수, 시정, 풍속 중 원본에 존재하고 범위를 통과한 값만 가진다. 날짜 요약은 평균 기온, 최대 시간당 강수, 최소 시정, 최대 풍속을 결측 제외 집계로 제공한다.
+
+`LIVE`는 `provider=KMA_API_HUB_ASOS`, 조회 범위, 지점, 수집시각, `safetyEngineInputApproved=false`, `rawResponseStored=false`를 요구한다. `NOT_CONFIGURED | PERMISSION_REQUIRED | UNAUTHORIZED | RATE_LIMITED | TIMEOUT | PROVIDER_ERROR | MALFORMED_RESPONSE | NETWORK_ERROR`는 `FALLBACK`이며 기존 사용자 입력을 바꾸지 않는다. ASOS 관측은 과거 상황 선택 문맥일 뿐 완전한 `WeatherState`나 미래예보가 아니다.
+
+### 30.5 Kakao fleet 도로 경로
+
+`kakao-directions-preview-v1`의 `fleet-demo` profile은 `deterministic-synthetic-fleet` source와 대한민국 범위의 origin, 1~4개 waypoint, destination만 허용한다. 서버는 Kakao Mobility 응답을 최대 500개 좌표로 정규화하고 `coordinateSource=DETERMINISTIC_SYNTHETIC_FIXTURE`, `safetyEngineInputApproved=false`를 고정한다. 브라우저는 성공한 기사만 도로 polyline으로 치환하고 실패한 기사는 기존 결정론적 경로를 유지한다.
