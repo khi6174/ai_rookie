@@ -24,8 +24,7 @@
 .scenario-page a:focus-visible { outline: 3px solid #2f80ed; outline-offset: 3px; }
 
 .scenario-hero,
-.scenario-layout,
-.scenario-resources { width: min(1440px, 100%); margin-inline: auto; }
+.scenario-layout { width: min(1440px, 100%); margin-inline: auto; }
 
 .scenario-hero { display: flex; justify-content: space-between; gap: 32px; align-items: flex-start; }
 .scenario-hero > div { max-width: 850px; }
@@ -36,10 +35,9 @@
 .scenario-hero nav { display: flex; gap: 8px; }
 .scenario-hero a { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; padding: 10px 14px; border: 1px solid #bcccdc; border-radius: 12px; color: #102a43; background: #fff; font-weight: 750; text-decoration: none; white-space: nowrap; }
 
-.scenario-layout { display: grid; grid-template-columns: minmax(360px, .82fr) minmax(560px, 1.18fr); gap: 20px; margin-top: 28px; align-items: start; }
+.scenario-layout { display: grid; grid-template-columns: minmax(360px, .82fr) minmax(560px, 1.18fr); gap: 20px; margin-top: 28px; align-items: stretch; }
 .scenario-form,
-.scenario-results,
-.scenario-resources { border: 1px solid #d9e2ec; border-radius: 18px; background: #fff; }
+.scenario-results { border: 1px solid #d9e2ec; border-radius: 18px; background: #fff; }
 .scenario-form,
 .scenario-results { padding: 22px; }
 
@@ -272,8 +270,8 @@
 .scenario-alternative-list dt { color: #829ab1; font-size: .66rem; }
 .scenario-alternative-list dd { margin: 2px 0 0; font-size: .82rem; font-weight: 800; }
 
-.scenario-resources { margin-top: 20px; padding: 22px; }
-.scenario-resource-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 16px; }
+.scenario-resources { margin-top: 26px; padding-top: 24px; border-top: 1px solid #d9e2ec; }
+.scenario-resource-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
 .scenario-resource-grid article { padding: 16px; border: 1px solid #d9e2ec; border-radius: 13px; }
 .scenario-resource-grid span { color: #087f7a; font-size: .72rem; font-weight: 850; }
 .scenario-resource-grid strong { display: block; margin-top: 5px; }

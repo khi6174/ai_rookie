@@ -56,6 +56,17 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   expect(headingMetrics.height).toBeLessThanOrEqual(headingMetrics.lineHeight * 1.2);
   await expect(page.getByRole("link", { name: "고정 폐루프" })).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "안전 제약 통과안" })).toBeVisible();
+  await expect(page.locator(".scenario-results .scenario-resources")).toHaveCount(1);
+  await expect(page.locator(".scenario-page > .scenario-resources")).toHaveCount(0);
+  const columnCards = await page.locator(".scenario-form, .scenario-results").evaluateAll((elements) =>
+    elements.map((element) => {
+      const rect = element.getBoundingClientRect();
+      return { x: rect.x, y: rect.y, width: rect.width, height: rect.height };
+    }),
+  );
+  expect(Math.abs(columnCards[0].y - columnCards[1].y)).toBeLessThanOrEqual(1);
+  expect(Math.abs(columnCards[0].height - columnCards[1].height)).toBeLessThanOrEqual(1);
+  expect(Math.abs(columnCards[1].x - (columnCards[0].x + columnCards[0].width) - 20)).toBeLessThanOrEqual(1);
   await expect(page.getByRole("heading", { name: "날짜·시간과 기상 관측" })).toBeVisible();
   await expect(page.getByText("1-1 · 관측 시점 선택", { exact: true })).toBeVisible();
   await expect(page.getByRole("heading", { name: "업무 및 안전여유 입력" })).toBeVisible();

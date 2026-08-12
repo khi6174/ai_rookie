@@ -555,24 +555,24 @@ export function ScenarioPlanningLab() {
               ))}
             </div>
           </section>
+
+          <section className="scenario-resources" aria-labelledby="scenario-resource-heading">
+            <div className="scenario-section-heading compact">
+              <div><span>04 · 현재 자원</span><h2 id="scenario-resource-heading">무엇을 계산에 사용했는가</h2></div>
+            </div>
+            <div className="scenario-resource-grid">
+              <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무 조건과 선택 시점 관측을 이 세션에서만 계산합니다.</p></article>
+              <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>시연 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
+              <article>
+                <span>기상청 관측 문맥</span>
+                <strong>{weatherCalendarStatus.status === "LIVE" ? "서울 ASOS · 최근 31일" : "31일 ASOS · 승인 대기"}</strong>
+                <p>{weatherCalendarStatus.status === "LIVE" ? "날짜·시간별 관측을 보고 시뮬레이션 조건을 선택합니다." : "연동 승인 전에는 날짜를 고른 뒤 임의 조건을 직접 설정합니다."}</p>
+              </article>
+              <article><span>지도·생성 AI</span><strong>수치 계산 미사용</strong><p>지도는 표현, AI는 검증된 설명에만 사용합니다.</p></article>
+            </div>
+          </section>
         </section>
       </div>
-
-      <section className="scenario-resources" aria-labelledby="scenario-resource-heading">
-        <div className="scenario-section-heading">
-          <div><span>04 · 현재 자원</span><h2 id="scenario-resource-heading">무엇을 계산에 사용했는가</h2></div>
-        </div>
-        <div className="scenario-resource-grid">
-          <article><span>사용자 입력</span><strong>Safety 입력</strong><p>업무 조건과 선택 시점 관측을 이 세션에서만 계산합니다.</p></article>
-          <article><span>결정론 엔진</span><strong>수치·추천 소유</strong><p>시연 기준계획의 Safety Budget, Time-to-Breach, Risk Transfer Guard를 계산합니다.</p></article>
-          <article>
-            <span>기상청 관측 문맥</span>
-            <strong>{weatherCalendarStatus.status === "LIVE" ? "서울 ASOS · 최근 31일" : "31일 ASOS · 승인 대기"}</strong>
-            <p>{weatherCalendarStatus.status === "LIVE" ? "날짜·시간별 관측을 보고 시뮬레이션 조건을 선택합니다." : "연동 승인 전에는 날짜를 고른 뒤 임의 조건을 직접 설정합니다."}</p>
-          </article>
-          <article><span>지도·생성 AI</span><strong>수치 계산 미사용</strong><p>지도는 표현, AI는 검증된 설명에만 사용합니다.</p></article>
-        </div>
-      </section>
     </main>
   );
 }
