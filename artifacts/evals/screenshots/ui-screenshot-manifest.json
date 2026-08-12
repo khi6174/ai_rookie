@@ -33,7 +33,7 @@
       "height": 844,
       "role": "SOURCE",
       "state": "RIDER_ROUTE",
-      "sha256": "056308242dabf59df83f5138cb34ab2129bf74dbd23a4f0edfe57b6ae9bdbbe8"
+      "sha256": "b8a7ebbebcf214f8cc288d5f00f4f004f5bbe8da9be04a9f872e7819884caa81"
     },
     {
       "file": "rider-source-review-390x844.png",
@@ -49,7 +49,7 @@
       "height": 800,
       "role": "RECIPIENT",
       "state": "RIDER_RESPONSE_PENDING",
-      "sha256": "09383fcb993c5010e54a5a4d8a30c34bcd0df87ef19edfd27eafe8d75fb34978"
+      "sha256": "42f89def325ebffacfaa8106fbd98f679093f40535d9a8e0fc3bb35d95e5eaa6"
     }
   ]
 }
