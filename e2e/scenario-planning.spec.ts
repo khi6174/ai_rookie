@@ -7,7 +7,7 @@ const asosDays = Array.from({ length: 31 }, (_, index) => {
     pointCount: 1,
     summary: {
       averageAirTemperatureCelsius: 26,
-      maximumRainfallMmPerHour: 2,
+      maximumRainfallMmPerHour: 9,
       minimumVisibilityMeters: 10_000,
       maximumWindSpeedMetersPerSecond: 2,
     },
@@ -15,7 +15,7 @@ const asosDays = Array.from({ length: 31 }, (_, index) => {
       observedAt: `${date}T09:00:00+09:00`,
       airTemperatureCelsius: 26,
       relativeHumidityPercent: 70,
-      rainfallMmPerHour: 2,
+      rainfallMmPerHour: 9,
       visibilityMeters: 10_000,
       windSpeedMetersPerSecond: 2,
     }],
