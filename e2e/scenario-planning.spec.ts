@@ -66,9 +66,8 @@ test("입력 상황을 바꾸면 Safety와 개입 비교를 실제로 다시 계
   await expect(page.getByLabel("현재 안전여유")).toHaveAttribute("type", "range");
   await page.getByRole("button", { name: /^2026-07-22/ }).click();
   await expect(page.getByRole("button", { name: "우천·경사" })).toHaveAttribute("aria-pressed", "true");
-  const applyObservation = page.getByRole("button", { name: "강수·시정을 1-2에 적용" });
-  await expect(applyObservation).toBeEnabled();
-  await applyObservation.click();
+  await expect(page.getByRole("button", { name: "강수·시정을 1-2에 적용" })).toHaveCount(0);
+  await expect(page.getByText("관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요.", { exact: true })).toBeVisible();
   const observedImpact = page.locator("[data-observed-weather-impact]");
   await expect(observedImpact).toBeVisible();
   await expect(observedImpact).toContainText("시간당 강수");

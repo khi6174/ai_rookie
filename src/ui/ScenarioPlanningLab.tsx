@@ -352,6 +352,10 @@ export function ScenarioPlanningLab() {
     }
   };
 
+  useEffect(() => {
+    if (selectedWeatherPoint) applyObservedWeather();
+  }, [selectedWeatherPoint?.observedAt]);
+
   const runPrediction = (event: FormEvent) => {
     event.preventDefault();
     try {
@@ -451,12 +455,9 @@ export function ScenarioPlanningLab() {
                   <p>이 시점은 임의 운영조건을 직접 설정해 예측합니다.</p>
                 )}
               </div>
-              <button type="button" disabled={!selectedWeatherPoint} onClick={applyObservedWeather}>
-                강수·시정을 1-2에 적용
-              </button>
             </div>
             <p className="scenario-calendar-note">
-              관측값은 과거 상황을 고르는 문맥입니다. 버튼을 누르면 1-2의 강수·시정과 예상 결과가 함께 갱신됩니다.
+              관측 값을 설정했습니다. 시뮬레이션 조건 설정을 완료해주세요.
             </p>
           </section>
 
