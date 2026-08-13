@@ -674,6 +674,12 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
     if (message.type() === "error") browserErrors.push(message.text());
   });
   page.on("pageerror", (error) => browserErrors.push(error.message));
+  await context.route("**/api/kakao-directions?*", async (route) => {
+    await route.fulfill({
+      contentType: "application/json",
+      body: "{}",
+    });
+  });
   await page.setViewportSize({ width: 1280, height: 720 });
   await page.goto("/");
   await expect(page.locator("[data-courier-card]")).toHaveCount(25);
@@ -809,6 +815,16 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
     (action) => action.type === "TRANSFER_STOPS",
   )?.recipientCourierId;
   expect(recipientId).toBeTruthy();
+  const recipientCardLabel = await page
+    .locator(`[data-courier-card="${recipientId}"]`)
+    .getAttribute("aria-label");
+  const recipientName = recipientCardLabel?.split(" 기사,")[0];
+  expect(recipientName).toBeTruthy();
+  await expect(
+    dialog.locator(
+      `[data-candidate-id="${persistedDecision.selectedCandidate.candidateId}"] strong`,
+    ),
+  ).toContainText(`${recipientName} 기사`);
 
   const sourcePage = await context.newPage();
   await sourcePage.setViewportSize({ width: 390, height: 844 });
@@ -842,6 +858,9 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   await expect(sourcePage.getByText("내 동의 기록됨", { exact: true })).toBeVisible();
 
   await expect(dialog.getByText("수신 기사 응답 대기", { exact: true })).toBeVisible();
+  await expect(
+    dialog.getByText(`${recipientName} 기사 확인을 기다립니다`, { exact: true }),
+  ).toBeVisible();
   const recipientPage = await context.newPage();
   await recipientPage.setViewportSize({ width: 360, height: 800 });
   await recipientPage.goto(

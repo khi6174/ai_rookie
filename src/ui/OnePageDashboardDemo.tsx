@@ -1238,6 +1238,19 @@ function InterventionDialog({
   const selectedCandidate = artifacts.selectedCandidate;
   const selectedEvaluation = artifacts.selectedEvaluation;
   const selectedTransfer = transferAction(selectedCandidate);
+  const courierNameById = new Map(
+    context.operationsPackage.records.map((record) => [
+      record.courier.courierId,
+      record.courier.displayLabel,
+    ]),
+  );
+  const transferRecipientName = (candidate: InterventionCandidate) => {
+    const action = transferAction(candidate);
+    return action?.type === "TRANSFER_STOPS"
+      ? courierNameById.get(action.recipientCourierId)
+      : undefined;
+  };
+  const selectedRecipientName = transferRecipientName(selectedCandidate);
   const candidatePairs = artifacts.candidates.map((candidate) => ({
     candidate,
     evaluation: artifacts.evaluations.find(
@@ -1431,6 +1444,7 @@ function InterventionDialog({
               {candidatePairs.map(({ candidate, evaluation }) => {
                 const feasible = evaluation.feasibility.status === "FEASIBLE";
                 const selected = candidate.candidateId === selectedCandidate.candidateId;
+                const recipientName = transferRecipientName(candidate);
                 return (
                   <button
                     key={candidate.candidateId}
@@ -1440,7 +1454,12 @@ function InterventionDialog({
                     disabled={context.sent || !feasible || busy}
                     onClick={() => onSelectCandidate(candidate.candidateId)}
                   >
-                    <span><strong>{interventionCandidateLabel(candidate)}</strong></span>
+                    <span>
+                      <strong>
+                        {interventionCandidateLabel(candidate)}
+                        {recipientName ? ` · ${recipientName} 기사` : ""}
+                      </strong>
+                    </span>
                     <span>
                       <b className={feasible ? "is-band" : "is-blocked"}>
                         {interventionResultLabel(evaluation)} / {interventionEtaLabel(evaluation)}
@@ -1467,8 +1486,11 @@ function InterventionDialog({
             <dl className="onepage-decision-facts">
               <div><dt>배송 시간</dt><dd>{interventionEtaLabel(selectedEvaluation)}</dd></div>
               <div>
-                <dt>{selectedTransfer ? "배송을 나눠 맡는 기사 기준" : "안전 기준"}</dt>
-                <dd>{candidateGuardLabel(selectedCandidate, selectedEvaluation)}</dd>
+                <dt>{selectedTransfer ? "배송을 나눠 맡는 기사" : "안전 기준"}</dt>
+                <dd>
+                  {selectedRecipientName ? `${selectedRecipientName} 기사 · ` : ""}
+                  {candidateGuardLabel(selectedCandidate, selectedEvaluation)}
+                </dd>
               </div>
               <div>
                 <dt>배송 보전</dt>
@@ -1586,7 +1608,10 @@ function InterventionDialog({
 
             <div className="onepage-transfer-guard">
               <div><strong>위험전가 검사 · 배송 분담</strong><b>{maximumTransferCount > 0 ? "가능" : "불가"}</b></div>
-              <span>배송을 나눠 맡을 수 있는 기사 {recipientCount}명 / 최대 {maximumTransferCount}건</span>
+              <span>
+                {selectedRecipientName ? `분담 예정 ${selectedRecipientName} 기사 · ` : ""}
+                배송을 나눠 맡을 수 있는 기사 {recipientCount}명 / 최대 {maximumTransferCount}건
+              </span>
               <em>
                 {selectedTransfer?.type === "TRANSFER_STOPS"
                   ? `현재 선택 ${selectedTransfer.stopIds.length}건 / ${selectedEvaluation.feasibility.status === "FEASIBLE" ? "가능" : "불가"}`
@@ -1610,7 +1635,7 @@ function InterventionDialog({
                 <><small>기사 응답 대기</small><strong>{courier.name} 기사 확인을 기다립니다</strong><span>현재 계획은 유지됩니다.</span></>
               )}
               {context.sent && decision.status === "RIDER_RESPONSE_PENDING" && sourceRequirement?.status === "CONSENTED" && recipientRequirement?.status === "PENDING" && (
-                <><small>수신 기사 응답 대기</small><strong>배송을 나눠 맡는 기사 확인을 기다립니다</strong><span>두 기사 응답 전에는 계획을 적용하지 않습니다.</span></>
+                <><small>수신 기사 응답 대기</small><strong>{selectedRecipientName ? `${selectedRecipientName} 기사 확인을 기다립니다` : "배송을 나눠 맡는 기사 확인을 기다립니다"}</strong><span>두 기사 응답 전에는 계획을 적용하지 않습니다.</span></>
               )}
               {decision.status === "ADMIN_APPROVAL_REQUIRED" && (
                 <><small>관리자 승인 대기</small><strong>필수 기사 확인 완료</strong><span>승인 직전에 최신 계획을 다시 검증합니다.</span></>
@@ -1631,7 +1656,7 @@ function InterventionDialog({
                 <><small>지금은 거절</small><strong>현재 계획을 유지합니다</strong></>
               )}
               {applied && (
-                <><small>적용</small><strong>{interventionCandidateLabel(selectedCandidate)} 반영</strong><span>경로 / 배송순서 / ETA / 고객 안내 상태를 갱신했습니다.</span></>
+                <><small>적용</small><strong>{interventionCandidateLabel(selectedCandidate)}{selectedRecipientName ? ` · ${selectedRecipientName} 기사` : ""} 반영</strong><span>경로 / 배송순서 / ETA / 고객 안내 상태를 갱신했습니다.</span></>
               )}
               {message && <span role="status">{message}</span>}
             </div>
