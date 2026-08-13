@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-08
+- 최종 갱신: 2026-08-13
 - 대상: 2026-08-14 본선 중간 결과물과 이후 1차 결선 데모
 
 ## 1. 목적
@@ -85,7 +85,7 @@ ADR-044의 `createRiderCompactMapModel`은 같은 `decisionId`의 `MapRenderMode
 
 ADR-124의 `src/application/riderLiveLocation.ts`는 기사 본인이 버튼을 누른 뒤 시작한 브라우저 `watchPosition`만 소유한다. 관측값은 React 메모리 상태로만 전달하고 API·D1·localStorage·Cache Storage와 관리자 projection에는 쓰지 않는다. 기사 지도는 같은 Kakao SDK 인스턴스의 `CustomOverlay.setPosition`으로 탑차 상단만 보이는 2D 마커를 갱신하며, 연속 기기 관측 사이는 `requestAnimationFrame`으로 화면에서만 보간한다. 첫 기기 좌표와 움직임 줄이기 설정은 즉시 반영한다. `zoom_changed`와 `ResizeObserver`는 지도 단계·폭에 따른 표시 크기만 갱신하며 도메인 관측을 만들지 않는다. 30초 이상 새 관측이 없으면 stale 상태로 내린다. 권한 거절·위치 사용 불가·SDK 실패에서는 기사 profile의 공유 가상 도로 위치와 schematic 경로를 `경로 위치`로 렌더링한다. 이 어댑터는 주소 검색·Directions 요청·Safety·배송계획·동의 상태에 좌표를 전달하지 않으며 컴포넌트 해제 시 `clearWatch`하고 애니메이션을 취소한다.
 
-ADR-125의 `src/application/riderMapPresentation.ts`는 `RiderProfile`의 권역과 초 단위 기준시각으로 도로 위 가상 위치를 계산하는 유일한 표현 함수다. `/dashboard-demo`와 `/rider-demo`의 권한 요청 전 지도는 이 함수를 공유한다. 알려진 권역은 승인된 corridor를 사용하고, 새 25명 운영 projection처럼 corridor 키가 없는 합성 권역은 고정 표시 좌표 주위의 짧은 합성 경로를 만들어 정지 마커가 되지 않게 한다. `riderProfileRepository`는 두 화면 모두 `/api/riders`를 우선 읽고 동일 bundled 목록을 fallback으로 사용한다. 현재 점수와 예상 최저 점수는 별도 필드로 유지한다. Kakao `zoom_changed`는 공통 `STREET`·`DISTRICT`·`OVERVIEW` 표현 단계만 바꾸며 Safety나 위치 관측을 변경하지 않는다. 기사 기기 좌표는 이 공유 projection으로 역전송하지 않는다. ADR-177부터 기사 앱도 관제와 같은 `fleet-demo` Directions 요청으로 정규화된 도로 polyline을 읽고, 링크의 공유 합성 시각과 같은 progress 계산으로 마커를 이동한다. 공급자 실패 시 두 화면 모두 동일 결정론 경로로 전환한다.
+ADR-125의 `src/application/riderMapPresentation.ts`는 `RiderProfile`의 권역과 초 단위 기준시각으로 도로 위 가상 위치를 계산하는 유일한 표현 함수다. `/dashboard-demo`와 `/rider-demo`의 권한 요청 전 지도는 이 함수를 공유한다. 알려진 권역은 승인된 corridor를 사용하고, 새 25명 운영 projection처럼 corridor 키가 없는 합성 권역은 고정 표시 좌표 주위의 짧은 합성 경로를 만들어 정지 마커가 되지 않게 한다. `riderProfileRepository`는 두 화면 모두 `/api/riders`를 우선 읽고 동일 bundled 목록을 fallback으로 사용한다. 현재 점수와 예상 최저 점수는 별도 필드로 유지한다. Kakao `zoom_changed`는 공통 `STREET`·`DISTRICT`·`OVERVIEW` 표현 단계만 바꾸며 Safety나 위치 관측을 변경하지 않는다. 기사 기기 좌표는 이 공유 projection으로 역전송하지 않는다. ADR-177부터 기사 앱도 관제와 같은 `fleet-demo` Directions 요청으로 정규화된 도로 polyline을 읽고, 링크의 공유 합성 시각과 같은 progress 계산으로 마커를 이동한다. 공급자 실패 시 두 화면 모두 동일 결정론 경로로 전환한다. ADR-178부터 공통 `RIDER_ROUTE_TRAVERSE_SECONDS=30`을 사용해 이동 중 polyline 한쪽 끝까지 약 30초가 걸리며, 1초 frame과 5초 Safety 재평가 주기는 바꾸지 않는다.
 
 아틀란 트럭은 이 프레젠테이션 계층의 현장형 지도·경로 UX만 참고한다. 현재 런타임은 합성 위치의 자동차 경로 미리보기와 외부 Kakao Map Demo 길찾기만 제공하며, 화물차 높이·중량·통행제한, 실제 GPS·주소, 오더 배차와 내장 턴바이턴 안내는 입력하거나 제공하지 않는다. 향후 실제 TMS·지도 계약이 승인되면 해당 공급자 응답은 별도 경계 어댑터에서 도메인 계획·차량·경로 계약으로 검증한 뒤 읽기 전용 운행 맥락으로 전달하며, 공급자 추천이 Safety hard constraint를 우회할 수 없다.
 

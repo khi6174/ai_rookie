@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { riderProfiles } from "../src/application/riderProfileRepository";
 import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheticOperationsPackage";
 import {
+  RIDER_ROUTE_TRAVERSE_SECONDS,
   riderAssignedDeliveryZone,
   riderDeliveryRouteId,
   riderMapMarkerScale,
@@ -52,6 +53,20 @@ describe("shared rider map presentation", () => {
     const next = riderRoutePosition(profile, 1_785_544_401);
     expect(next).not.toEqual(first);
     expect(riderRoutePosition(profile, 1_785_544_401)).toEqual(next);
+  });
+
+  it("uses a calmer thirty-second road traverse for every rider surface", () => {
+    const profile = {
+      courierId: "demo-courier-000",
+      areaCode: "합성 북부권역 A구역",
+      mapX: 52,
+      mapY: 48,
+    };
+
+    expect(RIDER_ROUTE_TRAVERSE_SECONDS).toBe(30);
+    expect(riderRoutePosition(profile, 1)).toEqual(
+      riderRoutePositionAtProgress(profile, 1 / RIDER_ROUTE_TRAVERSE_SECONDS),
+    );
   });
 
   it("moves synthetic operations couriers through multi-point road polylines", () => {

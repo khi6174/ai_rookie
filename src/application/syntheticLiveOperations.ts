@@ -1,4 +1,5 @@
 import type { DailyOperationsPackage } from "../domain/operations";
+import { RIDER_ROUTE_TRAVERSE_SECONDS } from "./riderMapPresentation";
 
 export const SYNTHETIC_LIVE_INTERVAL_MS = 1_000;
 export const SYNTHETIC_LIVE_MINUTES_PER_TICK = 2;
@@ -112,7 +113,10 @@ function drivingTickCount(courierIndex: number, tick: number) {
 }
 
 function routeProgress(courierIndex: number, tick: number) {
-  const distance = drivingTickCount(courierIndex, tick) * 0.045;
+  const distance =
+    (drivingTickCount(courierIndex, tick) * SYNTHETIC_LIVE_INTERVAL_MS) /
+    1_000 /
+    RIDER_ROUTE_TRAVERSE_SECONDS;
   const phase = (courierIndex * 0.071 + distance) % 2;
   return phase <= 1 ? phase : 2 - phase;
 }

@@ -9,8 +9,10 @@ import {
 } from "../src/application/operations";
 import {
   createSyntheticLiveOperationsFrame,
+  syntheticLiveCourierRouteProgress,
   SYNTHETIC_LIVE_SHIFT_TICKS,
 } from "../src/application/syntheticLiveOperations";
+import { RIDER_ROUTE_TRAVERSE_SECONDS } from "../src/application/riderMapPresentation";
 import { validateDailyOperationsPackage } from "../src/domain/operations";
 
 describe("dashboard synthetic live operations", () => {
@@ -82,6 +84,13 @@ describe("dashboard synthetic live operations", () => {
     ).toEqual(
       createSyntheticLiveOperationsFrame(bundledDailyOperationsPackage, 12),
     );
+  });
+
+  it("advances a driving courier by the shared calmer route step", () => {
+    const first = syntheticLiveCourierRouteProgress("demo-courier-002", 0);
+    const next = syntheticLiveCourierRouteProgress("demo-courier-002", 1);
+
+    expect(next - first).toBeCloseTo(1 / RIDER_ROUTE_TRAVERSE_SECONDS, 8);
   });
 
   it("keeps late-shift snapshots valid and fails closed when no safe intervention remains", async () => {

@@ -1,5 +1,7 @@
 import type { RiderProfile } from "./riderProfileRepository";
 
+export const RIDER_ROUTE_TRAVERSE_SECONDS = 30;
+
 export type RiderRoutePoint = {
   mapX: number;
   mapY: number;
@@ -234,7 +236,11 @@ export function riderRoutePosition(
 ): RiderRoutePoint {
   const courierPhase = Number.parseInt(profile.courierId.replace(/\D/g, ""), 10) || 0;
   const normalizedSecond = Number.isFinite(movementSecond) ? Math.floor(movementSecond) : 0;
-  const cycle = (((normalizedSecond + courierPhase * 5) % 24) + 24) % 24 / 12;
+  const cycleSeconds = RIDER_ROUTE_TRAVERSE_SECONDS * 2;
+  const cycle =
+    (((normalizedSecond + courierPhase * 5) % cycleSeconds) + cycleSeconds) %
+      cycleSeconds /
+    RIDER_ROUTE_TRAVERSE_SECONDS;
   const progress = cycle <= 1 ? cycle : 2 - cycle;
   return riderRoutePositionAtProgress(profile, progress, routeOverride);
 }
