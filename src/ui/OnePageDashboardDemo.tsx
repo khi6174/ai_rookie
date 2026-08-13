@@ -21,7 +21,10 @@ import {
 } from "../adapters/maps/kakao";
 import { fetchKakaoFleetRoadRoute } from "../adapters/maps";
 import {
+  applyDashboardCourierOverrides,
+  createDashboardAppliedCourierOverrides,
   createDashboardOperationsProjection,
+  type DashboardAppliedCourierOverrides,
   type DashboardCourierProjection,
   type DashboardHubProjection,
   type DashboardOperationsProjection,
@@ -1710,6 +1713,8 @@ export function OnePageDashboardDemo() {
     useState<DailyOperationsPackage>();
   const [projection, setProjection] =
     useState<DashboardOperationsProjection>();
+  const [appliedCourierOverrides, setAppliedCourierOverrides] =
+    useState<DashboardAppliedCourierOverrides>({});
   const [liveCourierStates, setLiveCourierStates] = useState<
     SyntheticLiveCourierState[]
   >([]);
@@ -1747,19 +1752,32 @@ export function OnePageDashboardDemo() {
     sourceBundleId: "daily-operations-documents-2026-07-25-bundled-v1",
   });
 
+  const effectiveProjection = projection
+    ? applyDashboardCourierOverrides(projection, appliedCourierOverrides)
+    : undefined;
+  const rememberAppliedWorkspace = (workspace: OperationsDecisionWorkspace) => {
+    const next = createDashboardAppliedCourierOverrides(workspace);
+    if (!Object.keys(next).length) return;
+    setAppliedCourierOverrides((current) => ({ ...current, ...next }));
+  };
+
   const liveStateByCourier = new Map(
     liveCourierStates.map((state) => [state.courierId, state]),
   );
-  const couriers: Courier[] = (projection?.couriers ?? []).map((courier) => ({
-    ...courier,
-    live: liveStateByCourier.get(courier.id),
-    completed:
-      liveStateByCourier.get(courier.id)?.completedStopCount ?? courier.completed,
-    remaining:
-      (liveStateByCourier.get(courier.id)?.totalStopCount ?? courier.total) -
-      (liveStateByCourier.get(courier.id)?.completedStopCount ?? courier.completed),
-  }));
-  const hubs = projection?.hubs ?? [];
+  const couriers: Courier[] = (effectiveProjection?.couriers ?? []).map((courier) => {
+    const live = liveStateByCourier.get(courier.id);
+    const applied = appliedCourierOverrides[courier.id];
+    return {
+      ...courier,
+      live,
+      completed: applied ? courier.completed : live?.completedStopCount ?? courier.completed,
+      remaining: applied
+        ? courier.remaining
+        : (live?.totalStopCount ?? courier.total) -
+          (live?.completedStopCount ?? courier.completed),
+    };
+  });
+  const hubs = effectiveProjection?.hubs ?? [];
   const selectedCourier = couriers.find((courier) => courier.id === selectedId) ?? couriers[0];
   const urgentCouriers = couriers
     .filter((courier) => courier.budget < 45)
@@ -2101,6 +2119,7 @@ export function OnePageDashboardDemo() {
         const restored = await restoreOperationsPersistedSession(
           latest.session,
         );
+        rememberAppliedWorkspace(restored.workspace);
         setDecisionContext({
           workspaceId: latest.session.workspaceId,
           operationsPackage: restored.operationsPackage,
@@ -2242,6 +2261,9 @@ export function OnePageDashboardDemo() {
             : "최종 적용 상태를 저장하지 못했습니다.",
         );
         return;
+      }
+      if (result.status === "APPLIED" || result.status === "ALREADY_APPLIED") {
+        rememberAppliedWorkspace(result.workspace);
       }
       setDecisionContext({
         ...decisionContext,

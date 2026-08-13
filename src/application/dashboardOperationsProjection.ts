@@ -5,6 +5,7 @@ import {
   createOperationsTransferCapacity,
   evaluateOperationsFleet,
   loadCurrentDailyOperationsPackage,
+  type OperationsDecisionWorkspace,
 } from "./operations";
 
 export type DashboardOperationsStorage =
@@ -55,6 +56,80 @@ export type DashboardOperationsProjection = {
   couriers: DashboardCourierProjection[];
   hubs: DashboardHubProjection[];
 };
+
+export type DashboardAppliedCourierOverride = Pick<
+  DashboardCourierProjection,
+  | "budget"
+  | "completed"
+  | "total"
+  | "remaining"
+  | "criticalMinute"
+  | "criticalStopOrdinal"
+  | "decisionId"
+>;
+
+export type DashboardAppliedCourierOverrides = Record<
+  string,
+  DashboardAppliedCourierOverride
+>;
+
+const appliedDecisionStatuses = new Set(["APPLIED", "NOTICE_RECORDED", "CLOSED"]);
+
+export function createDashboardAppliedCourierOverrides(
+  workspace: OperationsDecisionWorkspace,
+): DashboardAppliedCourierOverrides {
+  const overrides: DashboardAppliedCourierOverrides = {};
+  for (const artifacts of workspace.decisions) {
+    if (!appliedDecisionStatuses.has(artifacts.decision.status)) continue;
+    for (const impact of artifacts.selectedEvaluation.courierImpacts) {
+      const workload = workspace.store.activePlan.workloads.find(
+        (item) => item.courierId === impact.courierId,
+      );
+      if (!workload) continue;
+      const criticalMinute =
+        impact.breach.status === "ALREADY_BREACHED"
+          ? 0
+          : impact.breach.status === "PREDICTED"
+            ? Math.round(impact.breach.timeToBreachMinutes)
+            : null;
+      const breachStopId =
+        impact.breach.status === "PREDICTED" ? impact.breach.stopId : undefined;
+      const criticalStopOrdinal = breachStopId
+        ? workspace.store.activePlan.stops.find(
+            (stop) => stop.stopId === breachStopId,
+          )?.sequence ?? null
+        : null;
+      const remaining = workload.remainingStopIds.length;
+      overrides[impact.courierId] = {
+        budget: impact.candidateMinimumBudget,
+        completed: workload.completedStopCount,
+        remaining,
+        total: workload.completedStopCount + remaining,
+        criticalMinute,
+        criticalStopOrdinal,
+        decisionId: artifacts.decision.decisionId,
+      };
+    }
+  }
+  return overrides;
+}
+
+export function applyDashboardCourierOverrides(
+  projection: DashboardOperationsProjection,
+  overrides: DashboardAppliedCourierOverrides,
+): DashboardOperationsProjection {
+  const couriers = projection.couriers.map((courier) => ({
+    ...courier,
+    ...overrides[courier.id],
+  }));
+  const hubs = projection.hubs.map((hub) => ({
+    ...hub,
+    remainingStopCount: couriers
+      .filter((courier) => courier.hubId === hub.hubId)
+      .reduce((total, courier) => total + courier.remaining, 0),
+  }));
+  return { ...projection, couriers, hubs };
+}
 
 const hubAnchors: Record<string, { x: number; y: number }> = {
   "demo-hub-01": { x: 54, y: 24 },

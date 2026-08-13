@@ -973,6 +973,65 @@ test("지원 검토 모달에서 같은 decision과 기사 본인 응답으로 �
   await expect(
     dialog.getByText("경로 / 배송순서 / ETA / 고객 안내 상태를 갱신했습니다."),
   ).toBeVisible();
+  const appliedResponse = await request.get(
+    `/api/operations/sessions/${workspaceId}`,
+  );
+  expect(appliedResponse.ok()).toBe(true);
+  const appliedSession = (await appliedResponse.json()) as {
+    session: {
+      workspace: {
+        decisions: Array<{
+          decision: { decisionId: string; status: string };
+          selectedEvaluation: {
+            courierImpacts: Array<{
+              courierId: string;
+              role: string;
+              candidateMinimumBudget: number;
+            }>;
+          };
+        }>;
+        store: {
+          activePlan: {
+            workloads: Array<{
+              courierId: string;
+              completedStopCount: number;
+              remainingStopIds: string[];
+            }>;
+          };
+        };
+      };
+    };
+  };
+  const appliedDecision = appliedSession.session.workspace.decisions.find(
+    (item) => item.decision.decisionId === decisionId,
+  )!;
+  expect(appliedDecision.decision.status).toBe("NOTICE_RECORDED");
+  const appliedSourceImpact = appliedDecision.selectedEvaluation.courierImpacts.find(
+    (impact) => impact.courierId === courierId && impact.role === "SOURCE",
+  )!;
+  const appliedSourceWorkload =
+    appliedSession.session.workspace.store.activePlan.workloads.find(
+      (workload) => workload.courierId === courierId,
+    )!;
+  await dialog.getByRole("button", { name: "완료" }).click();
+  const appliedSourceCard = page.locator(
+    `[data-courier-card="${courierId}"]`,
+  );
+  await expect(appliedSourceCard).toHaveAttribute(
+    "data-projected-score",
+    String(appliedSourceImpact.candidateMinimumBudget),
+  );
+  await expect(appliedSourceCard).toHaveAttribute(
+    "data-completed-count",
+    String(appliedSourceWorkload.completedStopCount),
+  );
+  await expect(appliedSourceCard).toHaveAttribute(
+    "data-total-count",
+    String(
+      appliedSourceWorkload.completedStopCount +
+        appliedSourceWorkload.remainingStopIds.length,
+    ),
+  );
   await expect(
     sourcePage.getByRole("heading", { name: "조정된 계획이 적용되었습니다" }),
   ).toBeVisible();

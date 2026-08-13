@@ -1,9 +1,20 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
 import { bundledDailyOperationsPackage } from "../src/adapters/fixtures/syntheticOperationsPackage";
 import {
+  applyDashboardCourierOverrides,
+  createDashboardAppliedCourierOverrides,
   createDashboardOperationsProjection,
   loadDashboardOperationsProjection,
 } from "../src/application/dashboardOperationsProjection";
+import {
+  approveAndApplyOperationsDecision,
+  createDailyOperationsSnapshot,
+  createOperationsDecisionWorkspace,
+  evaluateOperationsFleet,
+  initializeOperationsDecision,
+  respondToOperationsDecision,
+  selectOperationsDecisionCandidate,
+} from "../src/application/operations";
 
 afterEach(() => {
   vi.unstubAllGlobals();
@@ -106,6 +117,118 @@ describe("공개 관제 25명 DB projection", () => {
     ).toBe(
       bundledDailyOperationsPackage.records.reduce(
         (total, record) => total + record.plan.remainingStopCount,
+        0,
+      ),
+    );
+  });
+
+  it("관리자 승인 뒤 적용 계획의 예상 최저와 양측 배송량을 관제 projection에 반영한다", async () => {
+    const projection = await createDashboardOperationsProjection(
+      bundledDailyOperationsPackage,
+      {
+        storage: "MEMORY_DEV",
+        sourceBundleId: "approved-bundle",
+      },
+    );
+    const snapshot = await createDailyOperationsSnapshot(
+      bundledDailyOperationsPackage,
+      { createdAt: bundledDailyOperationsPackage.evaluatedAt },
+    );
+    const fleet = evaluateOperationsFleet(snapshot);
+    let prepared:
+      | {
+          workspace: ReturnType<typeof createOperationsDecisionWorkspace>;
+          decisionId: string;
+          candidateId: string;
+        }
+      | undefined;
+    for (const queueItem of fleet.supportQueue) {
+      const workspace = initializeOperationsDecision(
+        createOperationsDecisionWorkspace(snapshot, fleet),
+        snapshot,
+        fleet,
+        queueItem.decisionId,
+      );
+      const artifacts = workspace.decisions.find(
+        (item) => item.decision.decisionId === queueItem.decisionId,
+      );
+      const transfer = artifacts?.candidates.find((candidate) => {
+        const evaluation = artifacts.evaluations.find(
+          (item) => item.candidateId === candidate.candidateId,
+        );
+        return (
+          candidate.actions.some(
+            (action) =>
+              action.type === "TRANSFER_STOPS" && action.stopIds.length === 4,
+          ) && evaluation?.feasibility.status === "FEASIBLE"
+        );
+      });
+      if (transfer) {
+        prepared = {
+          workspace,
+          decisionId: queueItem.decisionId,
+          candidateId: transfer.candidateId,
+        };
+        break;
+      }
+    }
+    expect(prepared).toBeDefined();
+    let workspace = selectOperationsDecisionCandidate(prepared!.workspace, {
+      decisionId: prepared!.decisionId,
+      candidateId: prepared!.candidateId,
+    });
+    const selected = workspace.decisions.find(
+      (item) => item.decision.decisionId === prepared!.decisionId,
+    )!;
+    for (const requirement of selected.decision.consentRequirements.filter(
+      (item) => item.required,
+    )) {
+      workspace = respondToOperationsDecision(workspace, {
+        decisionId: prepared!.decisionId,
+        courierId: requirement.courierId,
+        response: "CONSENTED",
+      });
+    }
+    const applied = approveAndApplyOperationsDecision(
+      workspace,
+      prepared!.decisionId,
+    );
+    expect(applied.status).toBe("APPLIED");
+    const artifacts = applied.workspace.decisions.find(
+      (item) => item.decision.decisionId === prepared!.decisionId,
+    )!;
+    const sourceImpact = artifacts.selectedEvaluation.courierImpacts.find(
+      (impact) => impact.role === "SOURCE",
+    )!;
+    const recipientImpact = artifacts.selectedEvaluation.courierImpacts.find(
+      (impact) => impact.role === "RECIPIENT",
+    )!;
+    const overrides = createDashboardAppliedCourierOverrides(applied.workspace);
+    const updated = applyDashboardCourierOverrides(projection, overrides);
+    const baselineSource = projection.couriers.find(
+      (courier) => courier.id === sourceImpact.courierId,
+    )!;
+    const updatedSource = updated.couriers.find(
+      (courier) => courier.id === sourceImpact.courierId,
+    )!;
+    const baselineRecipient = projection.couriers.find(
+      (courier) => courier.id === recipientImpact.courierId,
+    )!;
+    const updatedRecipient = updated.couriers.find(
+      (courier) => courier.id === recipientImpact.courierId,
+    )!;
+
+    expect(updatedSource.currentScore).toBe(baselineSource.currentScore);
+    expect(updatedRecipient.currentScore).toBe(baselineRecipient.currentScore);
+    expect(updatedSource.budget).toBe(sourceImpact.candidateMinimumBudget);
+    expect(updatedRecipient.budget).toBe(recipientImpact.candidateMinimumBudget);
+    expect(updatedSource.remaining - baselineSource.remaining).toBe(-4);
+    expect(updatedRecipient.remaining - baselineRecipient.remaining).toBe(4);
+    expect(
+      updated.hubs.reduce((total, hub) => total + hub.remainingStopCount, 0),
+    ).toBe(
+      projection.hubs.reduce(
+        (total, hub) => total + hub.remainingStopCount,
         0,
       ),
     );
