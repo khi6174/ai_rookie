@@ -6,13 +6,14 @@
 
 **Technical Report · AI ROOKIE 2026 · 팀 안전빵**
 
+[![Release](https://img.shields.io/badge/Release-v1.0.0-101C2C?style=flat-square)](https://github.com/khi6174/ai_rookie/tree/v1.0.0)
 [![Technical Gate](https://img.shields.io/badge/Technical_Gate-PASSED-16877A?style=flat-square)](./artifacts/evals/final-readiness-latest.json)
 [![Goal Audit](https://img.shields.io/badge/Goal_Audit-DEMO_READY_WITH_GAP-D89B32?style=flat-square)](./artifacts/evals/goal-completion-latest.json)
 [![Unit Tests](https://img.shields.io/badge/Vitest-462%2F462-2E5D73?style=flat-square)](./artifacts/evals/unit-summary.json)
 [![E2E](https://img.shields.io/badge/Playwright-70%2F70-2E5D73?style=flat-square)](./artifacts/evals/final-readiness-latest.json)
 [![Data](https://img.shields.io/badge/Data-Synthetic_Demo-6F7782?style=flat-square)](./docs/privacy-and-ai-policy.md)
 
-[공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [3분 시연 시나리오](./docs/final-recording-script.md) · [제품 명세](./docs/product-spec.md) · [평가 증거](./artifacts/evals/final-readiness-latest.json)
+[v1.0.0 소스](https://github.com/khi6174/ai_rookie/tree/v1.0.0) · [공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [3분 시연 시나리오](./docs/final-recording-script.md) · [제품 명세](./docs/product-spec.md) · [평가 증거](./artifacts/evals/final-readiness-latest.json)
 
 </div>
 

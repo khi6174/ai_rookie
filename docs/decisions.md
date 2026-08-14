@@ -1860,6 +1860,16 @@
 - 기각한 대안: 연구 출처를 runtime allowlist에 전역 추가, 보고서 출처 삭제, `scripts/` 전체를 감사에서 제외, 모든 문서 URL 자동 허용.
 - 영향 파일: `scripts/run-domestic-track-audit.mjs`, `scripts/build_final_submission_pdfs.py`, `docs/domestic-ai-track-compliance.md`, `docs/decisions.md`, `artifacts/evals/domestic-track-compliance-latest.json`
 
+### ADR-182 — 완성된 기술 데모 아카이브를 프로젝트 v1.0.0으로 발행한다
+
+- 날짜: 2026-08-14
+- 상태: Approved
+- 사용자 결정: GitHub에 올라간 구버전을 최신 프로젝트 버전으로 바꾸고 다시 업로드하도록 요청했다.
+- 결정: 프로젝트 패키지 버전을 `0.1.0`에서 `1.0.0`으로 올리고 동일 커밋에 `v1.0.0` Git 태그를 부여한다. README에는 릴리스 버전과 태그 기준 소스 링크를 표시한다. `contracts-v1.6.0`, `dse-v1.0.0`, `intervention-v1.0.0`처럼 독립적으로 검증·승인되는 데이터 계약과 안전 도메인 버전은 변경하지 않는다.
+- 이유: 현재 저장소는 P0 폐루프, 검증 증거, 최종 보고서와 재현 가능한 데모 자료를 포함한 첫 안정 아카이브이므로 프로젝트 릴리스 식별자를 명확히 고정할 필요가 있다. 프로젝트 버전과 안전 도메인 버전을 분리해야 단순 배포 표기가 검증된 계산 계약을 암묵적으로 변경하지 않는다.
+- 기각한 대안: 날짜만 최신화하는 방식은 기계 판독 가능한 버전을 남기지 않아 기각했다. 모든 내부 계약을 일괄 `1.0.0`으로 맞추는 방식은 승인된 스키마·모델 계보를 훼손하므로 기각했다.
+- 영향 파일: `package.json`, `README.md`, `docs/decisions.md`, Git 태그 `v1.0.0`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |
