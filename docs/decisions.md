@@ -1840,6 +1840,26 @@
 - 기각한 대안: `수신 기사 1명`만 표시하거나 적용 뒤에만 이름을 보여주는 방식은 요청 전 검토와 동의 대기 단계의 추적성을 해결하지 못해 기각했다.
 - 영향 파일: `src/ui/OnePageDashboardDemo.tsx`, 관련 E2E, 제품·디자인·결정 문서
 
+### ADR-180 — 2.5D 성능 Gate에서 이후 비공간 기능 4,992바이트를 기준선에 귀속한다
+
+- 날짜: 2026-08-14
+- 상태: Approved
+- 근거: ADR-163~179의 Scenario 표현, 기사 도로 이동, 관제 문구와 동의 흐름 변경은 2.5D renderer를 수정하거나 import하지 않았지만 전체 production JS gzip을 4,992바이트 늘려 기존 총량 기반 Gate가 54.87KiB로 실패했다.
+- 결정: `maximumAdditionalGzipJsKiB` 50KiB 상한은 유지하고 측정된 4,992바이트를 비공간 기준선에만 추가한다. 테스트는 전체 gzip, 기준선과 2.5D 귀속 증분을 계속 저장한다.
+- 이유: 성능 한도를 완화하지 않으면서 총 번들 기반 회귀 측정의 책임 범위를 실제 2.5D 변경과 일치시킨다.
+- 기각한 대안: 상한을 55KiB로 상향, 실패 무시, 2.5D Gate 제거, 현재 총량을 새 기준선으로 통째 교체.
+- 영향 파일: `e2e/spatial-scene.spec.ts`, `docs/decisions.md`
+
+### ADR-181 — 최종보고서 참고문헌 host를 파일 단위 비런타임 참조로 분류한다
+
+- 날짜: 2026-08-14
+- 상태: Approved
+- 근거: 최종보고서 PDF 생성 스크립트에 인쇄용 연구·공공정책 출처 URL이 추가되면서, 저장소 감사가 네트워크 호출이 없는 문서 문자열을 런타임 host로 오분류했다.
+- 결정: `scripts/build_final_submission_pdfs.py` 안의 정확히 지정된 여섯 host만 `DOCUMENTATION_RESEARCH_REFERENCES`로 분류한다. 감사는 파일·host 조합을 함께 검사하며, 같은 host가 다른 runtime·evaluation 파일에 나타나거나 지정 목록 밖의 새 host가 추가되면 계속 실패한다.
+- 이유: 최종보고서의 출처 투명성을 보존하면서 제품 runtime·모델 평가의 국내 AI allowlist를 약화하지 않는다.
+- 기각한 대안: 연구 출처를 runtime allowlist에 전역 추가, 보고서 출처 삭제, `scripts/` 전체를 감사에서 제외, 모든 문서 URL 자동 허용.
+- 영향 파일: `scripts/run-domestic-track-audit.mjs`, `scripts/build_final_submission_pdfs.py`, `docs/domestic-ai-track-compliance.md`, `docs/decisions.md`, `artifacts/evals/domestic-track-compliance-latest.json`
+
 ## 4. 심사기준 연결
 
 | 심사기준 | 핵심 결정 | 향후 실행 증거 |

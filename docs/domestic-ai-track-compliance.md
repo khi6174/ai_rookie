@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-06
+- 최종 갱신: 2026-08-14
 - 기준: 대회 운영 가이드 5·7·8쪽, 국내 AI 기업별 활용 가이드, `docs/privacy-and-ai-policy.md`, ADR-021
 
 ## 1. 결정사항
@@ -52,6 +52,7 @@ ADR-132의 제품 설명 경로는 자격을 갖춘 `AX_LOCAL`을 1차로 두고
 | `saferoute-screen-demo.khiyw.chatgpt.site` | 격리된 디자인 참고 프로토타입 | 없음 | 실제 SafeRoute 데모·성과에서 제외 |
 | Codex 등 개발 보조 도구 | 개발 과정 보조 | 없음 | 제품 AI로 주장하지 않고 질문 시 투명하게 설명 |
 | `huggingface_hub` | 국내 A.X 고정 revision 파일 배포 도구 | Hosted inference 없음 | SKT A.X 파일 전달 용도로만 명시 |
+| `scripts/build_final_submission_pdfs.py`의 지정 출처 URL | 최종보고서 참고문헌을 인쇄하는 문서 생성 입력 | 런타임·모델 평가·네트워크 호출 없음 | 정확한 파일·host 조합만 비런타임 연구 인용으로 분류 |
 
 비국내 참고물이나 개발 보조 결과를 국내 AI 모델의 생성 성과로 표현하지 않는다. 최종 제출물에서는 실제 SafeRoute React 앱, 국내 AI 평가 증거와 결정론 엔진 결과만 제품 성과로 사용한다.
 
@@ -67,6 +68,7 @@ pnpm run eval:domestic-track:audit
 
 - 추적된 `.env` 비밀 파일 부재
 - 런타임·평가 HTTPS host allowlist
+- 최종보고서 생성 스크립트의 지정 연구 인용 host를 파일 단위 비런타임 참조로 분리하고, 다른 파일의 같은 host는 계속 차단
 - A.X·K-EXAONE 공급자 레지스트리
 - Upstage 공식 endpoint
 - 국내 모델 식별자 증거

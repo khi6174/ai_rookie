@@ -1,0 +1,25 @@
+[
+  {
+    "id": "support-rider",
+    "kind": "role",
+    "startSeconds": 85,
+    "endSeconds": 100,
+    "eyebrow": "지원이 필요한 기사",
+    "title": "임세훈 기사 화면"
+  },
+  {
+    "id": "app-switch",
+    "kind": "switch",
+    "startSeconds": 100,
+    "endSeconds": 103,
+    "title": "다른 기사 앱으로 전환"
+  },
+  {
+    "id": "recipient-rider",
+    "kind": "role",
+    "startSeconds": 103,
+    "endSeconds": 115,
+    "eyebrow": "배송을 나눠 맡는 기사",
+    "title": "안재민 기사 화면"
+  }
+]

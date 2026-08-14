@@ -1,0 +1,46 @@
+{"kind":"deck","id":"pr/2gewwq","name":"Deck"}
+{"kind":"layout","layoutId":"1d80d456-495c-4368-a889-7fe188954b7f","name":"Master","type":"master"}
+{"kind":"layout","layoutId":"bb66dbbd-a3b7-459c-85d2-4256f4f30c11","name":"Title Slide","type":"title"}
+{"kind":"slide","id":"sl/45eufk","slide":1,"title":"빠른 길만으로는 안전을 설명할 수 없습니다","textShapes":1}
+{"kind":"textbox","id":"sh/0fm98rmd","slide":1,"name":"scene-1-title","text":"빠른 길만으로는 안전을 설명할 수 없습니다","textPreview":"빠른 길만으로는 안전을 설명할 수 없습니다","textChars":23,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/fedszmls","slide":1,"name":"scene-1-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/r654vadw","slide":1,"name":"","alt":"SafeRoute AI 시연 장면 1: 빠른 길만으로는 안전을 설명할 수 없습니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/45eufk","slide":1,"text":""}
+{"kind":"slide","id":"sl/a5kjqb","slide":2,"title":"약 52분 후, 17번째 배송지 전에 지원이 필요합니다","textShapes":1}
+{"kind":"textbox","id":"sh/ip8nadwr","slide":2,"name":"scene-2-title","text":"약 52분 후, 17번째 배송지 전에 지원이 필요합니다","textPreview":"약 52분 후, 17번째 배송지 전에 지원이 필요합니다","textChars":30,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/5sj6lsv2","slide":2,"name":"scene-2-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/p8nap876","slide":2,"name":"","alt":"SafeRoute AI 시연 장면 2: 약 52분 후, 17번째 배송지 전에 지원이 필요합니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/a5kjqb","slide":2,"text":""}
+{"kind":"slide","id":"sl/ztxkb9","slide":3,"title":"12건 이관은 다른 기사에게 위험을 넘깁니다","textShapes":1}
+{"kind":"textbox","id":"sh/orux4zax","slide":3,"name":"scene-3-title","text":"12건 이관은 다른 기사에게 위험을 넘깁니다","textPreview":"12건 이관은 다른 기사에게 위험을 넘깁니다","textChars":24,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/nqlwbu9s","slide":3,"name":"scene-3-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/bqtgfu1g","slide":3,"name":"","alt":"SafeRoute AI 시연 장면 3: 12건 이관은 다른 기사에게 위험을 넘깁니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/ztxkb9","slide":3,"text":""}
+{"kind":"slide","id":"sl/dx56pu","slide":4,"title":"안전한 후보는 10분 휴식과 8건 이관입니다","textShapes":1}
+{"kind":"textbox","id":"sh/el0byd4r","slide":4,"name":"scene-4-title","text":"안전한 후보는 10분 휴식과 8건 이관입니다","textPreview":"안전한 후보는 10분 휴식과 8건 이관입니다","textChars":24,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/1obu9s3i","slide":4,"name":"scene-4-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/5wr2tsze","slide":4,"name":"","alt":"SafeRoute AI 시연 장면 4: 안전한 후보는 10분 휴식과 8건 이관입니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/dx56pu","slide":4,"text":""}
+{"kind":"slide","id":"sl/sr4aw1","slide":5,"title":"지원받는 기사에게도 선택권이 있습니다","textShapes":1}
+{"kind":"textbox","id":"sh/sj25sj2p","slide":5,"name":"scene-5-title","text":"지원받는 기사에게도 선택권이 있습니다","textPreview":"지원받는 기사에게도 선택권이 있습니다","textChars":20,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/ri9oze14","slide":5,"name":"scene-5-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/radsv69w","slide":5,"name":"","alt":"SafeRoute AI 시연 장면 5: 지원받는 기사에게도 선택권이 있습니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/sr4aw1","slide":5,"text":""}
+{"kind":"slide","id":"sl/riej8i","slide":6,"title":"배송을 나눠 맡는 기사도 안전여유를 확인합니다","textShapes":1}
+{"kind":"textbox","id":"sh/p0nmtw7e","slide":6,"name":"scene-6-title","text":"배송을 나눠 맡는 기사도 안전여유를 확인합니다","textPreview":"배송을 나눠 맡는 기사도 안전여유를 확인합니다","textChars":25,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/2xwniho3","slide":6,"name":"scene-6-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/idcrmh0v","slide":6,"name":"","alt":"SafeRoute AI 시연 장면 6: 배송을 나눠 맡는 기사도 안전여유를 확인합니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/riej8i","slide":6,"text":""}
+{"kind":"slide","id":"sl/awvdny","slide":7,"title":"두 기사 동의와 재검증 뒤에만 계획을 적용합니다","textShapes":1}
+{"kind":"textbox","id":"sh/vyhsvmd0","slide":7,"name":"scene-7-title","text":"두 기사 동의와 재검증 뒤에만 계획을 적용합니다","textPreview":"두 기사 동의와 재검증 뒤에만 계획을 적용합니다","textChars":26,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/wzqt4re5","slide":7,"name":"scene-7-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/g3algful","slide":7,"name":"","alt":"SafeRoute AI 시연 장면 7: 두 기사 동의와 재검증 뒤에만 계획을 적용합니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/awvdny","slide":7,"text":""}
+{"kind":"slide","id":"sl/nh0a54","slide":8,"title":"숫자는 엔진이, 설명은 국내 AI가 담당합니다","textShapes":1}
+{"kind":"textbox","id":"sh/6xsrqlcv","slide":8,"name":"scene-8-title","text":"숫자는 엔진이, 설명은 국내 AI가 담당합니다","textPreview":"숫자는 엔진이, 설명은 국내 AI가 담당합니다","textChars":25,"textLines":1,"bbox":[64,13,1152,48]}
+{"kind":"shape","id":"sh/t0jq10b6","slide":8,"name":"scene-8-accent","bbox":[64,64,160,4]}
+{"kind":"image","id":"im/9ozu1gfq","slide":8,"name":"","alt":"SafeRoute AI 시연 장면 8: 숫자는 엔진이, 설명은 국내 AI가 담당합니다","bbox":[64,72,1152,648]}
+{"kind":"notes","id":"nt/nh0a54","slide":8,"text":""}
+{"kind":"slide","id":"sl/k54v3u","slide":9,"title":"Slide 9","textShapes":0}
+{"kind":"image","id":"im/9g7m94ru","slide":9,"name":"","alt":"SafeRoute AI 엔드 카드","bbox":[0,0,1280,720]}
+{"kind":"notes","id":"nt/k54v3u","slide":9,"text":""}

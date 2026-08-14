@@ -1,0 +1,4 @@
+interface:
+  display_name: "Remotion Demo Video Editor"
+  short_description: "Demo video editing, overlays, animation, and QA"
+  default_prompt: "Use $remotion-demo-video-editor to edit my demo video with timed overlays and verify the final render."

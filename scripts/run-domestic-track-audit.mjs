@@ -24,6 +24,19 @@ const allowedOperationalHosts = [
   "local.test",
   "saferoute-ai-demo.khiyw.chatgpt.site",
 ];
+const researchReferenceHostsByFile = new Map([
+  [
+    "scripts/build_final_submission_pdfs.py",
+    new Set([
+      "airc.nist.gov",
+      "doi.org",
+      "oshri.kosha.or.kr",
+      "pmc.ncbi.nlm.nih.gov",
+      "www.ilo.org",
+      "www.molit.go.kr",
+    ]),
+  ],
+]);
 const expectedDomesticModels = [
   "A.X-K1",
   "skt/A.X-4.0-Light",
@@ -126,13 +139,29 @@ const runtimeContractText = auditTexts
   .filter(({ file }) => file !== "scripts/run-domestic-track-audit.mjs")
   .map(({ text }) => text)
   .join("\n");
-const runtimeHosts = extractHttpsHosts(combinedAuditText);
-const unexpectedRuntimeHosts = runtimeHosts.filter(
-  (host) =>
-    !allowedRuntimeHosts.includes(host) &&
-    !allowedDistributionHosts.includes(host) &&
-    !allowedOperationalHosts.includes(host),
-);
+const runtimeHostSet = new Set();
+const researchReferenceHostSet = new Set();
+const unexpectedRuntimeHostSet = new Set();
+for (const { file, text } of auditTexts) {
+  for (const host of extractHttpsHosts(text)) {
+    const isRuntimeClassified =
+      allowedRuntimeHosts.includes(host) ||
+      allowedDistributionHosts.includes(host) ||
+      allowedOperationalHosts.includes(host);
+    if (isRuntimeClassified) {
+      runtimeHostSet.add(host);
+      continue;
+    }
+    if (researchReferenceHostsByFile.get(file)?.has(host)) {
+      researchReferenceHostSet.add(host);
+      continue;
+    }
+    unexpectedRuntimeHostSet.add(host);
+  }
+}
+const runtimeHosts = [...runtimeHostSet].sort();
+const researchReferenceHosts = [...researchReferenceHostSet].sort();
+const unexpectedRuntimeHosts = [...unexpectedRuntimeHostSet].sort();
 
 const packageJson = JSON.parse(
   await readFile(resolve(root, "package.json"), "utf8"),
@@ -260,6 +289,13 @@ const declaredNonRuntimeReferences = [
     runtimeImported: false,
     domesticModel: "skt/A.X-4.0-Light",
   },
+  {
+    path: "scripts/build_final_submission_pdfs.py",
+    classification: "DOCUMENTATION_RESEARCH_REFERENCES",
+    submissionDisposition: "INCLUDE_AS_REPORT_SOURCES",
+    runtimeImported: false,
+    hosts: researchReferenceHosts,
+  },
 ];
 
 const result = {
@@ -280,6 +316,7 @@ const result = {
       "developer assistance tools",
       "isolated design prototype",
       "documentation-only historical references",
+      "exact-host research citations in the final-report generator",
     ],
   },
   domesticAiUsage: [
@@ -322,6 +359,7 @@ const result = {
   allowedDistributionHosts,
   allowedOperationalHosts,
   observedRuntimeHosts: runtimeHosts,
+  observedResearchReferenceHosts: researchReferenceHosts,
   checks,
   declaredNonRuntimeReferences,
   protocolClarification: {

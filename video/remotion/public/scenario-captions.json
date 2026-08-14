@@ -1,0 +1,36 @@
+[
+  {"text":"기존 배송 시스템은 더 빠른 길을 찾습니다.","startMs":7500,"endMs":10900,"timestampMs":null,"confidence":null},
+  {"text":"SafeRoute는 그보다 먼저, 현재 계획을 계속 수행해도 안전한지를 확인합니다.","startMs":10900,"endMs":15500,"timestampMs":null,"confidence":null},
+  {"text":"현재 기사 25명이 실시간으로 배송을 진행하고 있습니다.","startMs":15500,"endMs":19366.667,"timestampMs":null,"confidence":null},
+
+  {"text":"관제 화면에서는 향후 60분 안에 지원이 필요한 기사를 먼저 확인할 수 있습니다.","startMs":19366.667,"endMs":25500,"timestampMs":null,"confidence":null},
+  {"text":"현재 점수만 보여주는 것이 아니라, 몇 분 뒤 몇 번째 배송지 전에 안전 기준에 닿는지를 예측합니다.","startMs":25500,"endMs":32500,"timestampMs":null,"confidence":null},
+
+  {"text":"지원 검토에서는 휴식, 순서 변경, 안전 경로, 시간 재약정과 배송 분담을 같은 안전 기준으로 비교합니다.","startMs":32500,"endMs":41700,"timestampMs":null,"confidence":null},
+  {"text":"안전 기준을 통과하지 못한 선택지는 빠르거나 편리하더라도 실제 후보에서 제외됩니다.","startMs":41700,"endMs":50033.333,"timestampMs":null,"confidence":null},
+
+  {"text":"여기서는 배송 4건 분담을 선택합니다.","startMs":50033.333,"endMs":53800,"timestampMs":null,"confidence":null},
+  {"text":"SafeRoute는 물량을 넘겨받는 기사의 예상 안전여유도 함께 계산하고, 기준 45를 지킬 때만 분담을 허용합니다.","startMs":53800,"endMs":61000,"timestampMs":null,"confidence":null},
+  {"text":"한 기사의 위험을 다른 기사에게 넘기지 않기 위한 안전장치입니다.","startMs":61000,"endMs":66233.333,"timestampMs":null,"confidence":null},
+
+  {"text":"Safety 수치와 추천은 결정론 엔진이 계산합니다.","startMs":66233.333,"endMs":71000,"timestampMs":null,"confidence":null},
+  {"text":"AI는 검증된 운영을 바탕으로 관리자와 기사에게 판단 이유를 설명합니다.","startMs":71000,"endMs":76500,"timestampMs":null,"confidence":null},
+  {"text":"AI 응답이 달라지거나 실패해도 안전 기준과 추천 결과는 바뀌지 않습니다.","startMs":76500,"endMs":81433.333,"timestampMs":null,"confidence":null},
+
+  {"text":"계획은 자동으로 바뀌지 않습니다.","startMs":81433.333,"endMs":85200,"timestampMs":null,"confidence":null},
+  {"text":"먼저 해당 기사가 분담될 배송과 자신의 변경 결과를 확인합니다.","startMs":85200,"endMs":91200,"timestampMs":null,"confidence":null},
+  {"text":"동의, 수정 요청, 또한 지금은 거절은 불이익 없는 동등한 선택지 입니다.","startMs":91200,"endMs":98700,"timestampMs":null,"confidence":null},
+
+  {"text":"배송을 나눠 맡는 해당 기사도 추가되는 배송 4건과 자신의 분담 후 안전여유를 확인한 뒤 동의합니다.","startMs":98700,"endMs":113000,"timestampMs":null,"confidence":null},
+  {"text":"두 기사 모두 동의해야 관리자 승인 단계로 넘어갑니다.","startMs":113000,"endMs":115866.667,"timestampMs":null,"confidence":null},
+
+  {"text":"관리자는 두 기사 동의와 최신 안전검사 결과를 다시 확인한 뒤 최종 승인합니다.","startMs":115866.667,"endMs":122500,"timestampMs":null,"confidence":null},
+  {"text":"기사 동의와 관리자 승인이 모두 끝나기 전에는 기존 배송계획이 유지됩니다.","startMs":122500,"endMs":128200,"timestampMs":null,"confidence":null},
+
+  {"text":"이처럼 승인이 끝나면 경로, 배송 순서, 예상 도착시각과 고객 안내 상태가","startMs":128200,"endMs":131700,"timestampMs":null,"confidence":null},
+  {"text":"같은 결정 ID로 함께 갱신됩니다.","startMs":131700,"endMs":135333.333,"timestampMs":null,"confidence":null},
+
+  {"text":"마지막으로 관리자는 별도의 상황 예측 화면에서 날짜와 시간을 선택하고,","startMs":135333.333,"endMs":143500,"timestampMs":null,"confidence":null},
+  {"text":"업무량과 현재 안전여유만 조정해 예상 안전여유와 지원 시점을 미리 확인할 수 있습니다.","startMs":143500,"endMs":153000,"timestampMs":null,"confidence":null},
+  {"text":"이 결과는 현재 운영계획을 바로 바꾸지 않는 별도의 사전 시뮬레이션입니다.","startMs":153000,"endMs":161900,"timestampMs":null,"confidence":null}
+]

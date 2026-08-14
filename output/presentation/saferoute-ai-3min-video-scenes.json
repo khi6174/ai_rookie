@@ -1,0 +1,50 @@
+{
+  "totalSeconds": 180,
+  "scenes": [
+    {
+      "image": "01-stage-opening.png",
+      "title": "빠른 길만으로는 안전을 설명할 수 없습니다",
+      "duration": 18
+    },
+    {
+      "image": "01-stage-opening.png",
+      "title": "약 52분 후, 17번째 배송지 전에 지원이 필요합니다",
+      "duration": 27
+    },
+    {
+      "image": "02-risk-transfer-guard.png",
+      "title": "12건 이관은 다른 기사에게 위험을 넘깁니다",
+      "duration": 30
+    },
+    {
+      "image": "01-stage-opening.png",
+      "title": "안전한 후보는 10분 휴식과 8건 이관입니다",
+      "duration": 27
+    },
+    {
+      "image": "03-source-rider-consent.png",
+      "title": "지원받는 기사에게도 선택권이 있습니다",
+      "duration": 13
+    },
+    {
+      "image": "04-recipient-rider-consent.png",
+      "title": "배송을 나눠 맡는 기사도 안전여유를 확인합니다",
+      "duration": 13
+    },
+    {
+      "image": "05-admin-approval.png",
+      "title": "두 기사 동의와 재검증 뒤에만 계획을 적용합니다",
+      "duration": 27
+    },
+    {
+      "image": "06-plan-applied.png",
+      "title": "숫자는 엔진이, 설명은 국내 AI가 담당합니다",
+      "duration": 17
+    },
+    {
+      "image": "07-closing.png",
+      "title": "",
+      "duration": 8
+    }
+  ]
+}

@@ -1,10 +1,10 @@
 {
   "schemaVersion": "domestic-track-compliance-v1",
-  "capturedAt": "2026-08-10T13:06:40.000Z",
+  "capturedAt": "2026-08-14T07:21:17.059Z",
   "status": "PASSED",
   "scope": {
     "competitionTrack": "DOMESTIC_AI",
-    "auditedTrackedFileCount": 190,
+    "auditedTrackedFileCount": 201,
     "auditedAreas": [
       "runtime adapters",
       "evaluation scripts",
@@ -15,7 +15,8 @@
     "excludedFromRuntimeConclusion": [
       "developer assistance tools",
       "isolated design prototype",
-      "documentation-only historical references"
+      "documentation-only historical references",
+      "exact-host research citations in the final-report generator"
     ]
   },
   "domesticAiUsage": [
@@ -85,6 +86,14 @@
     "opendata.koroad.or.kr",
     "saferoute-ai-demo.khiyw.chatgpt.site"
   ],
+  "observedResearchReferenceHosts": [
+    "airc.nist.gov",
+    "doi.org",
+    "oshri.kosha.or.kr",
+    "pmc.ncbi.nlm.nih.gov",
+    "www.ilo.org",
+    "www.molit.go.kr"
+  ],
   "checks": [
     {
       "id": "TRACKED_SECRET_ENV_FILES",
@@ -137,6 +146,20 @@
       "submissionDisposition": "INCLUDE_WITH_EXPLANATION",
       "runtimeImported": false,
       "domesticModel": "skt/A.X-4.0-Light"
+    },
+    {
+      "path": "scripts/build_final_submission_pdfs.py",
+      "classification": "DOCUMENTATION_RESEARCH_REFERENCES",
+      "submissionDisposition": "INCLUDE_AS_REPORT_SOURCES",
+      "runtimeImported": false,
+      "hosts": [
+        "airc.nist.gov",
+        "doi.org",
+        "oshri.kosha.or.kr",
+        "pmc.ncbi.nlm.nih.gov",
+        "www.ilo.org",
+        "www.molit.go.kr"
+      ]
     }
   ],
   "protocolClarification": {

@@ -196,9 +196,15 @@ test("G5-B Round 4는 시간·지점·조치·양측 영향을 풀어 쓴 같은
   // comparison add 8,422 gzip bytes outside the 2.5D renderer. Keep the
   // renderer cap unchanged and attribute only that measured non-spatial delta.
   const scenarioPlanningNonSpatialGzipBytes = 8_422;
+  // ADR-163 through ADR-179 changed presentation-only Scenario, fleet-map,
+  // consent-copy, and shared rider-route chunks after the Scenario baseline.
+  // The measured 4,992 gzip bytes do not import or modify the 2.5D renderer,
+  // so attribute them to the non-spatial baseline and retain the 50 KiB cap.
+  const postScenarioNonSpatialGzipBytes = 4_992;
   const previousG4BGzipJsBytes = 157_214
     + integrationSandboxNonSpatialGzipBytes
     + scenarioPlanningNonSpatialGzipBytes
+    + postScenarioNonSpatialGzipBytes
     + (hasKakaoJavascriptBuild ? 6_250 : 0);
   const additionalGzipJsKiB = Number(
     ((currentGzipJsBytes - previousG4BGzipJsBytes) / 1_024).toFixed(2),
