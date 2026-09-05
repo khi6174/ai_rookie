@@ -60,7 +60,6 @@ export function applyPlanAtomically(input: {
   decision: DecisionRecord;
   store: DemoPlanStore;
   proposedPlan: ScenarioFixture;
-  customerNoticeRequestIds: string[];
   at: string;
   simulateFailure?: boolean;
 }) {
@@ -118,51 +117,41 @@ export function applyPlanAtomically(input: {
       store: input.store,
     };
   }
-  const noticeIds = [...new Set(input.customerNoticeRequestIds)];
-  if (!noticeIds.length) {
+  const changedPlans = proposedPlan.workloads.filter((workload) =>
+      workloadForPlan(activePlan, workload.planId)?.planVersion !== workload.planVersion,
+    );
+  const noticeTargets = changedPlans.flatMap((workload) => proposedPlan.stops
+    .filter((stop) => stop.planId === workload.planId &&
+      ["PENDING", "IN_PROGRESS", "DELAYED", "TRANSFERRED"].includes(stop.status))
+    .map((stop) => ({ stop, workload })),
+  );
+  if (!noticeTargets.length || input.simulateFailure) {
+    const reasonCode = noticeTargets.length
+      ? "DEMO_PLAN_STORE_FAILURE"
+      : "CUSTOMER_NOTICE_REQUEST_REQUIRED";
     return {
       status: "FAILED" as const,
-      reasonCode: "CUSTOMER_NOTICE_REQUEST_REQUIRED",
+      reasonCode,
       rollbackStatus: "UNCHANGED" as const,
       decision: transitionApplyOutcome(decision, {
         status: "APPLY_FAILED",
         at: input.at,
-        reasonCode: "CUSTOMER_NOTICE_REQUEST_REQUIRED",
-      }),
-      store: input.store,
-    };
-  }
-  if (input.simulateFailure) {
-    return {
-      status: "FAILED" as const,
-      reasonCode: "DEMO_PLAN_STORE_FAILURE",
-      rollbackStatus: "UNCHANGED" as const,
-      decision: transitionApplyOutcome(decision, {
-        status: "APPLY_FAILED",
-        at: input.at,
-        reasonCode: "DEMO_PLAN_STORE_FAILURE",
+        reasonCode,
         evidenceIds: [proposedWorkload.planVersion],
       }),
       store: input.store,
     };
   }
 
-  const noticeStops = proposedPlan.stops
-    .filter(
-      (stop) =>
-        stop.planId === decision.baselinePlanId &&
-        ["PENDING", "IN_PROGRESS", "DELAYED", "TRANSFERRED"].includes(
-          stop.status,
-        ),
-    )
-    .sort((left, right) => left.sequence - right.sequence);
   const noticeDrafts = Object.fromEntries(
-    noticeIds.map((noticeId, index) => {
-      const stop = noticeStops[index % noticeStops.length];
-      if (!stop) {
-        throw new Error("Customer notice draft requires an affected stop");
-      }
-      const etaLabel = stop.expectedArrivalAt.slice(11, 16);
+    noticeTargets.map(({ stop, workload: stopWorkload }) => {
+      const noticeId = `notice-${crypto.randomUUID()}`;
+      // ScenarioFixtureSchema validates the courier reference.
+      const courier = proposedPlan.couriers.find((item) => item.courierId === stop.assignedCourierId)!;
+      const etaLabel = new Date(stop.expectedArrivalAt).toLocaleString("ko-KR", {
+        timeZone: courier.timeZone,
+        dateStyle: "medium", timeStyle: "short", hourCycle: "h23",
+      });
       return [
         noticeId,
         {
@@ -170,28 +159,24 @@ export function applyPlanAtomically(input: {
           noticeId,
           decisionId: decision.decisionId,
           stopId: stop.stopId,
-          appliedPlanVersion: proposedWorkload.planVersion,
+          appliedPlanVersion: stopWorkload.planVersion,
           generatedAt: input.at,
           channel: "ALIMTALK_PREVIEW" as const,
           updatedEta: stop.expectedArrivalAt,
           reasonCode: "SAFE_OPERATION_ADJUSTMENT" as const,
-          message: `안전운영 조정으로 시연 배송지 ${stop.stopId}의 예정 시간이 ${etaLabel}로 갱신되었습니다. 실제 메시지는 발송되지 않습니다.`,
+          message: `안전운영 조정 후 배송 예정: ${etaLabel} (${courier.timeZone}). 실제 메시지는 발송되지 않습니다.`,
           generationMode: "TEMPLATE" as const,
-          citationIds: [stop.stopId, proposedWorkload.planVersion],
+          citationIds: [stop.stopId, stopWorkload.planVersion],
           deliveryStatus: "PREVIEW_ONLY" as const,
           provenance: [
             {
               kind: "DERIVED" as const,
               sourceId: noticeId,
-              sourceLabel: "SafeRoute 시연 고객안내 템플릿",
+              sourceLabel: "SafeRoute 고객안내 시연",
               collectedAt: input.at,
               validAt: stop.expectedArrivalAt,
-              transformedBy: "customer-notice-template-v1",
-              parentSourceIds: [
-                decision.decisionId,
-                stop.stopId,
-                proposedWorkload.planVersion,
-              ],
+              transformedBy: "customer-notice-template-v2",
+              parentSourceIds: [decision.decisionId, stop.stopId, stopWorkload.planVersion],
               isDemo: true as const,
             },
           ],
@@ -200,6 +185,7 @@ export function applyPlanAtomically(input: {
       ];
     }),
   );
+  const noticeIds = Object.keys(noticeDrafts);
   const nextStore: DemoPlanStore = {
     activePlan: structuredClone(proposedPlan),
     appliedDecisionVersions: {
@@ -237,10 +223,13 @@ export function recordPendingCustomerNotices(
   const noticeIds = store.pendingCustomerNoticeIds[decision.decisionId] ?? [];
   const invalidNoticeId = noticeIds.find((noticeId) => {
     const draft = store.customerNoticeDrafts[noticeId];
+    const stop = store.activePlan.stops.find((item) => item.stopId === draft?.stopId);
     return (
       !draft ||
+      !stop ||
       draft.decisionId !== decision.decisionId ||
-      draft.appliedPlanVersion !== decision.appliedPlanVersion ||
+      draft.appliedPlanVersion !== workloadForPlan(store.activePlan, stop.planId)?.planVersion ||
+      draft.updatedEta !== stop.expectedArrivalAt ||
       draft.deliveryStatus !== "PREVIEW_ONLY" ||
       draft.actualDeliverySent !== false
     );

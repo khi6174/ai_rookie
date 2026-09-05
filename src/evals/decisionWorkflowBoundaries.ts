@@ -198,7 +198,6 @@ function applyOutcome(input: {
     decision: applyingDecision(),
     store,
     proposedPlan,
-    customerNoticeRequestIds: ["notice-boundary-001"],
     at: at(10),
   });
   const result = input.replay
@@ -206,7 +205,6 @@ function applyOutcome(input: {
         decision: applyingDecision(),
         store: first.store,
         proposedPlan,
-        customerNoticeRequestIds: ["notice-boundary-001"],
         at: at(10.5),
       })
     : first;

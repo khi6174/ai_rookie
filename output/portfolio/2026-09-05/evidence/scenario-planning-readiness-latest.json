@@ -1,6 +1,6 @@
 {
   "schemaVersion": "scenario-planning-readiness-v1",
-  "capturedAt": "2026-09-05T11:27:50.227Z",
+  "capturedAt": "2026-09-05T10:48:52.078Z",
   "status": "PASSED",
   "dataMode": "USER_ENTERED_SIMULATION",
   "commands": [
@@ -9,7 +9,7 @@
       "command": "pnpm run typecheck",
       "passed": true,
       "exitCode": 0,
-      "durationMs": 1478,
+      "durationMs": 1433,
       "outputSha256": "0198fbefb5ced841c37ccbfa7bfee989ad6abe8cda0d2117ca9476102b90a953"
     },
     {
@@ -17,16 +17,16 @@
       "command": "pnpm exec vitest run tests/scenario-planning.test.ts",
       "passed": true,
       "exitCode": 0,
-      "durationMs": 3300,
-      "outputSha256": "680d19b81a30d19364d401dd50964d204af8e321eb70b9b5c0020b4cfcd656b4"
+      "durationMs": 3193,
+      "outputSha256": "6f1ede78ce993a3c3eab8d6c1be3cddc51dcd4255113039ccaa6782ef6cf2ebf"
     },
     {
       "id": "SCENARIO_BROWSER",
       "command": "pnpm run test:e2e -- e2e/scenario-planning.spec.ts",
       "passed": true,
       "exitCode": 0,
-      "durationMs": 13312,
-      "outputSha256": "2c60df11b95b6ab986ba4f3f8c7a1c5f636787ae458411aaf1ab0f6f5b160c3a"
+      "durationMs": 13567,
+      "outputSha256": "1b5b59cb954858d8767f980010f548a192acc0b65957ebf2ae9ab1cd76adeb8b"
     }
   ],
   "checks": [

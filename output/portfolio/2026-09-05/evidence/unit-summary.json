@@ -1,11 +1,11 @@
 {
   "schemaVersion": "unit-summary-v1",
-  "capturedAt": "2026-09-05T11:25:57.771Z",
+  "capturedAt": "2026-09-05T10:46:54.928Z",
   "command": "pnpm exec vitest run --reporter=json",
   "framework": "Vitest",
   "testFileCount": 76,
-  "testCount": 467,
-  "passed": 467,
+  "testCount": 462,
+  "passed": 462,
   "failed": 0,
   "pending": 0,
   "success": true,
@@ -108,7 +108,7 @@
     {
       "file": "decision-workflow.test.ts",
       "status": "passed",
-      "assertionCount": 18
+      "assertionCount": 13
     },
     {
       "file": "demo-rider-danger-signal.test.ts",

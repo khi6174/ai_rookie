@@ -1,0 +1,80 @@
+{
+  "reviewDate": "2026-09-05",
+  "commit": "ae08529e4ead5e71aa0e334fa8eaea6fb696d2ba",
+  "trackedFileCount": 1676,
+  "reviewScope": "Repository-wide inventory and targeted source/document review; not a line-by-line exhaustive audit.",
+  "capturedFiles": [
+    {
+      "path": "evidence/accessibility-summary.json",
+      "sha256": "93133138a0c6d79863ef1441fb55977352edf2c8c276328861c8f56fb801062b"
+    },
+    {
+      "path": "evidence/customer-notice-probe.json",
+      "sha256": "8594d66086348f5b1757ec6658047e79c27164a74a94877353df4f0e931860b2"
+    },
+    {
+      "path": "evidence/customer-notice-probe.mjs",
+      "sha256": "6e781e20cc7be3a7832c35750da02f83f78f79b5686f6c0cd56657bb3c11286d"
+    },
+    {
+      "path": "evidence/decision-workflow-boundary-summary.json",
+      "sha256": "c524e2e5d90f28adbfdab08310a7e60d0479dd2de5863b0d5274c8f21773cb16"
+    },
+    {
+      "path": "evidence/document-inventory.json",
+      "sha256": "e5f08df5f66b66863e185c4916cd5e418a3c11bf6f400f02e39f40cc7699ff34"
+    },
+    {
+      "path": "evidence/domestic-track-compliance-latest.json",
+      "sha256": "f637338b3d60e5dc9b6694931fb27f0d613da9b66a2786e1a8b2ddc1d4c9d858"
+    },
+    {
+      "path": "evidence/final-readiness-latest.json",
+      "sha256": "21bee4f7018f3455c31fd66232024d7f89b60918681b32e6818fbc2f4674d301"
+    },
+    {
+      "path": "evidence/frozen-benchmark-summary.json",
+      "sha256": "673081d16f8955248e268b5570f908bc54367871a3138bbbfd6d7447fc668eab"
+    },
+    {
+      "path": "evidence/goal-completion-latest.json",
+      "sha256": "2633d5fe5f33fc63985de2d2608e368ee9359e7bf5f04d49afddcc58f849e81e"
+    },
+    {
+      "path": "evidence/map-performance-summary.json",
+      "sha256": "db8052c4f4b87224c83eaa2f9c66a21f93f38c0f34eb686ff0ed12641cb1ac9b"
+    },
+    {
+      "path": "evidence/risk-transfer-boundary-summary.json",
+      "sha256": "63f08924717c1c8f67751671d9c8f202d2c4c240a2569bc7040663281957aa7e"
+    },
+    {
+      "path": "evidence/scenario-planning-readiness-latest.json",
+      "sha256": "e63d3d4db78d07efe5804bfefea273b63282c9f3b3d09ae7c95c16996d16142d"
+    },
+    {
+      "path": "evidence/spatial-scene-summary.json",
+      "sha256": "d29850fd88d0e3d326e2095b36cc31f91865a0d600450863711e2e822f00a6fc"
+    },
+    {
+      "path": "evidence/unit-summary.json",
+      "sha256": "f483ca6dd055c92503847abda91cd1fcb2ad1c164e77237c54451925b9a7ed3e"
+    }
+  ],
+  "regeneratedTrackedFilesRestoredToOriginal": [
+    "artifacts/evals/accessibility-summary.json",
+    "artifacts/evals/decision-workflow-boundary-summary.json",
+    "artifacts/evals/domestic-track-compliance-latest.json",
+    "artifacts/evals/final-readiness-latest.json",
+    "artifacts/evals/frozen-benchmark-summary.json",
+    "artifacts/evals/goal-completion-latest.json",
+    "artifacts/evals/map-performance-summary.json",
+    "artifacts/evals/risk-transfer-boundary-summary.json",
+    "artifacts/evals/run-manifest.json",
+    "artifacts/evals/scenario-planning-readiness-latest.json",
+    "artifacts/evals/screenshots/operations-rider-390x844.png",
+    "artifacts/evals/screenshots/scenario-planning-390x844.png",
+    "artifacts/evals/spatial-scene-summary.json",
+    "artifacts/evals/unit-summary.json"
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "schemaVersion": "saferoute-goal-completion-audit-v2",
-  "capturedAt": "2026-09-05T11:28:47.914Z",
+  "capturedAt": "2026-09-05T10:50:11.285Z",
   "status": "READY_FOR_DEMO_SUBMISSION_WITH_DISCLOSED_GAP",
   "objective": "Domestic-track SafeRoute safety-operations Demo with reproducible closed-loop evidence and an explicitly disclosed manager-comprehension validation gap.",
   "releasePolicy": {
@@ -83,7 +83,7 @@
           "id": "REPRODUCIBLE_TEST_COUNTS",
           "passed": true,
           "evidence": "artifacts/evals/final-readiness-latest.json",
-          "details": "unit=467, e2e=70, clean=3, publicBuild=true"
+          "details": "unit=462, e2e=70, clean=3, publicBuild=true"
         }
       ],
       "blockers": [],
@@ -190,33 +190,33 @@
   "evidenceManifest": [
     {
       "path": "artifacts/evals/final-readiness-latest.json",
-      "bytes": 10087,
-      "sha256": "8eb2afc106077a41b66a8185593cb08e326dd52f97e210b701a3bb42e6bfad16"
+      "bytes": 10085,
+      "sha256": "21bee4f7018f3455c31fd66232024d7f89b60918681b32e6818fbc2f4674d301"
     },
     {
       "path": "artifacts/evals/frozen-benchmark-summary.json",
       "bytes": 1715,
-      "sha256": "594dad97ce17b5c1411e3cdb179d147bed8cc6dde657f73e34a94dea2b6febf4"
+      "sha256": "673081d16f8955248e268b5570f908bc54367871a3138bbbfd6d7447fc668eab"
     },
     {
       "path": "artifacts/evals/risk-transfer-boundary-summary.json",
       "bytes": 692,
-      "sha256": "ed0773c5005112b2613e15ed4df357a60d982b827f5ddac9e35295f07654e7cb"
+      "sha256": "63f08924717c1c8f67751671d9c8f202d2c4c240a2569bc7040663281957aa7e"
     },
     {
       "path": "artifacts/evals/decision-workflow-boundary-summary.json",
       "bytes": 1295,
-      "sha256": "c8cb1edc87fec996cb3b40c946b8117e3c6040ed84a8992056095d9ee58f4006"
+      "sha256": "c524e2e5d90f28adbfdab08310a7e60d0479dd2de5863b0d5274c8f21773cb16"
     },
     {
       "path": "artifacts/evals/domestic-track-compliance-latest.json",
       "bytes": 5772,
-      "sha256": "6a6260c7561f5c651e1775ecd1371d0b15c625eef7a62ab2a6fed0e80cdadaf2"
+      "sha256": "f637338b3d60e5dc9b6694931fb27f0d613da9b66a2786e1a8b2ddc1d4c9d858"
     },
     {
       "path": "artifacts/evals/map-performance-summary.json",
       "bytes": 2499,
-      "sha256": "31c2be8d1929f08634f14f017caa538dee2f2ff25e3d11f6cb1fc8b1fdbc0bdd"
+      "sha256": "db8052c4f4b87224c83eaa2f9c66a21f93f38c0f34eb686ff0ed12641cb1ac9b"
     },
     {
       "path": "artifacts/evals/upstage-document-roundtrip-mock-latest.json",
@@ -278,8 +278,8 @@
       "path": "docs/decisions.md",
       "status": "Approved",
       "approved": true,
-      "bytes": 321869,
-      "sha256": "cd8ed3f5281a80c9fc171d83d1b81e88203263a4a2c78273e1f0764bff82edb8"
+      "bytes": 319738,
+      "sha256": "13a81abfb407ca52e7b26f4f9ff29b54baa1ab4ad9bd9f5d5f2dc57b9889d830"
     },
     {
       "path": "docs/privacy-and-ai-policy.md",

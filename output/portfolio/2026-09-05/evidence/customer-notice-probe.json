@@ -1,0 +1,47 @@
+[
+  {
+    "status": "APPLIED",
+    "source": "demo-courier-009",
+    "recipient": "demo-courier-025",
+    "moved": [
+      {
+        "id": "demo-stop-009-05",
+        "beforeEta": "2026-07-25T09:40:00.000Z",
+        "afterEta": "2026-07-25T09:40:00.000Z",
+        "beforePlan": "demo-plan-009",
+        "afterPlan": "demo-plan-025",
+        "noticePresent": false
+      },
+      {
+        "id": "demo-stop-009-06",
+        "beforeEta": "2026-07-25T09:48:00.000Z",
+        "afterEta": "2026-07-25T09:48:00.000Z",
+        "beforePlan": "demo-plan-009",
+        "afterPlan": "demo-plan-025",
+        "noticePresent": false
+      },
+      {
+        "id": "demo-stop-009-07",
+        "beforeEta": "2026-07-25T09:56:00.000Z",
+        "afterEta": "2026-07-25T09:56:00.000Z",
+        "beforePlan": "demo-plan-009",
+        "afterPlan": "demo-plan-025",
+        "noticePresent": false
+      },
+      {
+        "id": "demo-stop-009-08",
+        "beforeEta": "2026-07-25T10:04:00.000Z",
+        "afterEta": "2026-07-25T10:04:00.000Z",
+        "beforePlan": "demo-plan-009",
+        "afterPlan": "demo-plan-025",
+        "noticePresent": false
+      }
+    ],
+    "noticeCount": 4,
+    "firstNotice": {
+      "updatedEta": "2026-07-25T09:08:00.000Z",
+      "message": "안전운영 조정으로 시연 배송지 demo-stop-009-01의 예정 시간이 09:08로 갱신되었습니다. 실제 메시지는 발송되지 않습니다.",
+      "localTime": "18:08"
+    }
+  }
+]

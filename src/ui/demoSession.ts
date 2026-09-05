@@ -283,7 +283,6 @@ export function approveAndApplyDemo(session: DemoSession): DemoSession {
     decision: applying,
     store: session.store,
     proposedPlan: artifacts.proposedPlan,
-    customerNoticeRequestIds: ["notice-scenario-a-001"],
     at: at(clockMinute),
   });
   if (applied.status !== "APPLIED" && applied.status !== "ALREADY_APPLIED") {

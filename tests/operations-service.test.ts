@@ -493,7 +493,8 @@ describe("multi-decision operations workspace", () => {
     );
     expect(noticeDrafts).toHaveLength(
       applied.workspace.store.activePlan.stops.filter(
-        (stop) => stop.planId === completed.baselinePlanId,
+        (stop) => initial.selectedCandidate.affectedCourierIds.includes(stop.assignedCourierId) &&
+          ["PENDING", "IN_PROGRESS", "DELAYED", "TRANSFERRED"].includes(stop.status),
       ).length,
     );
     expect(

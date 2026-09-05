@@ -1,0 +1,51 @@
+{
+  "closureDate": "2026-09-05",
+  "submissionBaseline": "ae08529e4ead5e71aa0e334fa8eaea6fb696d2ba",
+  "scope": "Customer notice corrections and portfolio documentation; original submissions preserved",
+  "files": [
+    {
+      "path": "customer-notice-probe-after.json",
+      "sha256": "ab9ba74dc4e29a4d6ec10eb553305b90beea8448256a2961a64b84ff7d320d89"
+    },
+    {
+      "path": "decision-workflow-boundary-summary.json",
+      "sha256": "c8cb1edc87fec996cb3b40c946b8117e3c6040ed84a8992056095d9ee58f4006"
+    },
+    {
+      "path": "domestic-track-compliance-latest.json",
+      "sha256": "6a6260c7561f5c651e1775ecd1371d0b15c625eef7a62ab2a6fed0e80cdadaf2"
+    },
+    {
+      "path": "final-readiness-latest.json",
+      "sha256": "8eb2afc106077a41b66a8185593cb08e326dd52f97e210b701a3bb42e6bfad16"
+    },
+    {
+      "path": "first-gate-failed.json",
+      "sha256": "cb8ee6e58c3647978fcf4939131a779f61c9226da7135f5c17533f4c394ecd5c"
+    },
+    {
+      "path": "frozen-benchmark-summary.json",
+      "sha256": "594dad97ce17b5c1411e3cdb179d147bed8cc6dde657f73e34a94dea2b6febf4"
+    },
+    {
+      "path": "goal-completion-latest.json",
+      "sha256": "bca981689bd73570fefc42fd9f9c9091cf0910a16264f90afb873e88f4db370e"
+    },
+    {
+      "path": "risk-transfer-boundary-summary.json",
+      "sha256": "ed0773c5005112b2613e15ed4df357a60d982b827f5ddac9e35295f07654e7cb"
+    },
+    {
+      "path": "scenario-planning-readiness-latest.json",
+      "sha256": "2eee19ab293ffb384fc866fc78bc083b645dc1dac6f66a76c443d1febca65814"
+    },
+    {
+      "path": "spatial-scene-summary.json",
+      "sha256": "4d0fa751cedca5dc510c8dab1d59333e1ceb4855e5bd886fe7b35f648fa801c1"
+    },
+    {
+      "path": "unit-summary.json",
+      "sha256": "b0be0a9f4a068fe0361ccbcea89da2ee44611deea13640e286281de28226d53f"
+    }
+  ]
+}

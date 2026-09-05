@@ -4,7 +4,7 @@
 
 - 상태: Approved
 - 담당: 팀 안전빵
-- 최종 갱신: 2026-08-08
+- 최종 갱신: 2026-09-05
 - 계약 버전: `contracts-v1.6.0`
 - 상위 문서: `AGENTS.md`, `docs/product-spec.md`, `docs/safety-model.md`, `docs/intervention-policy.md`
 
@@ -1259,6 +1259,10 @@ type CustomerNotice = {
 - message에는 기사 ID, 이름, 건강정보, 거절·동의 내용이 포함될 수 없다.
 - 기사 과실·책임을 암시하는 표현을 금지한다.
 - LLM 생성문도 updatedEta를 변경할 수 없다.
+- 고객안내 대상은 이번 적용으로 버전이 바뀐 모든 계획의 미완료 배송지(PENDING, IN_PROGRESS, DELAYED, TRANSFERRED)다. 이관 배송지와 수신 계획의 기존 배송지를 포함하며 완료·취소 배송지와 무관한 계획은 제외한다.
+- 적용 계층이 `notice-{UUID}` ID를 배송지별로 생성하고 decisionId·stopId 필드에 원래 식별자를 보존한다. 두 원래 ID를 이어 붙여 계약의 100자 한도를 넘지 않게 한다. 호출자가 전달한 ID 개수나 배열 순서로 대상을 추정하지 않으며, 같은 결정의 적용 재시도는 기존 안내를 재사용한다.
+- 안내의 appliedPlanVersion은 해당 배송지가 최종 속한 계획의 버전이다. 결정의 appliedPlanVersion은 기존대로 출발 계획의 적용 버전을 가리킨다.
+- updatedEta는 UTC 원문을 보존하고, message에는 적용 후 담당 기사의 IANA timeZone으로 변환한 날짜·시간·시간대 이름을 표시한다. 날짜 경계를 넘는 ETA도 구분한다.
 
 ## 19. ScenarioFixture
 

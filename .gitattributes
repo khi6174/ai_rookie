@@ -27,3 +27,7 @@ scripts/*ax-cascade-product-review*.py text eol=lf
 
 # Exact text extractions from legacy Korean office formats retain their source encoding.
 /deliverables/final_submission/converted/*.txt binary
+
+# Preserve archived review evidence bytes so recorded SHA-256 values survive checkout.
+/output/portfolio/**/evidence/** -text whitespace=cr-at-eol,-blank-at-eof
+/output/portfolio/**/closure-evidence/** -text whitespace=cr-at-eol

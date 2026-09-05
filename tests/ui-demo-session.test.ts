@@ -96,9 +96,7 @@ describe("shared admin and courier Demo session", () => {
     expect(applied.decision.status).toBe("NOTICE_RECORDED");
     expect(applied.store).not.toBe(ready.store);
     expect(ready.store).toEqual(beforeStore);
-    expect(applied.decision.customerNoticeIds).toEqual([
-      "notice-scenario-a-001",
-    ]);
+    expect(applied.decision.customerNoticeIds).toHaveLength(17);
     expect(
       applied.store.activePlan.stops.filter(
         (stop) => stop.assignedCourierId === demoSourceCourierId,
@@ -113,7 +111,7 @@ describe("shared admin and courier Demo session", () => {
       applied.store.pendingCustomerNoticeIds[demoDecisionId],
     ).toBeUndefined();
     expect(
-      applied.store.customerNoticeDrafts["notice-scenario-a-001"],
+      applied.store.customerNoticeDrafts[applied.decision.customerNoticeIds[0]],
     ).toMatchObject({
       deliveryStatus: "PREVIEW_ONLY",
       generationMode: "TEMPLATE",

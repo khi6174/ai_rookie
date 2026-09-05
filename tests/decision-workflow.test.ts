@@ -119,6 +119,101 @@ function errorCode(action: () => unknown) {
 }
 
 describe("decision workflow happy path", () => {
+  it("excludes completed stops and fails atomically when no notice target remains", () => {
+    if (materialized.status !== "MATERIALIZED") throw new Error("Expected plan");
+    const proposedPlan = structuredClone(materialized.plan);
+    proposedPlan.stops[0].status = "COMPLETED";
+    proposedPlan.workloads.forEach((workload) => {
+      workload.remainingStopIds = workload.remainingStopIds.filter((id) => id !== proposedPlan.stops[0].stopId);
+      workload.remainingLoad.stopCount = workload.remainingStopIds.length;
+      workload.stairStopsRemaining = Math.min(workload.stairStopsRemaining ?? 0, workload.remainingStopIds.length);
+    });
+    const initialStore = createDemoPlanStore(fixture);
+    const applied = applyPlanAtomically({
+      decision: decisionApplyingPlan(), store: initialStore, proposedPlan, at: at(10),
+    });
+    expect(applied.status).toBe("APPLIED");
+    expect(Object.values(applied.store.customerNoticeDrafts)).toHaveLength(16);
+    expect(Object.values(applied.store.customerNoticeDrafts).some(
+      (draft) => draft.stopId === proposedPlan.stops[0].stopId,
+    )).toBe(false);
+    proposedPlan.stops.forEach((stop) => { stop.status = "COMPLETED"; });
+    proposedPlan.workloads.forEach((workload) => {
+      workload.remainingStopIds = [];
+      workload.remainingLoad.stopCount = 0;
+      workload.stairStopsRemaining = 0;
+    });
+    const failed = applyPlanAtomically({
+      decision: decisionApplyingPlan(), store: initialStore, proposedPlan, at: at(10),
+    });
+    expect(failed.status).toBe("FAILED");
+    expect(failed.store).toBe(initialStore);
+  });
+
+  it("rejects a notice whose ETA is detached from its applied stop", () => {
+    if (materialized.status !== "MATERIALIZED") throw new Error("Expected plan");
+    const applied = applyPlanAtomically({
+      decision: decisionApplyingPlan(), store: createDemoPlanStore(fixture),
+      proposedPlan: materialized.plan, at: at(10),
+    });
+    const brokenStore = structuredClone(applied.store);
+    Object.values(brokenStore.customerNoticeDrafts)[0].updatedEta = "2026-07-15T23:59:00.000Z";
+    expect(() => recordPendingCustomerNotices(applied.decision, brokenStore, at(11)))
+      .toThrow("Customer notice draft is missing or invalid");
+  });
+
+  it("creates exactly one notice per unfinished stop across source and recipient plans", () => {
+    if (materialized.status !== "MATERIALIZED") throw new Error("Expected plan");
+    const applied = applyPlanAtomically({
+      decision: decisionApplyingPlan(),
+      store: createDemoPlanStore(fixture),
+      proposedPlan: materialized.plan,
+      at: at(10),
+    });
+    expect(applied.status).toBe("APPLIED");
+    const drafts = Object.values(applied.store.customerNoticeDrafts);
+    const expectedStops = materialized.plan.stops.filter((stop) =>
+      [sourceCourierId, recipientCourierId].includes(stop.assignedCourierId) &&
+      ["PENDING", "IN_PROGRESS", "DELAYED", "TRANSFERRED"].includes(stop.status),
+    );
+    expect(drafts.map((draft) => draft.stopId).sort()).toEqual(
+      expectedStops.map((stop) => stop.stopId).sort(),
+    );
+    for (const stopId of transferredStopIds) {
+      expect(drafts.filter((draft) => draft.stopId === stopId)).toHaveLength(1);
+    }
+    for (const draft of drafts) {
+      expect(draft.noticeId.length).toBeLessThanOrEqual(100);
+      const stop = expectedStops.find((item) => item.stopId === draft.stopId)!;
+      expect(draft.updatedEta).toBe(stop.expectedArrivalAt);
+      expect(draft.appliedPlanVersion).toBe(
+        materialized.plan.workloads.find((item) => item.planId === stop.planId)?.planVersion,
+      );
+    }
+  });
+
+  it.each([
+    ["Asia/Seoul", "2026. 7. 16.", "01:08"],
+    ["America/New_York", "2026. 7. 15.", "12:08"],
+  ])("formats notice dates and times in %s while preserving UTC", (timeZone, date, time) => {
+    if (materialized.status !== "MATERIALIZED") throw new Error("Expected plan");
+    const proposedPlan = structuredClone(materialized.plan);
+    const stop = proposedPlan.stops.find((item) => item.planId === fixture.workloads[0].planId)!;
+    stop.expectedArrivalAt = "2026-07-15T16:08:00.000Z";
+    proposedPlan.couriers.find((item) => item.courierId === stop.assignedCourierId)!.timeZone = timeZone;
+    const applied = applyPlanAtomically({
+      decision: decisionApplyingPlan(),
+      store: createDemoPlanStore(fixture),
+      proposedPlan,
+      at: at(10),
+    });
+    const draft = Object.values(applied.store.customerNoticeDrafts).find((item) => item.stopId === stop.stopId)!;
+    expect(draft.updatedEta).toBe("2026-07-15T16:08:00.000Z");
+    expect(draft.message).toContain(date);
+    expect(draft.message).toContain(time);
+    expect(draft.message).toContain(timeZone);
+  });
+
   it("closes one immutable decision from two-party consent through atomic apply", () => {
     if (materialized.status !== "MATERIALIZED") {
       throw new Error("Expected a materialized feasible plan");
@@ -130,7 +225,6 @@ describe("decision workflow happy path", () => {
       decision: applying,
       store: initialStore,
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-001"],
       at: at(10),
     });
     expect(applied.status).toBe("APPLIED");
@@ -153,7 +247,8 @@ describe("decision workflow happy path", () => {
     const closed = closeDecision(noticed.decision, at(12));
     expect(DecisionRecordSchema.safeParse(closed).success).toBe(true);
     expect(closed.status).toBe("CLOSED");
-    expect(closed.customerNoticeIds).toEqual(["notice-request-001"]);
+    expect(closed.customerNoticeIds).toHaveLength(17);
+    expect(new Set(closed.customerNoticeIds).size).toBe(17);
     expect(closed.events.map((event) => event.toStatus)).toEqual([
       "BASELINE_EVALUATED",
       "CANDIDATES_GENERATED",
@@ -184,7 +279,6 @@ describe("decision workflow happy path", () => {
       decision: decisionApplyingPlan(),
       store: createDemoPlanStore(fixture),
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-missing-draft"],
       at: at(10),
     });
     if (applied.status !== "APPLIED") {
@@ -192,7 +286,7 @@ describe("decision workflow happy path", () => {
     }
     const brokenStore = structuredClone(applied.store);
     delete brokenStore.customerNoticeDrafts[
-      "notice-request-missing-draft"
+      applied.store.pendingCustomerNoticeIds[decisionId][0]
     ];
     expect(() =>
       recordPendingCustomerNotices(
@@ -369,7 +463,6 @@ describe("revalidation and atomic plan application", () => {
       decision: applying,
       store,
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-race"],
       at: at(10),
     });
     expect(result.status).toBe("REVALIDATION_REQUIRED");
@@ -389,7 +482,6 @@ describe("revalidation and atomic plan application", () => {
       decision: applying,
       store,
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-failure"],
       at: at(10),
       simulateFailure: true,
     });
@@ -409,14 +501,12 @@ describe("revalidation and atomic plan application", () => {
       decision: applying,
       store: createDemoPlanStore(fixture),
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-idempotent"],
       at: at(10),
     });
     const replay = applyPlanAtomically({
       decision: applying,
       store: first.store,
       proposedPlan: materialized.plan,
-      customerNoticeRequestIds: ["notice-request-idempotent"],
       at: at(10.5),
     });
     expect(replay.status).toBe("ALREADY_APPLIED");
