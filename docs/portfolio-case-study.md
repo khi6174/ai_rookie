@@ -23,7 +23,13 @@
 
 개입은 안전하지 않은 후보를 먼저 제외한 뒤 비교합니다. 물량이관에서는 받는 기사의 안전여유와 실행 조건을 다시 검사합니다. 영향 기사들의 동의와 관리자 승인, 계획 버전 재검증을 거쳐 합성 계획을 적용하고 고객안내 초안과 감사기록까지 연결했습니다.
 
-![합성 데이터로 실행한 관리자 개입 비교·승인 화면](../artifacts/evals/screenshots/operations-service-1440x900.png)
+![현재 공개 데모의 Safety Control Tower 관제 화면](images/portfolio-2026-09-06/control-tower.png)
+
+![현재 공개 데모의 안전한 지원안 비교 화면](images/portfolio-2026-09-06/support-comparison.png)
+
+<img src="images/portfolio-2026-09-06/rider-app.png" width="390" alt="현재 공개 데모의 기사 앱 운행 화면" />
+
+2026-09-06 공개 데모의 `/`와 `/rider-demo`에서 직접 촬영했습니다. 기사·배송 상태는 합성 시연 데이터입니다. [촬영 정보·원본 해시](images/portfolio-2026-09-06/capture.json)
 
 ## 문제 해결 사례: 계획 변경과 고객안내의 일관성
 

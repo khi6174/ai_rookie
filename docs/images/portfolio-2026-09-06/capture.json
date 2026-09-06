@@ -1,0 +1,43 @@
+{
+  "source": "current deployed public demo",
+  "dataMode": "SYNTHETIC",
+  "screenshots": [
+    {
+      "file": "control-tower.png",
+      "url": "https://saferoute-ai-demo.khiyw.chatgpt.site/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "capturedAt": "2026-09-06T09:46:39.947Z",
+      "sha256": "be3dd65663665241b7b7e7d2a8a01a56d70aaaf63f83640f017b65846f278c92"
+    },
+    {
+      "file": "support-comparison.png",
+      "url": "https://saferoute-ai-demo.khiyw.chatgpt.site/",
+      "viewport": {
+        "width": 1440,
+        "height": 900
+      },
+      "capturedAt": "2026-09-06T09:46:42.017Z",
+      "sha256": "a8333a1e715c8c24d56322ca662830f61e73e9ab58ca917d1ddd8973c4f14529"
+    },
+    {
+      "file": "rider-app.png",
+      "url": "https://saferoute-ai-demo.khiyw.chatgpt.site/rider-demo?courier=demo-courier-001&simTick=12&simStartedAt=1788687987400",
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "capturedAt": "2026-09-06T09:46:47.468Z",
+      "sha256": "b6828cbe4a0e619c7aa1c003b076e9d1d32dd70f537f4abcc2bcec6d6b3680b6"
+    }
+  ],
+  "notes": [
+    "Public root dashboard and rider-demo captured directly; old operations evaluation images remain archival evidence.",
+    "Screens show synthetic courier and delivery states. No device location permission was granted.",
+    "Control tower capture shows Kakao map tiles and road-route connection in progress (4/25).",
+    "Support dialog shows the existing rider rejection state; no consent, approval, or reset action was performed.",
+    "This is an image/document correction, not a new application test or build."
+  ]
+}

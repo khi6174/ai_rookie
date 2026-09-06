@@ -16,10 +16,12 @@
 
 <table>
   <tr>
-    <td width="72%"><img src="artifacts/evals/screenshots/operations-service-1440x900.png" alt="합성 운영 관리자 관제 화면" /></td>
-    <td width="28%"><img src="artifacts/evals/screenshots/operations-rider-390x844.png" alt="기사 동의 PWA 화면" /></td>
+    <td width="72%"><img src="docs/images/portfolio-2026-09-06/control-tower.png" alt="현재 공개 데모의 Safety Control Tower 관제 화면" /></td>
+    <td width="28%"><img src="docs/images/portfolio-2026-09-06/rider-app.png" alt="현재 공개 데모의 기사 앱 운행 화면" /></td>
   </tr>
 </table>
+
+2026-09-06 현재 공개 데모에서 직접 촬영한 화면입니다. 기사·배송 상태는 합성 시연 데이터이며, 지도 연동 상태와 화면별 촬영 정보는 [촬영 기록](./docs/images/portfolio-2026-09-06/capture.json)에 남겼습니다.
 
 ## 직접 설계하고 구현한 것
 
