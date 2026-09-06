@@ -2,9 +2,9 @@
 
 **남은 배송계획의 안전한계 초과를 예측하고, 기사 동의와 관리자 승인을 거쳐 계획을 조정하는 안전운영 코파일럿.**
 
-[공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [시연 영상](./output/video/saferoute-ai-final-demo-2026-public-v2-silent.mp4) · [기술 보고서](./docs/technical-report.md) · [마감 기록·제출본 정정](./docs/portfolio-closeout.md)
+[포트폴리오](./docs/portfolio-case-study.md) · [공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [시연 영상](./output/video/saferoute-ai-final-demo-2026-public-v2-silent.mp4) · [기술 보고서](./docs/technical-report.md) · [마감 기록·제출본 정정](./docs/portfolio-closeout.md)
 
-2026 AI ROOKIE 참가 프로젝트를 **개인 포트폴리오 기술 데모로 마무리**했습니다. 대회 팀명은 안전빵이며, **김용우가 기획·설계·개발·모델 학습·검증·발표 전 과정을 담당**했습니다. 결선에는 진출하지 못했으며 실서비스나 창업으로 확대할 계획은 없습니다.
+2026 AI ROOKIE 참가 프로젝트를 **개인 포트폴리오 기술 데모로 마무리**했습니다. 대회 팀명은 안전빵이며, **김용우가 기획·설계·개발·모델 학습·검증·발표 전 과정을 담당**했습니다. **예선 100팀에 선정됐지만 결선에는 진출하지 못했습니다.** 실서비스나 창업으로 확대할 계획은 없습니다.
 
 > 모든 핵심 성능 결과는 합성 데이터와 시뮬레이션 기준입니다. 사고확률, 실제 사고 감소 효과, 현장 운영 적합성을 입증한 시스템은 아닙니다.
 
