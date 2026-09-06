@@ -9,7 +9,7 @@
 - 비목표: 실제 사고 감소·현장 적용 성과 주장, 신규 기능 개발.
 - 미결사항: 공개를 막는 항목 없음. 미검증 범위는 아래에 명시한다.
 
-[공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [GitHub](https://github.com/khi6174/ai_rookie) · [시연 영상](../output/video/saferoute-ai-final-demo-2026-public-v2-silent.mp4) · [기술 보고서](technical-report.md)
+[공개 데모](https://saferoute-ai-demo.khiyw.chatgpt.site/) · [GitHub](https://github.com/khi6174/ai_rookie) · [LinkedIn 게시물](https://www.linkedin.com/feed/update/urn:li:activity:7502299088978378753/) · [시연 영상](../output/video/saferoute-ai-final-demo-2026-public-v2-silent.mp4) · [기술 보고서](technical-report.md)
 
 ## 프로젝트 요약과 역할
 
